@@ -90,7 +90,7 @@
   @apply absolute border border-gray-200 bg-white shadow-md rounded-lg flex items-center;
 
   button {
-    @apply text-xs font-semibold hover:bg-gray-100 cursor-pointer p-1;
+    @apply text-sm font-semibold hover:bg-gray-100 cursor-pointer p-1;
   }
 }
 

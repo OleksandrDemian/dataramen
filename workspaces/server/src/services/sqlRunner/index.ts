@@ -17,7 +17,7 @@ import {
   isAllowedFunction,
   isAggregationFunction,
   PostgreSqlFunctions,
-  MySqlColumnFunctions
+  MySqlColumnFunctions, OrderByClause
 } from "@dataramen/sql-builder";
 import {In} from "typeorm";
 import {inputColumnToAlias, STRING_TYPES} from "@dataramen/common";
@@ -25,8 +25,9 @@ import {mapDataSourceToDbConnection} from "../../utils/dataSourceUtils";
 
 export const runSelect = async (
   req: FastifyRequest,
-  { table, datasourceId, filters, joins, orderBy, size, page, columns, groupBy, searchAll }: TExecuteQuery
+  props: TExecuteQuery
 ): Promise<TRunSqlResult> => {
+  const { table, datasourceId, filters, joins, orderBy, size, page, columns, groupBy, searchAll } = props;
   const dataSource = await DataSourceRepository.findOne({
     where: {
       id: datasourceId,
@@ -60,11 +61,14 @@ export const runSelect = async (
     });
   }
 
-  if (orderBy) {
-    queryBuilder.addOrderBy(...orderBy.map((o) => ({
-      ...o,
-      column: handleAlias(o.column, dataSource.dbType as DatabaseDialect),
-    })));
+  const allowedOrderBy = getAllowedGroupBy(props);
+  if (allowedOrderBy) {
+    queryBuilder.addOrderBy(
+      ...allowedOrderBy.map((o) => ({
+        ...o,
+        column: sanitizeFullColumn(o.column, dataSource.dbType as DatabaseDialect),
+      })),
+    );
   }
 
   if (groupBy && groupBy.length > 0) {
@@ -99,7 +103,7 @@ export const runSelect = async (
   if (columns && columns.length > 0) {
     selectedColumns = columns.map((c) => processInputColumn(c, dataSource.dbType));
   } else {
-    selectedColumns = allColumns.map((c) => `${c.full} as "${c.full}"`);
+    selectedColumns = allColumns.map((c) => `${c.full} as "${c.column}"`);
   }
 
   queryBuilder.selectColumns(selectedColumns);
@@ -241,13 +245,16 @@ const processInputColumn = (column: TInputColumn, dbType: string): string => {
 const processInputGroupBy = (column: TInputColumn, dbType: string): string => {
   if (column.fn) {
     if (isAllowedFunction(column.fn)) {
-      return (dbType === "postgres" ? PostgreSqlFunctions : MySqlColumnFunctions)[column.fn](column);
+      return (dbType === "postgres" ? PostgreSqlFunctions : MySqlColumnFunctions)[column.fn]({
+        ...column,
+        value: sanitizeFullColumn(column.value, dbType as DatabaseDialect),
+      });
     }
 
     throw new Error("Function not allowed: " + column.fn);
   }
 
-  return column.value;
+  return sanitizeFullColumn(column.value, dbType as DatabaseDialect);
 };
 
 const handleAlias = (value: string, dbType: DatabaseDialect) => {
@@ -261,3 +268,26 @@ const handleAlias = (value: string, dbType: DatabaseDialect) => {
 
   return value;
 };
+
+const sanitizeFullColumn = (value: string, dbType: DatabaseDialect): string => {
+  const [table, column] = value.split(".");
+  return handleAlias(table, dbType) + "." + handleAlias(column, dbType);
+};
+
+const getAllowedGroupBy = (props: TExecuteQuery): OrderByClause[] | undefined => {
+  if (!props.orderBy) {
+    return undefined;
+  }
+
+  if (props.columns && props.columns.length > 0) {
+    // only order by columns in group by
+    return props.orderBy.filter((o) =>
+      props.columns!.find(
+        (c) => c.value === o.column,
+      ),
+    );
+  }
+
+  // keep all order columns
+  return props.orderBy;
+}
