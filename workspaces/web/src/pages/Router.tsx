@@ -13,15 +13,21 @@ import {SearchTableModal} from "../widgets/SearchTableModal";
 import {useSetupGlobalListeners} from "../hooks/useGlobalHotkey.ts";
 import {useAnalyticsPageview} from "../hooks/useAnalyticsPageview.ts";
 import {UpdateServerModal} from "../widgets/UpdateServerModal";
-import {AccountSettingsModal} from "../widgets/AccountSettingsModal";
 import {PeopleSettingsModal} from "../widgets/PeopleSettingsModal";
 import {LoginPage} from "./Login";
-import {useLoginGuard} from "../hooks/useLoginGuard.ts";
+import {useEffect} from "react";
+import {AccessTokenHandler} from "../services/accessTokenHandler.ts";
 
 function Router() {
   useSetupGlobalListeners();
   useAnalyticsPageview();
-  useLoginGuard();
+
+  useEffect(() => {
+    AccessTokenHandler.login({
+      username: "guest",
+      password: "guest",
+    });
+  }, []);
 
   return (
     <>
@@ -38,7 +44,6 @@ function Router() {
       <DataSourceModal />
       <SearchTableModal />
       <UpdateServerModal />
-      <AccountSettingsModal />
       <PeopleSettingsModal />
 
       <PromptModal />

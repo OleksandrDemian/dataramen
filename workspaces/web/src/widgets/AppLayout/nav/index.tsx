@@ -2,7 +2,6 @@ import st from "./index.module.css";
 import {ProjectStructure} from "../components/ProjectStructure";
 import {useResizable} from "../../../hooks/useResizable.ts";
 import {useCurrentUser} from "../../../data/queries/users.ts";
-import {openAccountSettingsModal} from "../../../data/accountSettingsModalStore.ts";
 import {openPeopleSettings} from "../../../data/peopleSettingsModalStore.ts";
 
 export const Nav = () => {
@@ -20,7 +19,7 @@ export const Nav = () => {
 
       {currentUser && (
         <div className={st.footer}>
-          <button onClick={openAccountSettingsModal}>
+          <button>
             🪪 {currentUser.username}
           </button>
           <button onClick={openPeopleSettings}>
