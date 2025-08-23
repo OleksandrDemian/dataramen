@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+.container {
+  @apply fixed inset-0 z-10;
+}
+
+.content {
+  @apply absolute z-1;
+}
+
+.backdrop {
+  @apply fixed inset-0 z-0 bg-black/45 cursor-default;
+}

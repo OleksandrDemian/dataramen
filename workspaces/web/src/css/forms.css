@@ -1,0 +1,73 @@
+.input {
+  @apply border border-gray-200 bg-gray-50 rounded-lg p-1  focus:border-blue-400 outline-0;
+
+  &:disabled {
+    @apply cursor-not-allowed bg-gray-100;
+  }
+}
+
+.form {
+  @apply bg-white flex flex-col gap-2;
+
+  &.shadow {
+    @apply shadow-md;
+  }
+
+  &.padding {
+    @apply p-4;
+  }
+}
+
+.button {
+  @apply font-semibold py-0.5 px-2 cursor-pointer;
+
+  border-radius: 8px;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &.primary {
+    @apply bg-blue-600 text-white border border-blue-600;
+
+    &:hover:not(:disabled) {
+      @apply bg-blue-700 border-blue-700;
+    }
+  }
+
+  &.secondary {
+    @apply bg-gray-300 text-gray-800;
+  }
+
+  &.tertiary {
+    @apply bg-white text-gray-700 border border-gray-200;
+
+    &:hover {
+      @apply bg-gray-100;
+    }
+  }
+
+  &.floating {
+    --animation-speed: 100ms;
+    --animation-fn: ease-in-out;
+
+    @apply border border-white;
+
+    outline: none;
+    transition: border var(--animation-speed) var(--animation-fn), box-shadow var(--animation-speed) var(--animation-fn);
+
+    &:hover:not(:disabled) {
+      @apply border border-blue-500 shadow-md;
+    }
+  }
+
+  &.danger {
+    background-color: #dc3545;
+    color: white;
+
+    &:hover {
+      background-color: #bf2e3c;
+    }
+  }
+}

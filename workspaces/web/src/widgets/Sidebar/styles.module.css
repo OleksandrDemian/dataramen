@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+.sidebar {
+  transition: opacity 300ms ease-in-out;
+  @apply fixed inset-0 z-10;
+}
+
+.sidebar-visible {
+  opacity: 1;
+
+  .sidebar-container {
+    transform: translateX(0);
+  }
+}
+
+.sidebar-invisible {
+  opacity: 0;
+  pointer-events: none;
+
+  .sidebar-container {
+    transform: translateX(-100%);
+  }
+}
+
+.backdrop {
+  @apply fixed z-10 inset-0 bg-black/45;
+}
+
+.sidebar-container {
+  max-width: 80vw;
+  height: 100vh;
+  max-height: 100vh;
+  transition: transform 300ms ease-in-out;
+  @apply bg-white z-20 absolute overflow-y-auto;
+}

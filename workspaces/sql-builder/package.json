@@ -1,0 +1,11 @@
+{
+  "name": "@dataramen/sql-builder",
+  "version": "0.0.0",
+  "main": "src/index.ts",
+  "license": "ISC",
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ]
+}

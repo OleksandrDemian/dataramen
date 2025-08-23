@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+.textarea {
+  height: 50vh;
+
+  @apply bg-gray-50 p-1 border rounded-lg border-gray-200 w-full lg:w-lg;
+}

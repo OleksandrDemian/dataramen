@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+.root {
+  @apply flex rounded-lg px-2 whitespace-nowrap items-center gap-2;
+
+  &:hover {
+    @apply bg-gray-100 cursor-pointer;
+  }
+}
+
+.content {
+  @apply flex-1 text-left overflow-hidden py-1;
+}
+
+.table {
+  line-height: 100%;
+  @apply font-semibold truncate;
+}
+
+.sub {
+  line-height: 100%;
+  @apply text-xs font-semibold text-gray-800 truncate;
+}

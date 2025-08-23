@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+.data-store {
+  grid-template-columns: 32px 32px 1fr;
+
+  @media screen and (min-width: 450px) {
+    grid-template-columns: 32px 32px 1fr 32px 32px;
+  }
+
+  @apply grid gap-2 cursor-pointer items-center justify-center enabled:hover:bg-gray-50;
+
+  &:disabled {
+    @apply opacity-40 cursor-not-allowed;
+  }
+}
+
+.title-card {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  @apply gap-2 items-center;
+}
+
+.badge {
+  @apply text-sm;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  a {
+    &:hover {
+      @apply hover:bg-gray-50 cursor-pointer;
+    }
+  }
+}
+
+.tab {
+  max-width: 200px;
+  @apply px-2 py-1 font-semibold text-sm text-gray-800 truncate cursor-pointer hover:bg-gray-200 bg-gray-50 border border-gray-200 rounded-md;
+}

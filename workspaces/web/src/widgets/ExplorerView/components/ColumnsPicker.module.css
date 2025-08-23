@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+.container {
+  @media screen and (min-width: 768px) {
+    min-width: 400px;
+  }
+
+  display: flex;
+  flex-direction: column;
+  overflow-y: hidden;
+  position: relative;
+}
+
+
+.column-label {
+  @apply flex gap-1 ml-6 hover:bg-gray-100 cursor-pointer items-center p-0.5 rounded-lg;
+
+  span {
+    max-width: 400px;
+    @apply truncate text-sm;
+  }
+
+  &.not-active {
+    @apply opacity-40;
+  }
+}

@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+.page-head {
+  @apply text-3xl font-semibold;
+}
+
+.roboto {
+  font-family: "Roboto", sans-serif;
+}

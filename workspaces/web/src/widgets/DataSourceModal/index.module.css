@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+.root {
+  width: 100%;
+
+  @media screen and (width >= 1024px) {
+    min-width: 600px;
+  }
+
+  @apply flex flex-col overflow-hidden;
+}
+
+.section-open-btn {
+  width: 20px;
+  height: 20px;
+  padding: 2px;
+
+  @apply hover:bg-gray-100 cursor-pointer rounded-lg;
+}
+
+.down {
+  rotate: 90deg;
+}
+
+.chevron {
+  @apply cursor-pointer;
+}
+
+.table-name-container {
+  @apply flex items-center gap-1;
+
+  .link {
+    border-radius: 4px;
+    @apply hover:bg-blue-50 cursor-pointer p-1;
+  }
+
+  &:hover {
+    .table-name {
+      @apply bg-gray-100;
+    }
+  }
+}
+
+.table-name {
+  text-align: left;
+  border-radius: 4px;
+  cursor: pointer;
+  @apply truncate p-1;
+}
+
+.ul {
+  list-style-type: none;
+  padding-left: 22px;
+
+  @apply overflow-hidden;
+
+  li {
+    @apply truncate font-semibold;
+  }
+}
+
+.column-type {
+  @apply text-blue-600 font-semibold rounded-lg;
+}

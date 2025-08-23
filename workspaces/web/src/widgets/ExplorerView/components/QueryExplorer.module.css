@@ -1,0 +1,159 @@
+@import "tailwindcss";
+
+.table {
+  @apply w-full relative;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th {
+    @apply  border-y border-r border-gray-200;
+  }
+
+  td {
+    @apply border-b border-r border-gray-200;
+  }
+
+  th:first-child,
+  td:first-child {
+    @apply border-l border-gray-200;
+  }
+
+  thead td {
+    @apply border-t border-gray-200 sticky z-1 bg-white top-0;
+  }
+}
+
+.semi-transparent {
+  @apply opacity-60;
+}
+
+.table-loading {
+  @apply p-1 text-center bg-white;
+}
+
+.table-empty {
+  @apply p-1 text-center rounded-b-lg bg-white;
+}
+
+.table-row-cells {
+  @apply bg-white;
+
+  &:hover {
+    @apply bg-(--bg);
+  }
+}
+
+.header-cell {
+  @apply px-2 py-1 cursor-default truncate hover:bg-(--bg) text-left;
+
+  .header-actions {
+    display: none;
+  }
+
+  &:hover .header-actions {
+    display: flex;
+  }
+}
+
+.cell {
+  padding: 4px 12px;
+  max-width: 250px;
+  min-width: 100px;
+  @apply relative text-gray-800;
+
+  .cell-actions {
+    display: none;
+  }
+
+  &:hover .cell-actions {
+    display: flex;
+  }
+
+  &:hover {
+    @apply ring-4 ring-blue-200 z-1 bg-white;
+  }
+}
+
+.cell-actions {
+  bottom: -24px;
+  @apply absolute border border-gray-200 bg-white shadow-md rounded-lg flex items-center;
+
+  button {
+    @apply hover:bg-(--bg) cursor-pointer p-1 text-sm;
+  }
+}
+
+.header-actions {
+  right: 2px;
+  top: 2px;
+
+  @apply absolute border border-gray-200 bg-white shadow-md rounded-lg flex items-center;
+
+  button {
+    @apply text-xs font-semibold hover:bg-gray-100 cursor-pointer p-1;
+  }
+}
+
+.table-config {
+  @apply text-sm inline-flex items-center gap-2 bg-white border border-blue-200 rounded-lg;
+}
+
+.table-action {
+  max-width: 100px;
+  @apply flex items-center gap-2 p-1 cursor-pointer relative rounded-lg whitespace-nowrap;
+}
+
+.table-action.blue {
+  &:hover {
+    @apply bg-blue-100 text-blue-800;
+  }
+}
+
+.table-action.red {
+  &:hover {
+    @apply bg-red-100 text-red-800;
+  }
+}
+
+.options-container {
+  min-width: 180px;
+  max-width: 60vw;
+  max-height: 30vh;
+  @apply p-2 rounded-lg bg-white flex flex-col gap-2 shadow-lg border border-gray-200 overflow-y-auto relative;
+
+  & + & {
+    margin-top: 8px;
+  }
+}
+
+.cell-action-btn {
+  @apply p-1 rounded-lg bg-white;
+
+  &:hover {
+    @apply bg-gray-100 cursor-pointer;
+  }
+}
+
+.underlying-rows-btn {
+  min-width: 180px;
+  max-width: 60vw;
+  max-height: 30vh;
+  @apply text-left rounded-lg w-full mt-2;
+  @apply p-2 bg-white flex flex-col gap-2 shadow-lg border border-gray-200 overflow-y-auto relative;
+
+  &:hover {
+    @apply bg-gray-100 cursor-pointer;
+  }
+}
+
+.option-item {
+  @apply text-left rounded-lg px-2;
+
+  &:hover {
+    @apply bg-gray-100 cursor-pointer;
+  }
+}
+
+.option-item-active {
+  @apply text-blue-500 border-blue-300 bg-blue-50;
+}

@@ -1,0 +1,6 @@
+/dist
+/bin
+.env
+./env/.env
+/node_modules
+../.runtime/db.sqlite3

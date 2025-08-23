@@ -1,0 +1,11 @@
+.context-menu-container {
+  max-width: 400px;
+  max-height: 400px;
+  @apply rounded-lg bg-white overflow-hidden p-2 shadow-lg border border-gray-200;
+}
+
+.context-menu-item {
+  padding: 2px 4px;
+  font-size: 15px;
+  @apply block hover:bg-gray-100 w-full text-left cursor-pointer text-ellipsis whitespace-nowrap overflow-hidden rounded-lg;
+}

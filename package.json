@@ -1,0 +1,15 @@
+{
+  "name": "dataramen",
+  "version": "0.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/OleksandrDemian/sql-editor.git",
+  "author": "odemain <oleksandrovsky@gmail.com>",
+  "license": "MIT",
+  "private": true,
+  "workspaces": ["workspaces/*"],
+  "scripts": {
+    "package:cli": "node package.mjs cli",
+    "package:app": "node package.mjs app",
+    "start": "node dist/code/server.js"
+  }
+}

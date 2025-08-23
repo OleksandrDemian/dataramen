@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+.tabs {
+  @apply flex bg-white border-b border-gray-200 flex-wrap;
+}
+
+.tab {
+  width: calc(100% / 3);
+
+  @media screen and (min-width: 640px) {
+    width: calc(100% / 6);
+  }
+
+  @media screen and (min-width: 1024px) {
+    width: calc(100% / 10);
+  }
+
+  padding-bottom: 10px;
+  @apply px-1 pt-2 inline-flex gap-1 justify-between items-center font-semibold text-sm bg-white relative;
+
+  &.active {
+    @apply text-blue-600;
+  }
+
+  &:hover > .close-button, &.active > .close-button {
+    opacity: 1;
+  }
+}
+
+.active-tab {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  height: 2px;
+  @apply bg-blue-600;
+}
+
+.close-button {
+  opacity: 0;
+  cursor: pointer;
+}
+
+.tooltip-label {
+  width: 200px;
+  max-width: 200px;
+  margin-bottom: 8px;
+  display: grid;
+  grid-template-columns: 172px 20px;
+  align-items: center;
+  gap: 8px;
+
+  @apply hover:bg-gray-100 rounded-lg text-left cursor-pointer overflow-hidden;
+}
+
+.tooltip-info-entry {
+  width: 200px;
+  max-width: 200px;
+
+  & + & {
+    margin-top: 8px;
+  }
+}
+
+.mobile-button {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @apply text-lg bg-white border border-gray-200 rounded-xl;
+}

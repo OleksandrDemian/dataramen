@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+.input {
+  @apply flex flex-col;
+
+  &.small {
+    @apply col-span-2 md:col-span-1;
+  }
+
+  label {
+    @apply text-sm font-semibold;
+  }
+}
+
+.content {
+  width: 600px;
+  max-width: 100%;
+}
+
+.form {
+  overflow-y: auto;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.switch {
+  @apply grid grid-cols-2 gap-2 max-w-xl;
+}
+
+.mode-select {
+  @apply max-w-xl cursor-pointer block;
+
+  & + & {
+    @apply mt-3;
+  }
+}

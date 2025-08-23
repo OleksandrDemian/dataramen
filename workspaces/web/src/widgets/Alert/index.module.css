@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+.alert {
+  @apply p-4 text-sm;
+}
+
+.info {
+  @apply text-blue-800 bg-blue-50;
+}
+
+.danger {
+  @apply text-red-800 bg-red-50;
+}
+
+.success {
+  @apply text-green-800 bg-green-50;
+}
+
+.warning {
+  @apply text-yellow-800 bg-yellow-50;
+}
+
+.dark {
+  @apply text-gray-800 bg-gray-50;
+}

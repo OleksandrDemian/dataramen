@@ -1,0 +1,73 @@
+@import "tailwindcss";
+
+.page-container {
+  max-width: 100%;
+  @apply p-2;
+}
+
+.page-content {
+  margin-right: auto;
+  margin-left: auto;
+
+  max-width: 720px;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.hr-slide {
+  cursor: col-resize;
+  height: 100%;
+  width: 8px;
+
+  right: -4px;
+
+  position: absolute;
+  user-select: none;
+  z-index: 1;
+  @apply hover:bg-blue-200;
+}
+
+.hl-slide {
+  cursor: col-resize;
+  height: 100%;
+  width: 8px;
+
+  left: -4px;
+
+  position: absolute;
+  user-select: none;
+  z-index: 1;
+  @apply hover:bg-blue-200;
+}
+
+.vb-slide {
+  cursor: row-resize;
+  width: 100%;
+  height: 8px;
+
+  bottom: -4px;
+
+  position: absolute;
+  user-select: none;
+  z-index: 1;
+  @apply hover:bg-blue-200;
+}
+
+.vt-slide {
+  cursor: row-resize;
+  width: 100%;
+  height: 8px;
+
+  top: -4px;
+
+  position: absolute;
+  user-select: none;
+  z-index: 1;
+  @apply hover:bg-blue-200;
+}
+
+.card-white {
+   @apply bg-white p-4 rounded-lg border border-gray-200;
+ }

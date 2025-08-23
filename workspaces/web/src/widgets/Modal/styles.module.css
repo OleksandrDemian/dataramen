@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+.modal {
+  transition: opacity 100ms ease-in-out;
+  @apply fixed inset-0 z-10 flex justify-center items-start;
+}
+
+.modal-visible {
+  opacity: 1;
+}
+
+.modal-invisible {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.backdrop {
+  @apply fixed z-10 inset-0 bg-black/45;
+}
+
+@media screen and (width < 1024px) {
+  /*  mobile   */
+  .modal-container {
+    width: 100vw;
+    max-height: 80vh;
+    @apply bg-white rounded-b-lg z-20 flex flex-col relative;
+  }
+}
+
+@media screen and (width >= 1024px) {
+  /*  laptop   */
+  .modal-container {
+    max-width: 90vw;
+    max-height: 80vh;
+    top: 10vh;
+    @apply bg-white rounded-lg z-20 flex flex-col relative;
+  }
+}
+
+.close-button {
+  position: absolute;
+
+  @media screen and (width < 1024px) {
+    bottom: -50px;
+    right: 50%;
+    transform: translateX(50%);
+    padding: 8px;
+  }
+
+  @media screen and (width >= 1024px) {
+    top: -14px;
+    right: -14px;
+    padding: 4px;
+  }
+
+  background-color: white;
+  cursor: pointer;
+
+  @apply rounded-full shadow-md;
+
+  &:hover {
+    @apply bg-red-100 text-red-500 transition;
+  }
+}

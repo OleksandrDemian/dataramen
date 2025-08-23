@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+.desktop-layout {
+  display: flex;
+  height: 100vh;
+  max-width: 100vw;
+}
+
+.mobile-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-width: 100vw;
+}
+
+.nav {
+  position: relative;
+  width: 70vw;
+  max-width: 300px;
+
+  @media screen and (min-width: 1024px) {
+    min-width: 200px;
+    width: 250px;
+    max-width: 50vw;
+  }
+
+  max-height: 100vh;
+  overflow: hidden;
+  @apply border-r border-gray-300 flex flex-col;
+}
+
+.nav-path {
+  border-radius: 4px;
+  transition: background-color 0.1s ease-in-out;
+
+  &:not(:first-child) {
+    @apply text-ellipsis overflow-hidden;
+  }
+
+  &:is(button) {
+    @apply hover:bg-gray-100;
+  }
+}
+
+.nav-sub-path {
+  border-radius: 4px;
+  @apply px-2 py-1 hover:bg-gray-100;
+}
+
+.main {
+  max-width: 100%;
+  flex: 1;
+  overflow: hidden;
+}
+
+.link {
+  @apply hover:bg-gray-100 px-2 py-0.5 cursor-pointer;
+}
+
+.footer {
+  padding: 8px;
+  @apply flex flex-col border-t border-gray-300;
+
+  button {
+    @apply text-lg lg:text-base px-2 py-2 md:py-1;
+    @apply text-ellipsis whitespace-nowrap overflow-hidden enabled:hover:bg-gray-100 text-left cursor-pointer rounded-lg;
+
+    &:disabled {
+      @apply cursor-not-allowed opacity-40;
+    }
+  }
+}
+
+.logout {
+  border-radius: 0;
+}

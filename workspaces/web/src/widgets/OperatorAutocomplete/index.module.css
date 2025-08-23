@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+.drop-container {
+  max-height: 300px;
+  overflow-y: auto;
+  @apply absolute top-10 p-2 bg-white right-0 left-0 rounded-lg shadow-md;
+}
+
+.item {
+  @apply truncate p-2 cursor-pointer rounded-lg hover:bg-gray-100 text-sm;
+
+  &[data-is-active="true"] {
+    @apply bg-blue-50 text-blue-600;
+  }
+}

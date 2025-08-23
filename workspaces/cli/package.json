@@ -1,0 +1,43 @@
+{
+  "name": "@dataramen/cli",
+  "version": "0.0.38",
+  "license": "MIT",
+  "bin": {
+    "dataramen": "bin/run.js"
+  },
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "dependencies": {
+    "fs-extra": "^11.3.0",
+    "open": "^10.2.0",
+    "yargs": "^18.0.0",
+    "yocto-spinner": "^1.0.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.3",
+    "esbuild": "^0.25.5"
+  },
+  "files": [
+    "dist/"
+  ],
+  "keywords": [
+    "cli",
+    "sql",
+    "postgresql",
+    "mysql",
+    "database",
+    "schema",
+    "query-builder",
+    "data-browser",
+    "db-explorer",
+    "crud",
+    "data-inspector",
+    "visual-sql",
+    "no-code-sql",
+    "dataramen",
+    "nodejs",
+    "pm2",
+    "interactive-sql"
+  ]
+}

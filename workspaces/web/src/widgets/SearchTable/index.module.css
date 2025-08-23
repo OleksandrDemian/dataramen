@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+.search {
+  @apply w-full p-2 rounded-lg outline-0 bg-gray-50 border border-gray-200;
+}
+
+.entry {
+  @apply px-2 py-1 rounded-lg cursor-pointer w-full text-left flex justify-between items-center;
+
+  &[data-is-active="true"], &:focus, &:hover {
+    @apply bg-blue-50;
+    outline: none;
+
+    & > p:first-child {
+      @apply text-blue-600;
+    }
+  }
+}
