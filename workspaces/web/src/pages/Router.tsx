@@ -17,12 +17,18 @@ import {PeopleSettingsModal} from "../widgets/PeopleSettingsModal";
 import {LoginPage} from "./Login";
 import {useEffect} from "react";
 import {AccessTokenHandler} from "../services/accessTokenHandler.ts";
+import {readAccessToken} from "../utils/sessionAccessToken.ts";
 
 function Router() {
   useSetupGlobalListeners();
   useAnalyticsPageview();
 
   useEffect(() => {
+    if (readAccessToken() !== undefined) {
+      // do not autologin if token already exist
+      return;
+    }
+
     AccessTokenHandler.login({
       username: "guest",
       password: "guest",
