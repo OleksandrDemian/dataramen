@@ -1,4 +1,4 @@
-import {Modal} from "../Modal";
+import {Modal} from "../../widgets/Modal";
 import {TConfirmProps, useConfirmModal} from "../../data/confirmModalStore.ts";
 import {useEffect, useState} from "react";
 

@@ -1,8 +1,8 @@
-import {Modal, ModalClose, ModalTitle} from "../Modal";
+import {Modal, ModalClose, ModalTitle} from "../../widgets/Modal";
 import {closeAccountSettingsModal, useAccountSettingsModal} from "../../data/accountSettingsModalStore.ts";
 import {useCurrentUser, useUpdateUser} from "../../data/queries/users.ts";
 import {useForm} from "../../hooks/form/useForm.ts";
-import {Alert} from "../Alert";
+import {Alert} from "../../widgets/Alert";
 import {AccessTokenHandler} from "../../services/accessTokenHandler.ts";
 import toast from "react-hot-toast";
 import {useNavigate} from "react-router-dom";

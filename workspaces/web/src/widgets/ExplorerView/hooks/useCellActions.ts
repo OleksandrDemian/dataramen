@@ -88,7 +88,8 @@ export const useCellActions = () => {
     let fn: string | undefined = undefined;
 
     if (column?.table === "") {
-      [fn, actualValue] = actualValue.split(" ");
+      toast.error("Filtering on aggregated column is not supported yet");
+      return;
     }
 
     if (actualValue) {
@@ -117,6 +118,8 @@ export const useCellActions = () => {
         ...cur,
         filters: [...cur.filters, filter],
       }));
+
+      toast.success(`Added new filter on column ${column?.alias}`);
     }
   };
 

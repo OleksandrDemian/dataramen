@@ -45,6 +45,6 @@ export const useRemoveUser = () => {
       queryClient.invalidateQueries({
         queryKey: ["team-users"],
       });
-    }
+    },
   });
 };

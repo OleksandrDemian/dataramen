@@ -1,6 +1,6 @@
-import {Modal, ModalClose} from "../Modal";
+import {Modal, ModalClose} from "../../widgets/Modal";
 import st from "./index.module.css";
-import {SearchQuery} from "../SearchTable";
+import {SearchQuery} from "../../widgets/SearchTable";
 import {useSearchTableModal} from "../../data/tableSearchModalStore.ts";
 
 export const SearchTableModal = () => {

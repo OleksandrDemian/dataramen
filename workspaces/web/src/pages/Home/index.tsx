@@ -2,17 +2,11 @@ import {useDataSources} from "../../data/queries/dataSources.ts";
 import {useCurrentUser} from "../../data/queries/users.ts";
 import {useOpenTabs} from "../../data/openTabsStore.ts";
 import {Alert} from "../../widgets/Alert";
-import {WorkbenchTabs} from "./WorkbenchTabs.tsx";
-import {StartQuery} from "./components.tsx";
-import {ConnectDataSource} from "./ConnectDataSource.tsx";
-import {ConnectionInstructions} from "./ConnectionInstructions.tsx";
-import {useLocalServerStatus} from "../../data/queries/localServerStatus.ts";
-import {ListDataSources} from "./ListDataSources.tsx";
+import {StartQuery, ConnectDataSource, WorkbenchTabs, ListDataSources} from "./components.tsx";
 
 export const HomePage = () => {
   const {data: user} = useCurrentUser();
   const openTabs = useOpenTabs();
-  const { data: localServer } = useLocalServerStatus();
 
   const {data} = useDataSources({
     teamId: user?.teamId,
@@ -20,43 +14,34 @@ export const HomePage = () => {
 
   const hasDataSources = !!data && data.length > 0;
   const hasUser = !!user;
-  const showConnectionInstructions = localServer?.active === false;
-
-  if (!localServer) {
-    return null;
-  }
-
-  if (showConnectionInstructions) {
-    return (
-      <div className="page-container h-screen max-h-screen overflow-y-auto bg-(--bg)">
-        <div className="page-content">
-          <ConnectionInstructions />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="page-container h-screen max-h-screen overflow-y-auto bg-(--bg)">
       <div className="page-content h-full">
+
+        <h2 className="text-6xl font-semibold text-gray-700 text-center lg:text-left mt-6 lg:mt-0">DataRamen</h2>
+
         {hasUser && !hasDataSources && (
-          <Alert variant="warning" className="mb-2 font-semibold">
+          <Alert variant="warning" className="font-semibold mt-8">
             Connect at least one datasource to start using DataRamen
           </Alert>
         )}
 
-        {hasDataSources && (
-          <StartQuery />
-        )}
+        <div className="grid lg:grid-cols-2 gap-2 mt-8">
+          {hasDataSources && (
+            <StartQuery />
+          )}
 
-        {hasUser && openTabs.length > 0 && (
-          <WorkbenchTabs />
-        )}
+          {hasUser && openTabs.length > 0 && (
+            <WorkbenchTabs />
+          )}
 
-        {hasUser && [
-          <ConnectDataSource key="connect-datasource" />,
-          <ListDataSources key="list-datasources" />
-        ]}
+          <ConnectDataSource key="connect-datasource" />
+        </div>
+
+        {hasUser && (
+          <ListDataSources />
+        )}
       </div>
     </div>
   );

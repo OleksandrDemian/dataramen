@@ -1,6 +1,5 @@
 import axios, {isAxiosError} from "axios";
 import {AccessTokenHandler} from "../services/accessTokenHandler.ts";
-import toast from "react-hot-toast";
 
 // todo: VITE_API_BACKEND_URL is mocked to use PORT 4466
 const baseURL = (() => {
@@ -33,15 +32,11 @@ apiClient.interceptors.response.use(
     if (isAxiosError<{ error: string }>(error)) {
       if (error.status === 401 && error?.response?.data.error !== "Missing auth token") {
         AccessTokenHandler.refresh();
-        return;
-      }
-
-      if (error.status && error.status >= 400 && error.status < 500 && error.response?.data.error) {
-        toast.error(error.response.data.error);
+        return Promise.reject(error);
       }
     }
 
-    return error;
+    return Promise.reject(error);
   }
 );
 
