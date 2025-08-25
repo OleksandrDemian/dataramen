@@ -1,4 +1,4 @@
-import {Modal, ModalClose} from "../Modal";
+import {Modal, ModalClose} from "../../widgets/Modal";
 import {
   closeEntityCreatorModal,
   TEntityCreatorStore,
@@ -11,7 +11,7 @@ import {generateColumnLabel, sanitizeCellValue} from "../../utils/sql.ts";
 import {useForm} from "../../hooks/form/useForm.ts";
 import st from "./index.module.css";
 import {useInsert} from "../../data/queries/queryRunner.ts";
-import {Alert} from "../Alert";
+import {Alert} from "../../widgets/Alert";
 import {useParseError} from "../../hooks/useParseError.ts";
 import {TQueryMutationValue} from "@dataramen/types";
 import {TDatabaseInspectionColumn} from "../../data/types/dataSources.ts";

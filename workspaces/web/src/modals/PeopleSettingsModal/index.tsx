@@ -1,4 +1,4 @@
-import {Modal, ModalClose, ModalTitle} from "../Modal";
+import {Modal, ModalClose, ModalTitle} from "../../widgets/Modal";
 import {closePeopleSettings, useShowPeopleSettings} from "../../data/peopleSettingsModalStore.ts";
 import {useCreateUser, useCurrentUser} from "../../data/queries/users.ts";
 import {useRemoveUser, useTeamUsers, useUpdateUserTeamRole} from "../../data/queries/teams.ts";

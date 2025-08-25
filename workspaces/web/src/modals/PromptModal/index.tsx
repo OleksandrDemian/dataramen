@@ -1,8 +1,8 @@
-import {Modal} from "../Modal";
+import {Modal} from "../../widgets/Modal";
 import {TPromptModalProps, updatePromptModal, usePromptModal} from "../../data/promptModalStore.ts";
 import {ChangeEvent, KeyboardEvent, useEffect, useState} from "react";
 import st from "./index.module.css";
-import {Alert} from "../Alert";
+import {Alert} from "../../widgets/Alert";
 
 const Component = ({ data }: { data: TPromptModalProps }) => {
   const [value, setValue] = useState("");

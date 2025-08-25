@@ -91,7 +91,7 @@ export function useCreateTableContext (
       getValue: (row, col) => {
         const alias = inputColumnToAlias(col);
         const index = result?.columns?.findIndex((column) => {
-          return column.alias === alias;
+          return column.full === alias;
         });
 
         if (index != undefined && index > -1) {

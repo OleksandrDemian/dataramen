@@ -1,8 +1,8 @@
 import {closeQueryModal, setQueryModal, useQueryModal} from "../../data/queryModalStore.ts";
-import {Modal, ModalClose} from "../Modal";
-import {ExplorerView} from "../ExplorerView";
+import {Modal, ModalClose} from "../../widgets/Modal";
+import {ExplorerView} from "../../widgets/ExplorerView";
 import {useCallback} from "react";
-import {TTableOptions} from "../ExplorerView/context/TableContext.ts";
+import {TTableOptions} from "../../widgets/ExplorerView/context/TableContext.ts";
 import toast from "react-hot-toast";
 
 export const QueryModal = () => {

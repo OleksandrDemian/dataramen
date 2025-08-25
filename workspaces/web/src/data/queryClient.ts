@@ -1,6 +1,6 @@
-// Create a client
-import {QueryClient} from "react-query";
+import {MutationCache, QueryClient} from "react-query";
 import {isAxiosError} from "axios";
+import toast from "react-hot-toast";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -15,4 +15,13 @@ export const queryClient = new QueryClient({
       }
     },
   },
+  mutationCache: new MutationCache({
+    onError: (error: unknown) => {
+      if (isAxiosError<{ error: string }>(error)) {
+        if (error.status && error.status >= 400 && error.status < 500 && error.response?.data.error) {
+          toast.error(error.response.data.error);
+        }
+      }
+    },
+  }),
 });

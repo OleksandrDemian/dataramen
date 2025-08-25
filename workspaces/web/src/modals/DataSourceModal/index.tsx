@@ -6,7 +6,7 @@ import {
   useManualInspectDataSource,
   useUpdateDataSource
 } from "../../data/queries/dataSources.ts";
-import {Modal, ModalClose} from "../Modal";
+import {Modal, ModalClose} from "../../widgets/Modal";
 import {useEffect, useMemo, useState} from "react";
 import {prompt} from "../../data/promptModalStore.ts";
 import {confirm} from "../../data/confirmModalStore.ts";
@@ -18,7 +18,7 @@ import {pushNewExplorerTab} from "../../data/openTabsStore.ts";
 import {PAGES} from "../../const/pages.ts";
 import {useLocation, useNavigate} from "react-router-dom";
 import {Analytics} from "../../utils/analytics.ts";
-import {DataSourceIcon} from "../Icons";
+import {DataSourceIcon} from "../../widgets/Icons";
 import {EUserTeamRole} from "@dataramen/types";
 import {useRequireRole} from "../../hooks/useRequireRole.ts";
 import {closeMenuSidebar} from "../../data/showSidebarMenuStore.ts";

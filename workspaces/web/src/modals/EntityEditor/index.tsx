@@ -4,14 +4,14 @@ import {
   updateEntityEditor,
   useEntityEditor
 } from "../../data/entityEditorStore.ts";
-import {Modal, ModalClose} from "../Modal";
+import {Modal, ModalClose} from "../../widgets/Modal";
 import {useDatabaseInspections, useDataSource} from "../../data/queries/dataSources.ts";
 import {useEffect, useMemo, useState} from "react";
 import {useForm} from "../../hooks/form/useForm.ts";
 import {useEntity, useUpdate} from "../../data/queries/queryRunner.ts";
 import {generateColumnLabel, sanitizeCellValue} from "../../utils/sql.ts";
 import st from "./index.module.css";
-import {Alert} from "../Alert";
+import {Alert} from "../../widgets/Alert";
 import {useParseError} from "../../hooks/useParseError.ts";
 import {TDatabaseInspectionColumn} from "../../data/types/dataSources.ts";
 import {EUserTeamRole, TQueryMutationValue} from "@dataramen/types";

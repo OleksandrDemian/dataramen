@@ -1,7 +1,7 @@
 import {useLocalServerStatus} from "../../data/queries/localServerStatus.ts";
 import {compareSemver} from "../../utils/semver.ts";
-import {Modal} from "../Modal";
-import {Markdown} from "../Markdown";
+import {Modal} from "../../widgets/Modal";
+import {Markdown} from "../../widgets/Markdown";
 
 const MD = `### ⚠️ You are running an outdated local server version.
 

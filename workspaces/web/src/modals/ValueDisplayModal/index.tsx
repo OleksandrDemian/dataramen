@@ -1,5 +1,5 @@
 import {displayValue, useValueDisplay} from "../../data/valueDisplayStore.ts";
-import {Modal} from "../Modal";
+import {Modal} from "../../widgets/Modal";
 import st from "./index.module.css";
 import toast from "react-hot-toast";
 
