@@ -61,12 +61,12 @@ export const runSelect = async (
     });
   }
 
-  const allowedOrderBy = getAllowedGroupBy(props);
+  const allowedOrderBy = getAllowedOrderBy(props);
   if (allowedOrderBy) {
     queryBuilder.addOrderBy(
       ...allowedOrderBy.map((o) => ({
-        ...o,
-        column: sanitizeFullColumn(o.column, dataSource.dbType as DatabaseDialect),
+        direction: o.direction,
+        column: handleAlias(o.column, dataSource.dbType as DatabaseDialect),
       })),
     );
   }
@@ -274,20 +274,21 @@ const sanitizeFullColumn = (value: string, dbType: DatabaseDialect): string => {
   return handleAlias(table, dbType) + "." + handleAlias(column, dbType);
 };
 
-const getAllowedGroupBy = (props: TExecuteQuery): OrderByClause[] | undefined => {
+const getAllowedOrderBy = (props: TExecuteQuery): OrderByClause[] | undefined => {
   if (!props.orderBy) {
     return undefined;
   }
 
   if (props.columns && props.columns.length > 0) {
+    const allowedColumnsMap = props.columns.reduce((acc, val) => {
+      acc.add(inputColumnToAlias(val));
+      return acc;
+    }, new Set<string>());
+
     // only order by columns in group by
-    return props.orderBy.filter((o) =>
-      props.columns!.find(
-        (c) => c.value === o.column,
-      ),
-    );
+    return props.orderBy.filter((o) => allowedColumnsMap.has(o.column));
   }
 
   // keep all order columns
   return props.orderBy;
-}
+};

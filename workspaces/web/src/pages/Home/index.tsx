@@ -19,24 +19,21 @@ export const HomePage = () => {
     <div className="page-container h-screen max-h-screen overflow-y-auto bg-(--bg)">
       <div className="page-content h-full">
 
-        <h2 className="text-6xl font-semibold text-gray-700 text-center lg:text-left mt-6 lg:mt-0">DataRamen</h2>
+        <h2 className="text-4xl font-semibold text-gray-700 text-center lg:text-left mt-4 lg:mt-0">Data ramen</h2>
 
         {hasUser && !hasDataSources && (
-          <Alert variant="warning" className="font-semibold mt-8">
+          <Alert variant="warning" className="font-semibold mt-4">
             Connect at least one datasource to start using DataRamen
           </Alert>
         )}
 
-        <div className="grid lg:grid-cols-2 gap-2 mt-8">
-          {hasDataSources && (
-            <StartQuery />
-          )}
+        <div className="grid lg:grid-cols-2 gap-2 mt-4">
+          <StartQuery />
+          <ConnectDataSource />
 
           {hasUser && openTabs.length > 0 && (
             <WorkbenchTabs />
           )}
-
-          <ConnectDataSource key="connect-datasource" />
         </div>
 
         {hasUser && (

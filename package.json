@@ -1,9 +1,8 @@
 {
   "name": "dataramen",
   "version": "0.0.0",
-  "main": "index.js",
-  "repository": "https://github.com/OleksandrDemian/sql-editor.git",
-  "author": "odemain <oleksandrovsky@gmail.com>",
+  "repository": "https://github.com/OleksandrDemian/dataramen.git",
+  "author": "Oleksandr Demian <oleksandrovsky@gmail.com>",
   "license": "MIT",
   "private": true,
   "workspaces": ["workspaces/*"],

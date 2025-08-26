@@ -79,7 +79,7 @@ export const buildQueryFilterCondition = (condition: QueryFilter, dbType: Databa
       const like = dbType === "postgres" ? "ILIKE" : "LIKE";
       return `${columnStr} ${like} '%${value?.[0].value}%'`;
     case "NOT LIKE":
-      const notLike = dbType === "postgres" ? "NOT ILIKE" : "LIKE";
+      const notLike = dbType === "postgres" ? "NOT ILIKE" : "NOT LIKE";
       return `${columnStr} ${notLike} '%${value?.[0].value}%'`;
     default:
       const val = value?.[0];

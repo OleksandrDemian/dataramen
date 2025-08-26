@@ -7,6 +7,7 @@ import {createTableOptions} from "../utils.ts";
 
 export type TTableContext = {
   name: string;
+  tabId?: string;
   hooks: THook[];
   availableJoins: THook[];
   allColumns: TRunSqlResult["allColumns"];
