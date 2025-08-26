@@ -48,6 +48,7 @@ export function useCreateTableContext (
   result: TRunSqlResult | undefined,
   dataSourceId: string,
   name: string,
+  tabId?: string,
 ): TTableContext {
   const { data: hooks } = useHooks(dataSourceId);
   const { data: inspections } = useDatabaseInspections(dataSourceId);
@@ -57,6 +58,7 @@ export function useCreateTableContext (
 
     return {
       name,
+      tabId,
       hooks: (() => {
         const filtered: THook[] = [];
         if (!hooks || !result || !result.columns) {

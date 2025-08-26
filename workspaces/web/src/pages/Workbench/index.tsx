@@ -143,7 +143,7 @@ export const WorkbenchPage = () => {
   return (
     <div className="h-screen max-h-screen bg-(--bg) flex flex-col">
       {isDesktop && (
-        <Tooltip id="tab" render={renderTooltip} className="z-10 shadow-md" offset={0} noArrow opacity={1} variant="light" clickable delayShow={500} />
+        <Tooltip id="tab" render={renderTooltip} className="z-10 shadow-md border border-blue-400 p-0!" offset={-4} noArrow opacity={1} variant="light" clickable delayShow={500} />
       )}
 
       <div className={st.tabs}>
@@ -176,6 +176,7 @@ export const WorkbenchPage = () => {
           updater={updater}
           options={tab.options}
           name={tab.label}
+          tabId={tab.id}
         />
       )}
 
