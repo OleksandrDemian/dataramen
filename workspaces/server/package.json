@@ -1,6 +1,6 @@
 {
   "name": "@dataramen/server",
-  "version": "0.0.63",
+  "version": "0.0.66",
   "license": "MIT",
   "main": "dist/server.js",
   "scripts": {

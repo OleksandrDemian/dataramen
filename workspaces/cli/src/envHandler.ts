@@ -2,11 +2,12 @@ import {readFileSync, writeFileSync} from "fs-extra";
 import {join} from "node:path";
 import {SERVER_PATH} from "./const";
 
-type EnvVariables = Record<string, string>;
+type TRawValue = string | undefined;
+type EnvVariables = Record<string, TRawValue>;
 
 function getEnvFileSafe (envFile: string): string | undefined {
   try {
-    return readFileSync(join(SERVER_PATH, "env", envFile), "utf-8");
+    return readFileSync(join(SERVER_PATH, envFile), "utf-8");
   } catch (e) {
     return undefined;
   }
@@ -50,13 +51,12 @@ export function parseEnv(envName: string): EnvVariables {
 
 function useEnvHandler () {
   const state = {
-    defaultValues: {},
     customValues: {},
+    fileName: ".env",
   };
 
   function parse() {
-    state.defaultValues = parseEnv(".env.default");
-    state.customValues = parseEnv(".env");
+    state.customValues = parseEnv(state.fileName);
   }
 
   function flush() {
@@ -65,17 +65,17 @@ function useEnvHandler () {
     );
 
     const output = lines.join('\n') + '\n';
-    writeFileSync(join(SERVER_PATH, "env", ".env"), output, {
+    writeFileSync(join(SERVER_PATH, state.fileName), output, {
       encoding: 'utf8',
     });
   }
 
-  function getValue (prop: string) {
+  function getValue (prop: string): TRawValue {
     if (state.customValues[prop]) {
       return state.customValues[prop];
     }
 
-    return state.defaultValues[prop];
+    return undefined;
   }
 
   parse();
@@ -88,10 +88,13 @@ function useEnvHandler () {
     set: (prop: string, value: string | number | boolean) => {
       state.customValues[prop] = value;
     },
+    unset: (prop: string) => {
+      delete state.customValues[prop];
+    },
   };
 }
 
-function getNumber (value: string | undefined): number | undefined {
+function getNumber (value: TRawValue): number | undefined {
   if (!value) {
     return undefined;
   }
@@ -104,7 +107,7 @@ function getNumber (value: string | undefined): number | undefined {
   throw new Error("Wrong env value type");
 }
 
-function getString (value: string | undefined): string | undefined {
+function getString (value: TRawValue): string | undefined {
   if (!value) {
     return undefined;
   }
@@ -116,15 +119,15 @@ function getString (value: string | undefined): string | undefined {
   throw new Error("Wrong env value type");
 }
 
-function getBoolean (value: string | undefined): boolean | undefined {
+function getBoolean (value: TRawValue): boolean | undefined {
   if (!value) {
     return undefined;
   }
 
   const lower = value.toLowerCase();
 
-  if (lower === 'true') return true;
-  if (lower === 'false') return false;
+  if (lower === 'true' || lower === "1") return true;
+  if (lower === 'false' || lower === "0") return false;
 
   throw new Error("Wrong env value type");
 }

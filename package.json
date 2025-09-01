@@ -9,6 +9,6 @@
   "scripts": {
     "package:cli": "node package.mjs cli",
     "package:app": "node package.mjs app",
-    "start": "node dist/code/server.js"
+    "start": "node dist/code/server.js .env"
   }
 }

@@ -7,7 +7,6 @@ import fastifyStatic from '@fastify/static';
 import {HttpError} from "./utils/httpError";
 import {TDynamicConnection} from "./services/connectorManager/types";
 import { init } from './repository/db';
-import {setupProjectFolders} from "./services/files";
 
 import auth from "./api/auth/router";
 import dataSources from "./api/dataSources/router";
@@ -60,7 +59,6 @@ function registerRouter (fn: TRouter, prefix: string) {
 
 (async function initialize () {
   validateEnvVariables();
-  await setupProjectFolders(); // creates .dataramen/files
 
   // const routers = glob.sync("./api/**/router.js", {
   //   cwd: __dirname,

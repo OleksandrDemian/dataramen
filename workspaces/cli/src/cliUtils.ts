@@ -65,8 +65,6 @@ export async function installServer () {
 
   // copy code
   fs.copySync(join(__dirname, '..', 'dist', "code"), join(SERVER_PATH, "code"));
-  // copy default env (do not override existing .env)
-  fs.copySync(join(__dirname, '..', 'dist', "env", ".env.default"), join(SERVER_PATH, "env", ".env.default"));
   // copy package.json
   fs.copySync(join(__dirname, '..', 'dist', "package.json"), join(SERVER_PATH, "package.json"));
 

@@ -5,9 +5,39 @@ import { hideBin } from "yargs/helpers";
 import {Commands} from "./commands";
 
 yargs(hideBin(process.argv))
-  .command("start", 'Default command, start/restart the server', Commands.start)
-  .command(["logs"], 'Listen for logs', Commands.logs)
-  .command("stop", 'Stop the server', Commands.stop)
-  .command("open", 'Stop the server', Commands.open)
-  .command(["version"], 'Show version', Commands.version)
+  .command({
+    command: "start",
+    describe: "Start local server, restarts if already running",
+    handler: Commands.start,
+  })
+  .command({
+    command: "logs",
+    describe: "Listen for logs",
+    handler: Commands.logs,
+  })
+  .command({
+    command: "stop",
+    describe: "Stop the server",
+    handler: Commands.stop,
+  })
+  .command({
+    command: "open",
+    describe: "Stop the server",
+    handler: Commands.open,
+  })
+  .command({
+    command: "set [prop] [value]",
+    describe: "Set env value",
+    handler: Commands.setEnvVariable,
+  })
+  .command({
+    command: "unset [prop]",
+    describe: "Remove env value",
+    handler: Commands.unsetEnvVariable,
+  })
+  .command({
+    command: "version",
+    describe: "Show version",
+    handler: Commands.version,
+  })
   .parse();

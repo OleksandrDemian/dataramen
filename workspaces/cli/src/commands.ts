@@ -10,6 +10,7 @@ import {isPortFree} from "./netUtils";
 import {generateDefaultKeys} from "./envUtils";
 import {SERVER_CHECK_INTERVAL, SERVER_CHECK_TIMEOUT, waitServerAvailability} from "./waitServerAvailability";
 import {env} from "./envHandler";
+import {ArgumentsCamelCase} from "yargs";
 
 async function start () {
   const hasPm2 = await checkPm2();
@@ -26,7 +27,7 @@ async function start () {
 
     generateDefaultKeys();
 
-    const port = env.getNumber("PORT");
+    const port = env.getNumber("PORT") || 4466; // TODO: move into common package
     if (!port) {
       throw new Error(`PORT env variable not found`);
     }
@@ -38,7 +39,7 @@ async function start () {
 
     const spinner = yoctoSpinner({ text: "Starting new instance of " + PROCESS_NAME }).start();
     const appPkg = fs.readJsonSync(join(SERVER_PATH, "package.json"));
-    await asyncExec(`pm2 start "${appPkg.main}" --name "${PROCESS_NAME}" --no-autorestart`, {
+    await asyncExec(`pm2 start "${appPkg.main}" --name "${PROCESS_NAME}" --no-autorestart -- "${SERVER_PATH}/.env"`, {
       cwd: SERVER_PATH,
     });
 
@@ -80,10 +81,24 @@ async function openApp () {
   await open(`http://localhost:${port}`);
 }
 
+function setEnvVariable (args: ArgumentsCamelCase<{ prop: string; value: string; }>) {
+  env.set(args.prop, args.value);
+  env.flush();
+  console.log(`Environment property set: ${args.prop}`);
+}
+
+function unsetEnvVariable (args: ArgumentsCamelCase<{ prop: string; }>) {
+  env.unset(args.prop);
+  env.flush();
+  console.log(`Environment property unset: ${args.prop}`);
+}
+
 export const Commands = {
   start: start,
   logs: logs,
   stop: stop,
   version: version,
   open: openApp,
+  setEnvVariable: setEnvVariable,
+  unsetEnvVariable: unsetEnvVariable,
 };

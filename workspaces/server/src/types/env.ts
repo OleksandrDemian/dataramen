@@ -7,7 +7,6 @@ export type TEnvKeys =
   | 'PORT'
   | 'APP_DB_TYPE'
   | 'APP_DB_DATABASE'
-  | 'APP_DB_SYNCHRONIZE'
   | 'APP_DB_HOST'
   | 'APP_DB_USERNAME'
   | 'APP_DB_PASSWORD'

@@ -1,6 +1,6 @@
 {
   "name": "@dataramen/cli",
-  "version": "0.0.40",
+  "version": "0.0.43",
   "license": "MIT",
   "bin": {
     "dataramen": "bin/run.js"
@@ -16,6 +16,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.3",
+    "@types/yargs": "^17.0.33",
     "esbuild": "^0.25.5"
   },
   "files": [
