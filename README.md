@@ -20,10 +20,15 @@ Your cozy corner for exploring and working with SQL databases - no query writing
   Add or modify rows with a visual editor - no SQL errors.
 
 - 💾 **Save Queries**  
-  Save your favorite views for quick access later.
+  Save your favorite queries for quick access later.
+
+## Installation
+
+DataRamen can be installed in 2 ways:
+
+* as a local CLI tool: [installation guide](https://dataramen.xyz/get-started/install-dataramen-cli/)
+* as a self-hosted service: [installation guide](https://dataramen.xyz/get-started/self-hosted/)
 
 ## 🧾 License
 
 This project is licensed under the MIT License — see the [LICENSE](./LICENSE) file for details.
-
-## ❤️ Made with love by [Oleksandr Demian](https://github.com/OleksandrDemian)
