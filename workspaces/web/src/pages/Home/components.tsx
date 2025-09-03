@@ -94,14 +94,16 @@ export const WorkbenchTabs = () => {
       <p className={st.actionSubtext}>Continue your work from where you left.</p>
 
       {gte(tabs?.length, 0) && (
-        <div className="mt-2 grid lg:grid-cols-4 gap-1">
+        <div className="mt-2 flex flex-wrap gap-1">
           {tabs?.map((tab) => (
             <button
-              className=" border border-gray-200 px-1 py-1 lg:py-0.5 text-gray-700 hover:bg-gray-50 cursor-pointer truncate"
+              key={tab.id}
+              className={st.tab}
               onClick={onOpenTab}
               data-tab-id={tab.id}
             >
-              {tab.label}
+              <span>📄</span>
+              <span className="truncate">{tab.label}</span>
             </button>
           ))}
         </div>

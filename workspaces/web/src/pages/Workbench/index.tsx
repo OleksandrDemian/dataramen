@@ -49,7 +49,7 @@ const renderTooltip: ITooltip["render"] = ({
   return (
     <div>
       <button className={st.tooltipLabel} onClick={onRename}>
-        <div className="max-w-full">
+        <div className="overflow-hidden">
           <p className="text-xs">label</p>
           <p className="truncate font-semibold">{tab.label}</p>
         </div>

@@ -63,12 +63,7 @@ export const runSelect = async (
 
   const allowedOrderBy = getAllowedOrderBy(props);
   if (allowedOrderBy) {
-    queryBuilder.addOrderBy(
-      ...allowedOrderBy.map((o) => ({
-        direction: o.direction,
-        column: handleAlias(o.column, dataSource.dbType as DatabaseDialect),
-      })),
-    );
+    queryBuilder.addOrderBy(...allowedOrderBy);
   }
 
   if (groupBy && groupBy.length > 0) {

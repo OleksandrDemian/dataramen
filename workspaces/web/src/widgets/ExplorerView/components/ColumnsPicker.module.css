@@ -1,9 +1,7 @@
 @import "tailwindcss";
 
 .container {
-  @media screen and (min-width: 768px) {
-    min-width: 400px;
-  }
+  @apply w-full lg:w-lg;
 
   display: flex;
   flex-direction: column;

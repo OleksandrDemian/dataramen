@@ -5,18 +5,17 @@ import {
   DataSourceRepository,
   QueriesRepository,
 } from "../../repository/db";
-import {FindManyOptions, Like} from "typeorm";
-import {TFindQuery} from "@dataramen/types";
-import { IDataSourceSchema, IQuerySchema } from "@dataramen/types";
+import {Like} from "typeorm";
+import {TFindQuery, TProjectDataSource, TProjectQuery} from "@dataramen/types";
 
 export default createRouter((instance) => {
   instance.route({
     method: "get",
-    url: "/team/:teamId/files",
+    url: "/team/:teamId/datasources",
     handler: async (request, reply) => {
       const { teamId } = getRequestParams<{ teamId: string }>(request);
 
-      const query: FindManyOptions<IDataSourceSchema | IQuerySchema> = {
+      const dataSources = await DataSourceRepository.find({
         where: {
           team: {
             id: teamId,
@@ -29,26 +28,45 @@ export default createRouter((instance) => {
           id: true,
           name: true,
           updatedAt: true,
-        }
-      };
-
-      const [dataSources = [], queries = []] = await Promise.all([
-        DataSourceRepository.find(query),
-        QueriesRepository.find({
-          ...query,
-          where: {
-            ...query.where,
-            isTrash: false,
-          }
-        })
-      ]);
+          dbType: true,
+          description: true,
+          allowInsert: true,
+          allowUpdate: true,
+        },
+      });
 
       return {
-        data: [
-          ...dataSources.map((d) => ({ ...d, type: "dataSource" })),
-          ...queries.map((w) => ({ ...w, type: "query" })),
-        ],
-      }
+        data: dataSources satisfies TProjectDataSource[],
+      };
+    },
+  });
+
+  instance.route({
+    method: "get",
+    url: "/team/:teamId/queries",
+    handler: async (request, reply) => {
+      const { teamId } = getRequestParams<{ teamId: string }>(request);
+
+      const queries = await QueriesRepository.find({
+        where: {
+          team: {
+            id: teamId,
+          },
+          isTrash: false,
+        },
+        order: {
+          name: 'ASC',
+        },
+        select: {
+          id: true,
+          name: true,
+          updatedAt: true,
+        },
+      });
+
+      return {
+        data: queries satisfies TProjectQuery[],
+      };
     },
   });
 
