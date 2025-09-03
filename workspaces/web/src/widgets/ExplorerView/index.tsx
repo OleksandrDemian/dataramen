@@ -28,8 +28,9 @@ export type TDataSourceExplorerTabProps = {
   updater: TTableOptionsUpdater;
   name: string;
   className?: string;
+  tabId?: string;
 };
-export const ExplorerView = ({ options, updater, name, className }: TDataSourceExplorerTabProps) => {
+export const ExplorerView = ({ options, updater, name, className, tabId }: TDataSourceExplorerTabProps) => {
   const tableOptionsContext = useCreateTableOptionsContext(options, updater);
   const { state: tableOptions } = tableOptionsContext;
 
@@ -46,7 +47,7 @@ export const ExplorerView = ({ options, updater, name, className }: TDataSourceE
     searchAll: tableOptions.searchAll,
   });
 
-  const context = useCreateTableContext(query.data, options.dataSourceId, name);
+  const context = useCreateTableContext(query.data, options.dataSourceId, name, tabId);
 
   return (
     <div className={clsx("flex flex-1 gap-1 overflow-hidden", className)}>

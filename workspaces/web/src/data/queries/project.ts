@@ -1,14 +1,24 @@
 import {useQuery} from "react-query";
 import {apiClient} from "../clients.ts";
-import {TProjectFile} from "../types/project.ts";
 import {queryClient} from "../queryClient.ts";
-import {TFindQuery} from "@dataramen/types";
+import {TFindQuery, TProjectDataSource, TProjectQuery} from "@dataramen/types";
 
-export const useTeamProjectFiles = (teamId?: string) => {
+export const useTeamDataSources = (teamId?: string) => {
   return useQuery({
-    queryKey: ['project', 'team', teamId],
+    queryKey: ['project', 'datasources', teamId],
     queryFn: async () => {
-      const { data } = await apiClient.get<{ data: TProjectFile[] }>(`/project/team/${teamId}/files`);
+      const { data } = await apiClient.get<{ data: TProjectDataSource[] }>(`/project/team/${teamId}/datasources`);
+      return data.data;
+    },
+    enabled: !!teamId,
+  });
+};
+
+export const useTeamSavedQueries = (teamId?: string) => {
+  return useQuery({
+    queryKey: ['project', 'saved-queries', teamId],
+    queryFn: async () => {
+      const { data } = await apiClient.get<{ data: TProjectQuery[] }>(`/project/team/${teamId}/queries`);
       return data.data;
     },
     enabled: !!teamId,
@@ -16,11 +26,18 @@ export const useTeamProjectFiles = (teamId?: string) => {
 };
 
 export const invalidateTeamProjectFiles = (teamId?: string) => {
-  const queryKey = ['project', 'team'];
+  const datasourcesQueryKey = ['project', 'team'];
+  const queriesQueryKey = ['project', 'saved-queries'];
+
   if (teamId) {
-    queryKey.push(teamId);
+    datasourcesQueryKey.push(teamId);
+    queriesQueryKey.push(teamId);
   }
-  return queryClient.invalidateQueries(queryKey);
+
+  return Promise.all([
+    queryClient.invalidateQueries(datasourcesQueryKey),
+    queryClient.invalidateQueries(queriesQueryKey),
+  ]);
 };
 
 export const invalidateTeamTrash = (teamId?: string) => {

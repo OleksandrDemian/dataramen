@@ -27,6 +27,7 @@ import {useMediaQuery} from "../../../hooks/useMediaQuery.ts";
 import {ScreenQuery} from "../../../utils/screen.ts";
 import {Sidebar} from "../../Sidebar";
 import {useRequireRole} from "../../../hooks/useRequireRole.ts";
+import {renameTab} from "../../../data/openTabsStore.ts";
 
 export const QueryBuilderSidebar = () => {
   const show = useShowQuerySidebar();
@@ -101,10 +102,21 @@ function SectionHead ({ onShow, show, title, items }: TSectionHeadProps) {
 
 function Actions () {
   const { state } = useContext(TableOptionsContext);
-  const { name } = useContext(TableContext);
+  const { name, tabId } = useContext(TableContext);
   const { data } = useContext(QueryResultContext);
   const createQuery = useCreateQuery();
   const isEditor = useRequireRole(EUserTeamRole.EDITOR);
+
+  const onRenameTab = () => {
+    if (tabId) {
+      prompt("New tab name", name)
+        .then((newName) => {
+          if (newName) {
+            renameTab(tabId, newName);
+          }
+        });
+    }
+  };
 
   const onCopyRawQuery = () => {
     if (data?.query) {
@@ -129,16 +141,18 @@ function Actions () {
   };
 
   return (
-    <div className="mb-4 flex justify-end gap-2">
+    <div className="grid lg:grid-cols-3 gap-1 px-2 mb-4">
+      <button className={st.sidebarAction} onClick={onRenameTab}>
+        <span>✏️ Rename tab</span>
+      </button>
+
       <button className={st.sidebarAction} onClick={onCopyRawQuery}>
-        <span>🖋️</span>
-        <span>Copy SQL</span>
+        <span>🖋️ Copy SQL</span>
       </button>
 
       {isEditor && (
         <button className={st.sidebarAction} onClick={onSaveQuery}>
-          <span>💾</span>
-          <span>Save</span>
+          <span>💾 Save</span>
         </button>
       )}
     </div>
@@ -206,7 +220,7 @@ function GroupBy () {
         </div>
       )}
 
-      <button className={st.sidebarAction} onClick={() => setShowColumns(true)}>
+      <button className={st.sidebarAddAction} onClick={() => setShowColumns(true)}>
         <span className="hotkey">G</span>
         <span>Add group by</span>
       </button>
@@ -271,7 +285,7 @@ function Columns () {
       )}
 
       {!ignoreColumns && (
-        <button className={st.sidebarAction} onClick={() => setShowColumns(true)}>
+        <button className={st.sidebarAddAction} onClick={() => setShowColumns(true)}>
           <span className="hotkey">C</span>
           <span>Show/Hide columns</span>
         </button>
@@ -327,7 +341,7 @@ function Aggregate () {
         </div>
       )}
 
-      <button className={st.sidebarAction} onClick={() => setShowSummary(true)}>
+      <button className={st.sidebarAddAction} onClick={() => setShowSummary(true)}>
         <span className="hotkey">A</span>
         <span>Aggregate data</span>
       </button>
@@ -378,7 +392,7 @@ function Filters () {
         </div>
       )}
 
-      <button className={st.sidebarAction} onClick={() => setShowFiltersModal(true)}>
+      <button className={st.sidebarAddAction} onClick={() => setShowFiltersModal(true)}>
         <span className="hotkey">F</span>
         <span>Add filter</span>
       </button>
@@ -446,7 +460,7 @@ function Joins () {
       )}
 
       {availableJoins.length > 0 && (
-        <button onClick={() => setShowModal(true)} className={st.sidebarAction}>
+        <button onClick={() => setShowModal(true)} className={st.sidebarAddAction}>
           <span className="hotkey">J</span>
           <span>Add table</span>
         </button>

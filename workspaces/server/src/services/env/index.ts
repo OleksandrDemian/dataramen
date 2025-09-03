@@ -1,5 +1,5 @@
 import { config, populate } from 'dotenv';
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { readFileSync } from "node:fs";
 import {TEnvKeys} from "../../types/env";
 
@@ -17,15 +17,27 @@ const packageJson = (() => {
   }
 })();
 
+const envFiles: string[] = [];
+
+if (process.argv[2]) {
+  envFiles.push(
+    resolve(process.argv[2]),
+  );
+}
+
 config({
-  path: [
-    join(__dirname, "..", "env", ".env"),
-    join(__dirname, "..", "env", ".env.default"),
-  ],
+  path: envFiles,
 });
 
 populate(process.env as any, {
   SERVER_VERSION: packageJson.version,
+
+  // defaults
+  APP_DB_TYPE: "sqlite",
+  APP_DB_DATABASE: "<home>/.dataramen/.runtime/db.sqlite3",
+  PROD: "true"
+}, {
+  override: false, // prevent from overriding any existing value in custom env file
 });
 
 const REQUIRED_ENV_VARIABLES: TEnvKeys[] = ["SYMM_ENCRYPTION_KEY", "JWT_SECRET", "JWT_REFRESH_SECRET"];
@@ -67,7 +79,7 @@ function getNumber (name: TEnvKeys, fallback: number | undefined = undefined): n
 }
 
 function getBoolean(name: TEnvKeys): boolean {
-  return process.env[name] === "true" || process.env[name] === "TRUE";
+  return process.env[name] === "true" || process.env[name] === "TRUE" || process.env[name] === "1";
 }
 
 export const Env = {

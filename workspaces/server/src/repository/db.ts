@@ -32,7 +32,7 @@ export const AppDataSource = new TypeOrm({
   schema: Env.str("APP_DB_SCHEMA"),
   logging: Env.bool("APP_DB_LOGGING"),
   migrationsRun: true, // for now run migration by default
-  migrations: [posix.join(__dirname, "migrations", "*.js")], // after build, migration files are copied into ./migrations/*.js (from ./migrations/scripts/*.ts)
+  migrations: [posix.join(__dirname, "migrations", "*.js")],
   entities: [
     DatabaseInspection,
     DataSource,

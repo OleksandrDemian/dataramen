@@ -15,3 +15,12 @@
 .action-subtext {
   @apply text-sm text-gray-700 mt-2;
 }
+
+.tab {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  height: 30px;
+  max-width: 150px;
+
+  @apply px-1 py-1 lg:py-0.5 text-gray-700 hover:bg-gray-50 cursor-pointer rounded-full;
+}

@@ -1,7 +1,7 @@
 import {useCurrentUser} from "../../../../data/queries/users.ts";
 import st from "./index.module.css";
 import {useLocation, useNavigate} from "react-router-dom";
-import {useTeamProjectFiles} from "../../../../data/queries/project.ts";
+import {useTeamDataSources, useTeamSavedQueries} from "../../../../data/queries/project.ts";
 import {ContextualMenu} from "../../../ExplorerView/components/ContextualMenu.tsx";
 import {useUpdateQuery} from "../../../../data/queries/queries.ts";
 import {useContextMenuHandler} from "../../../ExplorerView/components/ContextualMenu.handler.ts";
@@ -15,6 +15,8 @@ import {useSearchTable} from "../../../../data/tableSearchModalStore.ts";
 import {useGlobalHotkey} from "../../../../hooks/useGlobalHotkey.ts";
 import {Analytics} from "../../../../utils/analytics.ts";
 import {closeMenuSidebar} from "../../../../data/showSidebarMenuStore.ts";
+import { TProjectDataSource } from "@dataramen/types";
+import {DataSourceIcon} from "../../../Icons";
 
 const Query = ({
   name,
@@ -68,25 +70,25 @@ const Query = ({
   );
 };
 
-const Datasource = ({ name, id, index }: { name: string; id: string; index: number; }) => {
-  const displayName = `📦 ${name}`;
-
+const Datasource = ({ dataSource, index }: { dataSource: TProjectDataSource, index: number }) => {
   const onOpen = () => {
-    setDataSourceModal(id);
+    setDataSourceModal(dataSource.id);
     Analytics.event("On open datasource [Sidebar]");
   };
 
   useGlobalHotkey(index.toString(), () => {
     setDataSourceModal((cur) => {
-      if (cur === id) return undefined;
-      return id;
+      if (cur === dataSource.id) return undefined;
+      return dataSource.id;
     });
     Analytics.event("On open datasource [Hotkey]");
-  }, displayName);
+  }, dataSource.name);
 
   return (
     <button className={st.menu} onClick={onOpen}>
-      <span className="truncate">{displayName}</span><span className="hotkey">{index}</span>
+      <DataSourceIcon size={20} type={dataSource.dbType} />
+      <p className="truncate flex-1 text-left mx-1.5">{dataSource.name}</p>
+      <span className="hotkey">{index}</span>
     </button>
   );
 };
@@ -98,7 +100,8 @@ export const ProjectStructure = () => {
   const searchAndOpen = useSearchTable("Sidebar");
 
   const { data: user } = useCurrentUser();
-  const { data: files } = useTeamProjectFiles(user?.teamId);
+  const { data: projectDataSources } = useTeamDataSources(user?.teamId);
+  const { data: projectQueries } = useTeamSavedQueries(user?.teamId);
 
   const updateQuery = useUpdateQuery();
 
@@ -114,7 +117,7 @@ export const ProjectStructure = () => {
   };
 
   const updateQueryName = async (queryId: string) => {
-    const current = files?.find((file) => file.id === queryId);
+    const current = projectQueries?.find((query) => query.id === queryId);
     const name = await prompt("New name?", current?.name);
     if (name) {
       updateQuery.mutate({
@@ -155,7 +158,6 @@ export const ProjectStructure = () => {
     navigate(PAGES.home.path);
   };
 
-  let datasourceIndex: number = 1;
   return (
     <div className={st.container}>
       <div className="mb-4">
@@ -165,25 +167,20 @@ export const ProjectStructure = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {files?.map((file) => {
-          switch (file.type) {
-            case "query":
-              return (
-                <Query
-                  onDelete={deleteQuery}
-                  onRename={updateQueryName}
-                  onOpen={openQuery}
-                  name={file.name}
-                  id={file.id}
-                  key={file.id}
-                />
-              )
-            case "dataSource":
-              return <Datasource name={file.name} id={file.id} key={file.id} index={datasourceIndex++} />
-            default:
-              return null;
-          }
-        })}
+        {projectDataSources?.map((dataSource, index) => (
+          <Datasource dataSource={dataSource} key={dataSource.id} index={index + 1} />
+        ))}
+
+        {projectQueries?.map((file) => (
+          <Query
+            onDelete={deleteQuery}
+            onRename={updateQueryName}
+            onOpen={openQuery}
+            name={file.name}
+            id={file.id}
+            key={file.id}
+          />
+        ))}
       </div>
     </div>
   );

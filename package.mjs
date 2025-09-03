@@ -82,7 +82,6 @@ function removeDist () {
 
 function copyResources () {
   fs.copySync(join(serverPath, "dist"), join(distPath, "code"));
-  fs.copySync(join(serverPath, "env", ".env.default"), join(distPath, "env", ".env.default"));
   fs.copySync(join(serverPath, "package.json"), join(distPath, "package.json"));
   fs.copySync(join(webPath, "dist"), join(distPath, "code", "web"));
 

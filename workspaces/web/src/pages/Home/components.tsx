@@ -1,5 +1,5 @@
 import {useSearchTable} from "../../data/tableSearchModalStore.ts";
-import {useState} from "react";
+import {MouseEventHandler, useState} from "react";
 import {useRequireRole} from "../../hooks/useRequireRole.ts";
 import toast from "react-hot-toast";
 import {Analytics} from "../../utils/analytics.ts";
@@ -12,6 +12,8 @@ import {PAGES} from "../../const/pages.ts";
 import {useCurrentUser} from "../../data/queries/users.ts";
 import {useDataSources} from "../../data/queries/dataSources.ts";
 import {setDataSourceModal} from "../../data/dataSourceModalStore.ts";
+import {setActiveTab, useOpenTabs} from "../../data/openTabsStore.ts";
+import {gte} from "../../utils/numbers.ts";
 
 export const StartQuery = () => {
   const searchAndOpen = useSearchTable("Home");
@@ -70,19 +72,42 @@ export const ConnectDataSource = () => {
 export const WorkbenchTabs = () => {
   const navigate = useNavigate();
 
+  const tabs = useOpenTabs();
   const onOpenWorkbench = () => {
     navigate(PAGES.workbench.path);
     Analytics.event("On open workbench [Home]");
   };
 
+  const onOpenTab: MouseEventHandler<HTMLButtonElement> = (event) => {
+    setActiveTab(event.currentTarget.dataset.tabId as string);
+    navigate(PAGES.workbench.path);
+    Analytics.event("On open workbench tab [Home]");
+  };
+
   return (
-    <div className="card-white hover:bg-gray-50! cursor-pointer" onClick={onOpenWorkbench}>
+    <div className="card-white lg:col-span-2">
       <h2 className={st.actionTitle}>
         <span>🛠️ Workbench</span>
-        <span className="hotkey">W</span>
+        <button onClick={onOpenWorkbench} className="hotkey">W</button>
       </h2>
 
       <p className={st.actionSubtext}>Continue your work from where you left.</p>
+
+      {gte(tabs?.length, 0) && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {tabs?.map((tab) => (
+            <button
+              key={tab.id}
+              className={st.tab}
+              onClick={onOpenTab}
+              data-tab-id={tab.id}
+            >
+              <span>📄</span>
+              <span className="truncate">{tab.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

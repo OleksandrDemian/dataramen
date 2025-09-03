@@ -1,7 +1,5 @@
 @import "tailwindcss";
 
 .form-container {
-  @apply flex flex-col items-center gap-2 mt-4;
-  width: 400px;
-  max-width: 100%;
+  @apply flex flex-col items-center gap-2 mt-4 w-full lg:w-lg;
 }

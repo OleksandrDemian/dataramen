@@ -182,7 +182,7 @@ export const ColumnsPicker = ({ onCancel, mode }: TQueryColumnsProps) => {
 
         <div className="overflow-y-auto">
           {filtered.map((table) => (
-            <div key={table.name} className="mt-2">
+            <div key={table.name} className="my-2">
               <p className="font-semibold sticky top-0 bg-white p-1 z-1">📄 {table.name}</p>
               {table.columns.map((column) => (
                 <ColumnEntry
