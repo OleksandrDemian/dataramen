@@ -10,6 +10,7 @@ import {ALLOW_DATE_FUNCTIONS} from "@dataramen/common";
 
 type TColumn = {
   label: string;
+  ogColumn: string;
   value: string;
   type: string;
   nested?: boolean;
@@ -29,12 +30,14 @@ function parseColumns (availableColumns: TRunSqlResult["allColumns"]) {
     if (groups[col.table]) {
       groups[col.table].push({
         value: col.full,
+        ogColumn: col.column,
         label: generateColumnLabel(col.column),
         type: col.type,
       });
     } else {
       groups[col.table] = [{
         value: col.full,
+        ogColumn: col.column,
         label: generateColumnLabel(col.column),
         type: col.type,
       }];
@@ -44,6 +47,7 @@ function parseColumns (availableColumns: TRunSqlResult["allColumns"]) {
       ["YEAR", "MONTH", "DAY"].forEach((fn) => {
         groups[col.table].push({
           value: fn + " " + col.full,
+          ogColumn: col.column,
           label: fn + " " + generateColumnLabel(col.column),
           type: "number",
           nested: true,
@@ -69,8 +73,9 @@ function filterColumns (tables: TTables, filter: string): TTables {
       const filteredColumns = table.columns.filter(
         col =>
           col.label.toLowerCase().includes(lowerFilter) ||
-          col.value.toLowerCase().includes(lowerFilter)
+          col.ogColumn.toLowerCase().includes(lowerFilter)
       );
+
       return { ...table, columns: filteredColumns };
     })
     .filter(table => table.columns.length > 0); // Remove tables with no matching columns

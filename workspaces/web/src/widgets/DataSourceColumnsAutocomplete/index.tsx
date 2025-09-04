@@ -34,12 +34,11 @@ export const DataSourceColumnsAutocomplete = ({ dataSourceId, focusId, placehold
 
     return t.flatMap(inspection => {
       return inspection.columns.map(column => {
-        const value = `${inspection.tableName}.${column.name}`;
         return {
           value,
           label: column.name,
           table: inspection.tableName,
-          searchValue: value.toLowerCase(),
+          searchValue: column.name.toLowerCase(),
         };
       });
     });

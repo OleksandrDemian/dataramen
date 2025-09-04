@@ -21,11 +21,13 @@ export class SelectQueryBuilder {
   addWhere(condition: QueryFilter): SelectQueryBuilder {
     const conditionStr = buildQueryFilterCondition(condition, this.dialect);
 
-    if (this.skeleton.where) {
-      const connector = condition.connector || 'AND';
-      this.skeleton.where += ` ${connector} ${conditionStr}`;
-    } else {
-      this.skeleton.where = conditionStr;
+    if (condition.isEnabled !== false) { // consider undefined as true
+      if (this.skeleton.where) {
+        const connector = condition.connector || 'AND';
+        this.skeleton.where += ` ${connector} ${conditionStr}`;
+      } else {
+        this.skeleton.where = conditionStr;
+      }
     }
 
     return this;
@@ -49,11 +51,13 @@ export class SelectQueryBuilder {
   addHaving(condition: QueryFilter): SelectQueryBuilder {
     const conditionStr = buildQueryFilterCondition(condition, this.dialect);
 
-    if (this.skeleton.having) {
-      const connector = condition.connector || 'AND';
-      this.skeleton.having += ` ${connector} ${conditionStr}`;
-    } else {
-      this.skeleton.having = conditionStr;
+    if (condition.isEnabled !== false) { // consider undefined as true
+      if (this.skeleton.having) {
+        const connector = condition.connector || 'AND';
+        this.skeleton.having += ` ${connector} ${conditionStr}`;
+      } else {
+        this.skeleton.having = conditionStr;
+      }
     }
 
     return this;

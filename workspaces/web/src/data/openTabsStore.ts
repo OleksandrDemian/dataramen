@@ -2,6 +2,7 @@ import {TTableOptions} from "../widgets/ExplorerView/context/TableContext.ts";
 import {createTableOptions} from "../widgets/ExplorerView/utils.ts";
 import {createPersistedStore} from "../utils/storeUtils.ts";
 import toast from "react-hot-toast";
+import {genSimpleId} from "../utils/id.ts";
 
 export type TExplorerTab = {
   label: string;
@@ -28,7 +29,7 @@ export const pushNewExplorerTab = (label: string, opts: Partial<TTableOptions>, 
   const newTab = pushNewTab({
     label,
     type: "explorer",
-    id: Date.now().toString(36),
+    id: genSimpleId(),
     options: createTableOptions(opts),
   });
 

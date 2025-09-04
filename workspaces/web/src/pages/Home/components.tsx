@@ -1,5 +1,5 @@
 import {useSearchTable} from "../../data/tableSearchModalStore.ts";
-import {MouseEventHandler, useState} from "react";
+import {useState} from "react";
 import {useRequireRole} from "../../hooks/useRequireRole.ts";
 import toast from "react-hot-toast";
 import {Analytics} from "../../utils/analytics.ts";
@@ -12,19 +12,18 @@ import {PAGES} from "../../const/pages.ts";
 import {useCurrentUser} from "../../data/queries/users.ts";
 import {useDataSources} from "../../data/queries/dataSources.ts";
 import {setDataSourceModal} from "../../data/dataSourceModalStore.ts";
-import {setActiveTab, useOpenTabs} from "../../data/openTabsStore.ts";
-import {gte} from "../../utils/numbers.ts";
+import {useOpenTabs} from "../../data/openTabsStore.ts";
 
 export const StartQuery = () => {
   const searchAndOpen = useSearchTable("Home");
 
   return (
-    <div className="card-white relative hover:bg-gray-50! cursor-pointer" onClick={searchAndOpen}>
+    <div className="card-white lg:col-span-2" onClick={searchAndOpen}>
       <h2 className={st.actionTitle}>
         <span>🔎 Start new query</span>
         <span className="hotkey">N</span>
       </h2>
-      <p className={st.actionSubtext}>Select a table to start from. You will be able to customize your query later.</p>
+      <input className="input mt-3 w-full" placeholder="Search table or query to start" />
     </div>
   );
 };
@@ -59,11 +58,6 @@ export const ConnectDataSource = () => {
       >
         <p className={st.actionTitle}>🧙‍♂️ Connection wizard</p>
         <p className={st.actionSubtext}>Configure new database connection.</p>
-
-        <div className="flex gap-2 mt-2">
-          <DataSourceIcon size={28} type="postgres" />
-          <DataSourceIcon size={28} type="mysql" />
-        </div>
       </div>
     </div>
   );
@@ -71,43 +65,26 @@ export const ConnectDataSource = () => {
 
 export const WorkbenchTabs = () => {
   const navigate = useNavigate();
-
   const tabs = useOpenTabs();
-  const onOpenWorkbench = () => {
-    navigate(PAGES.workbench.path);
-    Analytics.event("On open workbench [Home]");
-  };
+  const searchAndOpen = useSearchTable("Home");
 
-  const onOpenTab: MouseEventHandler<HTMLButtonElement> = (event) => {
-    setActiveTab(event.currentTarget.dataset.tabId as string);
-    navigate(PAGES.workbench.path);
-    Analytics.event("On open workbench tab [Home]");
+  const onOpenWorkbench = () => {
+    if (tabs.length > 0) {
+      navigate(PAGES.workbench.path);
+      Analytics.event("On open workbench [Home]");
+    } else {
+      searchAndOpen();
+    }
   };
 
   return (
-    <div className="card-white lg:col-span-2">
+    <div className="card-white hover:bg-gray-50! cursor-pointer" onClick={onOpenWorkbench}>
       <h2 className={st.actionTitle}>
         <span>🛠️ Workbench</span>
-        <button onClick={onOpenWorkbench} className="hotkey">W</button>
+        <span className="hotkey">W</span>
       </h2>
 
       <p className={st.actionSubtext}>Continue your work from where you left.</p>
-
-      {gte(tabs?.length, 0) && (
-        <div className="mt-2 flex flex-wrap gap-1">
-          {tabs?.map((tab) => (
-            <button
-              key={tab.id}
-              className={st.tab}
-              onClick={onOpenTab}
-              data-tab-id={tab.id}
-            >
-              <span>📄</span>
-              <span className="truncate">{tab.label}</span>
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 };
@@ -129,7 +106,7 @@ export const ListDataSources = () => {
 
   return (
     <div className="mt-8">
-      <h2 className="text-4xl font-semibold text-gray-700 text-center lg:text-left">Data sources</h2>
+      <h2 className="font-semibold text-gray-700">Data sources</h2>
 
       <div className="grid lg:grid-cols-2 gap-2 mt-4">
         {dataSources?.map((d) => (

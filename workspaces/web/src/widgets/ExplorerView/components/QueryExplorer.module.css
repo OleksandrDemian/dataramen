@@ -116,9 +116,9 @@
 }
 
 .options-container {
-  min-width: 180px;
-  max-width: 60vw;
   max-height: 30vh;
+
+  @apply w-full lg:w-md lg:max-w-lg;
   @apply p-2 rounded-lg bg-white flex flex-col gap-2 shadow-lg border border-gray-200 overflow-y-auto relative;
 
   & + & {

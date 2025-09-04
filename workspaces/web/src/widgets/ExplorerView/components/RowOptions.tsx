@@ -10,6 +10,7 @@ import st from "./QueryExplorer.module.css";
 import clsx from "clsx";
 import {HookButton} from "../../HookButton";
 import {gte} from "../../../utils/numbers.ts";
+import {genSimpleId} from "../../../utils/id.ts";
 
 export type TRowOptionsProps = {
   handler: TContextMenuHandler;
@@ -41,6 +42,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
       filters: [
         ...state.filters,
         ...state.groupBy.map((g) => ({
+          id: genSimpleId(),
           connector: "AND",
           column: g.value,
           operator: "=",
@@ -66,6 +68,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
       table: hook.on.toTable,
       dataSourceId,
       filters: [{
+        id: genSimpleId(),
         column: hook.on.toTable + "." + hook.on.toColumn,
         operator: value == null ? "IS NULL" : "=",
         connector: "AND",

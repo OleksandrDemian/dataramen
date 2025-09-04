@@ -49,7 +49,17 @@ dataramen start
 
 ### Open the App
 
-Go to https://app.dataramen.xyz in your browser. Your local server will connect automatically.
+Go to `localhost:4466` in your browser. Your local server will connect automatically.
+
+### Update the App
+
+You can update DataRamen CLI using `NPM` install command:
+
+```bash
+npm i -g @dataramen/cli
+```
+
+The above command will install latest stable version.
 
 ## 🔧 Additional CLI Commands
 

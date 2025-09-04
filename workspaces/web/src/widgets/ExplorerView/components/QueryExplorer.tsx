@@ -5,13 +5,11 @@ import {Alert} from "../../Alert";
 import {sanitizeCellValue} from "../../../utils/sql.ts";
 import st from "./QueryExplorer.module.css";
 import {
-  QueryResultContext, TableContext, TTableContext,
+  QueryResultContext,
 } from "../context/TableContext.ts";
-import {TDbValue, TResultColumn} from "@dataramen/types";
-import { OPERATOR_LABEL, STRING_TYPES } from "@dataramen/common";
+import {TDbValue} from "@dataramen/types";
 import {useContextMenuHandler} from "./ContextualMenu.handler.ts";
 import {useOrderByStatements} from "../hooks/useOrderByStatements.ts";
-import {FiltersModal} from "./FiltersModal.tsx";
 import {useCellActions} from "../hooks/useCellActions.ts";
 import {RowOptions, TRowOptionsProps} from "./RowOptions.tsx";
 
@@ -20,23 +18,12 @@ const orderEmojis = {
   DESC: "⬇️",
 };
 
-function getDefaultOperator (filterColumn: TResultColumn, getColumnType: TTableContext["getColumnType"]) {
-  const colType = getColumnType(filterColumn.full);
-  if (!colType) {
-    return OPERATOR_LABEL["="];
-  }
-
-  return STRING_TYPES.includes(colType) ? OPERATOR_LABEL["LIKE"] : OPERATOR_LABEL["="];
-}
-
 const TableHeaders = () => {
   const { data } = useContext(QueryResultContext);
-  const { getColumnType } = useContext(TableContext);
   const { orderBy: orderByList, updateOrderBy } = useOrderByStatements();
 
   const columns = data?.columns || [];
   const orderBy = orderByList[0];
-  const [filterColumn, setFilterColumn] = useState<TResultColumn | undefined>();
 
   return (
     <thead>
@@ -45,38 +32,17 @@ const TableHeaders = () => {
           <td className={st.headerCell} key={column.full}>
             <div className="overflow-hidden">
               <p className="text-xs truncate">{column.table || '-'}</p>
-              <p className="text-sm font-bold truncate">{column.alias}</p>
+              <p className="text-sm font-bold truncate">{column.column}</p>
             </div>
 
             <div className={st.headerActions}>
-              {/* if no table than it might be aggregated. Cannot use aggregated values in WHERE */}
-              {column.table && (
-                <button
-                  onClick={() => {
-                    setFilterColumn(column);
-                  }}
-                >
-                  🔎
-                </button>
-              )}
-              <button
-                onClick={() => updateOrderBy(column.full)}
-              >
+              <button onClick={() => updateOrderBy(column.full)}>
                 {orderBy?.column === column.full ? orderEmojis[orderBy.direction] : '↕️'}
               </button>
             </div>
           </td>
         ))}
       </tr>
-
-      {filterColumn && (
-        <FiltersModal
-          selectColumn={filterColumn.full}
-          selectedOperation={getDefaultOperator(filterColumn, getColumnType)}
-          focusOn="value"
-          onClose={() => setFilterColumn(undefined)}
-        />
-      )}
     </thead>
   );
 };

@@ -5,6 +5,7 @@ import {displayValue} from "../../../data/valueDisplayStore.ts";
 import {QueryFilter} from "@dataramen/sql-builder";
 import toast from "react-hot-toast";
 import {TRunQueryResult} from "../../../data/types/queryRunner.ts";
+import {genSimpleId} from "../../../utils/id.ts";
 
 type TCellEvent = {
   col: number;
@@ -96,6 +97,8 @@ export const useCellActions = () => {
       let filter: QueryFilter;
       if (value === undefined || value === null) {
         filter = {
+          id: genSimpleId(),
+          isEnabled: true,
           column: actualValue,
           connector: 'AND',
           operator: "IS NULL"
@@ -106,6 +109,8 @@ export const useCellActions = () => {
           getColumnType(actualValue),
         );
         filter = {
+          id: genSimpleId(),
+          isEnabled: true,
           column: actualValue,
           connector: 'AND',
           operator: "=",

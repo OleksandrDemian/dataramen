@@ -71,7 +71,7 @@ const renderTooltip: ITooltip["render"] = ({
       {tab.options.joins.length > 0 && (
         <div className={st.tooltipInfoEntry}>
           <p className="text-sm">joins</p>
-          <p className="font-semibold">{tab.options.joins.map((j) => j.table).join(", ")}</p>
+          <p className="truncate font-semibold">{tab.options.joins.map((j) => j.table).join(", ")}</p>
         </div>
       )}
 
@@ -146,7 +146,7 @@ export const WorkbenchPage = () => {
         <Tooltip id="tab" render={renderTooltip} className="z-10 shadow-md border border-blue-400 p-0!" offset={-4} noArrow opacity={1} variant="light" clickable delayShow={500} />
       )}
 
-      <div className={st.tabs}>
+      <div className={clsx(st.tabs, "no-scrollbar")}>
         {openTabs?.map((t) => (
           <div
             key={t.id}
