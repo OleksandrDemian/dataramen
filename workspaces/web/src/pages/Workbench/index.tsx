@@ -12,14 +12,13 @@ import {MouseEventHandler, useCallback, useMemo} from "react";
 import clsx from "clsx";
 import {ExplorerView} from "../../widgets/ExplorerView";
 import {prompt} from "../../data/promptModalStore.ts";
-import {Link, Navigate} from "react-router-dom";
+import {Navigate} from "react-router-dom";
 import {TTableOptions} from "../../widgets/ExplorerView/context/TableContext.ts";
 import {ITooltip, Tooltip} from "react-tooltip";
 import {getDataSource} from "../../data/queries/dataSource.utils.ts";
 import {filterToString} from "../../utils/sql.ts";
 import {useMediaQuery} from "../../hooks/useMediaQuery.ts";
 import {ScreenQuery} from "../../utils/screen.ts";
-import {toggleShowQuerySidebar} from "../../data/showQuerySidebarStore.ts";
 import {toggleSidebarMenu} from "../../data/showSidebarMenuStore.ts";
 
 const renderTooltip: ITooltip["render"] = ({
@@ -143,7 +142,16 @@ export const WorkbenchPage = () => {
   return (
     <div className="h-screen max-h-screen bg-(--bg) flex flex-col">
       {isDesktop && (
-        <Tooltip id="tab" render={renderTooltip} className="z-10 shadow-md border border-blue-400 p-0!" offset={-4} noArrow opacity={1} variant="light" clickable delayShow={500} />
+        <Tooltip id="tab" render={renderTooltip} className="z-10 shadow-md border border-blue-400 p-0!" offset={-1} noArrow opacity={1} variant="light" clickable delayShow={500} />
+      )}
+
+      {tab && (
+        <ExplorerView
+          updater={updater}
+          options={tab.options}
+          name={tab.label}
+          tabId={tab.id}
+        />
       )}
 
       <div className={clsx(st.tabs, "no-scrollbar")}>
@@ -164,28 +172,12 @@ export const WorkbenchPage = () => {
             <button className={st.closeButton} onClick={() => onClose(t.id)}>
               <CloseIcon width={20} height={20} />
             </button>
-            {t.id === tab?.id && (
-              <span className={st.activeTab} />
-            )}
           </div>
         ))}
       </div>
 
-      {tab && (
-        <ExplorerView
-          updater={updater}
-          options={tab.options}
-          name={tab.label}
-          tabId={tab.id}
-        />
-      )}
-
       {!isDesktop && (
-        <div className="fixed bottom-0 left-0 right-0 p-2 flex justify-end gap-2">
-          <Link to="/">
-            <button className={st.mobileButton}>🏠</button>
-          </Link>
-          <button onClick={toggleShowQuerySidebar} className={st.mobileButton}>✏️</button>
+        <div className="fixed bottom-10 right-0 p-2">
           <button onClick={toggleSidebarMenu} className={st.mobileButton}>☰</button>
         </div>
       )}

@@ -10,7 +10,6 @@ import {useCreateTableContext, useCreateTableOptionsContext} from "./utils.ts";
 import {useTableExplorer} from "../../data/queries/queryRunner.ts";
 import {TableOptions} from "./components/TableOptions.tsx";
 import {TInputColumn} from "@dataramen/types";
-import clsx from "clsx";
 
 function computeColumns(cols: TInputColumn[], groupBy: TInputColumn[], agg: TInputColumn[]): TInputColumn[] {
   const result: TInputColumn[] = [];
@@ -27,10 +26,9 @@ export type TDataSourceExplorerTabProps = {
   options: TTableOptions;
   updater: TTableOptionsUpdater;
   name: string;
-  className?: string;
   tabId?: string;
 };
-export const ExplorerView = ({ options, updater, name, className, tabId }: TDataSourceExplorerTabProps) => {
+export const ExplorerView = ({ options, updater, name, tabId }: TDataSourceExplorerTabProps) => {
   const tableOptionsContext = useCreateTableOptionsContext(options, updater);
   const { state: tableOptions } = tableOptionsContext;
 
@@ -50,19 +48,22 @@ export const ExplorerView = ({ options, updater, name, className, tabId }: TData
   const context = useCreateTableContext(query.data, options.dataSourceId, name, tabId);
 
   return (
-    <div className={clsx("flex flex-1 gap-1 overflow-hidden", className)}>
-      <TableContext value={context}>
-        <TableOptionsContext value={tableOptionsContext}>
-          <QueryResultContext value={query}>
-            <div className="m-1 flex-1 overflow-auto relative">
-              <TableOptions />
+    <TableContext value={context}>
+      <TableOptionsContext value={tableOptionsContext}>
+        <QueryResultContext value={query}>
+          <TableOptions />
+
+          <div className="flex-1 flex overflow-hidden">
+            <div className="m-1 flex-1 overflow-auto pb-6 no-scrollbar">
+              {/* workaround, somehow this fixes table head disalignment glitch */}
+              <div className="pb-0.5 sticky bottom-0" />
               <QueryExplorer />
             </div>
 
             <QueryBuilderSidebar />
-          </QueryResultContext>
-        </TableOptionsContext>
-      </TableContext>
-    </div>
+          </div>
+        </QueryResultContext>
+      </TableOptionsContext>
+    </TableContext>
   );
 };

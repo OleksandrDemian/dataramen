@@ -1,13 +1,13 @@
 @import "tailwindcss";
 
 .root {
-  width: 30px;
+  width: 0;
   transition: width 250ms ease-in-out;
   @apply flex relative;
 }
 
 .root-show {
-  width: 430px;
+  width: 400px;
 }
 
 .content-desktop {
