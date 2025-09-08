@@ -35,7 +35,7 @@ export const DataSourceColumnsAutocomplete = ({ dataSourceId, focusId, placehold
     return t.flatMap(inspection => {
       return inspection.columns.map(column => {
         return {
-          value,
+          value: inspection.tableName + "." + column.name,
           label: column.name,
           table: inspection.tableName,
           searchValue: column.name.toLowerCase(),
