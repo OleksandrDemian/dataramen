@@ -1,7 +1,7 @@
 import {useDataSources} from "../../data/queries/dataSources.ts";
 import {useCurrentUser} from "../../data/queries/users.ts";
 import {Alert} from "../../widgets/Alert";
-import {StartQuery, ConnectDataSource, WorkbenchTabs, ListDataSources} from "./components.tsx";
+import {StartQuery, ConnectDataSource, WorkbenchTabs, ListDataSources, UsefulLinks} from "./components.tsx";
 
 export const HomePage = () => {
   const {data: user} = useCurrentUser();
@@ -37,6 +37,8 @@ export const HomePage = () => {
         {hasUser && (
           <ListDataSources />
         )}
+
+        <UsefulLinks />
       </div>
     </div>
   );

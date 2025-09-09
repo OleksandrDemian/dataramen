@@ -169,7 +169,7 @@ export const ProjectStructure = () => {
 
   return (
     <div className={st.container}>
-      <div className="mb-4">
+      <div>
         <button onClick={onHome} className={st.menu}><span>{PAGES.home.name}</span><span className="hotkey">H</span></button>
         <button disabled={!user} onClick={onNewQuery} className={st.menu}><span>🔎 Start new query</span><span className="hotkey">N</span></button>
         <button disabled={!user} onClick={onWorkbench} className={st.menu}><span>🛠️ Workbench</span><span className="hotkey">W</span></button>
@@ -178,7 +178,7 @@ export const ProjectStructure = () => {
       <div className="flex-1 overflow-y-auto">
         {gte(projectDataSources?.length, 0) && (
           <>
-            <p className="text-gray-600 font-semibold">Data sources</p>
+            <p className="text-gray-600 mt-4 mb-1 font-semibold">📦 Data sources</p>
             {projectDataSources.map((dataSource, index) => (
               <Datasource dataSource={dataSource} key={dataSource.id} index={index + 1} />
             ))}
@@ -187,7 +187,7 @@ export const ProjectStructure = () => {
 
         {gte(projectQueries?.length, 0) && (
           <>
-            <p className="text-gray-600 mt-2 font-semibold">Queries</p>
+            <p className="text-gray-600 mt-4 mb-1 font-semibold">🗃️ Saved queries</p>
             {projectQueries.map((file) => (
               <Query
                 onDelete={deleteQuery}
@@ -203,7 +203,7 @@ export const ProjectStructure = () => {
 
         {gte(workbenchTabs?.length, 0) && (
           <>
-            <p className="text-gray-600 mt-2 font-semibold">Workbench tabs</p>
+            <p className="text-gray-600 mt-4 mb-1 font-semibold">🛠️ Workbench tabs</p>
             {workbenchTabs?.map((tab) => (
               <button key={tab.id} className={st.file} onClick={() => onOpenTab(tab.id)}>
                 📄 {tab.label}

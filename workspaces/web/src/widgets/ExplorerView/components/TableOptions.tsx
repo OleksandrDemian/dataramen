@@ -109,7 +109,7 @@ function Pagination () {
       >
         ⬅️ Prev
       </button>
-      <span className="lg:text-xs text-sm bg-gray-50 rounded-md px-2 border border-gray-200">{page+1}</span>
+      <span className="text-sm bg-gray-50 rounded-md px-2 border border-gray-200">{page+1}</span>
       <button
         data-tooltip-content="Next page"
         data-tooltip-id="default"

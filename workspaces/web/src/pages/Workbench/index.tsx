@@ -104,7 +104,15 @@ export const WorkbenchPage = () => {
     return openTabs[0];
   }, [activeTab, openTabs]);
 
-  const onClose = (tabId: string) => removeTab(tabId);
+  const onCloseTab: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    const tabId = e.currentTarget.getAttribute("data-tab-id");
+    if (tabId) {
+      removeTab(tabId);
+    }
+  };
 
   const onAuxTabClick: MouseEventHandler<HTMLDivElement> = (event) => {
     if (event.button === 1) {
@@ -158,6 +166,7 @@ export const WorkbenchPage = () => {
         {openTabs?.map((t) => (
           <div
             key={t.id}
+            onClick={() => setActiveTab(t.id)}
             className={clsx(st.tab, t.id === tab?.id && st.active)}
             data-tab-id={t.id}
             data-tooltip-id="tab"
@@ -168,8 +177,8 @@ export const WorkbenchPage = () => {
               onRenameTab(t.id);
             }}
           >
-            <button className="cursor-pointer truncate w-full" onClick={() => setActiveTab(t.id)}>📄 {t.label}</button>
-            <button className={st.closeButton} onClick={() => onClose(t.id)}>
+            <span className="truncate w-full">📄 {t.label}</span>
+            <button data-tab-id={t.id} className={st.closeButton} onClick={onCloseTab}>
               <CloseIcon width={20} height={20} />
             </button>
           </div>
@@ -177,7 +186,7 @@ export const WorkbenchPage = () => {
       </div>
 
       {!isDesktop && (
-        <div className="fixed bottom-10 right-0 p-2">
+        <div className="fixed bottom-11 right-0 p-2">
           <button onClick={toggleSidebarMenu} className={st.mobileButton}>☰</button>
         </div>
       )}

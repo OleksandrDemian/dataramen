@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 .tabs {
-  @apply flex bg-white border-t border-gray-200 overflow-x-auto p-1;
+  @apply flex bg-white border-t border-gray-200 overflow-x-auto p-1 gap-1;
 }
 
 .tab {
   min-width: 150px;
   max-width: 150px;
 
-  @apply p-1 inline-flex gap-1 justify-between items-center font-semibold text-sm bg-white rounded-md;
+  @apply p-2 inline-flex gap-1 justify-between items-center font-semibold text-sm bg-white rounded-md cursor-pointer;
 
   &.active {
     @apply bg-blue-100 text-blue-600;
