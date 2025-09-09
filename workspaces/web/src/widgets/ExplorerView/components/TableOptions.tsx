@@ -11,18 +11,15 @@ import {omit} from "../../../utils/omit.ts";
 import {prompt} from "../../../data/promptModalStore.ts";
 import {closeQueryModal} from "../../../data/queryModalStore.ts";
 import {useDataSource} from "../../../data/queries/dataSources.ts";
-import {useMediaQuery} from "../../../hooks/useMediaQuery.ts";
-import {ScreenQuery} from "../../../utils/screen.ts";
 import {useRequireRole} from "../../../hooks/useRequireRole.ts";
+import {toggleShowQuerySidebar} from "../../../data/showQuerySidebarStore.ts";
 
 export function TableOptions () {
-  const isTablet = useMediaQuery(ScreenQuery.tablet);
-
   return (
-    <div className="py-2 flex justify-center gap-2 sticky top-0 left-0">
+    <div className="flex items-center bg-white border-b border-gray-200 overflow-auto no-scrollbar">
       <Main />
       <Pagination />
-      {isTablet && <PageSize/>}
+      <PageSize/>
       <SearchAll />
     </div>
   );
@@ -68,23 +65,29 @@ function Main () {
 
   return (
     <div className={st.tableConfig}>
+      <button data-tooltip-id="default" data-tooltip-content="Edit query parameters (joins, filters, etc...)" onClick={toggleShowQuerySidebar} className={clsx(st.tableAction, st.blue)}>
+        ✏️ Query editor
+      </button>
+
       <button data-tooltip-id="default" data-tooltip-content="Refresh data" onClick={() => refetch()} className={clsx(st.tableAction, st.blue)}>
-        🔄
+        🔄 Refresh
       </button>
 
       {isEditor && (
         <button data-tooltip-id="default" data-tooltip-content="Save query" onClick={onSaveQuery} className={clsx(st.tableAction, st.blue)}>
-          💾
+          💾 Save
         </button>
       )}
 
       {isEditor && dataSource?.allowInsert === true && (
         <button data-tooltip-id="default" data-tooltip-content="Insert new row" onClick={onInsert} className={clsx(st.tableAction, st.blue)}>
-          📝
+          📝 New row
         </button>
       )}
 
-      <button data-tooltip-id="default" data-tooltip-content="Open in a new tab" onClick={onOpen} className={clsx(st.tableAction, st.blue)}>↗️</button>
+      <button data-tooltip-id="default" data-tooltip-content="Clone in a new tab" onClick={onOpen} className={clsx(st.tableAction, st.blue)}>
+        ↗️ Clone
+      </button>
     </div>
   );
 }
@@ -104,9 +107,9 @@ function Pagination () {
         className={clsx(st.tableAction, st.blue)}
         onClick={() => setPage(page - 1)}
       >
-        ⬅️
+        ⬅️ Prev
       </button>
-      <span>{page+1}</span>
+      <span className="text-sm bg-gray-50 rounded-md px-2 border border-gray-200">{page+1}</span>
       <button
         data-tooltip-content="Next page"
         data-tooltip-id="default"
@@ -114,7 +117,7 @@ function Pagination () {
         className={clsx(st.tableAction, st.blue)}
         onClick={() => setPage(page + 1)}
       >
-        ➡️
+        Next ➡️
       </button>
     </div>
   );
@@ -132,12 +135,12 @@ function PageSize () {
           value={size}
           onChange={(e) => setSize(parseInt(e.target.value, 10))}
         >
-          <option value={5}>5</option>
-          <option value={10}>10</option>
-          <option value={20}>20</option>
-          <option value={50}>50</option>
-          <option value={100}>100</option>
-          <option value={200}>200</option>
+          <option value={5}>5 rows</option>
+          <option value={10}>10 rows</option>
+          <option value={20}>20 rows</option>
+          <option value={50}>50 rows</option>
+          <option value={100}>100 rows</option>
+          <option value={200}>200 rows</option>
         </select>
       </label>
     </div>
@@ -176,7 +179,7 @@ function SearchAll () {
         </button>
       ) : (
         <button data-tooltip-id="default" data-tooltip-content="Search text in all columns" onClick={onSearchAll} className={clsx(st.tableAction, st.blue)}>
-          🔎
+          🔎 Search text
         </button>
       )}
     </div>

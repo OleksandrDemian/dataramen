@@ -120,3 +120,23 @@ export const ListDataSources = () => {
     </div>
   );
 };
+
+export const UsefulLinks = () => {
+  return (
+    <div className="mt-8">
+      <h2 className="font-semibold text-gray-700">Useful links</h2>
+
+      <div className="grid lg:grid-cols-2 gap-2 mt-4">
+        <a className="card-white hover:bg-gray-50!" href="https://dataramen.xyz/">
+          <p className={st.actionTitle}>Documentation</p>
+          <p className={st.actionSubtext}>Learn hot to use DataRamen</p>
+        </a>
+
+        <a className="card-white hover:bg-gray-50!" href="https://github.com/OleksandrDemian/dataramen">
+          <p className={st.actionTitle}>Github</p>
+          <p className={st.actionSubtext}>Codebase is open sourced on Github</p>
+        </a>
+      </div>
+    </div>
+  );
+};

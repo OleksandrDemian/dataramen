@@ -95,12 +95,15 @@
 }
 
 .table-config {
-  @apply text-sm inline-flex items-center gap-2 bg-white border border-blue-200 rounded-lg;
+  @apply flex gap-1 items-center p-1;
+
+  &:not(:last-child) {
+    @apply border-r border-gray-200;
+  }
 }
 
 .table-action {
-  max-width: 100px;
-  @apply flex items-center gap-2 p-1 cursor-pointer relative rounded-lg whitespace-nowrap;
+  @apply flex items-center p-2 cursor-pointer whitespace-nowrap text-sm rounded-md font-semibold;
 }
 
 .table-action.blue {

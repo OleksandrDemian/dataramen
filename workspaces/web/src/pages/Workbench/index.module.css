@@ -1,18 +1,21 @@
 @import "tailwindcss";
 
 .tabs {
-  @apply flex bg-white border-b border-gray-200 overflow-x-auto;
+  @apply flex bg-white border-b border-gray-200 overflow-x-auto p-1 gap-1;
 }
 
 .tab {
   min-width: 150px;
   max-width: 150px;
 
-  padding-bottom: 10px;
-  @apply px-1 pt-2 inline-flex gap-1 justify-between items-center font-semibold text-sm bg-white relative;
+  @apply p-2 inline-flex gap-1 justify-between items-center font-semibold text-sm bg-white rounded-md cursor-pointer;
 
   &.active {
-    @apply text-blue-600;
+    @apply bg-blue-100 text-blue-600;
+  }
+
+  &:hover {
+    @apply bg-gray-100;
   }
 
   &:hover > .close-button, &.active > .close-button {
