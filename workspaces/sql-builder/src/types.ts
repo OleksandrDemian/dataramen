@@ -25,10 +25,11 @@ export interface QueryFilter {
     // | 'EXISTS'
     // | 'NOT EXISTS'
     ;
-
   value?: { value: FilterValue; isColumn?: boolean }[];
   connector?: 'AND' | 'OR';
   fn?: string;
+  isEnabled?: boolean;
+  id: string;
 }
 
 export interface OrderByClause {

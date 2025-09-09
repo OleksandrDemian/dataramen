@@ -1,7 +1,6 @@
 import {TContextMenuHandler} from "./ContextualMenu.handler.ts";
 import {useContext, useMemo, useState} from "react";
 import {QueryResultContext, TableContext, TableOptionsContext} from "../context/TableContext.ts";
-import {openQueryModal} from "../../../data/queryModalStore.ts";
 import {QueryFilter} from "@dataramen/sql-builder";
 import {THook} from "../../../data/types/hooks.ts";
 import {updateEntityEditor} from "../../../data/entityEditorStore.ts";
@@ -10,6 +9,8 @@ import st from "./QueryExplorer.module.css";
 import clsx from "clsx";
 import {HookButton} from "../../HookButton";
 import {gte} from "../../../utils/numbers.ts";
+import {genSimpleId} from "../../../utils/id.ts";
+import {pushNewExplorerTab} from "../../../data/openTabsStore.ts";
 
 export type TRowOptionsProps = {
   handler: TContextMenuHandler;
@@ -34,13 +35,14 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
       return;
     }
 
-    openQueryModal("⬇️ " + state.table, {
+    pushNewExplorerTab("⬇️ " + state.table, {
       joins: state.joins,
       table: state.table,
       dataSourceId: state.dataSourceId,
       filters: [
         ...state.filters,
         ...state.groupBy.map((g) => ({
+          id: genSimpleId(),
           connector: "AND",
           column: g.value,
           operator: "=",
@@ -49,7 +51,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
           }],
         } satisfies QueryFilter))
       ]
-    });
+    }, true);
     handler.close();
   };
 
@@ -62,10 +64,11 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
       value: `${hook.on.fromTable}.${hook.on.fromColumn}`,
     });
 
-    openQueryModal(`${hook.on.toColumn} equals ${value}`, {
+    pushNewExplorerTab(`↗️ ${hook.on.toColumn} equals ${value}`, {
       table: hook.on.toTable,
       dataSourceId,
       filters: [{
+        id: genSimpleId(),
         column: hook.on.toTable + "." + hook.on.toColumn,
         operator: value == null ? "IS NULL" : "=",
         connector: "AND",
@@ -74,7 +77,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
           isColumn: false,
         }] : undefined,
       }],
-    });
+    }, true);
     handler.close();
   };
 

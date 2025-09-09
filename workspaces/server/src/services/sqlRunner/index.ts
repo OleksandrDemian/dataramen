@@ -61,8 +61,8 @@ export const runSelect = async (
     });
   }
 
-  const allowedOrderBy = getAllowedOrderBy(props);
-  if (allowedOrderBy) {
+  const allowedOrderBy = getAllowedOrderBy(props, dataSource.dbType as DatabaseDialect);
+  if (allowedOrderBy.length > 0) {
     queryBuilder.addOrderBy(...allowedOrderBy);
   }
 
@@ -98,7 +98,7 @@ export const runSelect = async (
   if (columns && columns.length > 0) {
     selectedColumns = columns.map((c) => processInputColumn(c, dataSource.dbType));
   } else {
-    selectedColumns = allColumns.map((c) => `${c.full} as "${c.column}"`);
+    selectedColumns = allColumns.map((c) => `${c.full} as "${c.full}"`);
   }
 
   queryBuilder.selectColumns(selectedColumns);
@@ -269,21 +269,35 @@ const sanitizeFullColumn = (value: string, dbType: DatabaseDialect): string => {
   return handleAlias(table, dbType) + "." + handleAlias(column, dbType);
 };
 
-const getAllowedOrderBy = (props: TExecuteQuery): OrderByClause[] | undefined => {
+const getAllowedOrderBy = (props: TExecuteQuery, dbType: DatabaseDialect): OrderByClause[] => {
   if (!props.orderBy) {
-    return undefined;
+    return [];
   }
+
+  let orderBy: OrderByClause[] = props.orderBy;
 
   if (props.columns && props.columns.length > 0) {
     const allowedColumnsMap = props.columns.reduce((acc, val) => {
-      acc.add(inputColumnToAlias(val));
+      acc.set(inputColumnToAlias(val), {
+        isFn: !!(val.fn || val.distinct),
+      });
+
       return acc;
-    }, new Set<string>());
+    }, new Map<string, { isFn: boolean }>());
 
     // only order by columns in group by
-    return props.orderBy.filter((o) => allowedColumnsMap.has(o.column));
+    orderBy = props.orderBy
+      .filter((o) => allowedColumnsMap.has(o.column))
+      .map((o) => {
+        if (allowedColumnsMap.get(o.column)?.isFn) {
+          return {
+            ...o,
+            column: handleAlias(o.column, dbType),
+          }
+        }
+        return o;
+      });
   }
 
-  // keep all order columns
-  return props.orderBy;
+  return orderBy;
 };

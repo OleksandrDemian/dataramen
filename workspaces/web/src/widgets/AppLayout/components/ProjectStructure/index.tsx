@@ -7,7 +7,7 @@ import {useUpdateQuery} from "../../../../data/queries/queries.ts";
 import {useContextMenuHandler} from "../../../ExplorerView/components/ContextualMenu.handler.ts";
 import {prompt} from "../../../../data/promptModalStore.ts";
 import {PAGES} from "../../../../const/pages.ts";
-import {pushNewExplorerTab, useOpenTabs} from "../../../../data/openTabsStore.ts";
+import {pushNewExplorerTab, setActiveTab, useOpenTabs} from "../../../../data/openTabsStore.ts";
 import {setDataSourceModal} from "../../../../data/dataSourceModalStore.ts";
 import {fetchQueryById} from "../../../../data/queries/queries.utils.ts";
 import {createTableOptions} from "../../../ExplorerView/utils.ts";
@@ -17,6 +17,7 @@ import {Analytics} from "../../../../utils/analytics.ts";
 import {closeMenuSidebar} from "../../../../data/showSidebarMenuStore.ts";
 import { TProjectDataSource } from "@dataramen/types";
 import {DataSourceIcon} from "../../../Icons";
+import {gte} from "../../../../utils/numbers.ts";
 
 const Query = ({
   name,
@@ -102,6 +103,7 @@ export const ProjectStructure = () => {
   const { data: user } = useCurrentUser();
   const { data: projectDataSources } = useTeamDataSources(user?.teamId);
   const { data: projectQueries } = useTeamSavedQueries(user?.teamId);
+  const workbenchTabs = useOpenTabs();
 
   const updateQuery = useUpdateQuery();
 
@@ -158,29 +160,57 @@ export const ProjectStructure = () => {
     navigate(PAGES.home.path);
   };
 
+  const onOpenTab = (tabId: string) => {
+    setActiveTab(tabId);
+    if (location.pathname !== PAGES.workbench.path) {
+      navigate(PAGES.workbench.path);
+    }
+  };
+
   return (
     <div className={st.container}>
-      <div className="mb-4">
+      <div>
         <button onClick={onHome} className={st.menu}><span>{PAGES.home.name}</span><span className="hotkey">H</span></button>
         <button disabled={!user} onClick={onNewQuery} className={st.menu}><span>🔎 Start new query</span><span className="hotkey">N</span></button>
         <button disabled={!user} onClick={onWorkbench} className={st.menu}><span>🛠️ Workbench</span><span className="hotkey">W</span></button>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {projectDataSources?.map((dataSource, index) => (
-          <Datasource dataSource={dataSource} key={dataSource.id} index={index + 1} />
-        ))}
+        {gte(projectDataSources?.length, 0) && (
+          <>
+            <p className="text-gray-600 mt-4 mb-1 font-semibold">📦 Data sources</p>
+            {projectDataSources.map((dataSource, index) => (
+              <Datasource dataSource={dataSource} key={dataSource.id} index={index + 1} />
+            ))}
+          </>
+        )}
 
-        {projectQueries?.map((file) => (
-          <Query
-            onDelete={deleteQuery}
-            onRename={updateQueryName}
-            onOpen={openQuery}
-            name={file.name}
-            id={file.id}
-            key={file.id}
-          />
-        ))}
+        {gte(projectQueries?.length, 0) && (
+          <>
+            <p className="text-gray-600 mt-4 mb-1 font-semibold">🗃️ Saved queries</p>
+            {projectQueries.map((file) => (
+              <Query
+                onDelete={deleteQuery}
+                onRename={updateQueryName}
+                onOpen={openQuery}
+                name={file.name}
+                id={file.id}
+                key={file.id}
+              />
+            ))}
+          </>
+        )}
+
+        {gte(workbenchTabs?.length, 0) && (
+          <>
+            <p className="text-gray-600 mt-4 mb-1 font-semibold">🛠️ Workbench tabs</p>
+            {workbenchTabs?.map((tab) => (
+              <button key={tab.id} className={st.file} onClick={() => onOpenTab(tab.id)}>
+                📄 {tab.label}
+              </button>
+            ))}
+          </>
+        )}
       </div>
     </div>
   );

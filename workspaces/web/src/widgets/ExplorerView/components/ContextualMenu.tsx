@@ -1,6 +1,7 @@
 import {ReactNode, useEffect, useMemo, useRef} from "react";
 import st from "./ContextualMenu.module.css";
 import {TContextMenuHandler} from "./ContextualMenu.handler.ts";
+import {isLaptop} from "../../../utils/screen.ts";
 
 type TPos = {
   top?: number;
@@ -30,10 +31,15 @@ export const ContextualMenu = ({ children, handler }: { children: ReactNode, han
         position.top = handler.position.y;
       }
 
-      if (isRightSide) {
-        position.right = window.innerWidth - handler.position.x;
+      if (isLaptop()) {
+        if (isRightSide) {
+          position.right = window.innerWidth - handler.position.x;
+        } else {
+          position.left = handler.position.x;
+        }
       } else {
-        position.left = handler.position.x;
+        position.right = 36;
+        position.left = 36;
       }
     }
 

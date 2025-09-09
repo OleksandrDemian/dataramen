@@ -29,7 +29,9 @@ export const QueryModal = () => {
   return (
     <Modal isVisible onClose={closeQueryModal}>
       <ModalClose onClick={closeQueryModal} />
-      <ExplorerView className="border border-gray-200 bg-(--bg)" name={queryModal.label} options={queryModal.options} updater={updater} />
+      <div className="border border-gray-200 bg-(--bg) flex flex-col">
+        <ExplorerView name={queryModal.label} options={queryModal.options} updater={updater} />
+      </div>
     </Modal>
   )
 };

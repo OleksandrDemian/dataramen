@@ -10,6 +10,7 @@ import {useFocus} from "../hooks/useFocus.ts";
 import {useDatabaseInspections} from "../../../data/queries/dataSources.ts";
 import {TDatabaseInspectionColumn} from "../../../data/types/dataSources.ts";
 import {allowsInput, OPERATOR_VALUE, processInputVale} from "@dataramen/common";
+import {genSimpleId} from "../../../utils/id.ts";
 
 type TTForm = {
   column: string;
@@ -85,6 +86,8 @@ export const FiltersModal = ({ onClose, selectColumn = '', selectedOperation = '
     }
 
     addFilter({
+      isEnabled: true,
+      id: genSimpleId(),
       connector: "AND",
       operator: operator,
       column: f.column,

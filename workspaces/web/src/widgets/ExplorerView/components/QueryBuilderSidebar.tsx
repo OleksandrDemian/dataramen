@@ -23,11 +23,11 @@ import toast from "react-hot-toast";
 import {useGlobalHotkey} from "../../../hooks/useGlobalHotkey.ts";
 import {Modal, ModalClose} from "../../Modal";
 import {toggleShowQuerySidebar, useShowQuerySidebar} from "../../../data/showQuerySidebarStore.ts";
-import {useMediaQuery} from "../../../hooks/useMediaQuery.ts";
-import {ScreenQuery} from "../../../utils/screen.ts";
 import {Sidebar} from "../../Sidebar";
 import {useRequireRole} from "../../../hooks/useRequireRole.ts";
 import {renameTab} from "../../../data/openTabsStore.ts";
+import {useMediaQuery} from "../../../hooks/useMediaQuery.ts";
+import {ScreenQuery} from "../../../utils/screen.ts";
 
 export const QueryBuilderSidebar = () => {
   const show = useShowQuerySidebar();
@@ -38,16 +38,7 @@ export const QueryBuilderSidebar = () => {
   if (laptop) {
     return (
       <div className={clsx(st.root, show && st.rootShow)}>
-        <button
-          data-tooltip-id="default"
-          data-tooltip-content="Customize query [Hotkey O]"
-          className={st.expand}
-          onClick={toggleShowQuerySidebar}
-        >
-          ⚙️
-        </button>
-
-        <div className={st.contentDesktop}>
+        <div className={clsx(st.contentDesktop, "no-scrollbar")}>
           <Information />
           <Actions />
           <OrderBy />
@@ -74,7 +65,7 @@ export const QueryBuilderSidebar = () => {
         <GroupBy />
       </div>
     </Sidebar>
-  )
+  );
 };
 
 export type TSectionHeadProps = {
@@ -139,6 +130,9 @@ function Actions () {
       opts: opts,
     });
   };
+
+  useGlobalHotkey("r", onRenameTab, "Rename tab");
+  useGlobalHotkey("s", onSaveQuery, "Save query");
 
   return (
     <div className="grid lg:grid-cols-3 gap-1 px-2 mb-4">

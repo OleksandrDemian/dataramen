@@ -2,6 +2,7 @@ import {useMutation, useQuery} from "react-query";
 import {apiClient} from "../clients.ts";
 import {TDbValue, TExecuteInsert, TExecuteQuery, TExecuteUpdate, TRunSqlResult} from "@dataramen/types";
 import {QueryFilter} from "@dataramen/sql-builder";
+import {genSimpleId} from "../../utils/id.ts";
 
 export const useTableExplorer = ({
   searchAll,
@@ -46,6 +47,7 @@ export const useEntity = (dataSourceId?: string, table?: string, key?: [string, 
     queryFn: async () => {
       const filters: QueryFilter[] = key ? key.map(([column, value]) => {
         return {
+          id: genSimpleId(),
           column,
           operator: "=",
           value: [{

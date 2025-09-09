@@ -16,6 +16,7 @@ import {useParseError} from "../../hooks/useParseError.ts";
 import {TDatabaseInspectionColumn} from "../../data/types/dataSources.ts";
 import {EUserTeamRole, TQueryMutationValue} from "@dataramen/types";
 import {useRequireRole} from "../../hooks/useRequireRole.ts";
+import {genSimpleId} from "../../utils/id.ts";
 
 const Component = ({ data }: { data: TEntityEditorStore }) => {
   const [form, { change, set, reset, touched }] = useForm<{ [key: string]: string }>({});
@@ -78,6 +79,7 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
       datasourceId: data.dataSourceId,
       table: data.tableName,
       filters: data.entityId.map((key) => ({
+        id: genSimpleId(),
         value: [{
           value: key[1],
         }],
