@@ -153,15 +153,6 @@ export const WorkbenchPage = () => {
         <Tooltip id="tab" render={renderTooltip} className="z-10 shadow-md border border-blue-400 p-0!" offset={-1} noArrow opacity={1} variant="light" clickable delayShow={500} />
       )}
 
-      {tab && (
-        <ExplorerView
-          updater={updater}
-          options={tab.options}
-          name={tab.label}
-          tabId={tab.id}
-        />
-      )}
-
       <div className={clsx(st.tabs, "no-scrollbar")}>
         {openTabs?.map((t) => (
           <div
@@ -185,8 +176,17 @@ export const WorkbenchPage = () => {
         ))}
       </div>
 
+      {tab && (
+        <ExplorerView
+          updater={updater}
+          options={tab.options}
+          name={tab.label}
+          tabId={tab.id}
+        />
+      )}
+
       {!isDesktop && (
-        <div className="fixed bottom-11 right-0 p-2">
+        <div className="fixed bottom-0 right-0 p-2">
           <button onClick={toggleSidebarMenu} className={st.mobileButton}>☰</button>
         </div>
       )}
