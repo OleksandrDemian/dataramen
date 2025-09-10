@@ -15,16 +15,10 @@
 
 .nav {
   position: relative;
-  min-width: 250px;
-  max-width: 70vw;
-
-  @media screen and (min-width: 1024px) {
-    max-width: 50vw;
-  }
-
+  max-width: 250px;
   max-height: 100vh;
   overflow: hidden;
-  @apply border-r border-gray-300 flex flex-col;
+  @apply border-r border-gray-300 flex flex-col w-full;
 }
 
 .nav-path {
@@ -55,9 +49,9 @@
   @apply hover:bg-gray-100 px-2 py-0.5 cursor-pointer;
 }
 
-.footer {
+.header {
   padding: 8px;
-  @apply flex flex-col border-t border-gray-300;
+  @apply flex flex-col border-b border-gray-300;
 
   button {
     @apply text-lg lg:text-base px-2 py-2 md:py-1;

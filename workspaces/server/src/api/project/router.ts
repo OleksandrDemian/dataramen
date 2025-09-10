@@ -5,8 +5,8 @@ import {
   DataSourceRepository,
   QueriesRepository,
 } from "../../repository/db";
-import {Like} from "typeorm";
-import {TFindQuery, TProjectDataSource, TProjectQuery} from "@dataramen/types";
+import {FindOptionsWhere, In, Like} from "typeorm";
+import {IDataSource, IDataSourceSchema, TFindQuery, TProjectDataSource, TProjectQuery} from "@dataramen/types";
 
 export default createRouter((instance) => {
   instance.route({
@@ -75,18 +75,24 @@ export default createRouter((instance) => {
     url: "/team/:teamId/query",
     handler: async (request) => {
       const { teamId } = getRequestParams<{ teamId: string }>(request);
-      const { search, size } = getRequestQuery<{ search: string, size: string }>(request);
+      const { search, size, selectedDataSources } = getRequestQuery<{ search: string, size: string; selectedDataSources?: string[] }>(request);
       const perResultSize = (parseInt(size) || 20) / 2;
+
+      const dsFilter: FindOptionsWhere<IDataSourceSchema> = {
+        team: {
+          id: teamId,
+        }
+      };
+
+      if (selectedDataSources?.length) {
+        dsFilter.id = In(selectedDataSources);
+      }
 
       const [tables, queries] = await Promise.all([
         DatabaseInspectionRepository.find({
           where: {
             tableName: Like(`%${search}%`),
-            datasource: {
-              team: {
-                id: teamId,
-              }
-            },
+            datasource: dsFilter,
           },
           relations: {
             datasource: true,
@@ -108,11 +114,7 @@ export default createRouter((instance) => {
           where: {
             name: Like(`%${search}%`),
             isTrash: false,
-            dataSource: {
-              team: {
-                id: teamId,
-              }
-            }
+            dataSource: dsFilter,
           },
           relations: {
             dataSource: true,

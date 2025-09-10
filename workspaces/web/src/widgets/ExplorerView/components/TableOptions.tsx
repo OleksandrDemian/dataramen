@@ -13,6 +13,8 @@ import {closeQueryModal} from "../../../data/queryModalStore.ts";
 import {useDataSource} from "../../../data/queries/dataSources.ts";
 import {useRequireRole} from "../../../hooks/useRequireRole.ts";
 import {toggleShowQuerySidebar} from "../../../data/showQuerySidebarStore.ts";
+import {useSearchTable} from "../../../data/tableSearchModalStore.ts";
+import {useGlobalHotkey} from "../../../hooks/useGlobalHotkey.ts";
 
 export function TableOptions () {
   return (
@@ -33,6 +35,7 @@ function Main () {
   const isEditor = useRequireRole(EUserTeamRole.EDITOR);
 
   const createQuery = useCreateQuery();
+  const newQuery = useSearchTable("Workbook");
 
   const onInsert = () => {
     if (data?.columns?.[0].table) {
@@ -63,30 +66,36 @@ function Main () {
     });
   };
 
+  useGlobalHotkey("e", toggleShowQuerySidebar);
+
   return (
     <div className={st.tableConfig}>
-      <button data-tooltip-id="default" data-tooltip-content="Edit query parameters (joins, filters, etc...)" onClick={toggleShowQuerySidebar} className={clsx(st.tableAction, st.blue)}>
-        ✏️ Query editor
+      <button data-tooltip-id="default" data-tooltip-content="Start new query tab [Hotkey N]" onClick={newQuery} className={clsx(st.tableAction, st.blue)}>
+        New query
+      </button>
+
+      <button data-tooltip-id="default" data-tooltip-content="Edit query parameters (joins, filters, etc...) [Hotkey E]" onClick={toggleShowQuerySidebar} className={clsx(st.tableAction, st.blue)}>
+        Query editor
       </button>
 
       <button data-tooltip-id="default" data-tooltip-content="Refresh data" onClick={() => refetch()} className={clsx(st.tableAction, st.blue)}>
-        🔄 Refresh
+        Refresh
       </button>
 
       {isEditor && (
-        <button data-tooltip-id="default" data-tooltip-content="Save query" onClick={onSaveQuery} className={clsx(st.tableAction, st.blue)}>
-          💾 Save
+        <button data-tooltip-id="default" data-tooltip-content="Save query [Hotkey S]" onClick={onSaveQuery} className={clsx(st.tableAction, st.blue)}>
+          Save
         </button>
       )}
 
       {isEditor && dataSource?.allowInsert === true && (
         <button data-tooltip-id="default" data-tooltip-content="Insert new row" onClick={onInsert} className={clsx(st.tableAction, st.blue)}>
-          📝 New row
+          New row
         </button>
       )}
 
       <button data-tooltip-id="default" data-tooltip-content="Clone in a new tab" onClick={onOpen} className={clsx(st.tableAction, st.blue)}>
-        ↗️ Clone
+        Clone
       </button>
     </div>
   );
@@ -107,7 +116,7 @@ function Pagination () {
         className={clsx(st.tableAction, st.blue)}
         onClick={() => setPage(page - 1)}
       >
-        ⬅️ Prev
+        Prev
       </button>
       <span className="text-sm bg-gray-50 rounded-md px-2 border border-gray-200">{page+1}</span>
       <button
@@ -117,7 +126,7 @@ function Pagination () {
         className={clsx(st.tableAction, st.blue)}
         onClick={() => setPage(page + 1)}
       >
-        Next ➡️
+        Next
       </button>
     </div>
   );
@@ -129,7 +138,6 @@ function PageSize () {
   return (
     <div className={st.tableConfig}>
       <label className={st.tableAction} data-tooltip-content="Size" data-tooltip-id="default">
-        📏
         <select
           style={{ height: "20px" }}
           value={size}
@@ -179,7 +187,7 @@ function SearchAll () {
         </button>
       ) : (
         <button data-tooltip-id="default" data-tooltip-content="Search text in all columns" onClick={onSearchAll} className={clsx(st.tableAction, st.blue)}>
-          🔎 Search text
+          Search text
         </button>
       )}
     </div>

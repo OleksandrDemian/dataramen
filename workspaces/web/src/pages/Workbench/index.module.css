@@ -1,12 +1,16 @@
 @import "tailwindcss";
 
 .tabs {
-  @apply flex bg-white border-b border-gray-200 overflow-x-auto p-1 gap-1;
+  @apply flex bg-white border-t border-gray-200 overflow-x-auto p-1 gap-1;
+
+  &.mobile {
+    @apply fixed left-0 right-0;
+    bottom: 53px;
+  }
 }
 
 .tab {
-  min-width: 150px;
-  max-width: 150px;
+  max-width: 200px;
 
   @apply p-2 inline-flex gap-1 justify-between items-center font-semibold text-sm bg-white rounded-md cursor-pointer;
 
@@ -53,13 +57,4 @@
   width: 200px;
   max-width: 200px;
   padding: 4px 16px;
-}
-
-.mobile-button {
-  width: 42px;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  @apply text-lg bg-white border border-gray-200 rounded-xl;
 }

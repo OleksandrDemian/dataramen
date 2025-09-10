@@ -48,19 +48,23 @@ export const invalidateTeamTrash = (teamId?: string) => {
   return queryClient.invalidateQueries(queryKey);
 };
 
-export const useSearchQueries = (search: string, teamId?: string) => {
+export const useSearchQueries = (search: string, props: {
+  teamId?: string;
+  selectedDataSources?: string[];
+}) => {
   return useQuery({
-    queryKey: ['project', teamId, 'tables', search],
+    queryKey: ['project', props.teamId, 'tables', search, props.selectedDataSources],
     queryFn: async () => {
-      const { data } = await apiClient.get<{ data: TFindQuery[] }>(`/project/team/${teamId}/query`, {
+      const { data } = await apiClient.get<{ data: TFindQuery[] }>(`/project/team/${props.teamId}/query`, {
         params: {
           size: 20,
           search,
+          selectedDataSources: props.selectedDataSources,
         },
       });
       return data.data;
     },
-    enabled: !!teamId,
+    enabled: !!props.teamId,
     staleTime: 0,
     keepPreviousData: true,
   })

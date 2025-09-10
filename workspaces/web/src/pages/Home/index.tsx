@@ -14,10 +14,9 @@ export const HomePage = () => {
   const hasUser = !!user;
 
   return (
-    <div className="page-container h-screen max-h-screen overflow-y-auto bg-(--bg)">
-      <div className="page-content h-full">
-
-        <h2 className="font-semibold text-gray-700 mt-4">Quick actions</h2>
+    <div className="page-container h-screen max-h-screen bg-(--bg)">
+      <div className="page-content h-full pb-12 overflow-y-auto">
+        <h2 className="font-semibold text-gray-700 mt-4 hidden lg:block">Quick actions</h2>
 
         {hasUser && !hasDataSources && (
           <Alert variant="warning" className="font-semibold mt-4">

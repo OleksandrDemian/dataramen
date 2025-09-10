@@ -15,4 +15,18 @@
       @apply text-blue-600;
     }
   }
+
+  .ds {
+    max-width: 120px;
+    @apply text-xs text-blue-600 truncate;
+  }
+}
+
+.ds-entry {
+  max-width: 120px;
+  @apply py-1 px-2 border border-gray-200 rounded-lg flex items-center gap-1 cursor-pointer;
+
+  span {
+    @apply truncate;
+  }
 }

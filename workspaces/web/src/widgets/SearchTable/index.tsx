@@ -1,10 +1,13 @@
 import {useSearchQueries} from "../../data/queries/project.ts";
 import {useCurrentUser} from "../../data/queries/users.ts";
-import React, {MouseEventHandler, useState} from "react";
+import React, {MouseEventHandler, useMemo, useState} from "react";
 import {useDebouncedValue} from "../../hooks/useDebouncedValue.ts";
 import st from "./index.module.css";
 import {gte} from "../../utils/numbers.ts";
 import {TFindQuery} from "@dataramen/types";
+import {useDataSources} from "../../data/queries/dataSources.ts";
+import {toggleSelectedDataSource, useSelectedDataSources} from "../../data/selectedDataSourcesStore.ts";
+import {reduceArrayToMap} from "../../utils/reducers.ts";
 
 const EMOJI: Record<TFindQuery["type"], string> = {
   table: "📄",
@@ -20,9 +23,16 @@ export const SearchQuery = ({ onTable, onQuery, autoFocus }: TSearchTableProps) 
   const [searchTerm, setSearchTerm] = useState('');
   const [activeIndex, setActiveIndex] = useState(-1);
   const debouncedSearch = useDebouncedValue(searchTerm);
+  const selectedDataSources = useSelectedDataSources();
 
   const { data: user } = useCurrentUser();
-  const { data: tables } = useSearchQueries(debouncedSearch, user?.teamId);
+  const { data: dataSources } = useDataSources({
+    teamId: user?.teamId,
+  });
+  const { data: tables } = useSearchQueries(debouncedSearch, {
+    teamId: user?.teamId,
+    selectedDataSources,
+  });
 
   const onSelect = (query: TFindQuery) => {
     if (query.type === "table") {
@@ -59,8 +69,28 @@ export const SearchQuery = ({ onTable, onQuery, autoFocus }: TSearchTableProps) 
     }
   };
 
+  const enabled = useMemo(
+    () => reduceArrayToMap(selectedDataSources),
+    [selectedDataSources]
+  );
+
   return (
-    <>
+    <div className="overflow-hidden flex flex-col w-full lg:w-lg">
+      {gte(dataSources?.length, 0) && (
+        <div className="flex overflow-x-auto mb-2 gap-2 no-scrollbar">
+          {dataSources.map(ds => (
+            <label key={ds.id} className={st.dsEntry}>
+              <input
+                type="checkbox"
+                checked={enabled[ds.id] === true}
+                onChange={() => toggleSelectedDataSource(ds.id)}
+              />
+              <span>{ds.name}</span>
+            </label>
+          ))}
+        </div>
+      )}
+
       <input
         className={st.search}
         placeholder="Search table or saved query to start from"
@@ -75,11 +105,11 @@ export const SearchQuery = ({ onTable, onQuery, autoFocus }: TSearchTableProps) 
           {tables.map((table, i) => (
             <button key={table.id} className={st.entry} data-is-active={activeIndex === i} data-table-id={table.id} onClick={onClick}>
               <p className="font-semibold">{EMOJI[table.type]} {table.name}</p>
-              <p className="text-xs text-blue-600">📦 {table.dataSourceName}</p>
+              <p className={st.ds}>📦 {table.dataSourceName}</p>
             </button>
           ))}
         </div>
       )}
-    </>
+    </div>
   );
 };
