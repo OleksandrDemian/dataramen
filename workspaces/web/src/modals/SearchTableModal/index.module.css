@@ -1,7 +1,0 @@
-.root {
-  width: 600px;
-  max-width: 100%;
-  overflow-y: hidden;
-  display: flex;
-  flex-direction: column;
-}

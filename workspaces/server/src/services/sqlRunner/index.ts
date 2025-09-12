@@ -27,7 +27,7 @@ export const runSelect = async (
   req: FastifyRequest,
   props: TExecuteQuery
 ): Promise<TRunSqlResult> => {
-  const { table, datasourceId, filters, joins, orderBy, size, page, columns, groupBy, searchAll } = props;
+  const { table, datasourceId, filters, joins, size, page, columns, groupBy, searchAll } = props;
   const dataSource = await DataSourceRepository.findOne({
     where: {
       id: datasourceId,

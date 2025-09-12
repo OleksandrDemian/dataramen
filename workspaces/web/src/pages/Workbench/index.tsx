@@ -19,7 +19,6 @@ import {getDataSource} from "../../data/queries/dataSource.utils.ts";
 import {filterToString} from "../../utils/sql.ts";
 import {useMediaQuery} from "../../hooks/useMediaQuery.ts";
 import {ScreenQuery} from "../../utils/screen.ts";
-import {toggleSidebarMenu} from "../../data/showSidebarMenuStore.ts";
 
 const renderTooltip: ITooltip["render"] = ({
  content,
@@ -153,7 +152,16 @@ export const WorkbenchPage = () => {
         <Tooltip id="tab" render={renderTooltip} className="z-10 shadow-md border border-blue-400 p-0!" offset={-1} noArrow opacity={1} variant="light" clickable delayShow={500} />
       )}
 
-      <div className={clsx(st.tabs, "no-scrollbar")}>
+      {tab && (
+        <ExplorerView
+          updater={updater}
+          options={tab.options}
+          name={tab.label}
+          tabId={tab.id}
+        />
+      )}
+
+      <div className={clsx(st.tabs, "no-scrollbar", !isDesktop && st.mobile)}>
         {openTabs?.map((t) => (
           <div
             key={t.id}
@@ -175,21 +183,6 @@ export const WorkbenchPage = () => {
           </div>
         ))}
       </div>
-
-      {tab && (
-        <ExplorerView
-          updater={updater}
-          options={tab.options}
-          name={tab.label}
-          tabId={tab.id}
-        />
-      )}
-
-      {!isDesktop && (
-        <div className="fixed bottom-0 right-0 p-2">
-          <button onClick={toggleSidebarMenu} className={st.mobileButton}>☰</button>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,13 +1,7 @@
 @import "tailwindcss";
 
 .root {
-  width: 100%;
-
-  @media screen and (width >= 1024px) {
-    min-width: 600px;
-  }
-
-  @apply flex flex-col overflow-hidden;
+  @apply flex flex-col overflow-hidden w-full lg:w-lg;
 }
 
 .section-open-btn {

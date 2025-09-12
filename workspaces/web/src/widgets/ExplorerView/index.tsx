@@ -54,7 +54,7 @@ export const ExplorerView = ({ options, updater, name, tabId }: TDataSourceExplo
           <TableOptions />
 
           <div className="flex-1 flex overflow-hidden">
-            <div className="m-1 flex-1 overflow-auto pb-6 no-scrollbar">
+            <div className="m-1 flex-1 overflow-auto pb-12 no-scrollbar">
               {/* workaround, somehow this fixes table head disalignment glitch */}
               <div className="pb-0.5 sticky bottom-0" />
               <QueryExplorer />

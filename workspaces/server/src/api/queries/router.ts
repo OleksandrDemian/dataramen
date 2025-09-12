@@ -115,7 +115,6 @@ export default createRouter((instance) => {
         }),
       );
 
-      console.log("Created query!");
       return {
         data: query,
       };

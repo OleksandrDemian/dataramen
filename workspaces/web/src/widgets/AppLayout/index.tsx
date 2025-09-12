@@ -1,17 +1,18 @@
 import {ReactNode} from "react";
-import st from "./nav/index.module.css";
-import {Nav} from "./nav";
+import st from "./Nav/index.module.css";
+import {Nav} from "./Nav";
 import {useMediaQuery} from "../../hooks/useMediaQuery.ts";
 import {ScreenQuery} from "../../utils/screen.ts";
 import {Tooltip} from "react-tooltip";
-import {Sidebar} from "../Sidebar";
-import {setShowSidebarMenu, useShowSidebarMenu} from "../../data/showSidebarMenuStore.ts";
+import {MobileNav} from "./MobileNav";
+import {useLocation} from "react-router-dom";
+import {PAGES} from "../../const/pages.ts";
 
-const DesktopLayout = ({children}: { children: ReactNode }) => {
+const DesktopLayout = ({ children, isLogin }: { children: ReactNode; isLogin: boolean }) => {
   return (
     <div className={st.desktopLayout}>
       <Tooltip id="default" className="z-100" />
-      <Nav />
+      {!isLogin && <Nav />}
 
       <main className={st.main}>
         {children}
@@ -20,36 +21,34 @@ const DesktopLayout = ({children}: { children: ReactNode }) => {
   );
 };
 
-const MobileLayout = ({children}: { children: ReactNode }) => {
-  const showMenu = useShowSidebarMenu();
-  const onCloseModal = () => setShowSidebarMenu(false);
-
+const MobileLayout = ({ children, isLogin }: { children: ReactNode; isLogin: boolean }) => {
   return (
     <div className={st.mobileLayout}>
-      <Sidebar isVisible={showMenu} onClose={onCloseModal} backdropClose contentClassName="flex">
-        <Nav />
-      </Sidebar>
-
       <main className={st.main}>
         {children}
       </main>
+
+      {!isLogin && <MobileNav />}
     </div>
   );
 };
 
 export const AppLayout = ({children}: { children: ReactNode }) => {
   const isDesktop = useMediaQuery(ScreenQuery.laptop);
+  const { pathname } = useLocation();
+
+  const isLogin = pathname === PAGES.login.path;
 
   if (isDesktop) {
     return (
-      <DesktopLayout>
+      <DesktopLayout isLogin={isLogin}>
         {children}
       </DesktopLayout>
     );
   }
 
   return (
-    <MobileLayout>
+    <MobileLayout isLogin={isLogin}>
       {children}
     </MobileLayout>
   );

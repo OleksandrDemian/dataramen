@@ -7,13 +7,8 @@
   @apply flex-1 px-2 py-2 overflow-y-hidden;
 }
 
-.file {
-  @apply text-lg lg:text-base px-2 py-2 md:py-1;
-  @apply block hover:bg-gray-100 w-full text-left cursor-pointer text-ellipsis whitespace-nowrap overflow-hidden rounded-lg;
-}
-
 .menu {
-  @apply text-lg lg:text-base px-2 py-1;
+  @apply px-2 py-1;
   @apply enabled:hover:bg-gray-100 w-full flex justify-between items-center cursor-pointer text-ellipsis whitespace-nowrap overflow-hidden rounded-lg;
 
   &:disabled {

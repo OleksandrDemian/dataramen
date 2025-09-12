@@ -33,8 +33,6 @@ export const QueryBuilderSidebar = () => {
   const show = useShowQuerySidebar();
   const laptop = useMediaQuery(ScreenQuery.laptop);
 
-  useGlobalHotkey("o", toggleShowQuerySidebar);
-
   if (laptop) {
     return (
       <div className={clsx(st.root, show && st.rootShow)}>

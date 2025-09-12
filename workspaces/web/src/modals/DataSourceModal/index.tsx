@@ -38,8 +38,12 @@ function getLabelClass (label: string, filter: string): string | undefined {
 
 const InspectionList = ({ insp, filter, expanded }: { insp: TDatabaseInspection; filter: string; expanded: boolean }) => {
   const columns = useMemo(() => {
-    if (expanded || filter.length < 1) {
+    if (expanded) {
       return insp.columns;
+    }
+
+    if (filter.length < 1) {
+      return [];
     }
 
     return insp.columns.filter((column) => column.name.toLowerCase().includes(filter));
@@ -81,6 +85,7 @@ function Component ({ id }: { id: string }) {
   // Create a state variable for each table's dropdown visibility
   const [dropdownVisibility, setDropdownVisibility] = useState<Record<string, boolean>>({});
   const [filter, setFilter] = useState<string>("");
+  const [searchType, setSearchType] = useState<"column" | "table">("table");
   const isEditor = useRequireRole(EUserTeamRole.EDITOR);
 
   const lowerFilter = filter.toLowerCase();
@@ -97,13 +102,17 @@ function Component ({ id }: { id: string }) {
         continue;
       }
 
+      if (searchType === "table") {
+        continue;
+      }
+
       if (insp.columns.findIndex((col) => col.name.toLowerCase().includes(lowerFilter)) >= 0) {
         show.push(insp);
       }
     }
 
     return show;
-  }, [lowerFilter, tables]);
+  }, [lowerFilter, tables, searchType]);
 
   const toggleDropdown = (id: string) => {
     setDropdownVisibility(prevState => ({
@@ -153,9 +162,11 @@ function Component ({ id }: { id: string }) {
     }
   };
 
+  const isColumn = searchType === "column";
+
   return (
     <div className={st.root}>
-      <h3 className="page-head flex gap-2 items-center">
+      <h3 className="page-head flex gap-2">
         {dataSource && <DataSourceIcon size={32} type={dataSource.dbType} />}
         <span className="truncate">{dataSource?.name}</span>
       </h3>
@@ -178,13 +189,19 @@ function Component ({ id }: { id: string }) {
         </div>
       )}
 
-      <input
-        className="input w-full mb-2 mt-4 bg-gray-50"
-        placeholder="Search table/column"
-        value={filter}
-        onChange={(e) => setFilter(e.target.value)}
-        autoFocus
-      />
+      <div className="flex gap-1 items-center mb-2 mt-4">
+        <input
+          className="input flex-1 bg-gray-50"
+          placeholder={isColumn ? "Search column" : "Search table"}
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          autoFocus
+        />
+
+        <button className="button primary w-20" onClick={() => setSearchType(isColumn ? "table" : "column")}>
+          {isColumn ? "Column" : "Table"}
+        </button>
+      </div>
 
       <div className="overflow-y-auto">
         {filtered?.map((table) => (
@@ -204,7 +221,7 @@ function Component ({ id }: { id: string }) {
             </div>
 
             {(dropdownVisibility[table.id] || filter.length > 0) && (
-              <InspectionList insp={table} filter={lowerFilter} expanded={dropdownVisibility[table.id]} />
+              <InspectionList insp={table} filter={isColumn ? lowerFilter : ""} expanded={dropdownVisibility[table.id]} />
             )}
           </div>
         ))}

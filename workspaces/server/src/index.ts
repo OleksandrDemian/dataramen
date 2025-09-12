@@ -4,6 +4,7 @@ import "reflect-metadata";
 import fastify from 'fastify';
 import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
+import qs from "qs";
 import {HttpError} from "./utils/httpError";
 import {TDynamicConnection} from "./services/connectorManager/types";
 import { init } from './repository/db';
@@ -42,7 +43,9 @@ declare module "fastify" {
   }
 }
 
-const server = fastify();
+const server = fastify({
+  querystringParser: str => qs.parse(str),
+});
 const PORT = Env.num("PORT", 4466);
 const ALLOWED_ORIGINS = Env.str("ALLOWED_ORIGINS", "").split(",").map((v) => v.trim());
 const HOST = '0.0.0.0';

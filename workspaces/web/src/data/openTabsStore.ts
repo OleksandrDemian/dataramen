@@ -23,6 +23,15 @@ export const [useActiveTab, updateActiveTab, ActiveTab] = createPersistedStore<s
   storage: sessionStorage,
 });
 
+const tryScrollIntoTab = (tabId: string) => {
+  setTimeout((tabId) => {
+    const tab = document.querySelector(`[data-tab-id="${tabId}"]`);
+    if (tab) {
+      tab.scrollIntoView({ behavior: "smooth" });
+    }
+  }, 50, tabId);
+};
+
 export const pushNewExplorerTab = (label: string, opts: Partial<TTableOptions>, activate: boolean = false) => {
   tabSizeGuard();
 
@@ -53,6 +62,7 @@ export const removeTab = (tabId: string) => {
 
 export const setActiveTab = (tabId: string) => {
   updateActiveTab(tabId);
+  tryScrollIntoTab(tabId);
 };
 
 export const renameTab = (tabId: string, newLabel: string) => {

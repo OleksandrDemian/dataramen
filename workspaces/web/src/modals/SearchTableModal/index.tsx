@@ -1,5 +1,4 @@
 import {Modal, ModalClose} from "../../widgets/Modal";
-import st from "./index.module.css";
 import {SearchQuery} from "../../widgets/SearchTable";
 import {useSearchTableModal} from "../../data/tableSearchModalStore.ts";
 
@@ -21,9 +20,7 @@ export const SearchTableModal = () => {
   return (
     <Modal isVisible={!!data} onClose={onClose}>
       <ModalClose onClick={onClose} />
-      <div className={st.root}>
-        <SearchQuery autoFocus onTable={onTable} onQuery={onQuery} />
-      </div>
+      <SearchQuery autoFocus onTable={onTable} onQuery={onQuery} />
     </Modal>
   );
 };

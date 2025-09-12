@@ -11,10 +11,8 @@ import {pushNewExplorerTab, setActiveTab, useOpenTabs} from "../../../../data/op
 import {setDataSourceModal} from "../../../../data/dataSourceModalStore.ts";
 import {fetchQueryById} from "../../../../data/queries/queries.utils.ts";
 import {createTableOptions} from "../../../ExplorerView/utils.ts";
-import {useSearchTable} from "../../../../data/tableSearchModalStore.ts";
 import {useGlobalHotkey} from "../../../../hooks/useGlobalHotkey.ts";
 import {Analytics} from "../../../../utils/analytics.ts";
-import {closeMenuSidebar} from "../../../../data/showSidebarMenuStore.ts";
 import { TProjectDataSource } from "@dataramen/types";
 import {DataSourceIcon} from "../../../Icons";
 import {gte} from "../../../../utils/numbers.ts";
@@ -36,7 +34,7 @@ const Query = ({
 
   return (
     <button
-      className={st.file}
+      className={st.menu}
       onContextMenu={contextHandler.open}
       onClick={() => onOpen(id)}
     >
@@ -95,10 +93,8 @@ const Datasource = ({ dataSource, index }: { dataSource: TProjectDataSource, ind
 };
 
 export const ProjectStructure = () => {
-  const hasOpenedTabs = useOpenTabs((t) => t.length > 0);
   const navigate = useNavigate();
   const location = useLocation();
-  const searchAndOpen = useSearchTable("Sidebar");
 
   const { data: user } = useCurrentUser();
   const { data: projectDataSources } = useTeamDataSources(user?.teamId);
@@ -140,26 +136,6 @@ export const ProjectStructure = () => {
     });
   };
 
-  const onWorkbench = () => {
-    if (!hasOpenedTabs) {
-      searchAndOpen();
-    } else if (location.pathname !== PAGES.workbench.path) {
-      navigate(PAGES.workbench.path);
-    }
-
-    Analytics.event("On open workbench [Sidebar]");
-  };
-
-  const onNewQuery = () => {
-    closeMenuSidebar();
-    searchAndOpen();
-  };
-
-  const onHome = () => {
-    closeMenuSidebar();
-    navigate(PAGES.home.path);
-  };
-
   const onOpenTab = (tabId: string) => {
     setActiveTab(tabId);
     if (location.pathname !== PAGES.workbench.path) {
@@ -169,25 +145,19 @@ export const ProjectStructure = () => {
 
   return (
     <div className={st.container}>
-      <div>
-        <button onClick={onHome} className={st.menu}><span>{PAGES.home.name}</span><span className="hotkey">H</span></button>
-        <button disabled={!user} onClick={onNewQuery} className={st.menu}><span>🔎 Start new query</span><span className="hotkey">N</span></button>
-        <button disabled={!user} onClick={onWorkbench} className={st.menu}><span>🛠️ Workbench</span><span className="hotkey">W</span></button>
-      </div>
-
       <div className="flex-1 overflow-y-auto">
         {gte(projectDataSources?.length, 0) && (
-          <>
-            <p className="text-gray-600 mt-4 mb-1 font-semibold">📦 Data sources</p>
+          <div className="mt-4">
+            <p className="font-semibold text-sm text-gray-600 mb-2">DATA SOURCES</p>
             {projectDataSources.map((dataSource, index) => (
               <Datasource dataSource={dataSource} key={dataSource.id} index={index + 1} />
             ))}
-          </>
+          </div>
         )}
 
         {gte(projectQueries?.length, 0) && (
-          <>
-            <p className="text-gray-600 mt-4 mb-1 font-semibold">🗃️ Saved queries</p>
+          <div className="mt-4">
+            <p className="font-semibold text-sm text-gray-600 mb-2">SAVED QUERIES</p>
             {projectQueries.map((file) => (
               <Query
                 onDelete={deleteQuery}
@@ -198,18 +168,18 @@ export const ProjectStructure = () => {
                 key={file.id}
               />
             ))}
-          </>
+          </div>
         )}
 
         {gte(workbenchTabs?.length, 0) && (
-          <>
-            <p className="text-gray-600 mt-4 mb-1 font-semibold">🛠️ Workbench tabs</p>
+          <div className="mt-4">
+            <p className="font-semibold text-sm text-gray-600 mb-2">WORKBENCH TABS</p>
             {workbenchTabs?.map((tab) => (
-              <button key={tab.id} className={st.file} onClick={() => onOpenTab(tab.id)}>
+              <button key={tab.id} className={st.menu} onClick={() => onOpenTab(tab.id)}>
                 📄 {tab.label}
               </button>
             ))}
-          </>
+          </div>
         )}
       </div>
     </div>
