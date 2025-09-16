@@ -149,7 +149,7 @@ export const WorkbenchPage = () => {
   return (
     <div className="h-screen max-h-screen bg-(--bg) flex flex-col">
       {isDesktop && (
-        <Tooltip id="tab" render={renderTooltip} className="z-10 shadow-md border border-blue-400 p-0!" offset={-1} noArrow opacity={1} variant="light" clickable delayShow={500} />
+        <Tooltip id="tab" render={renderTooltip} className="z-10 shadow-md p-0!" offset={-1} noArrow opacity={1} variant="light" clickable delayShow={500} />
       )}
 
       {tab && (

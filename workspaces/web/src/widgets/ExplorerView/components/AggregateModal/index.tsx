@@ -1,21 +1,30 @@
 import {ChangeEventHandler, useContext, useState} from "react";
-import {QueryResultContext, TableContext, TableOptionsContext} from "../context/TableContext.ts";
-import {Modal, ModalClose} from "../../Modal";
-import st from "./AggregateModal.module.css";
-import {DataSourceColumnsAutocomplete} from "../../DataSourceColumnsAutocomplete";
+import {QueryResultContext, TableContext, TableOptionsContext} from "../../context/TableContext.ts";
+import {Modal, ModalClose} from "../../../Modal";
+import st from "./index.module.css";
+import {DataSourceColumnsAutocomplete} from "../../../DataSourceColumnsAutocomplete";
 import {TInputColumn} from "@dataramen/types";
 import clsx from "clsx";
+import {hideExplorerModal, toggleExplorerModal, useExplorerModals} from "../../hooks/useExplorerModals.ts";
+import {useGlobalHotkey} from "../../../../hooks/useGlobalHotkey.ts";
+import {gte} from "../../../../utils/numbers.ts";
+import { inputColumnToAlias } from "@dataramen/common";
+import CloseButton from "./../../../../assets/close-outline.svg?react";
 
 const COUNT_ALL = "COUNT all";
 
-export type TSummarizeModalProps = {
-  onClose: VoidFunction;
+const aggToString = (agg: TInputColumn): string => {
+  if (agg.distinct) {
+    return [agg.fn, "DISTINCT", agg.value].join(" ");
+  }
+
+  return [agg.fn, agg.value].join(" ");
 };
-export const AggregateModal = ({
-  onClose,
-}: TSummarizeModalProps) => {
+
+export const AggregateModal = () => {
+  const show = useExplorerModals((s) => s.aggregate);
   const { dataSourceId } = useContext(TableContext);
-  const { setState } = useContext(TableOptionsContext);
+  const { setState, state } = useContext(TableOptionsContext);
   const { data: result } = useContext(QueryResultContext);
 
   const [options, setOptions] = useState({
@@ -33,6 +42,8 @@ export const AggregateModal = ({
     col,
   });
 
+  const onClose = () => hideExplorerModal("aggregate");
+
   const onAddAggregation = () => {
     const aggregation: TInputColumn = options.fn === COUNT_ALL ? {
       value: "*",
@@ -47,17 +58,48 @@ export const AggregateModal = ({
       ...prevState,
       aggregations: [...prevState.aggregations, aggregation],
     }));
-    onClose();
   };
 
   const isCountAll = options.fn === COUNT_ALL;
   const disabled = isCountAll ? false : !options.col || !options.fn;
 
+  const onRemoveAggregation = (agg: TInputColumn) => {
+    const orderLabel = inputColumnToAlias(agg);
+
+    setState((prevState) => ({
+      ...prevState,
+      aggregations: prevState.aggregations.filter((s) => s.fn !== agg.fn || s.value !== agg.value),
+      orderBy: prevState.orderBy.filter((o) => o.column !== orderLabel), // remove order by when removing aggregation
+    }));
+  };
+
+  useGlobalHotkey("a", () => {
+    toggleExplorerModal("aggregate");
+  }, "Aggregate data");
+
   return (
-    <Modal isVisible onClose={onClose} backdropClose portal>
+    <Modal isVisible={show} onClose={onClose} backdropClose portal>
       <ModalClose onClick={onClose} />
       <div>
         <h2 className="text-lg font-semibold">Aggregate</h2>
+
+        {gte(state.aggregations.length, 0) && (
+          <div className="flex flex-col gap-1 mt-4">
+            {state.aggregations.map((agg, i) => (
+              <p className="p-2 rounded-md bg-gray-50 flex items-center justify-between" key={i}>
+                <span>{aggToString(agg)}</span>
+                <button
+                  tabIndex={-1}
+                  data-tooltip-id="default"
+                  data-tooltip-content="Remove aggregation"
+                  className="p-0.5 text-sm cursor-pointer" onClick={() => onRemoveAggregation(agg)}
+                >
+                  <CloseButton width={20} height={20} className="text-red-600" />
+                </button>
+              </p>
+            ))}
+          </div>
+        )}
 
         <div className={st.optionsContainer}>
           <label className={clsx(isCountAll && "col-span-2")}>

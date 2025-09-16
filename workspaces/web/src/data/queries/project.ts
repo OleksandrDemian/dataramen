@@ -57,7 +57,7 @@ export const useSearchQueries = (search: string, props: {
     queryFn: async () => {
       const { data } = await apiClient.get<{ data: TFindQuery[] }>(`/project/team/${props.teamId}/query`, {
         params: {
-          size: 20,
+          size: 30,
           search,
           selectedDataSources: props.selectedDataSources,
         },

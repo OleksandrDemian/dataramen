@@ -22,10 +22,10 @@ function isSameValue (v1?: QueryFilter["value"], v2?: QueryFilter["value"]): boo
 export const useWhereStatements = () => {
   const { state, setState } = useContext(TableOptionsContext);
 
-  const addFilter = useCallback((where: QueryFilter) => {
+  const setFilters = useCallback((where: QueryFilter[]) => {
     setState((state) => ({
       ...state,
-      filters: [...state.filters, where],
+      filters: where,
     }));
   }, [setState]);
 
@@ -42,7 +42,7 @@ export const useWhereStatements = () => {
 
   return {
     filters: state.filters,
-    addFilter,
     removeFilter,
+    setFilters,
   };
 };

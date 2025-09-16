@@ -57,7 +57,7 @@
     min-height: 22px;
     max-height: 22px;
 
-    @apply hidden lg:block cursor-pointer text-center bg-gray-100 border border-gray-200 rounded-sm font-semibold text-xs border-b-4;
+    @apply hidden lg:flex items-center justify-center cursor-pointer text-center bg-gray-100 border border-gray-200 rounded-sm text-xs font-semibold;
   }
 
   .comfortaa {

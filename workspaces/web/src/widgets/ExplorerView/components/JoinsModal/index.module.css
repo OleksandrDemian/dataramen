@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+.card {
+  height: 40px;
+  @apply rounded-lg p-2 bg-gray-50 relative flex justify-between items-center gap-2;
+}
+
+.cards-list {
+  @apply flex flex-col gap-2 mb-2;
+}
+
+.join-modal {
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+
+  @apply w-full lg:w-lg;
+}
+
+.close-button {
+  @apply p-0.5 text-red-500 cursor-pointer rounded-full;
+
+  &:hover {
+    @apply bg-red-50;
+  }
+}
