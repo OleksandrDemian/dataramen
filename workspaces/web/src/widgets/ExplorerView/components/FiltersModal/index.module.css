@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+.actions {
+  @apply flex items-center justify-between;
+}
+
+.filter-actions {
+  @apply flex items-center;
+
+  button {
+    width: 30px;
+    height: 30px;
+    @apply flex items-center justify-center;
+    @apply hover:bg-gray-100 rounded-lg;
+  }
+}

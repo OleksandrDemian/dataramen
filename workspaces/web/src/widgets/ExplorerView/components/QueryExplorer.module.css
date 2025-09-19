@@ -103,18 +103,28 @@
 }
 
 .table-action {
-  @apply flex items-center px-2 py-1 cursor-pointer whitespace-nowrap text-sm rounded-md font-semibold;
-}
+  @apply gap-2 px-2 py-1 cursor-pointer text-sm rounded-md font-semibold;
 
-.table-action.blue {
-  &:hover {
-    @apply bg-blue-100 text-blue-800;
+  &.blue {
+    &:hover {
+      @apply bg-blue-100 text-blue-800;
+    }
   }
-}
 
-.table-action.red {
-  &:hover {
-    @apply bg-red-100 text-red-800;
+  &.red {
+    &:hover {
+      @apply bg-red-100 text-red-800;
+    }
+  }
+
+  &.modal {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    text-align: left;
+  }
+
+  &:not(.modal) {
+    @apply flex items-center;
   }
 }
 

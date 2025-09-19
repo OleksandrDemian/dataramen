@@ -10,6 +10,10 @@ import {useCreateTableContext, useCreateTableOptionsContext} from "./utils.ts";
 import {useTableExplorer} from "../../data/queries/queryRunner.ts";
 import {TableOptions} from "./components/TableOptions.tsx";
 import {TInputColumn} from "@dataramen/types";
+import {FiltersModal} from "./components/FiltersModal";
+import {JoinsModal} from "./components/JoinsModal";
+import {ColumnsPicker} from "./components/ColumnsPicker";
+import {AggregateModal} from "./components/AggregateModal";
 
 function computeColumns(cols: TInputColumn[], groupBy: TInputColumn[], agg: TInputColumn[]): TInputColumn[] {
   const result: TInputColumn[] = [];
@@ -60,6 +64,11 @@ export const ExplorerView = ({ options, updater, name, tabId }: TDataSourceExplo
               <QueryExplorer />
             </div>
 
+            <FiltersModal />
+            <JoinsModal />
+            <ColumnsPicker mode="columns" />
+            <ColumnsPicker mode="groupBy" />
+            <AggregateModal />
             <QueryBuilderSidebar />
           </div>
         </QueryResultContext>

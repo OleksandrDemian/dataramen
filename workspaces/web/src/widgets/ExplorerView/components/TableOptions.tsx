@@ -15,27 +15,28 @@ import {useRequireRole} from "../../../hooks/useRequireRole.ts";
 import {toggleShowQuerySidebar} from "../../../data/showQuerySidebarStore.ts";
 import {useSearchTable} from "../../../data/tableSearchModalStore.ts";
 import {useGlobalHotkey} from "../../../hooks/useGlobalHotkey.ts";
+import {showExplorerModal} from "../hooks/useExplorerModals.ts";
+import {Tooltip} from "react-tooltip";
+import Chevron from "../../../assets/chevron-forward-outline.svg?react";
 
 export function TableOptions () {
   return (
     <div className="flex items-center bg-white border-b border-gray-200 overflow-auto no-scrollbar">
-      <Main />
+      <QueryManipulation />
+      <TabOptions />
       <Pagination />
       <PageSize/>
-      <SearchAll />
     </div>
   );
 }
 
-function Main () {
+function QueryManipulation() {
+  const { state } = useContext(TableOptionsContext);
   const { dataSourceId, name } = useContext(TableContext);
   const { data: dataSource } = useDataSource(dataSourceId);
-  const { state } = useContext(TableOptionsContext);
-  const { refetch, data } = useContext(QueryResultContext);
+  const { data } = useContext(QueryResultContext);
   const isEditor = useRequireRole(EUserTeamRole.EDITOR);
-
   const createQuery = useCreateQuery();
-  const newQuery = useSearchTable("Workbook");
 
   const onInsert = () => {
     if (data?.columns?.[0].table) {
@@ -44,11 +45,6 @@ function Main () {
         dataSourceId,
       });
     }
-  };
-
-  const onOpen = () => {
-    pushNewExplorerTab(name, state, true);
-    closeQueryModal(); // in case a query is opened, close it
   };
 
   const onSaveQuery = async () => {
@@ -66,36 +62,96 @@ function Main () {
     });
   };
 
-  useGlobalHotkey("e", toggleShowQuerySidebar);
+  useGlobalHotkey("s", onSaveQuery, "Save query");
 
   return (
     <div className={st.tableConfig}>
-      <button data-tooltip-id="default" data-tooltip-content="Start new query tab [Hotkey N]" onClick={newQuery} className={clsx(st.tableAction, st.blue)}>
-        New query
+      <button data-tooltip-id="default" data-tooltip-content="Manage filters" onClick={() => showExplorerModal("filters")} className={clsx(st.tableAction, st.blue)}>
+        <span>Filter</span>
+        <span className="hotkey">F</span>
       </button>
 
-      <button data-tooltip-id="default" data-tooltip-content="Edit query parameters (joins, filters, etc...) [Hotkey E]" onClick={toggleShowQuerySidebar} className={clsx(st.tableAction, st.blue)}>
-        Query editor
+      <button data-tooltip-id="default" data-tooltip-content="Join tables" onClick={() => showExplorerModal("joins")} className={clsx(st.tableAction, st.blue)}>
+        <span>Join</span>
+        <span className="hotkey">J</span>
       </button>
 
+      <SearchAll />
+
+      <button data-tooltip-id="explorer-more-actions" className={clsx(st.tableAction, st.blue)}>
+        <span>More actions</span>
+        <Chevron width={16} height={16} className="rotate-90" />
+      </button>
+
+      <Tooltip id="explorer-more-actions" className="z-10 shadow-md flex flex-col" clickable variant="light" opacity={1}>
+        <button onClick={() => showExplorerModal("columns")} className={clsx(st.tableAction, st.modal, st.blue, "justify-between")}>
+          <span>Columns</span>
+          <span className="hotkey">C</span>
+        </button>
+
+        <button onClick={() => showExplorerModal("groupBy")} className={clsx(st.tableAction, st.modal, st.blue, "justify-between")}>
+          <span>Group by</span>
+          <span className="hotkey">G</span>
+        </button>
+
+        <button onClick={() => showExplorerModal("aggregate")} className={clsx(st.tableAction, st.modal, st.blue, "justify-between")}>
+          <span>Aggregate</span>
+          <span className="hotkey">A</span>
+        </button>
+
+        <button onClick={toggleShowQuerySidebar} className={clsx(st.tableAction, st.modal, st.blue, "justify-between")}>
+          <span>Query editor</span>
+          <span className="hotkey">E</span>
+        </button>
+
+        {isEditor && (
+          <>
+            <div className="h-0.5 my-2 bg-gray-100" />
+
+            <button onClick={onSaveQuery} className={clsx(st.tableAction, st.modal, st.blue)}>
+              <span>Save query</span>
+              <span className="hotkey">S</span>
+            </button>
+
+            {dataSource?.allowInsert === true && (
+              <button onClick={onInsert} className={clsx(st.tableAction, st.modal, st.blue)}>
+                Insert new row
+              </button>
+            )}
+          </>
+        )}
+      </Tooltip>
+    </div>
+  );
+}
+
+function TabOptions () {
+  const { name } = useContext(TableContext);
+  const { state } = useContext(TableOptionsContext);
+  const { refetch } = useContext(QueryResultContext);
+
+  const newQuery = useSearchTable("Workbook");
+
+  const onOpen = () => {
+    pushNewExplorerTab(name, state, true);
+    closeQueryModal(); // in case a query is opened, close it
+  };
+
+  useGlobalHotkey("e", toggleShowQuerySidebar, "Show editor sidebar");
+
+  return (
+    <div className={st.tableConfig}>
       <button data-tooltip-id="default" data-tooltip-content="Refresh data" onClick={() => refetch()} className={clsx(st.tableAction, st.blue)}>
         Refresh
       </button>
 
-      {isEditor && (
-        <button data-tooltip-id="default" data-tooltip-content="Save query [Hotkey S]" onClick={onSaveQuery} className={clsx(st.tableAction, st.blue)}>
-          Save
-        </button>
-      )}
-
-      {isEditor && dataSource?.allowInsert === true && (
-        <button data-tooltip-id="default" data-tooltip-content="Insert new row" onClick={onInsert} className={clsx(st.tableAction, st.blue)}>
-          New row
-        </button>
-      )}
-
       <button data-tooltip-id="default" data-tooltip-content="Clone in a new tab" onClick={onOpen} className={clsx(st.tableAction, st.blue)}>
         Clone
+      </button>
+
+      <button data-tooltip-id="default" data-tooltip-content="Start new query tab" onClick={newQuery} className={clsx(st.tableAction, st.blue)}>
+        <span>New query</span>
+        <span className="hotkey">N</span>
       </button>
     </div>
   );
@@ -166,30 +222,33 @@ function SearchAll () {
   };
 
   const onSearchAll = () => {
-    prompt("Search all text values for", "", {
+    prompt("Search all text values for", state.searchAll || "", {
       type: "info",
       message: "This will search all text values using LIKE operator (numbers, dates and other non string values are not searched)."
     }).then((result) => {
-      if (result) {
+      if (result !== undefined) {
         setState((s) => ({
           ...s,
-          searchAll: result,
+          searchAll: result.length > 0 ? result : undefined,
         }));
       }
     });
   };
 
+  useGlobalHotkey("k", onSearchAll, "Search text");
+
+  if (state.searchAll) {
+    return (
+      <button data-tooltip-id="default" data-tooltip-content="Remove search all filter" onClick={onRemoveSearchAll} className={clsx(st.tableAction, st.red)}>
+        <span className="truncate px-1">❌ {state.searchAll}</span>
+      </button>
+    );
+  }
+
   return (
-    <div className={st.tableConfig}>
-      {state.searchAll ? (
-        <button data-tooltip-id="default" data-tooltip-content="Remove search all filter" onClick={onRemoveSearchAll} className={clsx(st.tableAction, st.red)}>
-          <span className="truncate px-1">❌ {state.searchAll}</span>
-        </button>
-      ) : (
-        <button data-tooltip-id="default" data-tooltip-content="Search text in all columns" onClick={onSearchAll} className={clsx(st.tableAction, st.blue)}>
-          Search text
-        </button>
-      )}
-    </div>
+    <button data-tooltip-id="default" data-tooltip-content="Search text in all columns" onClick={onSearchAll} className={clsx(st.tableAction, st.blue)}>
+      <span>Search text</span>
+      <span className="hotkey">K</span>
+    </button>
   );
 }

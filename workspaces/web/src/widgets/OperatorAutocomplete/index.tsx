@@ -1,5 +1,4 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import clsx from "clsx";
 import st from "./index.module.css";
 import {
   STRING_TYPES,
@@ -75,7 +74,7 @@ export const OperatorAutocomplete = ({ value, onChange, autoFocus, focusId, colT
         onKeyDown={handleKeyDown}
         value={value}
         onChange={(e) => onChange(e.target.value, false)}
-        className={clsx("input w-full")}
+        className="input w-full"
         placeholder="Operator"
         autoFocus={autoFocus}
         onFocus={() => setShowAutocomplete(true)}

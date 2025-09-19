@@ -1,5 +1,4 @@
 import React, {ChangeEventHandler, useEffect, useMemo, useRef, useState} from "react";
-import clsx from "clsx";
 import {useDatabaseInspections} from "../../data/queries/dataSources.ts";
 import st from "./index.module.css";
 
@@ -105,7 +104,7 @@ export const DataSourceColumnsAutocomplete = ({ dataSourceId, focusId, placehold
         onKeyDown={handleKeyDown}
         value={value}
         onChange={changeHandler}
-        className={clsx("input w-full")}
+        className="input w-full"
         placeholder={placeholder}
         data-focus={focusId}
       />
