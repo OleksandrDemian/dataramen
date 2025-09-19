@@ -1,12 +1,19 @@
-import {Modal, ModalClose} from "../../Modal";
-import {ChangeEventHandler, useContext, useMemo, useState} from "react";
-import {TableContext, TableOptionsContext} from "../context/TableContext.ts";
-import st from "./ColumnsPicker.module.css";
-import {reduceStringArrayToBooleanObject} from "../../../utils/reducers.ts";
-import {generateColumnLabel} from "../../../utils/sql.ts";
-import clsx from "clsx";
 import {TInputColumn, TRunSqlResult} from "@dataramen/types";
 import {ALLOW_DATE_FUNCTIONS} from "@dataramen/common";
+import {generateColumnLabel} from "../../../../utils/sql.ts";
+import {ChangeEventHandler, useContext, useMemo, useState} from "react";
+import clsx from "clsx";
+import {TableContext, TableOptionsContext} from "../../context/TableContext.ts";
+import {reduceStringArrayToBooleanObject} from "../../../../utils/reducers.ts";
+import {Modal, ModalClose} from "../../../Modal";
+import st from "./index.module.css";
+import {
+  hideExplorerModal,
+  toggleExplorerModal,
+  useExplorerModals
+} from "../../hooks/useExplorerModals.ts";
+import {useGlobalHotkey} from "../../../../hooks/useGlobalHotkey.ts";
+import toast from "react-hot-toast";
 
 type TColumn = {
   label: string;
@@ -20,7 +27,7 @@ type TTables = {
   columns: TColumn[];
 }[];
 
-function parseColumns (availableColumns: TRunSqlResult["allColumns"]) {
+function parseColumns(availableColumns: TRunSqlResult["allColumns"]) {
   if (!availableColumns) {
     return [];
   }
@@ -65,7 +72,7 @@ function parseColumns (availableColumns: TRunSqlResult["allColumns"]) {
   }, [] as TTables);
 }
 
-function filterColumns (tables: TTables, filter: string): TTables {
+function filterColumns(tables: TTables, filter: string): TTables {
   const lowerFilter = filter.toLowerCase();
 
   return tables
@@ -76,15 +83,20 @@ function filterColumns (tables: TTables, filter: string): TTables {
           col.ogColumn.toLowerCase().includes(lowerFilter)
       );
 
-      return { ...table, columns: filteredColumns };
+      return {...table, columns: filteredColumns};
     })
     .filter(table => table.columns.length > 0); // Remove tables with no matching columns
 }
 
-const ColumnEntry = ({ column, selected, onCheck }: { column: TColumn; selected: Record<string, boolean>; onCheck: ChangeEventHandler<HTMLInputElement> }) => {
+const ColumnEntry = ({column, selected, onCheck}: {
+  column: TColumn;
+  selected: Record<string, boolean>;
+  onCheck: ChangeEventHandler<HTMLInputElement>
+}) => {
   return (
-    <label key={column.value} className={clsx(st.columnLabel, selected ? st.active : st.notActive, column.nested && "pl-5!")}>
-      <input type="checkbox" checked={selected[column.value]} name={column.value} onChange={onCheck} />
+    <label key={column.value}
+           className={clsx(st.columnLabel, selected ? st.active : st.notActive, column.nested && "pl-5!")}>
+      <input type="checkbox" checked={selected[column.value]} name={column.value} onChange={onCheck}/>
       <p className="flex justify-between w-full">
         <span data-tooltip-content={column.value} data-tooltip-id="default">{column.label}</span>
         <span className="text-blue-600">{column.type}</span>
@@ -93,13 +105,18 @@ const ColumnEntry = ({ column, selected, onCheck }: { column: TColumn; selected:
   );
 };
 
-export type TQueryColumnsProps = {
-  onCancel: () => void;
+const HotKey = {
+  "columns": "c",
+  "groupBy": "g",
+} as const;
+
+export type TColumnPickerProps = {
   mode: "columns" | "groupBy";
 };
-export const ColumnsPicker = ({ onCancel, mode }: TQueryColumnsProps) => {
-  const { allColumns } = useContext(TableContext);
-  const { state, setState } = useContext(TableOptionsContext);
+export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
+  const showModal = useExplorerModals((s) => s[mode]);
+  const {allColumns} = useContext(TableContext);
+  const {state, setState} = useContext(TableOptionsContext);
   const [newColumns, setNewColumns] = useState<Record<string, boolean>>(
     () => reduceStringArrayToBooleanObject(
       state[mode].map((c) => {
@@ -112,7 +129,8 @@ export const ColumnsPicker = ({ onCancel, mode }: TQueryColumnsProps) => {
     ),
   );
   const [filter, setFilter] = useState<string>("");
-  const parsedColumns = useMemo<TTables>(() => parseColumns(allColumns), [allColumns])
+  const parsedColumns = useMemo<TTables>(() => parseColumns(allColumns), [allColumns]);
+  const ignoreColumns = state.aggregations.length > 0 || state.groupBy.length > 0;
 
   const filtered = useMemo(() => {
     if (!filter) {
@@ -138,6 +156,10 @@ export const ColumnsPicker = ({ onCancel, mode }: TQueryColumnsProps) => {
 
       return {...columns};
     });
+  };
+
+  const onCancel = () => {
+    hideExplorerModal(mode);
   };
 
   const apply = () => {
@@ -169,9 +191,21 @@ export const ColumnsPicker = ({ onCancel, mode }: TQueryColumnsProps) => {
     return true;
   }, [newColumns, allColumns])
 
+  useGlobalHotkey(HotKey[mode], () => {
+    if (mode === "columns") {
+      if (ignoreColumns) {
+        toast.error("Columns are ignored when there is at least one aggregation or group by");
+      } else {
+        toggleExplorerModal("columns");
+      }
+    } else {
+      toggleExplorerModal("groupBy");
+    }
+  }, "Manage " + mode);
+
   return (
-    <Modal isVisible onClose={onCancel} portal>
-      <ModalClose onClick={onCancel} />
+    <Modal isVisible={showModal} onClose={onCancel} portal>
+      <ModalClose onClick={onCancel}/>
       <div className={st.container}>
         <h2 className="text-lg font-semibold">
           {mode === 'groupBy' ? 'Group by' : 'Show columns'}
@@ -203,10 +237,10 @@ export const ColumnsPicker = ({ onCancel, mode }: TQueryColumnsProps) => {
 
         <div className="flex justify-end gap-2 mt-2">
           <label className="button tertiary flex gap-2 items-center">
-            <input type="checkbox" checked={allSelected} onChange={onAllCheck} />
+            <input type="checkbox" checked={allSelected} onChange={onAllCheck}/>
             <span>Select all</span>
           </label>
-          <span className="flex-1" />
+          <span className="flex-1"/>
           <button className="button tertiary" onClick={onCancel}>Cancel</button>
           <button className="button primary" onClick={apply}>Apply</button>
         </div>

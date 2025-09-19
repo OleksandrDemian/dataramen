@@ -129,7 +129,7 @@ export const UsefulLinks = () => {
       <div className="grid lg:grid-cols-2 gap-2 mt-4">
         <a className="card-white hover:bg-gray-50!" href="https://dataramen.xyz/">
           <p className={st.actionTitle}>Documentation</p>
-          <p className={st.actionSubtext}>Learn hot to use DataRamen</p>
+          <p className={st.actionSubtext}>Learn how to use DataRamen</p>
         </a>
 
         <a className="card-white hover:bg-gray-50!" href="https://github.com/OleksandrDemian/dataramen">

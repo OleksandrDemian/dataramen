@@ -1,6 +1,6 @@
 {
   "name": "@dataramen/cli",
-  "version": "0.0.46",
+  "version": "0.0.47",
   "license": "MIT",
   "bin": {
     "dataramen": "bin/run.js"

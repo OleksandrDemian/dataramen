@@ -1,7 +1,0 @@
-@import "tailwindcss";
-
-.options-container {
-  @apply grid grid-cols-3 gap-2 items-end mt-4;
-  width: 600px;
-  max-width: 100%;
-}

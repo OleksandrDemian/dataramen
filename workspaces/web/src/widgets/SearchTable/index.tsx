@@ -22,7 +22,7 @@ export type TSearchTableProps = {
 export const SearchQuery = ({ onTable, onQuery, autoFocus }: TSearchTableProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeIndex, setActiveIndex] = useState(-1);
-  const debouncedSearch = useDebouncedValue(searchTerm);
+  const debouncedSearch = useDebouncedValue(searchTerm, 200);
   const selectedDataSources = useSelectedDataSources();
 
   const { data: user } = useCurrentUser();
