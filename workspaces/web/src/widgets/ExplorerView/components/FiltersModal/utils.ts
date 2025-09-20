@@ -36,7 +36,11 @@ export function mapFiltersToWhere (filters: TFilterForm[]): QueryFilter[] {
   const newFilters: QueryFilter[] = [];
 
   filters.forEach((f) => {
-    if (!f.operator.length || !f.value.length || !f.column.length) {
+    if (!f.operator.length || !f.column.length) {
+      return;
+    }
+
+    if (f.operator !== "is null" && f.operator !== "is not null" && !f.value.length){
       return;
     }
 

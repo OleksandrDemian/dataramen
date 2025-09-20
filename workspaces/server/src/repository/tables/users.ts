@@ -44,5 +44,10 @@ export const User = new EntitySchema<IUserSchema>({
       inverseSide: "user",
       joinColumn: true
     },
+    queries: {
+      type: "one-to-many",
+      target: () => "Query",
+      inverseSide: "user",
+    },
   },
 });

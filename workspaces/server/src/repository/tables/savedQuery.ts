@@ -1,22 +1,18 @@
 import { EntitySchema } from "typeorm";
-import {TIMESTAMP_COLUMN_TYPE} from "../../utils/dbUtils";
-import {IQuerySchema} from "@dataramen/types";
+import { TIMESTAMP_COLUMN_TYPE } from "../../utils/dbUtils";
+import { ISavedQuerySchema } from "@dataramen/types";
 
-export const Query = new EntitySchema<IQuerySchema>({
-  name: "Query",
-  tableName: "query",
+export const SavedQuery = new EntitySchema<ISavedQuerySchema>({
+  name: "SavedQuery",
+  tableName: "saved_queries",
   columns: {
     id: {
       type: "uuid",
       primary: true,
       generated: "uuid",
     },
-    name: {
-      type: String,
-    },
-    opts: {
-      type: "json",
-      default: "{}",
+    isPersonal: {
+      type: Boolean,
     },
     createdAt: {
       type: TIMESTAMP_COLUMN_TYPE,
@@ -35,18 +31,18 @@ export const Query = new EntitySchema<IQuerySchema>({
       inverseSide: "queries",
       joinColumn: true,
     },
-    dataSource: {
-      type: "many-to-one",
-      target: () => "DataSource",
-      inverseSide: "datasources",
-      joinColumn: true,
-    },
     user: {
       type: "many-to-one",
       target: () => "User",
       inverseSide: "queries",
       joinColumn: true,
       nullable: true,
+    },
+    query: {
+      type: "one-to-one",
+      target: () => "Query",
+      joinColumn: true,
+      nullable: false,
     },
   },
 });

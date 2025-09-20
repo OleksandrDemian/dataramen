@@ -4,21 +4,20 @@ import {
   OpenTabs,
   removeTab,
   renameTab,
-  setActiveTab, TOpenTab, updateOpenTabs,
+  setActiveTab,
   useActiveTab,
   useOpenTabs
 } from "../../data/openTabsStore.ts";
-import {MouseEventHandler, useCallback, useMemo} from "react";
+import {MouseEventHandler, useMemo} from "react";
 import clsx from "clsx";
-import {ExplorerView} from "../../widgets/ExplorerView";
 import {prompt} from "../../data/promptModalStore.ts";
 import {Navigate} from "react-router-dom";
-import {TTableOptions} from "../../widgets/ExplorerView/context/TableContext.ts";
 import {ITooltip, Tooltip} from "react-tooltip";
 import {getDataSource} from "../../data/queries/dataSource.utils.ts";
 import {filterToString} from "../../utils/sql.ts";
 import {useMediaQuery} from "../../hooks/useMediaQuery.ts";
 import {ScreenQuery} from "../../utils/screen.ts";
+import {ExplorerTab} from "./ExplorerTab";
 
 const renderTooltip: ITooltip["render"] = ({
  content,
@@ -129,19 +128,6 @@ export const WorkbenchPage = () => {
       });
   };
 
-  const updater = useCallback((fn: (opts: TTableOptions) => TTableOptions) => {
-    updateOpenTabs((store) => store.map((t) => {
-      if (t.id !== tab!.id) {
-        return t;
-      }
-
-      return {
-        ...t,
-        options: fn(t.options as TTableOptions),
-      } as TOpenTab;
-    }));
-  }, [tab]);
-
   if (openTabs.length < 1) {
     return <Navigate to="/" />;
   }
@@ -153,12 +139,7 @@ export const WorkbenchPage = () => {
       )}
 
       {tab && (
-        <ExplorerView
-          updater={updater}
-          options={tab.options}
-          name={tab.label}
-          tabId={tab.id}
-        />
+        <ExplorerTab tab={tab} />
       )}
 
       <div className={clsx(st.tabs, "no-scrollbar", !isDesktop && st.mobile)}>
