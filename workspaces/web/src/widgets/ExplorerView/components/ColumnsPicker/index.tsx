@@ -1,7 +1,7 @@
 import {TInputColumn, TRunSqlResult} from "@dataramen/types";
 import {ALLOW_DATE_FUNCTIONS} from "@dataramen/common";
 import {generateColumnLabel} from "../../../../utils/sql.ts";
-import {ChangeEventHandler, useContext, useMemo, useState} from "react";
+import {ChangeEventHandler, useContext, useEffect, useMemo, useState} from "react";
 import clsx from "clsx";
 import {TableContext, TableOptionsContext} from "../../context/TableContext.ts";
 import {reduceStringArrayToBooleanObject} from "../../../../utils/reducers.ts";
@@ -117,17 +117,7 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
   const showModal = useExplorerModals((s) => s[mode]);
   const {allColumns} = useContext(TableContext);
   const {state, setState} = useContext(TableOptionsContext);
-  const [newColumns, setNewColumns] = useState<Record<string, boolean>>(
-    () => reduceStringArrayToBooleanObject(
-      state[mode].map((c) => {
-        if (c.fn) {
-          return c.fn + " " + c.value;
-        }
-
-        return c.value;
-      }),
-    ),
-  );
+  const [newColumns, setNewColumns] = useState<Record<string, boolean>>({});
   const [filter, setFilter] = useState<string>("");
   const parsedColumns = useMemo<TTables>(() => parseColumns(allColumns), [allColumns]);
   const ignoreColumns = state.aggregations.length > 0 || state.groupBy.length > 0;
@@ -202,6 +192,26 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
       toggleExplorerModal("groupBy");
     }
   }, "Manage " + mode);
+
+  // init columns after each close
+  useEffect(() => {
+    if (!showModal) {
+      setNewColumns({});
+      return;
+    }
+
+    setNewColumns(
+      () => reduceStringArrayToBooleanObject(
+        state[mode].map((c) => {
+          if (c.fn) {
+            return c.fn + " " + c.value;
+          }
+
+          return c.value;
+        }),
+      ),
+    );
+  }, [showModal, setNewColumns, /* don't include state in dependencies */]);
 
   return (
     <Modal isVisible={showModal} onClose={onCancel} portal>

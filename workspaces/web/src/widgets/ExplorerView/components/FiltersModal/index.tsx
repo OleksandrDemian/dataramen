@@ -225,7 +225,10 @@ export const FiltersModal = () => {
   };
 
   useEffect(() => {
-    if (!showModal) return;
+    if (!showModal) {
+      setFilters([]);
+      return;
+    }
 
     setFilters(
       () => {
