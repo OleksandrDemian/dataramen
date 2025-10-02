@@ -4,33 +4,25 @@ import {TDbValue, TExecuteInsert, TExecuteQuery, TExecuteUpdate, TRunSqlResult} 
 import {QueryFilter} from "@dataramen/sql-builder";
 import {genSimpleId} from "../../utils/id.ts";
 
-export const useTableExplorer = ({
-  searchAll,
-  table,
-  datasourceId,
-  filters,
-  joins,
-  orderBy,
-  groupBy,
-  columns,
-  page = 0,
-  size = 20
-}: TExecuteQuery) => {
+export const useTableExplorer = (props: TExecuteQuery, onSuccess?: (data: TRunSqlResult) => void) => {
+  const {
+    datasourceId,
+    opts: {
+      searchAll,
+      table,
+      filters,
+      joins,
+      orderBy,
+      groupBy,
+      columns,
+    },
+    page = 0,
+    size = 20
+  } = props;
   return useQuery<TRunSqlResult>({
     queryKey: ["explorer", datasourceId, table, page, size, filters, joins, orderBy, groupBy, columns, searchAll],
     queryFn: async () => {
-      const { data } = await apiClient.post<{ data: TRunSqlResult }>("/runner/select", {
-        datasourceId: datasourceId!,
-        table: table!,
-        filters,
-        joins,
-        orderBy,
-        page,
-        size,
-        columns,
-        groupBy,
-        searchAll,
-      } satisfies TExecuteQuery);
+      const { data } = await apiClient.post<{ data: TRunSqlResult }>("/runner/select", props);
       return data.data;
     },
     retry: 1,
@@ -38,6 +30,7 @@ export const useTableExplorer = ({
     keepPreviousData: true,
     staleTime: 0,
     cacheTime: 0,
+    onSuccess,
   });
 };
 
@@ -59,10 +52,19 @@ export const useEntity = (dataSourceId?: string, table?: string, key?: [string, 
 
       const { data } = await apiClient.post<{ data: TRunSqlResult }>("/runner/select", {
         datasourceId: dataSourceId!,
-        table: table!,
-        filters,
+        opts: {
+          // todo: create dedicated endpoint to extract entity by id
+          table: table!,
+          filters,
+          joins: [],
+          columns: [],
+          orderBy: [],
+          groupBy: [],
+          aggregations: [],
+        },
         size: 1,
         page: 0,
+        name: `Select ${table}: [${key?.join()}]`,
       } satisfies TExecuteQuery);
 
       return data.data;

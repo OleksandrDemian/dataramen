@@ -1,12 +1,17 @@
 import {HttpError} from "../../utils/httpError";
 import {getDynamicConnection} from "../connectorManager";
 import {FastifyRequest} from "fastify";
-import {DatabaseInspectionRepository, DataSourceRepository} from "../../repository/db";
+import {
+  DatabaseInspectionRepository,
+  DataSourceRepository,
+  QueriesRepository,
+} from "../../repository/db";
 import {
   TExecuteInsert,
   TExecuteQuery,
   TExecuteQueryResult,
-  TExecuteUpdate, TInputColumn,
+  TExecuteUpdate,
+  TInputColumn,
   TQueryMutationValue,
   TRunSqlResult
 } from "@dataramen/types";
@@ -27,7 +32,14 @@ export const runSelect = async (
   req: FastifyRequest,
   props: TExecuteQuery
 ): Promise<TRunSqlResult> => {
-  const { table, datasourceId, filters, joins, size, page, columns, groupBy, searchAll } = props;
+  const { datasourceId, size, page, name } = props;
+  const { table, filters, joins, groupBy, searchAll, orderBy } = props.opts;
+  const columns = computeColumns(
+    props.opts.columns,
+    props.opts.groupBy,
+    props.opts.aggregations,
+  );
+
   const dataSource = await DataSourceRepository.findOne({
     where: {
       id: datasourceId,
@@ -40,6 +52,22 @@ export const runSelect = async (
   if (!dataSource) {
     throw new HttpError(404, "Data source not found");
   }
+
+  const historyPromise = await QueriesRepository.save(
+    QueriesRepository.create({
+      user: {
+        id: req.user.id,
+      },
+      team: {
+        id: req.user.currentTeamId,
+      },
+      dataSource: {
+        id: datasourceId,
+      },
+      name,
+      opts: props.opts,
+    }),
+  );
 
   const queryBuilder = new SelectQueryBuilder(dataSource.dbType as DatabaseDialect);
   queryBuilder.setTable(table);
@@ -61,7 +89,7 @@ export const runSelect = async (
     });
   }
 
-  const allowedOrderBy = getAllowedOrderBy(props, dataSource.dbType as DatabaseDialect);
+  const allowedOrderBy = getAllowedOrderBy(columns, orderBy, dataSource.dbType as DatabaseDialect);
   if (allowedOrderBy.length > 0) {
     queryBuilder.addOrderBy(...allowedOrderBy);
   }
@@ -124,6 +152,7 @@ export const runSelect = async (
 
   return {
     ...result,
+    queryHistoryId: historyPromise.id,
     tables,
     allColumns,
   };
@@ -269,15 +298,9 @@ const sanitizeFullColumn = (value: string, dbType: DatabaseDialect): string => {
   return handleAlias(table, dbType) + "." + handleAlias(column, dbType);
 };
 
-const getAllowedOrderBy = (props: TExecuteQuery, dbType: DatabaseDialect): OrderByClause[] => {
-  if (!props.orderBy) {
-    return [];
-  }
-
-  let orderBy: OrderByClause[] = props.orderBy;
-
-  if (props.columns && props.columns.length > 0) {
-    const allowedColumnsMap = props.columns.reduce((acc, val) => {
+const getAllowedOrderBy = (columns: TInputColumn[], orderBy: OrderByClause[], dbType: DatabaseDialect): OrderByClause[] => {
+  if (columns && columns.length > 0) {
+    const allowedColumnsMap = columns.reduce((acc, val) => {
       acc.set(inputColumnToAlias(val), {
         isFn: !!(val.fn || val.distinct),
       });
@@ -286,7 +309,7 @@ const getAllowedOrderBy = (props: TExecuteQuery, dbType: DatabaseDialect): Order
     }, new Map<string, { isFn: boolean }>());
 
     // only order by columns in group by
-    orderBy = props.orderBy
+    orderBy = orderBy
       .filter((o) => allowedColumnsMap.has(o.column))
       .map((o) => {
         if (allowedColumnsMap.get(o.column)?.isFn) {
@@ -300,4 +323,15 @@ const getAllowedOrderBy = (props: TExecuteQuery, dbType: DatabaseDialect): Order
   }
 
   return orderBy;
+};
+
+const computeColumns = (cols: TInputColumn[], groupBy: TInputColumn[], agg: TInputColumn[]): TInputColumn[] => {
+  const result: TInputColumn[] = [];
+  if (groupBy.length > 0 || agg.length > 0) {
+    result.push(...groupBy, ...agg);
+  } else if (cols.length > 0) {
+    result.push(...cols);
+  }
+
+  return result;
 };

@@ -9,6 +9,7 @@ import { posix } from 'node:path';
 import {Query} from "./tables/query";
 import {Env} from "../services/env";
 import {UsersToTeams} from "./tables/usersToTeams";
+import {SavedQuery} from "./tables/savedQuery";
 
 function getDatabaseValue (): string {
   let value = Env.str("APP_DB_DATABASE");
@@ -41,6 +42,7 @@ export const AppDataSource = new TypeOrm({
     UsersToTeams,
     UserSettings,
     Query,
+    SavedQuery,
   ],
 });
 
@@ -59,3 +61,4 @@ export const UserRepository = AppDataSource.getRepository(User);
 export const UsersToTeamsRepository = AppDataSource.getRepository(UsersToTeams);
 export const UserSettingsRepository = AppDataSource.getRepository(UserSettings);
 export const QueriesRepository = AppDataSource.getRepository(Query);
+export const SavedQueriesRepository = AppDataSource.getRepository(SavedQuery);

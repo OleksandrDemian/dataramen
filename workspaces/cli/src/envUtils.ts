@@ -1,7 +1,7 @@
 import * as crypto from "node:crypto";
 import {env} from "./envHandler";
 
-export function generateDefaultKeys () {
+export function generateDefaultEnvValues () {
   let flush = false;
 
   if (!env.getString("SYMM_ENCRYPTION_KEY")) {

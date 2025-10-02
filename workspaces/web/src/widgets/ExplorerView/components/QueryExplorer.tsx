@@ -6,6 +6,7 @@ import {sanitizeCellValue} from "../../../utils/sql.ts";
 import st from "./QueryExplorer.module.css";
 import {
   QueryResultContext,
+  TableOptionsContext,
 } from "../context/TableContext.ts";
 import {TDbValue} from "@dataramen/types";
 import {useContextMenuHandler} from "./ContextualMenu.handler.ts";
@@ -28,6 +29,7 @@ const TableHeaders = () => {
   return (
     <thead>
       <tr>
+        <td className="p-1 text-center w-8 text-sm text-gray-600">#</td>
         {columns.map(column => (
           <td className={st.headerCell} key={column.full}>
             <div className="overflow-hidden">
@@ -73,13 +75,16 @@ const TableRow = memo(({
   row,
   isLastRow,
   index,
+  offset,
 }: {
   row: TDbValue[];
   isLastRow: boolean;
   index: number;
+  offset: number;
 }) => {
   return (
     <tr className={clsx(st.tableRowCells, isLastRow && "rounded-b-lg")}>
+      <td className="p-1 text-center align-middle text-xs w-8 text-blue-500">{index + 1 + offset}</td>
       {row.map((value, i) => (
         <td className={st.cell} key={i} data-row={index}>
           <CellValue value={value} col={i} row={index} />
@@ -91,6 +96,8 @@ const TableRow = memo(({
 
 export const QueryExplorer = () => {
   const { data: result, error: queryError, isLoading, isFetching } = useContext(QueryResultContext);
+  const { state: { page, size } } = useContext(TableOptionsContext);
+
   const parsedError = useParseError(queryError);
   const clickHandler = useCellActions();
 
@@ -106,6 +113,8 @@ export const QueryExplorer = () => {
       contextMenuHandler.open(e);
     }
   };
+
+  const offset = page * size;
 
   return (
     <>
@@ -135,7 +144,7 @@ export const QueryExplorer = () => {
           <tbody>
             {result.rows?.length < 1 && (
               <tr className={st.tableEmpty}>
-                <td colSpan={result.columns.length}>No data</td>
+                <td colSpan={result.columns.length + 1}>No data</td>
               </tr>
             )}
 
@@ -144,6 +153,7 @@ export const QueryExplorer = () => {
               <TableRow
                 key={i}
                 index={i}
+                offset={offset}
                 row={row}
                 isLastRow={i === result.rows.length - 1}
               />

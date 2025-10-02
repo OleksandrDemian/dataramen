@@ -26,7 +26,7 @@ export const useTeamSavedQueries = (teamId?: string) => {
 };
 
 export const invalidateTeamProjectFiles = (teamId?: string) => {
-  const datasourcesQueryKey = ['project', 'team'];
+  const datasourcesQueryKey = ['project', 'datasources'];
   const queriesQueryKey = ['project', 'saved-queries'];
 
   if (teamId) {

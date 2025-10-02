@@ -9,7 +9,11 @@
 
 .menu {
   @apply px-2 py-1;
-  @apply enabled:hover:bg-gray-100 w-full flex justify-between items-center cursor-pointer text-ellipsis whitespace-nowrap overflow-hidden rounded-lg;
+  @apply enabled:hover:bg-gray-100 w-full flex justify-between items-center cursor-pointer rounded-lg;
+
+  & > span {
+    @apply truncate;
+  }
 
   &:disabled {
     @apply cursor-not-allowed opacity-40;
