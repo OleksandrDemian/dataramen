@@ -1,57 +1,11 @@
 import {createRouter} from "../../utils/createRouter";
-import {getRequestParams, getRequestPayload, getRequestQuery} from "../../utils/request";
-import {parseOrderQueryParam} from "../../utils/queryUtils";
+import {getRequestParams, getRequestPayload} from "../../utils/request";
 import {HttpError} from "../../utils/httpError";
 import {AppDataSource, DataSourceRepository, QueriesRepository} from "../../repository/db";
-import {TCreateQuery, TFindQueryParams, TUpdateQuery, EUserTeamRole, IQuerySchema} from "@dataramen/types";
-import {FindOptionsWhere, Like} from "typeorm";
+import {TCreateQuery, TUpdateQuery, EUserTeamRole} from "@dataramen/types";
 import {atLeast} from "../../hooks/role";
 
 export default createRouter((instance) => {
-  instance.route({
-    method: "get",
-    url: "/",
-    handler: async (request) => {
-      const { dataSourceId, teamId, limit, orderBy, name } = getRequestQuery<TFindQueryParams>(request);
-
-      if (!dataSourceId && !teamId) {
-        throw new HttpError(400, "Either dsId or teamId is required");
-      }
-
-      const where: FindOptionsWhere<IQuerySchema> = {
-        isTrash: false,
-      };
-
-      if (dataSourceId) {
-        where.dataSource = {
-          id: dataSourceId,
-        };
-      }
-
-      if (teamId) {
-        where.team = {
-          id: teamId,
-        };
-      }
-
-      if (name) {
-        where.name = Like(`%${name}%`);
-      }
-
-      const queries = await QueriesRepository.find({
-        where,
-        take: limit,
-        order: parseOrderQueryParam(orderBy, {
-          createdAt: "DESC",
-        })
-      });
-
-      return {
-        data: queries,
-      };
-    },
-  });
-
   instance.route({
     method: "get",
     url: "/:id",
@@ -84,6 +38,9 @@ export default createRouter((instance) => {
     },
   });
 
+  /**
+   * Create saved query
+   */
   instance.route({
     method: "post",
     url: "/",
@@ -104,14 +61,16 @@ export default createRouter((instance) => {
       const query = await QueriesRepository.save(
         QueriesRepository.create({
           name: payload.name,
-          isTrash: false,
           opts: payload.opts,
           team: {
             id: dataSource?.team.id,
           },
           dataSource: {
             id: payload.dataSourceId,
-          }
+          },
+          user: {
+            id: request.user.id,
+          },
         }),
       );
 

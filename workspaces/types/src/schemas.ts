@@ -13,6 +13,7 @@ export interface IUserSchema extends IUser {
   teams: IUsersToTeamsSchema[];
   settings: IUserSettings;
   currentTeam: IUsersToTeamsSchema;
+  queries: IQuerySchema;
 }
 
 export interface InspectionColumn {
@@ -69,7 +70,7 @@ export interface IQuery {
   id: string;
   name: string;
   opts: Partial<TQueryOptions>;
-  isTrash?: boolean;
+  isPersonal: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -77,6 +78,20 @@ export interface IQuery {
 export interface IQuerySchema extends IQuery {
   team: ITeamSchema;
   dataSource: IDataSourceSchema;
+  user: IUserSchema;
+}
+
+export interface ISavedQuery {
+  id: string;
+  isPersonal: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ISavedQuerySchema extends ISavedQuery {
+  user: IUserSchema;
+  team: ITeamSchema;
+  query: IQuerySchema;
 }
 
 export interface ITeam {

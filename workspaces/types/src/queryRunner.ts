@@ -1,4 +1,5 @@
-import {JoinClause, OrderByClause, QueryFilter} from "@dataramen/sql-builder";
+import {QueryFilter} from "@dataramen/sql-builder";
+import {TQueryOptions} from "./queries";
 
 export type TDbValue = (string | number | boolean | undefined | null);
 export type TInputColumn = {
@@ -9,15 +10,10 @@ export type TInputColumn = {
 
 export type TExecuteQuery = {
   datasourceId: string;
-  table: string;
-  filters?: QueryFilter[];
-  joins?: JoinClause[];
-  orderBy?: OrderByClause[];
-  columns?: TInputColumn[];
-  groupBy?: TInputColumn[];
-  searchAll?: string;
   page: number;
   size: number;
+  opts: TQueryOptions;
+  name: string;
 };
 
 export type TQueryMutationValue = { column: string; value: TDbValue; };
@@ -50,6 +46,7 @@ export type TExecuteQueryResult = {
 
 export type TRunSqlResult = TExecuteQueryResult & {
   tables: string[];
+  queryHistoryId: string;
   allColumns: {
     table: string;
     column: string;

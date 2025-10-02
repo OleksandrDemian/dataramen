@@ -24,4 +24,6 @@ export type TProjectQuery = Pick<
   'id' |
   'name' |
   'updatedAt'
->;
+> & {
+  savedQueryId: string;
+};

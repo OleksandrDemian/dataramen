@@ -3,9 +3,9 @@ import {getRequestParams, getRequestQuery} from "../../utils/request";
 import {
   DatabaseInspectionRepository,
   DataSourceRepository,
-  QueriesRepository,
+  QueriesRepository, SavedQueriesRepository,
 } from "../../repository/db";
-import {FindOptionsWhere, In, Like} from "typeorm";
+import {And, Brackets, FindOptionsWhere, In, Like} from "typeorm";
 import {IDataSource, IDataSourceSchema, TFindQuery, TProjectDataSource, TProjectQuery} from "@dataramen/types";
 
 export default createRouter((instance) => {
@@ -45,27 +45,43 @@ export default createRouter((instance) => {
     method: "get",
     url: "/team/:teamId/queries",
     handler: async (request, reply) => {
-      const { teamId } = getRequestParams<{ teamId: string }>(request);
+      const queryParams = getRequestParams<{ teamId?: string; }>(request);
+      const teamId = queryParams.teamId || request.user.currentTeamId;
 
-      const queries = await QueriesRepository.find({
-        where: {
-          team: {
-            id: teamId,
+      const queries = await SavedQueriesRepository.find({
+        where: [
+          {
+            isPersonal: false,
+            team: { id: teamId }
           },
-          isTrash: false,
-        },
-        order: {
-          name: 'ASC',
+          {
+            isPersonal: true,
+            team: { id: teamId },
+            user: { id: request.user.id },
+          },
+        ],
+        relations: {
+          query: true,
         },
         select: {
           id: true,
-          name: true,
-          updatedAt: true,
+          query: {
+            id: true,
+            name: true,
+            updatedAt: true,
+          },
         },
       });
 
+      const data: TProjectQuery[] = queries.map((q) => ({
+        name: q.query.name,
+        id: q.query.id,
+        updatedAt: q.query.updatedAt,
+        savedQueryId: q.id,
+      }));
+
       return {
-        data: queries satisfies TProjectQuery[],
+        data
       };
     },
   });
@@ -78,11 +94,7 @@ export default createRouter((instance) => {
       const { search, size, selectedDataSources } = getRequestQuery<{ search: string, size: string; selectedDataSources?: string[] }>(request);
       const perResultSize = (parseInt(size) || 20) / 2;
 
-      const dsFilter: FindOptionsWhere<IDataSourceSchema> = {
-        team: {
-          id: teamId,
-        }
-      };
+      const dsFilter: FindOptionsWhere<IDataSourceSchema> = {};
 
       if (selectedDataSources?.length) {
         dsFilter.id = In(selectedDataSources);
@@ -110,25 +122,47 @@ export default createRouter((instance) => {
           },
           take: perResultSize,
         }),
-        QueriesRepository.find({
-          where: {
-            name: Like(`%${search}%`),
-            isTrash: false,
-            dataSource: dsFilter,
-          },
+        SavedQueriesRepository.find({
+          where:  [
+            {
+              // select team queries
+              query: {
+                dataSource: dsFilter,
+                name: Like(`%${search}%`),
+              },
+              team: { id: teamId },
+              isPersonal: false,
+            },
+            {
+              // select private queries
+              query: {
+                dataSource: dsFilter,
+                name: Like(`%${search}%`),
+              },
+              team: { id: teamId },
+              isPersonal: true,
+              user: { id: request.user.id },
+            }
+          ],
           relations: {
-            dataSource: true,
+            query: {
+              dataSource: true,
+            },
           },
           select: {
             id: true,
-            name: true,
-            dataSource: {
-              name: true,
+            query: {
               id: true,
-            },
+              name: true,
+              dataSource: {
+                name: true,
+              },
+            }
           },
           order: {
-            name: "ASC",
+            query: {
+              name: "ASC",
+            }
           },
           take: perResultSize,
         })
@@ -148,10 +182,10 @@ export default createRouter((instance) => {
 
       queries.forEach((q) => {
         result.push({
-          name: q.name,
+          name: q.query.name,
           id: q.id,
-          dataSourceName: q.dataSource?.name || '--',
-          dataSourceId: q.dataSource?.id || '--',
+          dataSourceName: q.query.dataSource?.name || '--',
+          dataSourceId: q.query.dataSource?.id || '--',
           type: 'query',
         });
       });

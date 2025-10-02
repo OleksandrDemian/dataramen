@@ -164,7 +164,7 @@ function GroupBy () {
       {showCurrent && state.groupBy.length > 0 && (
         <div className={st.cardsList}>
           {state.groupBy.map((group) => (
-            <div className={st.card}>
+            <div className={st.card} key={inputColumnToAlias(group)}>
               <span className={st.text}>{inputColumnToAlias(group)}</span>
               <button className={st.closeButton} onClick={() => onRemoveColumn(inputColumnToAlias(group))}>
                 <CloseIcon width={20} height={20} />

@@ -2,30 +2,10 @@ import {useMutation, useQuery} from "react-query";
 import {apiClient} from "../clients.ts";
 import {queryClient} from "../queryClient.ts";
 import {invalidateTeamProjectFiles, invalidateTeamTrash} from "./project.ts";
-import {TCreateQuery, TFindQueryParams, TQuery, TUpdateQuery} from "@dataramen/types";
+import { TCreateSavedQuery, TQuery, TUpdateQuery } from "@dataramen/types";
 import {Analytics} from "../../utils/analytics.ts";
 
-export const useFindQuery = (query: TFindQueryParams) => {
-  return useQuery({
-    queryKey: [
-      "queries",
-      query.dataSourceId,
-      query.teamId,
-      query.limit,
-      query.orderBy,
-      query.name,
-    ],
-    queryFn: async () => {
-      const { data } = await apiClient.get<{ data: TQuery[] }>("/queries", { params: query });
-      return data.data;
-    },
-    staleTime: undefined,
-    enabled: !!query.teamId || !!query.dataSourceId,
-    keepPreviousData: true,
-  });
-};
-
-export const useQueryById = (id?: string) => {
+export const useQueryById = (id?: string | null) => {
   return useQuery({
     queryKey: ["query", id],
     queryFn: async () => {
@@ -36,10 +16,10 @@ export const useQueryById = (id?: string) => {
   });
 };
 
-export const useCreateQuery = () => {
+export const useSaveQuery = () => {
   return useMutation({
-    mutationFn: async (payload: TCreateQuery) => {
-      const { data } = await apiClient.post<{ data: TQuery }>("/queries", payload);
+    mutationFn: async (payload: TCreateSavedQuery) => {
+      const { data } = await apiClient.post<{ data: TQuery }>("/saved-queries", payload);
       return data.data;
     },
     onSuccess: () => {
@@ -49,6 +29,15 @@ export const useCreateQuery = () => {
     }
   });
 };
+
+export const useDeleteSavedQuery = () => {
+  return useMutation({
+    mutationFn: async (savedQueryId: string) => apiClient.delete("/saved-queries/" + savedQueryId),
+    onSuccess: () => {
+      invalidateTeamProjectFiles();
+    },
+  });
+}
 
 export const useUpdateQuery = () => {
   return useMutation({

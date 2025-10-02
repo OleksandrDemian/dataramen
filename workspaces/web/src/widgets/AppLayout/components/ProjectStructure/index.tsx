@@ -3,7 +3,7 @@ import st from "./index.module.css";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useTeamDataSources, useTeamSavedQueries} from "../../../../data/queries/project.ts";
 import {ContextualMenu} from "../../../ExplorerView/components/ContextualMenu.tsx";
-import {useUpdateQuery} from "../../../../data/queries/queries.ts";
+import {useDeleteSavedQuery, useUpdateQuery} from "../../../../data/queries/queries.ts";
 import {useContextMenuHandler} from "../../../ExplorerView/components/ContextualMenu.handler.ts";
 import {prompt} from "../../../../data/promptModalStore.ts";
 import {PAGES} from "../../../../const/pages.ts";
@@ -102,11 +102,16 @@ export const ProjectStructure = () => {
   const workbenchTabs = useOpenTabs();
 
   const updateQuery = useUpdateQuery();
+  const deleteSavedQuery = useDeleteSavedQuery();
 
   const openQuery = (queryId: string) => {
     fetchQueryById(queryId)
       .then((result) => {
-        pushNewExplorerTab(result.name, createTableOptions(result.opts), true);
+        pushNewExplorerTab(result.name, createTableOptions({
+          ...result.opts,
+          dataSourceId: result.dataSource?.id,
+        }), true);
+
         if (location.pathname !== PAGES.workbench.path) {
           navigate(PAGES.workbench.path);
         }
@@ -128,12 +133,13 @@ export const ProjectStructure = () => {
   };
 
   const deleteQuery = (queryId: string) => {
-    updateQuery.mutate({
-      id: queryId,
-      payload: {
-        isTrash: true,
-      },
-    });
+    const savedQueryId = projectQueries?.find(
+      (query) => query.id === queryId,
+    )?.savedQueryId;
+
+    if (savedQueryId) {
+      deleteSavedQuery.mutate(savedQueryId);
+    }
   };
 
   const onOpenTab = (tabId: string) => {
@@ -165,7 +171,7 @@ export const ProjectStructure = () => {
                 onOpen={openQuery}
                 name={file.name}
                 id={file.id}
-                key={file.id}
+                key={file.savedQueryId}
               />
             ))}
           </div>
@@ -176,7 +182,7 @@ export const ProjectStructure = () => {
             <p className="font-semibold text-sm text-gray-600 mb-2">WORKBENCH TABS</p>
             {workbenchTabs?.map((tab) => (
               <button key={tab.id} className={st.menu} onClick={() => onOpenTab(tab.id)}>
-                📄 {tab.label}
+                <span>📄 {tab.label}</span>
               </button>
             ))}
           </div>

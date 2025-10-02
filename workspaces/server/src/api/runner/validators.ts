@@ -3,10 +3,6 @@ import {HttpError} from "../../utils/httpError";
 import {isString} from "@dataramen/sql-builder";
 
 export const validateExecuteQueryBody = (body: TExecuteQuery) => {
-  if (!body.table) {
-    throw new HttpError(400, "Table is required");
-  }
-
   // todo validate payload
 };
 

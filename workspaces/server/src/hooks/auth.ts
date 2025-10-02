@@ -1,7 +1,7 @@
 import {FastifyRequest, onRequestHookHandler} from 'fastify';
 import {verifyAccessToken} from "../services/auth";
 import {HttpError} from "../utils/httpError";
-import {UsersToTeamsRepository} from "../repository/db";
+import {UserRepository, UsersToTeamsRepository} from "../repository/db";
 
 const skipAuth = (req: FastifyRequest): boolean => {
   if (req.routeOptions.config.isPublic) {
@@ -23,10 +23,24 @@ export const requestAuthHook: onRequestHookHandler = async (request) => {
 
   try {
     const { userId } = await verifyAccessToken(accessToken);
-    const user = await UsersToTeamsRepository.findOneBy({
-      user: {
+    const user = await UserRepository.findOne({
+      where: {
         id: userId,
-      }
+      },
+      select: {
+        id: true,
+        currentTeam: {
+          role: true,
+          team: {
+            id: true,
+          },
+        },
+      },
+      relations: {
+        currentTeam: {
+          team: true,
+        },
+      },
     });
 
     if (!user) {
@@ -35,7 +49,8 @@ export const requestAuthHook: onRequestHookHandler = async (request) => {
 
     request.user = {
       id: userId,
-      currentTeamRole: user.role,
+      currentTeamId: user.currentTeam.team.id,
+      currentTeamRole: user.currentTeam.role,
     };
   } catch (err) {
     throw new HttpError(401, "Unauthorized");

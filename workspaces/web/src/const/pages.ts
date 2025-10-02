@@ -7,6 +7,7 @@ export type TPagePath =
   | 'home'
   | 'workbench'
   | 'login'
+  | 'share'
   ;
 
 export const PAGES: Record<TPagePath, TPage> = {
@@ -17,6 +18,10 @@ export const PAGES: Record<TPagePath, TPage> = {
   workbench: {
     path: '/workbench',
     name: 'Workbench',
+  },
+  share: {
+    path: '/share',
+    name: 'Share query',
   },
   login: {
     path: "/login",

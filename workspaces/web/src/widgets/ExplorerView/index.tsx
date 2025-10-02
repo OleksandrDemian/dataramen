@@ -9,22 +9,10 @@ import {QueryBuilderSidebar} from "./components/QueryBuilderSidebar.tsx";
 import {useCreateTableContext, useCreateTableOptionsContext} from "./utils.ts";
 import {useTableExplorer} from "../../data/queries/queryRunner.ts";
 import {TableOptions} from "./components/TableOptions.tsx";
-import {TInputColumn} from "@dataramen/types";
 import {FiltersModal} from "./components/FiltersModal";
 import {JoinsModal} from "./components/JoinsModal";
 import {ColumnsPicker} from "./components/ColumnsPicker";
 import {AggregateModal} from "./components/AggregateModal";
-
-function computeColumns(cols: TInputColumn[], groupBy: TInputColumn[], agg: TInputColumn[]): TInputColumn[] {
-  const result: TInputColumn[] = [];
-  if (groupBy.length > 0 || agg.length > 0) {
-    result.push(...groupBy, ...agg);
-  } else if (cols.length > 0) {
-    result.push(...cols);
-  }
-
-  return result;
-}
 
 export type TDataSourceExplorerTabProps = {
   options: TTableOptions;
@@ -38,15 +26,19 @@ export const ExplorerView = ({ options, updater, name, tabId }: TDataSourceExplo
 
   const query = useTableExplorer({
     datasourceId: options.dataSourceId,
-    table: options.table,
-    filters: tableOptions.filters,
-    joins: tableOptions.joins,
+    name,
+    opts: {
+      table: options.table,
+      filters: tableOptions.filters,
+      joins: tableOptions.joins,
+      orderBy: tableOptions.orderBy,
+      columns: tableOptions.columns,
+      aggregations: tableOptions.aggregations,
+      groupBy: tableOptions.groupBy,
+      searchAll: tableOptions.searchAll,
+    },
     page: tableOptions.page,
     size: tableOptions.size,
-    orderBy: tableOptions.orderBy,
-    columns: computeColumns(tableOptions.columns, tableOptions.groupBy, tableOptions.aggregations),
-    groupBy: tableOptions.groupBy,
-    searchAll: tableOptions.searchAll,
   });
 
   const context = useCreateTableContext(query.data, options.dataSourceId, name, tabId);

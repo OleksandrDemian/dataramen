@@ -18,6 +18,7 @@ import status from "./api/status/router";
 import teams from "./api/teams/router";
 import users from "./api/users/router";
 import userSettings from "./api/userSettings/router";
+import savedQueries from "./api/saved-queries/router";
 import {TRouter} from "./utils/createRouter";
 import { join } from "node:path";
 import {requestAuthHook} from "./hooks/auth";
@@ -33,6 +34,7 @@ declare module "fastify" {
     __connections?: TDynamicConnection[];
     user: {
       id: string;
+      currentTeamId: string;
       currentTeamRole: EUserTeamRole;
     };
   }
@@ -108,6 +110,7 @@ function registerRouter (fn: TRouter, prefix: string) {
   registerRouter(teams, `/api/teams`);
   registerRouter(users, `/api/users`);
   registerRouter(userSettings, `/api/user-settings`);
+  registerRouter(savedQueries, `/api/saved-queries`);
 
   server.setNotFoundHandler((req, res) => {
     const url = req.raw.url;

@@ -18,6 +18,11 @@ export type TCreateQuery = {
   opts: Partial<TQueryOptions>;
 };
 
+export type TCreateSavedQuery = {
+  queryId: string;
+  name: string;
+};
+
 export type TUpdateQuery = {
   name: string;
   isTrash?: boolean;

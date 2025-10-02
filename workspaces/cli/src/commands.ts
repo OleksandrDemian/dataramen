@@ -7,7 +7,7 @@ import {cliPkg, serverPkg} from "./pkgUtils";
 import yoctoSpinner from 'yocto-spinner';
 import open from "open";
 import {isPortFree} from "./netUtils";
-import {generateDefaultKeys} from "./envUtils";
+import {generateDefaultEnvValues} from "./envUtils";
 import {SERVER_CHECK_INTERVAL, SERVER_CHECK_TIMEOUT, waitServerAvailability} from "./waitServerAvailability";
 import {env} from "./envHandler";
 import {ArgumentsCamelCase} from "yargs";
@@ -25,7 +25,7 @@ async function start () {
       await installServer();
     }
 
-    generateDefaultKeys();
+    generateDefaultEnvValues();
 
     const port = env.getNumber("PORT") || 4466; // TODO: move into common package
     if (!port) {

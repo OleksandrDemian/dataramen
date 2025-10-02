@@ -12,9 +12,10 @@ import {DataSourceModal} from "../modals/DataSourceModal";
 import {SearchTableModal} from "../modals/SearchTableModal";
 import {useSetupGlobalListeners} from "../hooks/useGlobalHotkey.ts";
 import {useAnalyticsPageview} from "../hooks/useAnalyticsPageview.ts";
-import {UpdateServerModal} from "../modals/UpdateServerModal";
+import {AccountSettingsModal} from "../modals/AccountSettingsModal";
 import {PeopleSettingsModal} from "../modals/PeopleSettingsModal";
 import {LoginPage} from "./Login";
+import {SharedQuery} from "./SharedQuery";
 import {useEffect} from "react";
 import {AccessTokenHandler} from "../services/accessTokenHandler.ts";
 import {readAccessToken} from "../utils/sessionAccessToken.ts";
@@ -41,6 +42,7 @@ function Router() {
         <Route path={PAGES.home.path} element={<HomePage />} />
         <Route path={PAGES.workbench.path} element={<WorkbenchPage />} />
         <Route path={PAGES.login.path} element={<LoginPage />} />
+        <Route path={PAGES.share.path} element={<SharedQuery />} />
       </Routes>
 
       <QueryModal />
@@ -49,7 +51,7 @@ function Router() {
       <ValueDisplayModal />
       <DataSourceModal />
       <SearchTableModal />
-      <UpdateServerModal />
+      <AccountSettingsModal />
       <PeopleSettingsModal />
 
       <PromptModal />
