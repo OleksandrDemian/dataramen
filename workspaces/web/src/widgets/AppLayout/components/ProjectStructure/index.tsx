@@ -182,7 +182,7 @@ export const ProjectStructure = () => {
             <p className="font-semibold text-sm text-gray-600 mb-2">WORKBENCH TABS</p>
             {workbenchTabs?.map((tab) => (
               <button key={tab.id} className={st.menu} onClick={() => onOpenTab(tab.id)}>
-                📄 {tab.label}
+                <span>📄 {tab.label}</span>
               </button>
             ))}
           </div>
