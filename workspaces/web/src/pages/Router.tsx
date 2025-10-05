@@ -12,8 +12,6 @@ import {DataSourceModal} from "../modals/DataSourceModal";
 import {SearchTableModal} from "../modals/SearchTableModal";
 import {useSetupGlobalListeners} from "../hooks/useGlobalHotkey.ts";
 import {useAnalyticsPageview} from "../hooks/useAnalyticsPageview.ts";
-import {AccountSettingsModal} from "../modals/AccountSettingsModal";
-import {PeopleSettingsModal} from "../modals/PeopleSettingsModal";
 import {LoginPage} from "./Login";
 import {SharedQuery} from "./SharedQuery";
 import {useEffect} from "react";
@@ -51,8 +49,6 @@ function Router() {
       <ValueDisplayModal />
       <DataSourceModal />
       <SearchTableModal />
-      <AccountSettingsModal />
-      <PeopleSettingsModal />
 
       <PromptModal />
       <ConfirmModal />
