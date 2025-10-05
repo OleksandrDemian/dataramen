@@ -15,12 +15,13 @@ export const useTableExplorer = (props: TExecuteQuery, onSuccess?: (data: TRunSq
       orderBy,
       groupBy,
       columns,
+      aggregations,
     },
     page = 0,
     size = 20
   } = props;
   return useQuery<TRunSqlResult>({
-    queryKey: ["explorer", datasourceId, table, page, size, filters, joins, orderBy, groupBy, columns, searchAll],
+    queryKey: ["explorer", datasourceId, table, page, size, filters, aggregations, joins, orderBy, groupBy, columns, searchAll],
     queryFn: async () => {
       const { data } = await apiClient.post<{ data: TRunSqlResult }>("/runner/select", props);
       return data.data;
