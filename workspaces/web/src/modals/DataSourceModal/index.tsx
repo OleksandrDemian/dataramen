@@ -6,7 +6,6 @@ import {
   useManualInspectDataSource,
   useUpdateDataSource
 } from "../../data/queries/dataSources.ts";
-import {Modal, ModalClose} from "../../widgets/Modal";
 import {useEffect, useMemo, useState} from "react";
 import {prompt} from "../../data/promptModalStore.ts";
 import {confirm} from "../../data/confirmModalStore.ts";
@@ -22,6 +21,7 @@ import {DataSourceIcon} from "../../widgets/Icons";
 import {EUserTeamRole} from "@dataramen/types";
 import {useRequireRole} from "../../hooks/useRequireRole.ts";
 import {closeMenuSidebar} from "../../data/showSidebarMenuStore.ts";
+import {Sidebar} from "../../widgets/Sidebar";
 
 const formatter = new Intl.DateTimeFormat("en", {
   dateStyle: "full",
@@ -171,7 +171,8 @@ function Component ({ id }: { id: string }) {
         <span className="truncate">{dataSource?.name}</span>
       </h3>
 
-      <p className="mt-1 text-sm font-semibold">{lastInspected}</p>
+      <p className="mt-2 text-xs text-gray-800">Last DB inspection</p>
+      <p className="text-sm font-semibold">{lastInspected}</p>
 
       {isEditor && (
         <div className="mt-2 flex gap-2">
@@ -189,7 +190,15 @@ function Component ({ id }: { id: string }) {
         </div>
       )}
 
-      <div className="flex gap-1 items-center mb-2 mt-4">
+      <div className="flex gap-2 items-center mb-2 mt-4">
+        <select
+          className="input"
+          value={searchType}
+          onChange={(e) => setSearchType(e.currentTarget.value as any)}
+        >
+          <option value="table">Table</option>
+          <option value="column">Column</option>
+        </select>
         <input
           className="input flex-1 bg-gray-50"
           placeholder={isColumn ? "Search column" : "Search table"}
@@ -197,10 +206,6 @@ function Component ({ id }: { id: string }) {
           onChange={(e) => setFilter(e.target.value)}
           autoFocus
         />
-
-        <button className="button primary w-20" onClick={() => setSearchType(isColumn ? "table" : "column")}>
-          {isColumn ? "Column" : "Table"}
-        </button>
       </div>
 
       <div className="overflow-y-auto">
@@ -243,11 +248,10 @@ export const DataSourceModal = () => {
   const onClose = () => setDataSourceModal(undefined);
 
   return (
-    <Modal isVisible={shownDataSource != null} onClose={onClose} onClosed={() => setDataSourceId(undefined)} backdropClose>
-      <ModalClose onClick={onClose} />
+    <Sidebar isVisible={shownDataSource != null} onClose={onClose} onClosed={() => setDataSourceId(undefined)} backdropClose>
       {dataSourceId && (
         <Component id={dataSourceId} />
       )}
-    </Modal>
+    </Sidebar>
   );
 };

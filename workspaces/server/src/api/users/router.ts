@@ -4,6 +4,7 @@ import {HttpError} from "../../utils/httpError";
 import {AppDataSource, UserRepository, UsersToTeamsRepository} from "../../repository/db";
 import {EUserTeamRole, IUser, TCreateUser, TUser} from "@dataramen/types";
 import {hashPassword} from "../../utils/passwordHash";
+import {atLeast} from "../../hooks/role";
 
 export default createRouter((instance) => {
   // get user
@@ -82,6 +83,9 @@ export default createRouter((instance) => {
   instance.route({
     method: "post",
     url: "/",
+    config: {
+      requireRole: atLeast(EUserTeamRole.ADMIN),
+    },
     handler: async (request) => {
       return AppDataSource.transaction(async () => {
         const body = getRequestPayload<TCreateUser>(request);

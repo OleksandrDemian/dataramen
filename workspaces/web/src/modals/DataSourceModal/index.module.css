@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 .root {
-  @apply flex flex-col overflow-hidden w-full lg:w-lg;
+  @apply flex flex-col overflow-hidden w-full lg:w-lg p-4;
 }
 
 .section-open-btn {
@@ -54,5 +54,5 @@
 }
 
 .column-type {
-  @apply text-blue-600 font-semibold rounded-lg;
+  @apply text-blue-600 font-semibold;
 }

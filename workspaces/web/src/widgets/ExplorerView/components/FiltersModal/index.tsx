@@ -116,7 +116,7 @@ const FilterEntry = ({
         <button
           tabIndex={-1}
           data-tooltip-id="default"
-          data-tooltip-content="Remove aggregation"
+          data-tooltip-content="Remove filter"
           className="p-0.5 text-sm cursor-pointer" onClick={() => onRemoveFilter(filter.id)}
         >
           <CloseButton width={20} height={20} className="text-red-600" />
@@ -258,6 +258,10 @@ export const FiltersModal = () => {
   useGlobalHotkey("f", () => {
     toggleExplorerModal("filters");
   }, "Add new filter");
+
+  useGlobalHotkey("ctrl+f", () => {
+    alert("Save filters");
+  }, "Save filters");
 
   return (
     <Modal isVisible={showModal} onClose={handleOnClose} portal>

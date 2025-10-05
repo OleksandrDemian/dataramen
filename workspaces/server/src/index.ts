@@ -6,7 +6,6 @@ import cors from '@fastify/cors';
 import fastifyStatic from '@fastify/static';
 import qs from "qs";
 import {HttpError} from "./utils/httpError";
-import {TDynamicConnection} from "./services/connectorManager/types";
 import { init } from './repository/db';
 
 import auth from "./api/auth/router";
@@ -19,31 +18,14 @@ import teams from "./api/teams/router";
 import users from "./api/users/router";
 import userSettings from "./api/userSettings/router";
 import savedQueries from "./api/saved-queries/router";
+import "./types/extendFastify";
 import {TRouter} from "./utils/createRouter";
 import { join } from "node:path";
 import {requestAuthHook} from "./hooks/auth";
 import {responseCloseDynamicConnections} from "./hooks/dynamicDbConnection";
 import fastifyCookie from "@fastify/cookie";
-import {EUserTeamRole} from "@dataramen/types";
 import {createDefaultOwnerUser} from "./services/users";
-import {requestRole, TRoleCheckFn} from "./hooks/role";
-
-declare module "fastify" {
-  interface FastifyRequest {
-    // create a global request value to store the connection manager
-    __connections?: TDynamicConnection[];
-    user: {
-      id: string;
-      currentTeamId: string;
-      currentTeamRole: EUserTeamRole;
-    };
-  }
-
-  interface FastifyContextConfig {
-    isPublic?: boolean;
-    requireRole?: TRoleCheckFn;
-  }
-}
+import {requestRole} from "./hooks/role";
 
 const server = fastify({
   querystringParser: str => qs.parse(str),

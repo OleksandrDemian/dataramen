@@ -4,25 +4,15 @@ import {PAGES} from "../../../const/pages.ts";
 import {openAccountSettingsModal} from "../../../data/accountSettingsModalStore.ts";
 import {openPeopleSettings} from "../../../data/peopleSettingsModalStore.ts";
 import {useSearchTable} from "../../../data/tableSearchModalStore.ts";
-import {useOpenTabs} from "../../../data/openTabsStore.ts";
 
 export const MobileNav = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const searchTable = useSearchTable("Mobile home workbench");
-  const tabs = useOpenTabs();
+  const searchTable = useSearchTable("Mobile nav");
 
   const onHome = () => {
     if (pathname !== PAGES.home.path) {
       navigate(PAGES.home.path);
-    }
-  }
-
-  const onWorkbench = () => {
-    if (tabs.length < 1) {
-      searchTable();
-    } else if (pathname !== PAGES.workbench.path) {
-      navigate(PAGES.workbench.path);
     }
   }
 
@@ -33,9 +23,9 @@ export const MobileNav = () => {
         <p className="text-xs font-semibold text-gray-600">Home</p>
       </button>
 
-      <button onClick={onWorkbench}>
-        <p>🛠️</p>
-        <p className="text-xs font-semibold text-gray-600">Workbench</p>
+      <button onClick={searchTable}>
+        <p>🔎</p>
+        <p className="text-xs font-semibold text-gray-600">New query</p>
       </button>
 
       <button onClick={openAccountSettingsModal}>
