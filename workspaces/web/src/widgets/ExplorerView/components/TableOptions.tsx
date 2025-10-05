@@ -12,7 +12,6 @@ import {closeQueryModal} from "../../../data/queryModalStore.ts";
 import {useDataSource} from "../../../data/queries/dataSources.ts";
 import {useRequireRole} from "../../../hooks/useRequireRole.ts";
 import {toggleShowQuerySidebar} from "../../../data/showQuerySidebarStore.ts";
-import {useSearchTable} from "../../../data/tableSearchModalStore.ts";
 import {useGlobalHotkey} from "../../../hooks/useGlobalHotkey.ts";
 import {showExplorerModal} from "../hooks/useExplorerModals.ts";
 import {Tooltip} from "react-tooltip";
@@ -26,7 +25,6 @@ export function TableOptions () {
       <QueryManipulation />
       <TabOptions />
       <Pagination />
-      <PageSize/>
     </div>
   );
 }
@@ -131,10 +129,9 @@ function TabOptions () {
   const { name } = useContext(TableContext);
   const { state } = useContext(TableOptionsContext);
   const { refetch, data: queryResult } = useContext(QueryResultContext);
+  const { size, setSize } = usePagination();
 
   const canShare = window?.location.hostname !== 'localhost';
-
-  const newQuery = useSearchTable("Workbook");
 
   const onOpen = () => {
     pushNewExplorerTab(name, state, true);
@@ -170,10 +167,20 @@ function TabOptions () {
         Clone
       </button>
 
-      <button data-tooltip-id="default" data-tooltip-content="Start new query tab" onClick={newQuery} className={clsx(st.tableAction, st.blue)}>
-        <span className="whitespace-nowrap">New query</span>
-        <span className="hotkey">N</span>
-      </button>
+      <label className={st.tableAction} data-tooltip-content="Size" data-tooltip-id="default">
+        <select
+          style={{ height: "20px" }}
+          value={size}
+          onChange={(e) => setSize(parseInt(e.target.value, 10))}
+        >
+          <option value={5}>5 rows</option>
+          <option value={10}>10 rows</option>
+          <option value={20}>20 rows</option>
+          <option value={50}>50 rows</option>
+          <option value={100}>100 rows</option>
+          <option value={200}>200 rows</option>
+        </select>
+      </label>
     </div>
   );
 }
@@ -205,29 +212,6 @@ function Pagination () {
       >
         Next
       </button>
-    </div>
-  );
-}
-
-function PageSize () {
-  const { size, setSize } = usePagination();
-
-  return (
-    <div className={st.tableConfig}>
-      <label className={st.tableAction} data-tooltip-content="Size" data-tooltip-id="default">
-        <select
-          style={{ height: "20px" }}
-          value={size}
-          onChange={(e) => setSize(parseInt(e.target.value, 10))}
-        >
-          <option value={5}>5 rows</option>
-          <option value={10}>10 rows</option>
-          <option value={20}>20 rows</option>
-          <option value={50}>50 rows</option>
-          <option value={100}>100 rows</option>
-          <option value={200}>200 rows</option>
-        </select>
-      </label>
     </div>
   );
 }
