@@ -129,7 +129,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
     <ContextualMenu handler={handler}>
       {entities.length > 0 && (
         <div className={st.optionsContainer}>
-          <label className="flex justify-between items-center gap-2 sticky left-0 top-0 input">
+          <label className="flex items-center gap-2 border-b border-b-gray-200 p-2 bg-(--bg)">
             <span className="font-semibold">📝</span>
             <input
               className="flex-1 outline-0"
@@ -139,7 +139,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
             />
           </label>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col overflow-y-auto">
             {gte(filteredEntities.length, 0) ? filteredEntities.map((ent) => (
               <button
                 key={ent}
@@ -149,7 +149,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
                 <span>📄 {ent}</span>
               </button>
             )) : (
-              <p className="text-center text-gray-800">Empty</p>
+              <p className="text-center p-2 text-gray-800">Empty</p>
             )}
           </div>
         </div>
@@ -157,7 +157,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
 
       {hooks.length > 0 && (
         <div className={st.optionsContainer}>
-          <label className="flex justify-between items-center gap-2 sticky left-0 top-0 p-1 input">
+          <label className="flex items-center gap-2 border-b border-b-gray-200 p-2 bg-(--bg)">
             <span className="font-semibold">↗️</span>
             <input
               className="flex-1 outline-0"
@@ -167,7 +167,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
             />
           </label>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col overflow-y-auto">
             {filteredHooks.length > 0 ? filteredHooks.map((hook) => (
               <HookButton
                 hook={hook}
@@ -175,7 +175,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
                 key={hook.where}
               />
             )) : (
-              <p className="text-center text-gray-800">Empty</p>
+              <p className="text-center p-2 text-gray-800">Empty</p>
             )}
           </div>
         </div>

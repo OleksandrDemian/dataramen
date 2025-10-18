@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 .root {
-  @apply flex rounded-lg px-2 whitespace-nowrap items-center gap-2;
+  @apply flex px-2 whitespace-nowrap items-center gap-2;
 
   &:hover {
     @apply bg-gray-100 cursor-pointer;

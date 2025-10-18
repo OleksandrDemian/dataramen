@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 .root {
-  @apply flex flex-col overflow-hidden w-full lg:w-lg p-4;
+  @apply flex flex-col overflow-hidden w-full lg:w-md p-4;
 }
 
 .section-open-btn {
@@ -39,20 +39,23 @@
   text-align: left;
   border-radius: 4px;
   cursor: pointer;
-  @apply truncate p-1;
+  @apply truncate p-1 text-gray-800 text-sm;
 }
 
 .ul {
   list-style-type: none;
-  padding-left: 22px;
+  padding-left: 8px;
+  margin-left: 8px;
 
-  @apply overflow-hidden;
+  @apply overflow-hidden border-l border-gray-200;
 
   li {
-    @apply truncate font-semibold;
+    font-weight: 500;
+    @apply truncate text-gray-800 text-sm;
   }
 }
 
 .column-type {
-  @apply text-blue-600 font-semibold;
+  font-weight: 500;
+  @apply text-blue-600 text-sm;
 }

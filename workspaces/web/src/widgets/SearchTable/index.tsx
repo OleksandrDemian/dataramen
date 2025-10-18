@@ -29,9 +29,26 @@ export const SearchQuery = ({ onTable, onQuery, autoFocus }: TSearchTableProps) 
   const { data: dataSources } = useDataSources({
     teamId: user?.teamId,
   });
+
+  const availableSelectedDataSources = useMemo(() => {
+    const temp: string[] = [];
+    const selected = reduceArrayToMap(selectedDataSources);
+    if (!dataSources || dataSources.length === 0) {
+      return [];
+    }
+
+    for (const ds of dataSources) {
+      if (selected[ds.id]) {
+        temp.push(ds.id);
+      }
+    }
+
+    return temp;
+  }, [selectedDataSources, dataSources]);
+
   const { data: tables } = useSearchQueries(debouncedSearch, {
     teamId: user?.teamId,
-    selectedDataSources,
+    selectedDataSources: availableSelectedDataSources,
   });
 
   const onSelect = (query: TFindQuery) => {

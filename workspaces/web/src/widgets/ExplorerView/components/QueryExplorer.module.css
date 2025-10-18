@@ -123,6 +123,11 @@
     text-align: left;
   }
 
+  &.size {
+    width: 100px;
+    justify-content: center;
+  }
+
   &:not(.modal) {
     @apply flex items-center;
   }
@@ -132,7 +137,7 @@
   max-height: 30vh;
 
   @apply w-full lg:w-md lg:max-w-lg;
-  @apply p-2 rounded-lg bg-white flex flex-col gap-2 shadow-lg border border-gray-200 overflow-y-auto relative;
+  @apply rounded-lg bg-white flex flex-col shadow-lg border border-gray-200 overflow-hidden;
 
   & + & {
     margin-top: 8px;
@@ -160,7 +165,7 @@
 }
 
 .option-item {
-  @apply text-left rounded-lg px-2;
+  @apply text-left p-2;
 
   &:hover {
     @apply bg-gray-100 cursor-pointer;

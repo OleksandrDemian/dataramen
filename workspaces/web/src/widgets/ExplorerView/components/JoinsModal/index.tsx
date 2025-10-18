@@ -60,7 +60,7 @@ export const JoinsModal = () => {
           </div>
         )}
 
-        {filteredHooks.length > 0 ? (
+        {availableJoins.length > 0 ? (
           <input
             className="input w-full"
             placeholder="Filter"

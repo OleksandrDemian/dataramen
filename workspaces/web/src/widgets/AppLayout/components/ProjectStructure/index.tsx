@@ -7,7 +7,7 @@ import {useDeleteSavedQuery, useUpdateQuery} from "../../../../data/queries/quer
 import {useContextMenuHandler} from "../../../ExplorerView/components/ContextualMenu.handler.ts";
 import {prompt} from "../../../../data/promptModalStore.ts";
 import {PAGES} from "../../../../const/pages.ts";
-import {pushNewExplorerTab, setActiveTab, useOpenTabs} from "../../../../data/openTabsStore.ts";
+import {pushNewExplorerTab} from "../../../../data/openTabsStore.ts";
 import {setDataSourceModal} from "../../../../data/dataSourceModalStore.ts";
 import {fetchQueryById} from "../../../../data/queries/queries.utils.ts";
 import {createTableOptions} from "../../../ExplorerView/utils.ts";
@@ -99,7 +99,6 @@ export const ProjectStructure = () => {
   const { data: user } = useCurrentUser();
   const { data: projectDataSources } = useTeamDataSources(user?.teamId);
   const { data: projectQueries } = useTeamSavedQueries(user?.teamId);
-  const workbenchTabs = useOpenTabs();
 
   const updateQuery = useUpdateQuery();
   const deleteSavedQuery = useDeleteSavedQuery();
@@ -142,13 +141,6 @@ export const ProjectStructure = () => {
     }
   };
 
-  const onOpenTab = (tabId: string) => {
-    setActiveTab(tabId);
-    if (location.pathname !== PAGES.workbench.path) {
-      navigate(PAGES.workbench.path);
-    }
-  };
-
   return (
     <div className={st.container}>
       <div className="flex-1 overflow-y-auto">
@@ -173,17 +165,6 @@ export const ProjectStructure = () => {
                 id={file.id}
                 key={file.savedQueryId}
               />
-            ))}
-          </div>
-        )}
-
-        {gte(workbenchTabs?.length, 0) && (
-          <div className="mt-4">
-            <p className="font-semibold text-sm text-gray-600 mb-2">WORKBENCH TABS</p>
-            {workbenchTabs?.map((tab) => (
-              <button key={tab.id} className={st.menu} onClick={() => onOpenTab(tab.id)}>
-                <span>📄 {tab.label}</span>
-              </button>
             ))}
           </div>
         )}

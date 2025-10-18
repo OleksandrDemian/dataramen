@@ -125,6 +125,8 @@ function QueryManipulation() {
   );
 }
 
+const rows = [5, 10, 20, 50, 100, 200];
+
 function TabOptions () {
   const { name } = useContext(TableContext);
   const { state } = useContext(TableOptionsContext);
@@ -167,20 +169,18 @@ function TabOptions () {
         Clone
       </button>
 
-      <label className={st.tableAction} data-tooltip-content="Size" data-tooltip-id="default">
-        <select
-          style={{ height: "20px" }}
-          value={size}
-          onChange={(e) => setSize(parseInt(e.target.value, 10))}
-        >
-          <option value={5}>5 rows</option>
-          <option value={10}>10 rows</option>
-          <option value={20}>20 rows</option>
-          <option value={50}>50 rows</option>
-          <option value={100}>100 rows</option>
-          <option value={200}>200 rows</option>
-        </select>
-      </label>
+      <button data-tooltip-id="rows-num" className={clsx(st.tableAction, st.size, st.blue)}>
+        <span className="whitespace-nowrap">{size} rows</span>
+        <Chevron width={16} height={16} className="rotate-90" />
+      </button>
+
+      <Tooltip id="rows-num" className="z-10 shadow-md flex" clickable variant="light" opacity={1}>
+        {rows.map((num) => (
+          <button onClick={() => setSize(num)} className={clsx(st.tableAction, st.blue)}>
+            <span>{num}</span>
+          </button>
+        ))}
+      </Tooltip>
     </div>
   );
 }
