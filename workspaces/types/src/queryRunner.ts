@@ -14,6 +14,7 @@ export type TExecuteQuery = {
   size: number;
   opts: TQueryOptions;
   name: string;
+  workbenchTabId?: string;
 };
 
 export type TQueryMutationValue = { column: string; value: TDbValue; };

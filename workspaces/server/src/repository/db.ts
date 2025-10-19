@@ -10,6 +10,7 @@ import {Query} from "./tables/query";
 import {Env} from "../services/env";
 import {UsersToTeams} from "./tables/usersToTeams";
 import {SavedQuery} from "./tables/savedQuery";
+import {WorkbenchTab} from "./tables/workbenchTabs";
 
 function getDatabaseValue (): string {
   let value = Env.str("APP_DB_DATABASE");
@@ -62,3 +63,4 @@ export const UsersToTeamsRepository = AppDataSource.getRepository(UsersToTeams);
 export const UserSettingsRepository = AppDataSource.getRepository(UserSettings);
 export const QueriesRepository = AppDataSource.getRepository(Query);
 export const SavedQueriesRepository = AppDataSource.getRepository(SavedQuery);
+export const WorkbenchTabsRepository = AppDataSource.getRepository(WorkbenchTab);
