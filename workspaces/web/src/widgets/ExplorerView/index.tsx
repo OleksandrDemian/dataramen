@@ -3,45 +3,29 @@ import {
   QueryResultContext,
   TableContext,
   TableOptionsContext,
-  TTableOptions, TTableOptionsUpdater
+  TTableOptionsUpdater
 } from "./context/TableContext.ts";
 import {QueryBuilderSidebar} from "./components/QueryBuilderSidebar.tsx";
 import {useCreateTableContext, useCreateTableOptionsContext} from "./utils.ts";
-import {useTableExplorer} from "../../data/queries/queryRunner.ts";
 import {TableOptions} from "./components/TableOptions.tsx";
 import {FiltersModal} from "./components/FiltersModal";
 import {JoinsModal} from "./components/JoinsModal";
 import {ColumnsPicker} from "./components/ColumnsPicker";
 import {AggregateModal} from "./components/AggregateModal";
+import { TExecuteQuery } from "@dataramen/types";
+import {useRunWorkbenchTab} from "../../data/queries/workbenchTabs.ts";
 
 export type TDataSourceExplorerTabProps = {
-  options: TTableOptions;
+  options: TExecuteQuery;
   updater: TTableOptionsUpdater;
   name: string;
-  tabId?: string;
+  tabId: string;
 };
 export const ExplorerView = ({ options, updater, name, tabId }: TDataSourceExplorerTabProps) => {
   const tableOptionsContext = useCreateTableOptionsContext(options, updater);
-  const { state: tableOptions } = tableOptionsContext;
+  const query = useRunWorkbenchTab(tabId, options);
 
-  const query = useTableExplorer({
-    datasourceId: options.dataSourceId,
-    name,
-    opts: {
-      table: options.table,
-      filters: tableOptions.filters,
-      joins: tableOptions.joins,
-      orderBy: tableOptions.orderBy,
-      columns: tableOptions.columns,
-      aggregations: tableOptions.aggregations,
-      groupBy: tableOptions.groupBy,
-      searchAll: tableOptions.searchAll,
-    },
-    page: tableOptions.page,
-    size: tableOptions.size,
-  });
-
-  const context = useCreateTableContext(query.data, options.dataSourceId, name, tabId);
+  const context = useCreateTableContext(query.data, options.datasourceId, name, tabId);
 
   return (
     <TableContext value={context}>

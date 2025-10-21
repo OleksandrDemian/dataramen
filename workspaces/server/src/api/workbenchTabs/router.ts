@@ -1,9 +1,15 @@
 import {createRouter} from "../../utils/createRouter";
-import {WorkbenchTabsRepository} from "../../repository/db";
+import {QueriesRepository, WorkbenchTabsRepository} from "../../repository/db";
 import {getRequestParams, getRequestPayload} from "../../utils/request";
 import {HttpError} from "../../utils/httpError";
 import {runSelect} from "../../services/sqlRunner";
-import { TExecuteQuery } from "@dataramen/types";
+import {
+  IWorkbenchTab,
+  TCreateWorkbenchTab,
+  TExecuteQuery,
+  TGetWorkbenchTabsEntry,
+  TQueryOptions, TUpdateWorkbenchTab
+} from "@dataramen/types";
 
 export default createRouter((instance) => {
   instance.route({
@@ -19,7 +25,9 @@ export default createRouter((instance) => {
           user: {
             id: currentUserId,
           },
+          archived: false,
         },
+        select: ["id", "name"],
       });
 
       return {
@@ -27,7 +35,35 @@ export default createRouter((instance) => {
           name: tab.name,
           id: tab.id,
         })),
-      };
+      } satisfies { data: TGetWorkbenchTabsEntry[] };
+    },
+  });
+
+  instance.route({
+    method: "get",
+    url: "/:id",
+    handler: async (request) => {
+      const { id } = getRequestParams<{ id: string }>(request);
+      const { currentTeamId, id: currentUserId } = request.user;
+      const workbenchTab = await WorkbenchTabsRepository.findOne({
+        where: {
+          id,
+          team: {
+            id: currentTeamId,
+          },
+          user: {
+            id: currentUserId,
+          },
+        },
+      });
+
+      if (!workbenchTab) {
+        throw new HttpError(404, "Not Found");
+      }
+
+      return {
+        data: workbenchTab,
+      } satisfies { data: IWorkbenchTab };
     },
   });
 
@@ -35,11 +71,36 @@ export default createRouter((instance) => {
     method: "post",
     url: "/",
     handler: async (request) => {
-      const { opts, name } = getRequestPayload<{ opts: TExecuteQuery; name: string; }>(request);
+      let { opts, name, queryId } = getRequestPayload<TCreateWorkbenchTab>(request); // todo: make const
+      let baseOptions: TExecuteQuery;
+      if (opts) {
+        baseOptions = opts;
+      } else {
+        const query = await QueriesRepository.findOne({
+          where: {
+            id: queryId,
+          },
+        });
+
+        if (!query) {
+          throw new HttpError(404, "Query not Found");
+        }
+
+        baseOptions = {
+          opts: query.opts as TQueryOptions, // todo: forced type casting
+          name: query.name,
+          datasourceId: query.dataSource.id,
+          page: 0,
+          size: 50,
+        };
+        name = query.name; // todo: variable reasigning
+      }
+
+
       const newWorkbenchTab = await WorkbenchTabsRepository.save(
         WorkbenchTabsRepository.create({
           name,
-          opts,
+          opts: baseOptions,
           user: {
             id: request.user.id,
           },
@@ -51,7 +112,7 @@ export default createRouter((instance) => {
 
       return {
         data: newWorkbenchTab,
-      };
+      } satisfies { data: TGetWorkbenchTabsEntry };
     },
   });
 
@@ -60,10 +121,13 @@ export default createRouter((instance) => {
     url: "/:id/run",
     handler: async (request) => {
       const { id } = getRequestParams<{ id: string }>(request);
-      const { newOptions } = getRequestPayload<{ newOptions?: TExecuteQuery }>(request);
+      const newOptions = getRequestPayload<TExecuteQuery>(request);
       const workbenchTab = await WorkbenchTabsRepository.findOne({
         where: {
           id: id,
+        },
+        relations: {
+          user: true,
         },
       });
 
@@ -92,4 +156,28 @@ export default createRouter((instance) => {
       };
     },
   });
+
+  instance.route({
+    method: "patch",
+    url: "/:id",
+    handler: async (request) => {
+      const { id } = getRequestParams<{ id: string }>(request);
+      const body = getRequestPayload<TUpdateWorkbenchTab>(request);
+
+      const workbenchTab = await WorkbenchTabsRepository.findOne({
+        where: {
+          id,
+          user: {
+            id: request.user.id,
+          },
+        },
+      });
+
+      if (!workbenchTab) {
+        throw new HttpError(404, "Not Found");
+      }
+
+      return WorkbenchTabsRepository.update(id, body);
+    }
+  })
 });

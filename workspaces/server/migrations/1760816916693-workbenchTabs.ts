@@ -13,9 +13,11 @@ export class WorkbenchTabs1760816916693 implements MigrationInterface {
           { name: "createdAt",  type: TIMESTAMP_COLUMN_TYPE, default: "CURRENT_TIMESTAMP" },
           { name: "updatedAt",  type: TIMESTAMP_COLUMN_TYPE, default: "CURRENT_TIMESTAMP" },
           { name: "name",       type: "varchar" },
+          { name: "archived",   type: "boolean", isNullable: false, default: false },
           { name: "teamId",     type: "uuid", isNullable: false },
           { name: "queryId",    type: "uuid", isNullable: true },
           { name: "userId",     type: "uuid", isNullable: false },
+          { name: "opts",       type: "json", default: "'{}'" },
         ],
       }),
     );

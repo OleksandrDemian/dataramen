@@ -59,7 +59,7 @@ export const useCellActions = () => {
   const { setState } = useContext(TableOptionsContext);
 
   const copyValue = (event: TCellEvent) => {
-    const { value, column } = getValueAndColumn(result, event.row, event.col);
+    const { value, column } = getValueAndColumn(result?.result, event.row, event.col);
 
     if (column) {
       const sanitized = sanitizeCellValue(
@@ -72,7 +72,7 @@ export const useCellActions = () => {
   };
 
   const showValue = (event: TCellEvent) => {
-    const { value, column } = getValueAndColumn(result, event.row, event.col);
+    const { value, column } = getValueAndColumn(result?.result, event.row, event.col);
 
     if (column) {
       const sanitized = sanitizeCellValue(
@@ -84,7 +84,7 @@ export const useCellActions = () => {
   };
 
   const filterValue = (event: TCellEvent) => {
-    const { value, column } = getValueAndColumn(result, event.row, event.col);
+    const { value, column } = getValueAndColumn(result?.result, event.row, event.col);
     let actualValue = column?.full || "";
     let fn: string | undefined = undefined;
 
@@ -121,7 +121,10 @@ export const useCellActions = () => {
 
       setState((cur) => ({
         ...cur,
-        filters: [...cur.filters, filter],
+        opts: {
+          ...cur.opts,
+          filters: [...cur.opts.filters, filter],
+        },
       }));
 
       toast.success(`Added new filter on column ${column?.alias}`);

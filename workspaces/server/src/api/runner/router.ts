@@ -14,14 +14,6 @@ export default createRouter((instance) => {
       const payload = getRequestPayload<TExecuteQuery>(request, validateExecuteQueryBody);
       const result = await runSelect(request, payload);
 
-      if (payload.workbenchTabId) {
-        WorkbenchTabsRepository.update(payload.workbenchTabId, {
-          query: {
-            id: result.queryHistoryId,
-          },
-        });
-      }
-
       return {
         data: result,
       };

@@ -7,7 +7,6 @@ import {ConfirmModal} from "../modals/ConfirmModal";
 import {PromptModal} from "../modals/PromptModal";
 import {ValueDisplayModal} from "../modals/ValueDisplayModal";
 import {WorkbenchPage} from "./Workbench";
-import {QueryModal} from "../modals/QueryModal";
 import {DataSourceModal} from "../modals/DataSourceModal";
 import {SearchTableModal} from "../modals/SearchTableModal";
 import {useSetupGlobalListeners} from "../hooks/useGlobalHotkey.ts";
@@ -27,12 +26,11 @@ function Router() {
     <>
       <Routes>
         <Route path={PAGES.home.path} element={<HomePage />} />
-        <Route path={PAGES.workbench.path} element={<WorkbenchPage />} />
+        <Route path={`${PAGES.workbench.path}/tab/:id`} element={<WorkbenchPage />} />
         <Route path={PAGES.login.path} element={<LoginPage />} />
         <Route path={PAGES.share.path} element={<SharedQuery />} />
       </Routes>
 
-      <QueryModal />
       <EntityCreator />
       <EntityEditor />
       <ValueDisplayModal />

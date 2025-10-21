@@ -16,10 +16,10 @@ import toast from "react-hot-toast";
 import {useGlobalHotkey} from "../../../hooks/useGlobalHotkey.ts";
 import {toggleShowQuerySidebar, useShowQuerySidebar} from "../../../data/showQuerySidebarStore.ts";
 import {Sidebar} from "../../Sidebar";
-import {renameTab} from "../../../data/openTabsStore.ts";
 import {useMediaQuery} from "../../../hooks/useMediaQuery.ts";
 import {ScreenQuery} from "../../../utils/screen.ts";
 import {showExplorerModal} from "../hooks/useExplorerModals.ts";
+import {useUpdateWorkbenchTab} from "../../../data/queries/workbenchTabs.ts";
 
 export const QueryBuilderSidebar = () => {
   const show = useShowQuerySidebar();
@@ -84,21 +84,27 @@ function SectionHead ({ onShow, show, title, items }: TSectionHeadProps) {
 function Actions () {
   const { name, tabId } = useContext(TableContext);
   const { data } = useContext(QueryResultContext);
+  const updateWorkbenchTab = useUpdateWorkbenchTab();
 
   const onRenameTab = () => {
     if (tabId) {
       prompt("New tab name", name)
         .then((newName) => {
           if (newName) {
-            renameTab(tabId, newName);
+            updateWorkbenchTab.mutate({
+              id: tabId,
+              payload: {
+                name: newName,
+              },
+            });
           }
         });
     }
   };
 
   const onCopyRawQuery = () => {
-    if (data?.query) {
-      navigator.clipboard.writeText(data?.query);
+    if (data?.result.query) {
+      navigator.clipboard.writeText(data.result.query);
       toast.success("Query copied to clipboard");
     }
   };
@@ -120,14 +126,14 @@ function Actions () {
 
 function Information () {
   const { state } = useContext(TableOptionsContext);
-  const { data: dataSource } = useDataSource(state.dataSourceId);
+  const { data: dataSource } = useDataSource(state.datasourceId);
 
   return (
     <div className={st.sectionContainer}>
       <div className={st.card}>
         <div>
           <p className={st.subText}>📄 Table</p>
-          <p className={clsx(st.text, "text-blue-600")}>{state.table}</p>
+          <p className={clsx(st.text, "text-blue-600")}>{state.opts.table}</p>
         </div>
       </div>
 
@@ -148,7 +154,10 @@ function GroupBy () {
   const onRemoveColumn = (col: string) => {
     setState((prev) => ({
       ...prev,
-      groupBy: prev.groupBy.filter((column) => inputColumnToAlias(column) !== col)
+      opts: {
+        ...prev.opts,
+        groupBy: prev.opts.groupBy.filter((column) => inputColumnToAlias(column) !== col)
+      },
     }));
   };
 
@@ -158,12 +167,12 @@ function GroupBy () {
         title="📚 Group by"
         show={showCurrent}
         onShow={() => setShowCurrent(!showCurrent)}
-        items={state.groupBy.length}
+        items={state.opts.groupBy.length}
       />
 
-      {showCurrent && state.groupBy.length > 0 && (
+      {showCurrent && state.opts.groupBy.length > 0 && (
         <div className={st.cardsList}>
-          {state.groupBy.map((group) => (
+          {state.opts.groupBy.map((group) => (
             <div className={st.card} key={inputColumnToAlias(group)}>
               <span className={st.text}>{inputColumnToAlias(group)}</span>
               <button className={st.closeButton} onClick={() => onRemoveColumn(inputColumnToAlias(group))}>
@@ -189,11 +198,11 @@ function Columns () {
   const onRemoveColumn = (col: string) => {
     setState((prev) => ({
       ...prev,
-      columns: prev.columns.filter((column) => inputColumnToAlias(column) !== col)
+      columns: prev.opts.columns.filter((column) => inputColumnToAlias(column) !== col)
     }));
   };
 
-  const ignoreColumns = state.aggregations.length > 0 || state.groupBy.length > 0;
+  const ignoreColumns = state.opts.aggregations.length > 0 || state.opts.groupBy.length > 0;
 
   return (
     <div className={st.sectionContainer}>
@@ -201,7 +210,7 @@ function Columns () {
         title="👀 Columns"
         show={showCurrent}
         onShow={() => setShowCurrent(!showCurrent)}
-        items={ignoreColumns ? 0 :state.columns.length}
+        items={ignoreColumns ? 0 : state.opts.columns.length}
       />
       {ignoreColumns && (
         <Alert variant="warning" className="border border-yellow-800 my-2">
@@ -209,9 +218,9 @@ function Columns () {
         </Alert>
       )}
 
-      {!ignoreColumns && showCurrent && state.columns.length > 0 && (
+      {!ignoreColumns && showCurrent && state.opts.columns.length > 0 && (
         <div className={st.cardsList}>
-          {state.columns.map((column) => (
+          {state.opts.columns.map((column) => (
             <div className={st.card}>
               <span className={st.text}>{inputColumnToAlias(column)}</span>
               <button className={st.closeButton} onClick={() => onRemoveColumn(inputColumnToAlias(column))}>
@@ -241,8 +250,8 @@ function Aggregate () {
 
     setState((prevState) => ({
       ...prevState,
-      aggregations: prevState.aggregations.filter((s) => s.fn !== agg.fn || s.value !== agg.value),
-      orderBy: prevState.orderBy.filter((o) => o.column !== orderLabel), // remove order by when removing aggregation
+      aggregations: prevState.opts.aggregations.filter((s) => s.fn !== agg.fn || s.value !== agg.value),
+      orderBy: prevState.opts.orderBy.filter((o) => o.column !== orderLabel), // remove order by when removing aggregation
     }));
   };
 
@@ -252,11 +261,11 @@ function Aggregate () {
         title="🔢 Aggregations"
         show={showCurrent}
         onShow={() => setShowCurrent(!showCurrent)}
-        items={state.aggregations.length}
+        items={state.opts.aggregations.length}
       />
-      {showCurrent && state.aggregations.length > 0 && (
+      {showCurrent && state.opts.aggregations.length > 0 && (
         <div className={st.cardsList}>
-          {state.aggregations.map((agg) => (
+          {state.opts.aggregations.map((agg) => (
             <div className={st.card}>
               <span className={st.text}>{agg.fn} {agg.value}</span>
               <button className={st.closeButton} onClick={() => onRemoveAggregation(agg)}>
@@ -293,11 +302,11 @@ function Filters () {
         title="🎚️ Filters"
         show={showCurrent}
         onShow={() => setShowCurrent(!showCurrent)}
-        items={state.filters.length}
+        items={state.opts.filters.length}
       />
-      {showCurrent && state.filters.length > 0 && (
+      {showCurrent && state.opts.filters.length > 0 && (
         <div className={st.cardsList}>
-          {state.filters.map((f, i) => (
+          {state.opts.filters.map((f, i) => (
             <div className={st.card} key={i}>
               <div className="overflow-hidden">
                 <p className={clsx(st.subText, "truncate")}>{f.column}</p>
@@ -331,17 +340,17 @@ function Joins () {
         title="📄 Joins"
         show={showCurrent}
         onShow={() => setShowCurrent(!showCurrent)}
-        items={options.joins.length}
+        items={options.opts.joins.length}
       />
-      {showCurrent && options.joins.length > 0 && (
+      {showCurrent && options.opts.joins.length > 0 && (
         <div className={st.cardsList}>
-          {options.joins.map((j, i) => (
+          {options.opts.joins.map((j, i) => (
             <div className={st.card} key={j.table + j.on}>
               <div className="overflow-hidden">
                 <p className={clsx(st.subText, "truncate")}>on {j.on}</p>
                 <p className={st.text}>{j.table}</p>
               </div>
-              {i === options.joins.length - 1 && (
+              {i === options.opts.joins.length - 1 && (
                 <button className={st.closeButton} onClick={() => toggle(j)}>
                   <CloseIcon width={20} height={20} />
                 </button>
@@ -364,14 +373,14 @@ function Joins () {
 function OrderBy () {
   const { state, setState } = useContext(TableOptionsContext);
 
-  if (!state.orderBy.length) {
+  if (!state.opts.orderBy.length) {
     return null;
   }
 
   const onRemove = (o: OrderByClause) => {
     setState((cur) => ({
       ...cur,
-      orderBy: cur.orderBy.filter(
+      orderBy: cur.opts.orderBy.filter(
         (old) => old.column !== o.column && old.direction !== o.direction
       ),
     }));
@@ -382,7 +391,7 @@ function OrderBy () {
       <p className={st.sectionTitle}>Order by</p>
 
       <div className={st.cardsList}>
-        {state.orderBy.map((o, i) => (
+        {state.opts.orderBy.map((o, i) => (
           <div className={st.card} key={i}>
             <div className="overflow-hidden">
               <p className={clsx(st.subText, "truncate")}>{o.direction}</p>

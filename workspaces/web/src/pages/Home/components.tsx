@@ -12,7 +12,7 @@ import {PAGES} from "../../const/pages.ts";
 import {useCurrentUser} from "../../data/queries/users.ts";
 import {useDataSources} from "../../data/queries/dataSources.ts";
 import {setDataSourceModal} from "../../data/dataSourceModalStore.ts";
-import {useOpenTabs} from "../../data/openTabsStore.ts";
+import {useWorkbenchTabs} from "../../data/queries/workbenchTabs.ts";
 
 export const StartQuery = () => {
   const searchAndOpen = useSearchTable("Home");
@@ -65,12 +65,12 @@ export const ConnectDataSource = () => {
 
 export const WorkbenchTabs = () => {
   const navigate = useNavigate();
-  const tabs = useOpenTabs();
+  const { data: tabs } = useWorkbenchTabs();
   const searchAndOpen = useSearchTable("Home");
 
   const onOpenWorkbench = () => {
-    if (tabs.length > 0) {
-      navigate(PAGES.workbench.path);
+    if (tabs && tabs.length > 0) {
+      navigate(`${PAGES.workbench.path}/tab/${tabs[0].id}`);
       Analytics.event("On open workbench [Home]");
     } else {
       searchAndOpen();

@@ -44,6 +44,7 @@ export const AppDataSource = new TypeOrm({
     UserSettings,
     Query,
     SavedQuery,
+    WorkbenchTab,
   ],
 });
 

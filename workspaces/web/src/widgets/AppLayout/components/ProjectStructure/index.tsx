@@ -1,21 +1,19 @@
 import {useCurrentUser} from "../../../../data/queries/users.ts";
 import st from "./index.module.css";
-import {useLocation, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {useTeamDataSources, useTeamSavedQueries} from "../../../../data/queries/project.ts";
 import {ContextualMenu} from "../../../ExplorerView/components/ContextualMenu.tsx";
 import {useDeleteSavedQuery, useUpdateQuery} from "../../../../data/queries/queries.ts";
 import {useContextMenuHandler} from "../../../ExplorerView/components/ContextualMenu.handler.ts";
 import {prompt} from "../../../../data/promptModalStore.ts";
 import {PAGES} from "../../../../const/pages.ts";
-import {pushNewExplorerTab} from "../../../../data/openTabsStore.ts";
 import {setDataSourceModal} from "../../../../data/dataSourceModalStore.ts";
-import {fetchQueryById} from "../../../../data/queries/queries.utils.ts";
-import {createTableOptions} from "../../../ExplorerView/utils.ts";
 import {useGlobalHotkey} from "../../../../hooks/useGlobalHotkey.ts";
 import {Analytics} from "../../../../utils/analytics.ts";
 import { TProjectDataSource } from "@dataramen/types";
 import {DataSourceIcon} from "../../../Icons";
 import {gte} from "../../../../utils/numbers.ts";
+import {useCreateWorkbenchTab} from "../../../../data/queries/workbenchTabs.ts";
 
 const Query = ({
   name,
@@ -94,27 +92,23 @@ const Datasource = ({ dataSource, index }: { dataSource: TProjectDataSource, ind
 
 export const ProjectStructure = () => {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const { data: user } = useCurrentUser();
   const { data: projectDataSources } = useTeamDataSources(user?.teamId);
   const { data: projectQueries } = useTeamSavedQueries(user?.teamId);
 
+  const createWorkbenchTab = useCreateWorkbenchTab();
+
   const updateQuery = useUpdateQuery();
   const deleteSavedQuery = useDeleteSavedQuery();
 
   const openQuery = (queryId: string) => {
-    fetchQueryById(queryId)
-      .then((result) => {
-        pushNewExplorerTab(result.name, createTableOptions({
-          ...result.opts,
-          dataSourceId: result.dataSource?.id,
-        }), true);
-
-        if (location.pathname !== PAGES.workbench.path) {
-          navigate(PAGES.workbench.path);
-        }
-      });
+    createWorkbenchTab.mutateAsync({
+      queryId,
+      name: queryId, // todo: fake name
+    }).then((result) => {
+      navigate(`${PAGES.workbench.path}/tab/${result.id}`);
+    });
     Analytics.event("On open query [Sidebar]");
   };
 

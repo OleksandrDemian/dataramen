@@ -27,6 +27,10 @@ export const WorkbenchTab = new EntitySchema<IWorkbenchTabSchema>({
       type: "json",
       default: "{}",
     },
+    archived: {
+      type: Boolean,
+      default: false,
+    },
   },
   relations: {
     team: {

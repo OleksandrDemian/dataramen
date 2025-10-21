@@ -130,11 +130,11 @@ export const FiltersModal = () => {
   const { state } = useContext(TableOptionsContext);
   const { setFilters: updateFilters } = useWhereStatements();
   const showModal = useExplorerModals((s) => s.filters);
-  const { data: inspections } = useDatabaseInspections(state.dataSourceId);
+  const { data: inspections } = useDatabaseInspections(state.datasourceId);
 
   const allowedTables = useMemo(() => {
-    return [state.table, ...state.joins.map((j) => j.table)];
-  }, [state.table, state.joins]);
+    return [state.opts.table, ...state.opts.joins.map((j) => j.table)];
+  }, [state.opts.table, state.opts.joins]);
 
   const [filters, setFilters] = useState<TFilterForm[]>([]);
 
@@ -232,7 +232,7 @@ export const FiltersModal = () => {
 
     setFilters(
       () => {
-        const filters: TFilterForm[] = state.filters.map((f) => ({
+        const filters: TFilterForm[] = state.opts.filters.map((f) => ({
           id: f.id,
           value: filterValueToString(f),
           column: f.column,
@@ -277,7 +277,7 @@ export const FiltersModal = () => {
           <FilterEntry
             key={f.id}
             filter={f}
-            dataSourceId={state.dataSourceId}
+            dataSourceId={state.datasourceId}
             allowedTables={allowedTables}
             inspections={inspections || []}
             onChangeColumn={handleColumnChange}

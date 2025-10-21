@@ -131,6 +131,7 @@ export interface IUsersToTeamsSchema extends IUsersToTeams {
 export interface IWorkbenchTab {
   id: string;
   name: string;
+  archived: boolean;
   createdAt: Date;
   updatedAt: Date;
   opts: TExecuteQuery;

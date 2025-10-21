@@ -1,27 +1,40 @@
 import {ExplorerView} from "../../../widgets/ExplorerView";
-import {TExplorerTab, TOpenTab, updateOpenTabs} from "../../../data/openTabsStore.ts";
 import {useCallback} from "react";
-import {TTableOptions} from "../../../widgets/ExplorerView/context/TableContext.ts";
+import {useWorkbenchTab} from "../../../data/queries/workbenchTabs.ts";
+import {queryClient} from "../../../data/queryClient.ts";
+import {IWorkbenchTab, TExecuteQuery} from "@dataramen/types";
+import {Spinner} from "../../../widgets/Spinner";
 
-export const ExplorerTab = ({ tab }: { tab: TExplorerTab }) => {
-  const updater = useCallback((fn: (opts: TTableOptions) => TTableOptions) => {
-    updateOpenTabs((store) => store.map((t) => {
-      if (t.id !== tab!.id) {
-        return t;
-      }
+export const ExplorerTab = ({ id }: { id: string }) => {
+  const { data: tab } = useWorkbenchTab(id);
+  const updater = useCallback((fn: (opts: TExecuteQuery) => TExecuteQuery) => {
+    if (!tab) {
+      return;
+    }
 
-      return {
-        ...t,
-        options: fn(t.options as TTableOptions),
-      } as TOpenTab;
-    }));
+    const options = fn(tab.opts);
+    queryClient.setQueryData<IWorkbenchTab>(["workbench-tabs", tab.id], {
+      ...tab,
+      opts: {
+        ...tab.opts,
+        ...options,
+      },
+    });
   }, [tab]);
+
+  if (!tab) {
+    return (
+      <div className="flex-1 flex justify-center items-center">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <ExplorerView
       updater={updater}
-      options={tab.options}
-      name={tab.label}
+      options={tab.opts}
+      name={tab.name}
       tabId={tab.id}
     />
   );
