@@ -6,7 +6,7 @@
   border-spacing: 0;
 
   th {
-    @apply  border-y border-r border-gray-200;
+    @apply border-y border-r border-gray-200;
   }
 
   td {

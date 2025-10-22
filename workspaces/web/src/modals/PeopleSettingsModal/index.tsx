@@ -65,17 +65,18 @@ export const PeopleSettingsModal = () => {
           <div className="mt-4 overflow-y-auto flex-1">
             {teamUsers.map((u) => (
               <div className={st.userEntry} key={u.id}>
-                <select
-                  className="input"
-                  value={u.role}
-                  disabled={!canManageUsers || isMutating}
-                  onChange={(e) => onChangeRole(u.id, e.currentTarget.value as EUserTeamRole)}
-                >
-                  <option value={EUserTeamRole.OWNER}>Owner</option>
-                  <option value={EUserTeamRole.ADMIN}>Admin</option>
-                  <option value={EUserTeamRole.EDITOR}>Editor</option>
-                  <option value={EUserTeamRole.READ_ONLY}>Reader</option>
-                </select>
+                <div className={st.selectContainer}>
+                  <select
+                    value={u.role}
+                    disabled={!canManageUsers || isMutating}
+                    onChange={(e) => onChangeRole(u.id, e.currentTarget.value as EUserTeamRole)}
+                  >
+                    <option value={EUserTeamRole.OWNER}>Owner</option>
+                    <option value={EUserTeamRole.ADMIN}>Admin</option>
+                    <option value={EUserTeamRole.EDITOR}>Editor</option>
+                    <option value={EUserTeamRole.READ_ONLY}>Reader</option>
+                  </select>
+                </div>
 
                 <p className="flex-1 mx-2">{u.name}</p>
 

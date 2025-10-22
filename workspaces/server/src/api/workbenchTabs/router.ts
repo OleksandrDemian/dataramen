@@ -8,8 +8,9 @@ import {
   TCreateWorkbenchTab,
   TExecuteQuery,
   TGetWorkbenchTabsEntry,
-  TQueryOptions, TUpdateWorkbenchTab
+  TQueryOptions, TUpdateWorkbenchTab, TWorkbenchOptions
 } from "@dataramen/types";
+import {validateCreateWorkbenchTab} from "./validators";
 
 export default createRouter((instance) => {
   instance.route({
@@ -71,14 +72,18 @@ export default createRouter((instance) => {
     method: "post",
     url: "/",
     handler: async (request) => {
-      let { opts, name, queryId } = getRequestPayload<TCreateWorkbenchTab>(request); // todo: make const
-      let baseOptions: TExecuteQuery;
+      const { opts, name, queryId } = getRequestPayload<TCreateWorkbenchTab>(request, validateCreateWorkbenchTab);
+      let baseOptions: Partial<TWorkbenchOptions>;
+      let finalName = name;
       if (opts) {
         baseOptions = opts;
       } else {
         const query = await QueriesRepository.findOne({
           where: {
             id: queryId,
+          },
+          relations: {
+            dataSource: true,
           },
         });
 
@@ -87,19 +92,28 @@ export default createRouter((instance) => {
         }
 
         baseOptions = {
-          opts: query.opts as TQueryOptions, // todo: forced type casting
-          name: query.name,
-          datasourceId: query.dataSource.id,
+          table: query.opts.table!,
+          filters: query.opts.filters,
+          joins: query.opts.joins,
+          orderBy: query.opts.orderBy,
+          columns: query.opts.columns,
+          groupBy: query.opts.groupBy,
+          searchAll: query.opts.searchAll,
+          aggregations: query.opts.aggregations,
+          dataSourceId: query.dataSource.id,
           page: 0,
           size: 50,
         };
-        name = query.name; // todo: variable reasigning
-      }
 
+        if (!name) {
+          // only use query name if no name passed
+          finalName = query.name;
+        }
+      }
 
       const newWorkbenchTab = await WorkbenchTabsRepository.save(
         WorkbenchTabsRepository.create({
-          name,
+          name: finalName || new Date().toISOString(), // fallback to date
           opts: baseOptions,
           user: {
             id: request.user.id,
@@ -121,7 +135,7 @@ export default createRouter((instance) => {
     url: "/:id/run",
     handler: async (request) => {
       const { id } = getRequestParams<{ id: string }>(request);
-      const newOptions = getRequestPayload<TExecuteQuery>(request);
+      const newOptions = getRequestPayload<TWorkbenchOptions>(request);
       const workbenchTab = await WorkbenchTabsRepository.findOne({
         where: {
           id: id,
@@ -147,7 +161,22 @@ export default createRouter((instance) => {
         });
       }
 
-      const queryResult = await runSelect(request, newOptions || workbenchTab.opts);
+      const queryResult = await runSelect(request, {
+        datasourceId: newOptions.dataSourceId,
+        size: newOptions.size,
+        name: workbenchTab.name,
+        page: newOptions.page,
+        opts: {
+          table: newOptions.table,
+          filters: newOptions.filters,
+          joins: newOptions.joins,
+          orderBy: newOptions.orderBy,
+          columns: newOptions.columns,
+          groupBy: newOptions.groupBy,
+          searchAll: newOptions.searchAll,
+          aggregations : newOptions.aggregations,
+        }
+      });
 
       return {
         data: {

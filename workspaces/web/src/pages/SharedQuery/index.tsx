@@ -14,7 +14,6 @@ export const SharedQuery = () => {
   useEffect(() => {
     if (queryId) {
       createWorkbenchTab.mutateAsync({
-        name: queryId, // todo: fake name
         queryId,
       }).then((result) => {
         navigate(`${PAGES.workbench.path}/tab/${result.id}`, {

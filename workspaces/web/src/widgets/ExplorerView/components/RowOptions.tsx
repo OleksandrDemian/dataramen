@@ -41,14 +41,14 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
     }
 
     createWorkbenchTab.mutateAsync({
-      name: "⬇️ " + state.opts.table,
+      name: "⬇️ " + state.table,
       opts: createTableOptions({
-        joins: state.opts.joins,
-        table: state.opts.table,
-        dataSourceId: state.datasourceId,
+        joins: state.joins,
+        table: state.table,
+        dataSourceId: state.dataSourceId,
         filters: [
-          ...state.opts.filters,
-          ...state.opts.groupBy.map((g) => ({
+          ...state.filters,
+          ...state.groupBy.map((g) => ({
             id: genSimpleId(),
             connector: "AND",
             column: g.value,
@@ -58,7 +58,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
             }],
           } satisfies QueryFilter))
         ]
-      })
+      }),
     }).then((result) => {
       navigate(`${PAGES.workbench.path}/tab/${result.id}`);
       handler.close();
@@ -77,12 +77,12 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
     createWorkbenchTab.mutateAsync({
       name: `↗️ ${hook.on.toColumn} equals ${value}`,
       opts: createTableOptions({
-        joins: state.opts.joins,
+        // todo: do I need to inherit joins? Probably not
         table: hook.on.toTable,
         dataSourceId: dataSourceId,
         filters: [{
           id: genSimpleId(),
-          column: hook.on.toTable + "." + hook.on.toColumn,
+          column: `${hook.on.toTable}.${hook.on.toColumn}`,
           operator: value == null ? "IS NULL" : "=",
           connector: "AND",
           value: value != null ? [{
@@ -139,7 +139,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
     });
   }, [hooksFilter, hooks, result]);
 
-  const hasNestedData = state.opts.groupBy.length > 0;
+  const hasNestedData = state.groupBy.length > 0;
 
   return (
     <ContextualMenu handler={handler}>

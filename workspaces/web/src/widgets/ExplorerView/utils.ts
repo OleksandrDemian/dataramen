@@ -1,6 +1,6 @@
-import {TTableContext, TTableOptions, TTableOptionsContext, TTableOptionsUpdater} from "./context/TableContext.ts";
+import {TTableContext, TTableOptionsContext, TTableOptionsUpdater} from "./context/TableContext.ts";
 import {THook} from "../../data/types/hooks.ts";
-import {TDbValue, TExecuteQuery, TExecuteQueryResult, TRunWorkbenchQuery} from "@dataramen/types";
+import {TDbValue, TExecuteQueryResult, TRunWorkbenchQuery, TWorkbenchOptions} from "@dataramen/types";
 import {useHooks} from "../../data/queries/hooks.ts";
 import {useMemo} from "react";
 import {TDatabaseInspection} from "../../data/types/dataSources.ts";
@@ -129,7 +129,7 @@ export function useCreateTableContext (
 }
 
 export function useCreateTableOptionsContext (
-  options: TExecuteQuery,
+  options: TWorkbenchOptions,
   updater: TTableOptionsUpdater,
 ): TTableOptionsContext {
   return useMemo(() => ({
@@ -138,20 +138,17 @@ export function useCreateTableOptionsContext (
   }), [options, updater]);
 }
 
-export function createTableOptions (options: Partial<TTableOptions>): TExecuteQuery {
+export function createTableOptions (options: Partial<TWorkbenchOptions>): TWorkbenchOptions {
   return {
-    datasourceId: options.dataSourceId || "",
+    dataSourceId: options.dataSourceId || "",
     page: options?.page || 0,
     size: options?.size || 50,
-    name: "",
-    opts: {
-      table: options.table || '',
-      filters: options?.filters || [],
-      joins: options?.joins ?? [],
-      orderBy: options?.orderBy ?? [],
-      columns: options?.columns ?? [],
-      groupBy: options?.groupBy ?? [],
-      aggregations: options?.aggregations ?? [],
-    },
+    table: options.table || '',
+    filters: options?.filters || [],
+    joins: options?.joins ?? [],
+    orderBy: options?.orderBy ?? [],
+    columns: options?.columns ?? [],
+    groupBy: options?.groupBy ?? [],
+    aggregations: options?.aggregations ?? [],
   };
 }

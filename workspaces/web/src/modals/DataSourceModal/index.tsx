@@ -124,7 +124,6 @@ function Component ({ id }: { id: string }) {
   };
 
   const openTable = (table: string) => {
-    // todo: handle loading state
     createWorkbenchTab.mutateAsync({
       name: table,
       opts: createTableOptions({

@@ -19,40 +19,31 @@ export const useOrderByStatements = () => {
 
   const updateOrderBy = useCallback((column: string) => {
     setState((state) => {
-      const cur = state.opts.orderBy[0];
+      const cur = state.orderBy[0];
       if (cur && cur.column === column) {
         const direction = getNextDirection(cur.direction);
         if (!direction) {
           return {
             ...state,
-            opts: {
-              ...state.opts,
-              orderBy: [],
-            },
+            orderBy: [],
           };
         }
 
         return {
           ...state,
-          opts: {
-            ...state.opts,
-            orderBy: [{ column, direction }],
-          },
+          orderBy: [{ column, direction }],
         };
       }
 
       return {
         ...state,
-        opts: {
-          ...state.opts,
-          orderBy: [{ column, direction: "ASC" }],
-        },
+        orderBy: [{ column, direction: "ASC" }],
       };
     });
   }, [setState]);
 
   return {
-    orderBy: state.opts.orderBy,
+    orderBy: state.orderBy,
     updateOrderBy,
   };
 };

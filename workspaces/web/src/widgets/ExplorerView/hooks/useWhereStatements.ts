@@ -25,10 +25,7 @@ export const useWhereStatements = () => {
   const setFilters = useCallback((where: QueryFilter[]) => {
     setState((state) => ({
       ...state,
-      opts: {
-        ...state.opts,
-        filters: where,
-      }
+      filters: where,
     }));
   }, [setState]);
 
@@ -36,18 +33,15 @@ export const useWhereStatements = () => {
     setState((state) => {
       return {
         ...state,
-        opts: {
-          ...state.opts,
-          filters: state.opts.filters.filter((f) => {
-            return !(filter.column === f.column && filter.operator === f.operator && isSameValue(filter.value, f.value));
-          }),
-        }
+        filters: state.filters.filter((f) => {
+          return !(filter.column === f.column && filter.operator === f.operator && isSameValue(filter.value, f.value));
+        }),
       };
     });
   }, [setState]);
 
   return {
-    filters: state.opts.filters,
+    filters: state.filters,
     removeFilter,
     setFilters,
   };

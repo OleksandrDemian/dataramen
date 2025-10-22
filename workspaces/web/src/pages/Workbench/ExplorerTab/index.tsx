@@ -2,17 +2,18 @@ import {ExplorerView} from "../../../widgets/ExplorerView";
 import {useCallback} from "react";
 import {useWorkbenchTab} from "../../../data/queries/workbenchTabs.ts";
 import {queryClient} from "../../../data/queryClient.ts";
-import {IWorkbenchTab, TExecuteQuery} from "@dataramen/types";
+import {IWorkbenchTab, TWorkbenchOptions} from "@dataramen/types";
 import {Spinner} from "../../../widgets/Spinner";
+import {createTableOptions} from "../../../widgets/ExplorerView/utils.ts";
 
 export const ExplorerTab = ({ id }: { id: string }) => {
   const { data: tab } = useWorkbenchTab(id);
-  const updater = useCallback((fn: (opts: TExecuteQuery) => TExecuteQuery) => {
+  const updater = useCallback((fn: (opts: TWorkbenchOptions) => TWorkbenchOptions) => {
     if (!tab) {
       return;
     }
 
-    const options = fn(tab.opts);
+    const options = fn(createTableOptions(tab.opts));
     queryClient.setQueryData<IWorkbenchTab>(["workbench-tabs", tab.id], {
       ...tab,
       opts: {
@@ -33,7 +34,7 @@ export const ExplorerTab = ({ id }: { id: string }) => {
   return (
     <ExplorerView
       updater={updater}
-      options={tab.opts}
+      options={tab.opts as TWorkbenchOptions} // todo: explicit casting
       name={tab.name}
       tabId={tab.id}
     />

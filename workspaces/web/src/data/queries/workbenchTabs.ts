@@ -3,9 +3,8 @@ import {apiClient} from "../clients.ts";
 import {
   IWorkbenchTab,
   TCreateWorkbenchTab,
-  TExecuteQuery,
   TGetWorkbenchTabsEntry,
-  TRunWorkbenchQuery, TUpdateWorkbenchTab
+  TRunWorkbenchQuery, TUpdateWorkbenchTab, TWorkbenchOptions
 } from "@dataramen/types";
 import {queryClient} from "../queryClient.ts";
 
@@ -53,11 +52,10 @@ export const useCreateWorkbenchTab = () => {
 export const useArchiveTab = () => {
   return useMutation({
     mutationFn: async (tabId: string) => {
-      // todo: wrong type
-      const { data } = await apiClient.patch<{ data: TGetWorkbenchTabsEntry }>(`/workbench-tabs/${tabId}`, {
+      await apiClient.patch(`/workbench-tabs/${tabId}`, {
         archived: true,
       });
-      return data.data;
+      return tabId;
     },
     onMutate: (removedTabId) => {
       updateCachedWorkbenchTabs(
@@ -70,8 +68,8 @@ export const useArchiveTab = () => {
 export const useUpdateWorkbenchTab = () => {
   return useMutation({
     mutationFn: async ({ id, payload }: { id: string; payload: TUpdateWorkbenchTab }) => {
-      const { data } = await apiClient.patch<{ data: TGetWorkbenchTabsEntry }>(`/workbench-tabs/${id}`, payload);
-      return data.data;
+      await apiClient.patch(`/workbench-tabs/${id}`, payload);
+      return true;
     },
     onMutate: ({ id, payload }) => {
       updateCachedWorkbenchTabs(
@@ -80,7 +78,7 @@ export const useUpdateWorkbenchTab = () => {
             if (entry.id !== id) {
               return entry;
             }
-            // todo: review this. looks too complex
+
             return {
               ...entry,
               name: payload.name || entry.name,
@@ -92,32 +90,27 @@ export const useUpdateWorkbenchTab = () => {
   });
 };
 
-export const useRunWorkbenchTab = (workbenchTabId: string, props: TExecuteQuery) => {
+export const useRunWorkbenchTab = (workbenchTabId: string, props: TWorkbenchOptions) => {
   const {
-    datasourceId,
-    opts: {
-      searchAll,
-      table,
-      filters,
-      joins,
-      orderBy,
-      groupBy,
-      columns,
-      aggregations,
-    },
+    dataSourceId,
+    searchAll,
+    table,
+    filters,
+    joins,
+    orderBy,
+    groupBy,
+    columns,
+    aggregations,
     page = 0,
     size = 20
   } = props;
   return useQuery<TRunWorkbenchQuery>({
-    queryKey: ["workbench-tab-runner", datasourceId, table, page, size, filters, aggregations, joins, orderBy, groupBy, columns, searchAll],
+    queryKey: ["workbench-tab-runner", dataSourceId, table, page, size, filters, aggregations, joins, orderBy, groupBy, columns, searchAll],
     queryFn: async () => {
       const { data } = await apiClient.post<{ data: TRunWorkbenchQuery }>(`/workbench-tabs/${workbenchTabId}/run`, props);
       return data.data;
     },
     retry: 1,
-    enabled: !!table && !!datasourceId,
-    keepPreviousData: true,
-    staleTime: 0,
-    cacheTime: 0,
+    enabled: !!table && !!dataSourceId,
   });
 };

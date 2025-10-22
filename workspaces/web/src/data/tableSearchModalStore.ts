@@ -61,7 +61,6 @@ export const useSearchTable = (eventSource: string) => {
         });
       } else if (searchResult?.type === "query") {
         createWorkbenchTab.mutate({
-          name: searchResult.id,
           queryId: searchResult.id,
         });
       }

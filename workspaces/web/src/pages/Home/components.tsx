@@ -108,12 +108,14 @@ export const ListDataSources = () => {
     <div className="mt-8">
       <h2 className="font-semibold text-gray-700">Data sources</h2>
 
-      <div className="grid lg:grid-cols-2 gap-2 mt-4">
+      <div className="grid lg:grid-cols-3 gap-2 mt-4">
         {dataSources?.map((d) => (
           <div key={d.id} className={st.dataSourceEntry} onClick={() => onOpen(d.id)} tabIndex={0}>
             <DataSourceIcon size={32} type={d.dbType} />
-            <p className="font-semibold truncate text-gray-800 flex-1">{d.name}</p>
-            {d.allowInsert ? <span className="text-red-700">Development</span> : <span className="text-blue-700">Production</span>}
+            <div className="overflow-hidden">
+              <p className="font-semibold truncate text-gray-800 flex-1">{d.name}</p>
+              {d.allowInsert ? <span className={st.devTag}>dev</span> : <span className={st.prodTag}>prod</span>}
+            </div>
           </div>
         ))}
       </div>

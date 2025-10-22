@@ -131,7 +131,7 @@ function TabOptions () {
   const createWorkbenchTab = useCreateWorkbenchTab();
   const navigate = useNavigate();
 
-  const canShare = window?.location.hostname !== 'localhost';
+  const canShare = true; //window?.location.hostname !== 'localhost';
 
   const onOpen = () => {
     createWorkbenchTab.mutateAsync({
@@ -229,7 +229,7 @@ function SearchAll () {
   };
 
   const onSearchAll = () => {
-    prompt("Search all text values for", state.opts.searchAll || "", {
+    prompt("Search all text values for", state.searchAll || "", {
       type: "info",
       message: "This will search all text values using LIKE operator (numbers, dates and other non string values are not searched)."
     }).then((result) => {
@@ -244,10 +244,10 @@ function SearchAll () {
 
   useGlobalHotkey("k", onSearchAll, "Search text");
 
-  if (state.opts.searchAll) {
+  if (state.searchAll) {
     return (
       <button data-tooltip-id="default" data-tooltip-content="Remove search all filter" onClick={onRemoveSearchAll} className={clsx(st.tableAction, st.red)}>
-        <span className="truncate px-1">❌ {state.opts.searchAll}</span>
+        <span className="truncate px-1">❌ {state.searchAll}</span>
       </button>
     );
   }

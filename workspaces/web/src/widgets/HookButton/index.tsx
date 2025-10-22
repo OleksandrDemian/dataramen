@@ -11,7 +11,6 @@ export const HookButton = ({ hook, onClick }: THookButtonProps) => {
       key={hook.where}
       className={st.root}
       onClick={onClick}
-      title={hook.where}
     >
       <span>📄</span>
       <div className={st.content}>

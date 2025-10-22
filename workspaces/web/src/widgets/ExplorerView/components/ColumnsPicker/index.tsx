@@ -120,7 +120,7 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
   const [newColumns, setNewColumns] = useState<Record<string, boolean>>({});
   const [filter, setFilter] = useState<string>("");
   const parsedColumns = useMemo<TTables>(() => parseColumns(allColumns), [allColumns]);
-  const ignoreColumns = state.opts.aggregations.length > 0 || state.opts.groupBy.length > 0;
+  const ignoreColumns = state.aggregations.length > 0 || state.groupBy.length > 0;
 
   const filtered = useMemo(() => {
     if (!filter) {
@@ -166,10 +166,7 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
 
     setState((state) => ({
       ...state,
-      opts: {
-        ...state.opts,
-        [mode]: cols,
-      }
+      [mode]: cols,
     }));
     onCancel();
   };
@@ -205,7 +202,7 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
 
     setNewColumns(
       () => reduceStringArrayToBooleanObject(
-        state.opts[mode].map((c) => {
+        state[mode].map((c) => {
           if (c.fn) {
             return c.fn + " " + c.value;
           }

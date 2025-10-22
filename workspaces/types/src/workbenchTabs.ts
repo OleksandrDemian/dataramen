@@ -1,5 +1,12 @@
-import {TExecuteQuery, TRunSqlResult} from "./queryRunner";
+import {TRunSqlResult} from "./queryRunner";
 import {IWorkbenchTab} from "./schemas";
+import {TQueryOptions} from "./queries";
+
+export type TWorkbenchOptions = TQueryOptions & {
+  dataSourceId: string;
+  page: number;
+  size: number;
+};
 
 export type TGetWorkbenchTabsEntry = {
   id: string;
@@ -7,8 +14,8 @@ export type TGetWorkbenchTabsEntry = {
 };
 
 export type TCreateWorkbenchTab = {
-  name: string;
-  opts?: TExecuteQuery;
+  name?: string;
+  opts?: TWorkbenchOptions;
   queryId?: string;
 };
 

@@ -19,5 +19,5 @@
 
 .sub {
   line-height: 100%;
-  @apply text-xs font-semibold text-gray-800 truncate;
+  @apply text-xs font-semibold text-gray-600 truncate;
 }

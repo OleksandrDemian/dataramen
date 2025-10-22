@@ -12,20 +12,20 @@ import {FiltersModal} from "./components/FiltersModal";
 import {JoinsModal} from "./components/JoinsModal";
 import {ColumnsPicker} from "./components/ColumnsPicker";
 import {AggregateModal} from "./components/AggregateModal";
-import { TExecuteQuery } from "@dataramen/types";
+import {TWorkbenchOptions} from "@dataramen/types";
 import {useRunWorkbenchTab} from "../../data/queries/workbenchTabs.ts";
 
 export type TDataSourceExplorerTabProps = {
-  options: TExecuteQuery;
+  options: TWorkbenchOptions;
   updater: TTableOptionsUpdater;
   name: string;
   tabId: string;
 };
 export const ExplorerView = ({ options, updater, name, tabId }: TDataSourceExplorerTabProps) => {
   const tableOptionsContext = useCreateTableOptionsContext(options, updater);
-  const query = useRunWorkbenchTab(tabId, options);
+  const query = useRunWorkbenchTab(tabId, tableOptionsContext.state);
 
-  const context = useCreateTableContext(query.data, options.datasourceId, name, tabId);
+  const context = useCreateTableContext(query.data, tableOptionsContext.state.dataSourceId, name, tabId);
 
   return (
     <TableContext value={context}>

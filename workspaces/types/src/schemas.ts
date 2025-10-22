@@ -1,6 +1,6 @@
 import {TQueryOptions} from "./queries";
 import {EUserTeamRole} from "./users";
-import {TExecuteQuery} from "./queryRunner";
+import {TWorkbenchOptions} from "./workbenchTabs";
 
 export interface IUser {
   id: string;
@@ -134,7 +134,7 @@ export interface IWorkbenchTab {
   archived: boolean;
   createdAt: Date;
   updatedAt: Date;
-  opts: TExecuteQuery;
+  opts: Partial<TWorkbenchOptions>;
 }
 
 export interface IWorkbenchTabSchema extends IWorkbenchTab {

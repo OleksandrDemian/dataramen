@@ -56,10 +56,7 @@ export const AggregateModal = () => {
 
     setState((prevState) => ({
       ...prevState,
-      opts: {
-        ...prevState.opts,
-        aggregations: [...prevState.opts.aggregations, aggregation],
-      }
+      aggregations: [...prevState.aggregations, aggregation],
     }));
   };
 
@@ -71,11 +68,8 @@ export const AggregateModal = () => {
 
     setState((prevState) => ({
       ...prevState,
-      opts: {
-        ...prevState.opts,
-        aggregations: prevState.opts.aggregations.filter((s) => s.fn !== agg.fn || s.value !== agg.value),
-        orderBy: prevState.opts.orderBy.filter((o) => o.column !== orderLabel), // remove order by when removing aggregation
-      }
+      aggregations: prevState.aggregations.filter((s) => s.fn !== agg.fn || s.value !== agg.value),
+      orderBy: prevState.orderBy.filter((o) => o.column !== orderLabel), // remove order by when removing aggregation
     }));
   };
 
@@ -89,9 +83,9 @@ export const AggregateModal = () => {
       <div>
         <h2 className="text-lg font-semibold">Aggregate</h2>
 
-        {gte(state.opts.aggregations.length, 0) && (
+        {gte(state.aggregations.length, 0) && (
           <div className="flex flex-col gap-1 mt-4">
-            {state.opts.aggregations.map((agg, i) => (
+            {state.aggregations.map((agg, i) => (
               <p className="p-2 rounded-md bg-gray-50 flex items-center justify-between" key={i}>
                 <span>{aggToString(agg)}</span>
                 <button

@@ -50,7 +50,7 @@ export function mapFiltersToWhere (filters: TFilterForm[]): QueryFilter[] {
       value: f.isColumnRef ? [{ value: f.value, isColumn: true }] : processInputVale(operator, f.value),
       operator,
       column: f.column,
-      isEnabled: true,
+      isEnabled: f.isEnabled,
       connector: "AND",
     });
   });

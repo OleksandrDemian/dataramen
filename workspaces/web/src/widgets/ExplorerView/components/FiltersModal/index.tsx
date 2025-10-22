@@ -26,6 +26,7 @@ const FilterEntry = ({
   onChangeOperator,
   onChangeValue,
   onRemoveFilter,
+  triggerIsEnabled,
   onIsColumnChange,
 }: {
   filter: TFilterForm;
@@ -37,6 +38,7 @@ const FilterEntry = ({
   onChangeOperator: (id: string, operator: string) => void;
   onChangeValue: (id: string, value: string) => void;
   onRemoveFilter: (id: string) => void;
+  triggerIsEnabled: (id: string) => void;
   onIsColumnChange: (id: string, isColumn: boolean) => void;
 }) => {
   const columnType = useMemo<string>(() => {
@@ -60,6 +62,10 @@ const FilterEntry = ({
 
   return (
     <div className="flex gap-2 items-center">
+      <label>
+        <input type="checkbox" checked={filter.isEnabled !== false} onClick={() => triggerIsEnabled(filter.id)} />
+      </label>
+
       <label className="w-full">
         <DataSourceColumnsAutocomplete
           dataSourceId={dataSourceId}
@@ -130,11 +136,11 @@ export const FiltersModal = () => {
   const { state } = useContext(TableOptionsContext);
   const { setFilters: updateFilters } = useWhereStatements();
   const showModal = useExplorerModals((s) => s.filters);
-  const { data: inspections } = useDatabaseInspections(state.datasourceId);
+  const { data: inspections } = useDatabaseInspections(state.dataSourceId);
 
   const allowedTables = useMemo(() => {
-    return [state.opts.table, ...state.opts.joins.map((j) => j.table)];
-  }, [state.opts.table, state.opts.joins]);
+    return [state.table, ...state.joins.map((j) => j.table)];
+  }, [state.table, state.joins]);
 
   const [filters, setFilters] = useState<TFilterForm[]>([]);
 
@@ -192,6 +198,7 @@ export const FiltersModal = () => {
         column: "",
         operator: "",
         isColumnRef: false,
+        isEnabled: true,
       },
     ]);
   };
@@ -224,6 +231,19 @@ export const FiltersModal = () => {
     }
   };
 
+  const triggerIsEnabled = (id: string) => {
+    setFilters((store) => store.map((f) => {
+      if (f.id === id) {
+        return {
+          ...f,
+          isEnabled: !f.isEnabled,
+        };
+      }
+
+      return f;
+    }));
+  };
+
   useEffect(() => {
     if (!showModal) {
       setFilters([]);
@@ -232,12 +252,13 @@ export const FiltersModal = () => {
 
     setFilters(
       () => {
-        const filters: TFilterForm[] = state.opts.filters.map((f) => ({
+        const filters: TFilterForm[] = state.filters.map((f) => ({
           id: f.id,
           value: filterValueToString(f),
           column: f.column,
           operator: OPERATOR_LABEL[f.operator],
           isColumnRef: !!f.value?.[0]?.isColumn,
+          isEnabled: f.isEnabled,
         }));
 
         // push empty element to create new filter
@@ -247,7 +268,8 @@ export const FiltersModal = () => {
           column: "",
           operator: "",
           isColumnRef: false,
-        })
+          isEnabled: true,
+        });
 
         return filters;
       },
@@ -277,7 +299,7 @@ export const FiltersModal = () => {
           <FilterEntry
             key={f.id}
             filter={f}
-            dataSourceId={state.datasourceId}
+            dataSourceId={state.dataSourceId}
             allowedTables={allowedTables}
             inspections={inspections || []}
             onChangeColumn={handleColumnChange}
@@ -285,6 +307,7 @@ export const FiltersModal = () => {
             onChangeValue={handleValueChange}
             onRemoveFilter={handleRemoveFilter}
             onIsColumnChange={handleChangeIsColumn}
+            triggerIsEnabled={triggerIsEnabled}
             autoFocus={i === filters.length - 1}
           />
         ))}

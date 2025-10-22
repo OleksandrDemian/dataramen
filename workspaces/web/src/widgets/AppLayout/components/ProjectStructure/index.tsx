@@ -105,7 +105,6 @@ export const ProjectStructure = () => {
   const openQuery = (queryId: string) => {
     createWorkbenchTab.mutateAsync({
       queryId,
-      name: queryId, // todo: fake name
     }).then((result) => {
       navigate(`${PAGES.workbench.path}/tab/${result.id}`);
     });

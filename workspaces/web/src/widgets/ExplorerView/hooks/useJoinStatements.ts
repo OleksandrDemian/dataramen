@@ -23,37 +23,31 @@ export const useJoinStatements = () => {
 
   const toggle = useCallback((join: JoinClause) => {
     setState((state) => {
-      const joins = state.opts.joins;
+      const joins = state.joins;
       const exists = joins.some((j) => sameJoin(j, join));
       if (exists) {
         const removePattern = join.table + ".";
 
         return {
           ...state,
-          opts: {
-            ...state.opts,
-            joins: joins.filter((j) => differentJoin(j, join)),
-            columns: state.opts.columns.filter((c) => !c.value.startsWith(removePattern)),
-            groupBy: state.opts.groupBy.filter((g) => !g.value.startsWith(removePattern)),
-            orderBy: state.opts.orderBy.filter((o) => !o.column.startsWith(removePattern)),
-            aggregations: state.opts.aggregations.filter((a) => !a.value.startsWith(removePattern)),
-            filters: state.opts.filters.filter((f) => !f.column.startsWith(removePattern)),
-          }
+          joins: joins.filter((j) => differentJoin(j, join)),
+          columns: state.columns.filter((c) => !c.value.startsWith(removePattern)),
+          groupBy: state.groupBy.filter((g) => !g.value.startsWith(removePattern)),
+          orderBy: state.orderBy.filter((o) => !o.column.startsWith(removePattern)),
+          aggregations: state.aggregations.filter((a) => !a.value.startsWith(removePattern)),
+          filters: state.filters.filter((f) => !f.column.startsWith(removePattern)),
         };
       }
 
       return {
         ...state,
-        opts: {
-          ...state.opts,
-          joins: [...joins, join],
-        }
+        joins: [...joins, join],
       };
     });
   }, [setState]);
 
   return {
-    joins: state.opts.joins,
+    joins: state.joins,
     toggle,
   };
 };

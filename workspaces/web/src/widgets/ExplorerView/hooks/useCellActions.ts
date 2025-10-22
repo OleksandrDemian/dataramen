@@ -121,10 +121,7 @@ export const useCellActions = () => {
 
       setState((cur) => ({
         ...cur,
-        opts: {
-          ...cur.opts,
-          filters: [...cur.opts.filters, filter],
-        },
+        filters: [...cur.filters, filter],
       }));
 
       toast.success(`Added new filter on column ${column?.alias}`);

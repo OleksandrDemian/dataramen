@@ -82,33 +82,39 @@ export const WorkbenchPage = () => {
 
   const isDesktop = useMediaQuery(ScreenQuery.laptop);
 
+  const fallbackTab = (tabId: string) => {
+    // todo: I hate this implementation, review it at some point
+    if (tabId === id && workbenchTabs) {
+      if (workbenchTabs.length === 1) {
+        return navigate(PAGES.home.path);
+      }
+
+      if (workbenchTabs.length > 1) {
+        const differentTab = workbenchTabs.find(t => t.id !== tabId);
+        if (differentTab) {
+          return navigate(`/workbench/tab/${differentTab.id}`);
+        }
+      }
+    }
+  };
+
   const onCloseTab: MouseEventHandler<HTMLButtonElement> = (e) => {
     e.stopPropagation();
     e.preventDefault();
 
     const tabId = e.currentTarget.getAttribute("data-tab-id");
     if (tabId) {
-      // todo: change tab after current tab is archived
       archiveTab.mutate(tabId);
+      fallbackTab(tabId);
     }
   };
 
   const onAuxTabClick: MouseEventHandler<HTMLDivElement> = (event) => {
     if (event.button === 1) {
-      // todo: change tab after current tab is archived
-      archiveTab.mutate(event.currentTarget.dataset.tabId as string);
+      const tabId = event.currentTarget.dataset.tabId as string;
+      archiveTab.mutate(tabId);
+      fallbackTab(tabId);
     }
-  };
-
-  const onRenameTab = (tabId: string) => {
-    console.log("TODO", tabId); // todo
-    // const curTab = openTabs.find(t => t.id === tabId);
-    // prompt("New tab name", curTab?.label)
-    //   .then((name) => {
-    //     if (name) {
-    //       renameTab(tabId, name);
-    //     }
-    //   });
   };
 
   return (
@@ -128,10 +134,6 @@ export const WorkbenchPage = () => {
             data-tooltip-id="tab"
             data-tooltip-content={t.name}
             onAuxClick={onAuxTabClick}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              onRenameTab(t.id);
-            }}
           >
             <span className="truncate w-full">📄 {t.name}</span>
             <button data-tab-id={t.id} className={st.closeButton} onClick={onCloseTab}>
