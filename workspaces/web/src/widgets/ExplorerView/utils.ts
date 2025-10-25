@@ -1,6 +1,6 @@
-import {TTableContext, TTableOptions, TTableOptionsContext} from "./context/TableContext.ts";
+import {TTableContext, TTableOptionsContext, TTableOptionsUpdater} from "./context/TableContext.ts";
 import {THook} from "../../data/types/hooks.ts";
-import {TDbValue, TExecuteQueryResult, TRunSqlResult} from "@dataramen/types";
+import {TDbValue, TExecuteQueryResult, TRunWorkbenchQuery, TWorkbenchOptions} from "@dataramen/types";
 import {useHooks} from "../../data/queries/hooks.ts";
 import {useMemo} from "react";
 import {TDatabaseInspection} from "../../data/types/dataSources.ts";
@@ -45,7 +45,7 @@ function getEntities (inspections?: TDatabaseInspection[], resultColumns?: TExec
 }
 
 export function useCreateTableContext (
-  result: TRunSqlResult | undefined,
+  result: TRunWorkbenchQuery | undefined,
   dataSourceId: string,
   name: string,
   tabId?: string,
@@ -54,19 +54,19 @@ export function useCreateTableContext (
   const { data: inspections } = useDatabaseInspections(dataSourceId);
 
   return useMemo<TTableContext>(() => {
-    const entities = getEntities(inspections, result?.columns);
+    const entities = getEntities(inspections, result?.result.columns);
 
     return {
       name,
       tabId,
       hooks: (() => {
         const filtered: THook[] = [];
-        if (!hooks || !result || !result.columns) {
+        if (!hooks || !result || !result.result.columns) {
           return filtered;
         }
 
         for (const hook of hooks) {
-          if (result.tables.includes(hook.on.toTable) || result.tables.includes(hook.on.fromTable)) {
+          if (result.result.tables.includes(hook.on.toTable) || result.result.tables.includes(hook.on.fromTable)) {
             filtered.push(hook);
           }
         }
@@ -75,24 +75,24 @@ export function useCreateTableContext (
       })(),
       availableJoins: (() => {
         const filtered: THook[] = [];
-        if (!hooks || !result || !result.columns) {
+        if (!hooks || !result || !result.result.columns) {
           return filtered;
         }
 
         for (const hook of hooks) {
-          if (!result.tables.includes(hook.on.toTable) && result.tables.includes(hook.on.fromTable)) {
+          if (!result.result.tables.includes(hook.on.toTable) && result.result.tables.includes(hook.on.fromTable)) {
             filtered.push(hook);
           }
         }
 
         return filtered;
       })(),
-      allColumns: result?.allColumns || [],
+      allColumns: result?.result.allColumns || [],
       dataSourceId: dataSourceId,
       entities: Object.keys(entities),
       getValue: (row, col) => {
         const alias = inputColumnToAlias(col);
-        const index = result?.columns?.findIndex((column) => {
+        const index = result?.result.columns?.findIndex((column) => {
           return column.full === alias;
         });
 
@@ -104,7 +104,7 @@ export function useCreateTableContext (
       },
       getEntityKey: (entity, row) => {
         return entities[entity].reduce<[string, TDbValue][]>((acc, col) => {
-          const index = result?.columns?.findIndex((column) => {
+          const index = result?.result.columns?.findIndex((column) => {
             return column.column === col && column.table === entity;
           });
 
@@ -116,7 +116,7 @@ export function useCreateTableContext (
         }, []);
       },
       getColumnType: (fullColumn: string) => {
-        const meta = result?.allColumns.find((c) => c.full === fullColumn);
+        const meta = result?.result.allColumns.find((c) => c.full === fullColumn);
 
         if (meta) {
           return meta.type;
@@ -129,8 +129,8 @@ export function useCreateTableContext (
 }
 
 export function useCreateTableOptionsContext (
-  options: TTableOptions,
-  updater: (fn: (opts: TTableOptions) => TTableOptions) => void
+  options: TWorkbenchOptions,
+  updater: TTableOptionsUpdater,
 ): TTableOptionsContext {
   return useMemo(() => ({
     state: options,
@@ -138,15 +138,15 @@ export function useCreateTableOptionsContext (
   }), [options, updater]);
 }
 
-export function createTableOptions (options: Partial<TTableOptions>): TTableOptions {
+export function createTableOptions (options: Partial<TWorkbenchOptions>): TWorkbenchOptions {
   return {
     dataSourceId: options.dataSourceId || "",
+    page: options?.page || 0,
+    size: options?.size || 50,
     table: options.table || '',
     filters: options?.filters || [],
     joins: options?.joins ?? [],
     orderBy: options?.orderBy ?? [],
-    page: options?.page || 0,
-    size: options?.size || 50,
     columns: options?.columns ?? [],
     groupBy: options?.groupBy ?? [],
     aggregations: options?.aggregations ?? [],

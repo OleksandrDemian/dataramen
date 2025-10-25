@@ -16,10 +16,10 @@ import toast from "react-hot-toast";
 import {useGlobalHotkey} from "../../../hooks/useGlobalHotkey.ts";
 import {toggleShowQuerySidebar, useShowQuerySidebar} from "../../../data/showQuerySidebarStore.ts";
 import {Sidebar} from "../../Sidebar";
-import {renameTab} from "../../../data/openTabsStore.ts";
 import {useMediaQuery} from "../../../hooks/useMediaQuery.ts";
 import {ScreenQuery} from "../../../utils/screen.ts";
 import {showExplorerModal} from "../hooks/useExplorerModals.ts";
+import {useUpdateWorkbenchTab} from "../../../data/queries/workbenchTabs.ts";
 
 export const QueryBuilderSidebar = () => {
   const show = useShowQuerySidebar();
@@ -84,21 +84,27 @@ function SectionHead ({ onShow, show, title, items }: TSectionHeadProps) {
 function Actions () {
   const { name, tabId } = useContext(TableContext);
   const { data } = useContext(QueryResultContext);
+  const updateWorkbenchTab = useUpdateWorkbenchTab();
 
   const onRenameTab = () => {
     if (tabId) {
       prompt("New tab name", name)
         .then((newName) => {
           if (newName) {
-            renameTab(tabId, newName);
+            updateWorkbenchTab.mutate({
+              id: tabId,
+              payload: {
+                name: newName,
+              },
+            });
           }
         });
     }
   };
 
   const onCopyRawQuery = () => {
-    if (data?.query) {
-      navigator.clipboard.writeText(data?.query);
+    if (data?.result.query) {
+      navigator.clipboard.writeText(data.result.query);
       toast.success("Query copied to clipboard");
     }
   };
@@ -201,7 +207,7 @@ function Columns () {
         title="👀 Columns"
         show={showCurrent}
         onShow={() => setShowCurrent(!showCurrent)}
-        items={ignoreColumns ? 0 :state.columns.length}
+        items={ignoreColumns ? 0 : state.columns.length}
       />
       {ignoreColumns && (
         <Alert variant="warning" className="border border-yellow-800 my-2">

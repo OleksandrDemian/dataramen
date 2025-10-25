@@ -4,11 +4,9 @@ import {usePagination} from "../hooks/usePagination.ts";
 import {updateCreateEntity} from "../../../data/entityCreatorStore.ts";
 import st from "./QueryExplorer.module.css";
 import clsx from "clsx";
-import {pushNewExplorerTab, renameTab} from "../../../data/openTabsStore.ts";
 import {useSaveQuery} from "../../../data/queries/queries.ts";
 import {EUserTeamRole} from "@dataramen/types";
 import {prompt} from "../../../data/promptModalStore.ts";
-import {closeQueryModal} from "../../../data/queryModalStore.ts";
 import {useDataSource} from "../../../data/queries/dataSources.ts";
 import {useRequireRole} from "../../../hooks/useRequireRole.ts";
 import {toggleShowQuerySidebar} from "../../../data/showQuerySidebarStore.ts";
@@ -18,6 +16,8 @@ import {Tooltip} from "react-tooltip";
 import Chevron from "../../../assets/chevron-forward-outline.svg?react";
 import toast from "react-hot-toast";
 import {PAGES} from "../../../const/pages.ts";
+import {useCreateWorkbenchTab} from "../../../data/queries/workbenchTabs.ts";
+import {useNavigate} from "react-router-dom";
 
 export function TableOptions () {
   return (
@@ -30,16 +30,16 @@ export function TableOptions () {
 }
 
 function QueryManipulation() {
-  const { dataSourceId, name, tabId } = useContext(TableContext);
+  const { dataSourceId, name } = useContext(TableContext);
   const { data: dataSource } = useDataSource(dataSourceId);
   const { data } = useContext(QueryResultContext);
   const isEditor = useRequireRole(EUserTeamRole.EDITOR);
   const saveQuery = useSaveQuery();
 
   const onInsert = () => {
-    if (data?.columns?.[0].table) {
+    if (data?.result.columns?.[0].table) {
       updateCreateEntity({
-        table: data?.columns?.[0].table,
+        table: data?.result.columns?.[0].table,
         dataSourceId,
       });
     }
@@ -48,18 +48,14 @@ function QueryManipulation() {
   const onSaveQuery = async () => {
     const newName = await prompt("Query name", name);
 
-    if (!newName || !data?.queryHistoryId) {
+    if (!newName || !data?.result.queryHistoryId) {
       return;
     }
 
     saveQuery.mutate({
       name: newName,
-      queryId: data.queryHistoryId,
+      queryId: data.result.queryHistoryId,
     });
-
-    if (tabId) {
-      renameTab(tabId, newName);
-    }
   };
 
   useGlobalHotkey("s", onSaveQuery, "Save query");
@@ -132,19 +128,25 @@ function TabOptions () {
   const { state } = useContext(TableOptionsContext);
   const { refetch, data: queryResult } = useContext(QueryResultContext);
   const { size, setSize } = usePagination();
+  const createWorkbenchTab = useCreateWorkbenchTab();
+  const navigate = useNavigate();
 
-  const canShare = window?.location.hostname !== 'localhost';
+  const canShare = true; //window?.location.hostname !== 'localhost';
 
   const onOpen = () => {
-    pushNewExplorerTab(name, state, true);
-    closeQueryModal(); // in case a query is opened, close it
+    createWorkbenchTab.mutateAsync({
+      name,
+      opts: state,
+    }).then((result) => {
+      navigate(`${PAGES.workbench.path}/tab/${result.id}`)
+    })
   };
 
   const onShare = () => {
-    if (queryResult?.queryHistoryId) {
+    if (queryResult?.result.queryHistoryId) {
       const url = new URL(window.location.href);
       url.pathname = PAGES.share.path;
-      url.searchParams.set("shareId", queryResult.queryHistoryId);
+      url.searchParams.set("shareId", queryResult.result.queryHistoryId);
       navigator.clipboard.writeText(url.toString());
       toast.success("Share link copied to clipboard");
     }
@@ -189,7 +191,7 @@ function Pagination () {
   const { page, size, setPage } = usePagination();
   const { data } = useContext(QueryResultContext);
 
-  const hasMore = data?.rows.length === size;
+  const hasMore = data?.result.rows.length === size;
 
   return (
     <div className={st.tableConfig}>

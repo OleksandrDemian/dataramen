@@ -1,12 +1,11 @@
 import {createStore} from "@odemian/react-store";
 import {TFindQuery} from "@dataramen/types";
 import {useNavigate} from "react-router-dom";
-import {pushNewExplorerTab} from "./openTabsStore.ts";
 import {createTableOptions} from "../widgets/ExplorerView/utils.ts";
 import {PAGES} from "../const/pages.ts";
-import {fetchQueryById} from "./queries/queries.utils.ts";
-import {useCallback} from "react";
+import {useCallback, useEffect} from "react";
 import {Analytics} from "../utils/analytics.ts";
+import {useCreateWorkbenchTab} from "./queries/workbenchTabs.ts";
 
 type PromiseResult = {
   type: TFindQuery["type"];
@@ -37,6 +36,13 @@ export const searchTable = async (): Promise<PromiseResult | undefined> => {
 
 export const useSearchTable = (eventSource: string) => {
   const navigate = useNavigate();
+  const createWorkbenchTab = useCreateWorkbenchTab();
+
+  useEffect(() => {
+    if (createWorkbenchTab?.data?.id){
+      navigate(`${PAGES.workbench.path}/tab/${createWorkbenchTab.data.id}`)
+    }
+  }, [createWorkbenchTab.data]);
 
   return useCallback(() => {
     const isOpened = !!SearchTableModalStore.get();
@@ -46,22 +52,17 @@ export const useSearchTable = (eventSource: string) => {
 
     searchTable().then((searchResult) => {
       if (searchResult?.type === "table") {
-        pushNewExplorerTab(searchResult.id, createTableOptions({
-          table: searchResult.id,
-          dataSourceId: searchResult.dsId,
-        }), true);
-
-        if (location.pathname !== PAGES.workbench.path) {
-          navigate(PAGES.workbench.path);
-        }
+        createWorkbenchTab.mutate({
+          name: searchResult.id,
+          opts: createTableOptions({
+            table: searchResult.id,
+            dataSourceId: searchResult.dsId,
+          }),
+        });
       } else if (searchResult?.type === "query") {
-        fetchQueryById(searchResult.id)
-          .then((result) => {
-            pushNewExplorerTab(result.name, createTableOptions(result.opts), true);
-            if (location.pathname !== PAGES.workbench.path) {
-              navigate(PAGES.workbench.path);
-            }
-          });
+        createWorkbenchTab.mutate({
+          queryId: searchResult.id,
+        });
       }
     });
 

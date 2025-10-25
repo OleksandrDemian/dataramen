@@ -26,6 +26,7 @@ const FilterEntry = ({
   onChangeOperator,
   onChangeValue,
   onRemoveFilter,
+  triggerIsEnabled,
   onIsColumnChange,
 }: {
   filter: TFilterForm;
@@ -37,6 +38,7 @@ const FilterEntry = ({
   onChangeOperator: (id: string, operator: string) => void;
   onChangeValue: (id: string, value: string) => void;
   onRemoveFilter: (id: string) => void;
+  triggerIsEnabled: (id: string) => void;
   onIsColumnChange: (id: string, isColumn: boolean) => void;
 }) => {
   const columnType = useMemo<string>(() => {
@@ -60,6 +62,10 @@ const FilterEntry = ({
 
   return (
     <div className="flex gap-2 items-center">
+      <label>
+        <input type="checkbox" checked={filter.isEnabled !== false} onClick={() => triggerIsEnabled(filter.id)} />
+      </label>
+
       <label className="w-full">
         <DataSourceColumnsAutocomplete
           dataSourceId={dataSourceId}
@@ -192,6 +198,7 @@ export const FiltersModal = () => {
         column: "",
         operator: "",
         isColumnRef: false,
+        isEnabled: true,
       },
     ]);
   };
@@ -224,6 +231,19 @@ export const FiltersModal = () => {
     }
   };
 
+  const triggerIsEnabled = (id: string) => {
+    setFilters((store) => store.map((f) => {
+      if (f.id === id) {
+        return {
+          ...f,
+          isEnabled: !f.isEnabled,
+        };
+      }
+
+      return f;
+    }));
+  };
+
   useEffect(() => {
     if (!showModal) {
       setFilters([]);
@@ -238,6 +258,7 @@ export const FiltersModal = () => {
           column: f.column,
           operator: OPERATOR_LABEL[f.operator],
           isColumnRef: !!f.value?.[0]?.isColumn,
+          isEnabled: f.isEnabled,
         }));
 
         // push empty element to create new filter
@@ -247,7 +268,8 @@ export const FiltersModal = () => {
           column: "",
           operator: "",
           isColumnRef: false,
-        })
+          isEnabled: true,
+        });
 
         return filters;
       },
@@ -285,6 +307,7 @@ export const FiltersModal = () => {
             onChangeValue={handleValueChange}
             onRemoveFilter={handleRemoveFilter}
             onIsColumnChange={handleChangeIsColumn}
+            triggerIsEnabled={triggerIsEnabled}
             autoFocus={i === filters.length - 1}
           />
         ))}

@@ -1,106 +1,102 @@
 import CloseIcon from "../../assets/close-outline.svg?react";
 import st from "./index.module.css";
-import {
-  OpenTabs,
-  removeTab,
-  renameTab,
-  setActiveTab,
-  useActiveTab,
-  useOpenTabs
-} from "../../data/openTabsStore.ts";
-import {MouseEventHandler, useMemo} from "react";
+import {MouseEventHandler} from "react";
 import clsx from "clsx";
-import {prompt} from "../../data/promptModalStore.ts";
-import {Navigate} from "react-router-dom";
-import {ITooltip, Tooltip} from "react-tooltip";
-import {getDataSource} from "../../data/queries/dataSource.utils.ts";
-import {filterToString} from "../../utils/sql.ts";
+import {useNavigate, useParams} from "react-router-dom";
 import {useMediaQuery} from "../../hooks/useMediaQuery.ts";
 import {ScreenQuery} from "../../utils/screen.ts";
 import {ExplorerTab} from "./ExplorerTab";
+import {useArchiveTab, useWorkbenchTabs} from "../../data/queries/workbenchTabs.ts";
+import {PAGES} from "../../const/pages.ts";
 
-const renderTooltip: ITooltip["render"] = ({
- content,
- activeAnchor,
-}) => {
-  if (!activeAnchor) return null;
-
-  // Access custom data attribute
-  const tabId = activeAnchor.getAttribute("data-tab-id");
-  const tab = OpenTabs.get().find((t) => t.id === tabId);
-  const dataSource = getDataSource(tab?.options.dataSourceId);
-
-  if (!tab) {
-    return content;
-  }
-
-  const onRename = () => {
-    prompt("New tab name", tab.label)
-      .then((name) => {
-        if (name) {
-          renameTab(tab.id, name);
-        }
-      });
-  };
-
-  return (
-    <div>
-      <button className={st.tooltipLabel} onClick={onRename}>
-        <div className="overflow-hidden">
-          <p className="text-xs">label</p>
-          <p className="truncate font-semibold">{tab.label}</p>
-        </div>
-        <span>✏️</span>
-      </button>
-
-      <div className={st.tooltipInfoEntry}>
-        <p className="text-sm">table</p>
-        <p className="truncate font-semibold">{tab.options.table}</p>
-      </div>
-
-      {dataSource && (
-        <div className={st.tooltipInfoEntry}>
-          <p className="text-sm">data source [{dataSource.dbType}]</p>
-          <p className="truncate font-semibold">{dataSource.name}</p>
-        </div>
-      )}
-
-      {tab.options.joins.length > 0 && (
-        <div className={st.tooltipInfoEntry}>
-          <p className="text-sm">joins</p>
-          <p className="truncate font-semibold">{tab.options.joins.map((j) => j.table).join(", ")}</p>
-        </div>
-      )}
-
-      {tab.options.filters.length > 0 && (
-        <div className={st.tooltipInfoEntry}>
-          <p className="text-sm">filters</p>
-          {tab.options.filters.map((f) => (
-            <p className="truncate font-semibold">{filterToString((f))}</p>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
+// const renderTooltip: ITooltip["render"] = ({
+//  content,
+//  activeAnchor,
+// }) => {
+//   if (!activeAnchor) return null;
+//
+//   // Access custom data attribute
+//   const tabId = activeAnchor.getAttribute("data-tab-id");
+//   const tab = OpenTabs.get().find((t) => t.id === tabId);
+//   const dataSource = getDataSource(tab?.options.dataSourceId);
+//
+//   if (!tab) {
+//     return content;
+//   }
+//
+//   const onRename = () => {
+//     prompt("New tab name", tab.label)
+//       .then((name) => {
+//         if (name) {
+//           renameTab(tab.id, name);
+//         }
+//       });
+//   };
+//
+//   return (
+//     <div>
+//       <button className={st.tooltipLabel} onClick={onRename}>
+//         <div className="overflow-hidden">
+//           <p className="text-xs">label</p>
+//           <p className="truncate font-semibold">{tab.label}</p>
+//         </div>
+//         <span>✏️</span>
+//       </button>
+//
+//       <div className={st.tooltipInfoEntry}>
+//         <p className="text-sm">table</p>
+//         <p className="truncate font-semibold">{tab.options.table}</p>
+//       </div>
+//
+//       {dataSource && (
+//         <div className={st.tooltipInfoEntry}>
+//           <p className="text-sm">data source [{dataSource.dbType}]</p>
+//           <p className="truncate font-semibold">{dataSource.name}</p>
+//         </div>
+//       )}
+//
+//       {tab.options.joins.length > 0 && (
+//         <div className={st.tooltipInfoEntry}>
+//           <p className="text-sm">joins</p>
+//           <p className="truncate font-semibold">{tab.options.joins.map((j) => j.table).join(", ")}</p>
+//         </div>
+//       )}
+//
+//       {tab.options.filters.length > 0 && (
+//         <div className={st.tooltipInfoEntry}>
+//           <p className="text-sm">filters</p>
+//           {tab.options.filters.map((f) => (
+//             <p className="truncate font-semibold">{filterToString((f))}</p>
+//           ))}
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
 
 export const WorkbenchPage = () => {
-  const activeTab = useActiveTab();
-  const openTabs = useOpenTabs();
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { data: workbenchTabs } = useWorkbenchTabs();
+  const archiveTab = useArchiveTab();
+
   const isDesktop = useMediaQuery(ScreenQuery.laptop);
 
-  const tab = useMemo(() => {
-    if (!openTabs) {
-      return undefined;
-    }
+  const fallbackTab = (tabId: string) => {
+    // todo: I hate this implementation, review it at some point
+    if (tabId === id && workbenchTabs) {
+      if (workbenchTabs.length === 1) {
+        return navigate(PAGES.home.path);
+      }
 
-    const tab = openTabs.find(t => t.id === activeTab);
-    if (tab) {
-      return tab;
+      if (workbenchTabs.length > 1) {
+        const differentTab = workbenchTabs.find(t => t.id !== tabId);
+        if (differentTab) {
+          return navigate(`/workbench/tab/${differentTab.id}`);
+        }
+      }
     }
-
-    return openTabs[0];
-  }, [activeTab, openTabs]);
+  };
 
   const onCloseTab: MouseEventHandler<HTMLButtonElement> = (e) => {
     e.stopPropagation();
@@ -108,56 +104,38 @@ export const WorkbenchPage = () => {
 
     const tabId = e.currentTarget.getAttribute("data-tab-id");
     if (tabId) {
-      removeTab(tabId);
+      archiveTab.mutate(tabId);
+      fallbackTab(tabId);
     }
   };
 
   const onAuxTabClick: MouseEventHandler<HTMLDivElement> = (event) => {
     if (event.button === 1) {
-      removeTab(event.currentTarget.dataset.tabId as string);
+      const tabId = event.currentTarget.dataset.tabId as string;
+      archiveTab.mutate(tabId);
+      fallbackTab(tabId);
     }
   };
 
-  const onRenameTab = (tabId: string) => {
-    const curTab = openTabs.find(t => t.id === tabId);
-    prompt("New tab name", curTab?.label)
-      .then((name) => {
-        if (name) {
-          renameTab(tabId, name);
-        }
-      });
-  };
-
-  if (openTabs.length < 1) {
-    return <Navigate to="/" />;
-  }
-
   return (
     <div className="h-screen max-h-screen bg-(--bg) flex flex-col">
-      {isDesktop && (
-        <Tooltip id="tab" render={renderTooltip} className="z-10 shadow-md p-0!" offset={-1} noArrow opacity={1} variant="light" clickable delayShow={500} />
-      )}
 
-      {tab && (
-        <ExplorerTab tab={tab} />
+      {id && (
+        <ExplorerTab id={id} />
       )}
 
       <div className={clsx(st.tabs, "no-scrollbar", !isDesktop && st.mobile)}>
-        {openTabs?.map((t) => (
+        {workbenchTabs?.map((t) => (
           <div
             key={t.id}
-            onClick={() => setActiveTab(t.id)}
-            className={clsx(st.tab, t.id === tab?.id && st.active)}
+            onClick={() => navigate(`${PAGES.workbench.path}/tab/${t.id}`)}
+            className={clsx(st.tab, t.id === id && st.active)}
             data-tab-id={t.id}
             data-tooltip-id="tab"
-            data-tooltip-content={t.label}
+            data-tooltip-content={t.name}
             onAuxClick={onAuxTabClick}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              onRenameTab(t.id);
-            }}
           >
-            <span className="truncate w-full">📄 {t.label}</span>
+            <span className="truncate w-full">📄 {t.name}</span>
             <button data-tab-id={t.id} className={st.closeButton} onClick={onCloseTab}>
               <CloseIcon width={20} height={20} />
             </button>

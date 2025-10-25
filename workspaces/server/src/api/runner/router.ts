@@ -4,6 +4,7 @@ import {runInsert, runSelect, runUpdate} from "../../services/sqlRunner";
 import {TExecuteInsert, TExecuteQuery, TExecuteUpdate, EUserTeamRole} from "@dataramen/types";
 import {validateExecuteQueryBody, validateInsertQueryBody, validateUpdateQueryBody} from "./validators";
 import {atLeast} from "../../hooks/role";
+import {WorkbenchTabsRepository} from "../../repository/db";
 
 export default createRouter((instance) => {
   instance.route({

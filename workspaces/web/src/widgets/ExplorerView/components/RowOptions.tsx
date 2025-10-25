@@ -10,7 +10,10 @@ import clsx from "clsx";
 import {HookButton} from "../../HookButton";
 import {gte} from "../../../utils/numbers.ts";
 import {genSimpleId} from "../../../utils/id.ts";
-import {pushNewExplorerTab} from "../../../data/openTabsStore.ts";
+import {useCreateWorkbenchTab} from "../../../data/queries/workbenchTabs.ts";
+import {createTableOptions} from "../utils.ts";
+import {useNavigate} from "react-router-dom";
+import {PAGES} from "../../../const/pages.ts";
 
 export type TRowOptionsProps = {
   handler: TContextMenuHandler;
@@ -28,31 +31,38 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
   const { data: result } = useContext(QueryResultContext);
   const [entityFilter, setEntityFilter] = useState<string>('');
   const [hooksFilter, setHooksFilter] = useState<string>('');
-  const row = useMemo(() => result?.rows[rowIndex], [result, rowIndex]);
+  const row = useMemo(() => result?.result.rows[rowIndex], [result, rowIndex]);
+  const createWorkbenchTab = useCreateWorkbenchTab();
+  const navigate = useNavigate();
 
   const showNestedData = () => {
     if (!row) {
       return;
     }
 
-    pushNewExplorerTab("⬇️ " + state.table, {
-      joins: state.joins,
-      table: state.table,
-      dataSourceId: state.dataSourceId,
-      filters: [
-        ...state.filters,
-        ...state.groupBy.map((g) => ({
-          id: genSimpleId(),
-          connector: "AND",
-          column: g.value,
-          operator: "=",
-          value: [{
-            value: getValue(row, g),
-          }],
-        } satisfies QueryFilter))
-      ]
-    }, true);
-    handler.close();
+    createWorkbenchTab.mutateAsync({
+      name: "⬇️ " + state.table,
+      opts: createTableOptions({
+        joins: state.joins,
+        table: state.table,
+        dataSourceId: state.dataSourceId,
+        filters: [
+          ...state.filters,
+          ...state.groupBy.map((g) => ({
+            id: genSimpleId(),
+            connector: "AND",
+            column: g.value,
+            operator: "=",
+            value: [{
+              value: getValue(row, g),
+            }],
+          } satisfies QueryFilter))
+        ]
+      }),
+    }).then((result) => {
+      navigate(`${PAGES.workbench.path}/tab/${result.id}`);
+      handler.close();
+    });
   };
 
   const showRelatedData = (hook: THook) => {
@@ -64,21 +74,27 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
       value: `${hook.on.fromTable}.${hook.on.fromColumn}`,
     });
 
-    pushNewExplorerTab(`↗️ ${hook.on.toColumn} equals ${value}`, {
-      table: hook.on.toTable,
-      dataSourceId,
-      filters: [{
-        id: genSimpleId(),
-        column: hook.on.toTable + "." + hook.on.toColumn,
-        operator: value == null ? "IS NULL" : "=",
-        connector: "AND",
-        value: value != null ? [{
-          value: value,
-          isColumn: false,
-        }] : undefined,
-      }],
-    }, true);
-    handler.close();
+    createWorkbenchTab.mutateAsync({
+      name: `↗️ ${hook.on.toColumn} equals ${value}`,
+      opts: createTableOptions({
+        // todo: do I need to inherit joins? Probably not
+        table: hook.on.toTable,
+        dataSourceId: dataSourceId,
+        filters: [{
+          id: genSimpleId(),
+          column: `${hook.on.toTable}.${hook.on.toColumn}`,
+          operator: value == null ? "IS NULL" : "=",
+          connector: "AND",
+          value: value != null ? [{
+            value: value,
+            isColumn: false,
+          }] : undefined,
+        }],
+      }),
+    }).then((result) => {
+      navigate(`${PAGES.workbench.path}/tab/${result.id}`);
+      handler.close();
+    });
   };
 
   const showEntity = (ent: string) => {
@@ -110,7 +126,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
     const lowercaseFilter = hooksFilter.toLowerCase();
     return hooks.filter(h => {
       // check if available for hooking
-      const hasColumn = result.columns.some((c) => {
+      const hasColumn = result.result.columns.some((c) => {
         return c.column === h.on.fromColumn && c.table === h.on.fromTable;
       });
 

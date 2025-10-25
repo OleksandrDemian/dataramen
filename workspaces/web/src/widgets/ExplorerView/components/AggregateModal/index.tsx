@@ -120,7 +120,7 @@ export const AggregateModal = () => {
               <p className="font-semibold text-xs">Column</p>
               <DataSourceColumnsAutocomplete
                 dataSourceId={dataSourceId}
-                allowTables={result?.tables || []}
+                allowTables={result?.result.tables || []}
                 onChange={onColumn}
                 value={options.col}
               />

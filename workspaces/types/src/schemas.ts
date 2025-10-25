@@ -1,5 +1,6 @@
 import {TQueryOptions} from "./queries";
 import {EUserTeamRole} from "./users";
+import {TWorkbenchOptions} from "./workbenchTabs";
 
 export interface IUser {
   id: string;
@@ -123,6 +124,20 @@ export interface IUsersToTeams {
 }
 
 export interface IUsersToTeamsSchema extends IUsersToTeams {
+  user: IUserSchema;
+  team: ITeamSchema;
+}
+
+export interface IWorkbenchTab {
+  id: string;
+  name: string;
+  archived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  opts: Partial<TWorkbenchOptions>;
+}
+
+export interface IWorkbenchTabSchema extends IWorkbenchTab {
   user: IUserSchema;
   team: ITeamSchema;
 }

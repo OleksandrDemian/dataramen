@@ -183,7 +183,7 @@ export default createRouter((instance) => {
       queries.forEach((q) => {
         result.push({
           name: q.query.name,
-          id: q.id,
+          id: q.query.id,
           dataSourceName: q.query.dataSource?.name || '--',
           dataSourceId: q.query.dataSource?.id || '--',
           type: 'query',

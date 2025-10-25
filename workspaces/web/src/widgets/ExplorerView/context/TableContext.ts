@@ -1,6 +1,11 @@
 import {createContext} from "react";
 import {TRunQueryResult} from "../../../data/types/queryRunner.ts";
-import {TDbValue, TInputColumn, TQueryOptions, TRunSqlResult} from "@dataramen/types";
+import {
+  TDbValue,
+  TInputColumn,
+  TRunSqlResult,
+  TRunWorkbenchQuery, TWorkbenchOptions
+} from "@dataramen/types";
 import {THook} from "../../../data/types/hooks.ts";
 import {UseQueryResult} from "react-query";
 import {createTableOptions} from "../utils.ts";
@@ -30,16 +35,10 @@ export const TableContext = createContext<TTableContext>({
   getEntityKey: () => [],
 });
 
-export type TTableOptions = TQueryOptions & {
-  page: number;
-  size: number;
-  dataSourceId: string;
-};
-
-export type TTableOptionsUpdater = (fn: (opts: TTableOptions) => TTableOptions) => void;
+export type TTableOptionsUpdater = (fn: (opts: TWorkbenchOptions) => TWorkbenchOptions) => void;
 
 export type TTableOptionsContext = {
-  state: TTableOptions;
+  state: TWorkbenchOptions;
   setState: TTableOptionsUpdater;
 };
 
@@ -48,4 +47,4 @@ export const TableOptionsContext = createContext<TTableOptionsContext>({
   setState: () => {},
 });
 
-export const QueryResultContext = createContext<UseQueryResult<TRunSqlResult>>({} as any);
+export const QueryResultContext = createContext<UseQueryResult<TRunWorkbenchQuery>>({} as any);

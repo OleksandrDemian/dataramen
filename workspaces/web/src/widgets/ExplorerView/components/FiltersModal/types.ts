@@ -4,4 +4,5 @@ export type TFilterForm = {
   operator: string;
   value: string;
   isColumnRef: boolean;
+  isEnabled?: boolean;
 };

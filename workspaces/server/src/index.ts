@@ -18,6 +18,7 @@ import teams from "./api/teams/router";
 import users from "./api/users/router";
 import userSettings from "./api/userSettings/router";
 import savedQueries from "./api/saved-queries/router";
+import workbenchTabs from "./api/workbenchTabs/router";
 import "./types/extendFastify";
 import {TRouter} from "./utils/createRouter";
 import { join } from "node:path";
@@ -93,6 +94,7 @@ function registerRouter (fn: TRouter, prefix: string) {
   registerRouter(users, `/api/users`);
   registerRouter(userSettings, `/api/user-settings`);
   registerRouter(savedQueries, `/api/saved-queries`);
+  registerRouter(workbenchTabs, `/api/workbench-tabs`);
 
   server.setNotFoundHandler((req, res) => {
     const url = req.raw.url;

@@ -3,8 +3,8 @@ import {subscribe} from "../services/hotkeys.ts";
 import {useSearchTable} from "../data/tableSearchModalStore.ts";
 import {useLocation, useNavigate} from "react-router-dom";
 import {PAGES} from "../const/pages.ts";
-import {OpenTabs} from "../data/openTabsStore.ts";
 import {useCurrentUser} from "../data/queries/users.ts";
+import {useWorkbenchTabs} from "../data/queries/workbenchTabs.ts";
 
 export function useGlobalHotkey(key: string, callback: VoidFunction, label?: string) {
   const cbRef = useRef({ callback, label });
@@ -22,6 +22,7 @@ export const useSetupGlobalListeners = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: user } = useCurrentUser();
+  const { data: tabs } = useWorkbenchTabs();
 
   useGlobalHotkey("n", () => {
     if (!user) {
@@ -36,11 +37,10 @@ export const useSetupGlobalListeners = () => {
       return;
     }
 
-    const openedTabs = OpenTabs.get();
-    if (openedTabs.length < 1) {
+    if (tabs && tabs.length > 0) {
+      navigate(`${PAGES.workbench.path}/tab/${tabs[0].id}`);
+    } else {
       searchAndOpen();
-    } else if (location.pathname !== PAGES.workbench.path) {
-      navigate(PAGES.workbench.path);
     }
   }, "🛠️ Open Workbench");
 

@@ -23,7 +23,7 @@ const TableHeaders = () => {
   const { data } = useContext(QueryResultContext);
   const { orderBy: orderByList, updateOrderBy } = useOrderByStatements();
 
-  const columns = data?.columns || [];
+  const columns = data?.result.columns || [];
   const orderBy = orderByList[0];
 
   return (
@@ -142,20 +142,20 @@ export const QueryExplorer = () => {
           <TableHeaders />
 
           <tbody>
-            {result.rows?.length < 1 && (
+            {result.result.rows?.length < 1 && (
               <tr className={st.tableEmpty}>
-                <td colSpan={result.columns.length + 1}>No data</td>
+                <td colSpan={result.result.columns.length + 1}>No data</td>
               </tr>
             )}
 
             {/* Table Rows */}
-            {result.rows?.map((row, i) => (
+            {result.result.rows?.map((row, i) => (
               <TableRow
                 key={i}
                 index={i}
                 offset={offset}
                 row={row}
-                isLastRow={i === result.rows.length - 1}
+                isLastRow={i === result.result.rows.length - 1}
               />
             ))}
           </tbody>

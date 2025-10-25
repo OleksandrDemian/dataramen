@@ -38,6 +38,7 @@ export const useJoinStatements = () => {
           filters: state.filters.filter((f) => !f.column.startsWith(removePattern)),
         };
       }
+
       return {
         ...state,
         joins: [...joins, join],

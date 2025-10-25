@@ -12,16 +12,17 @@ import {confirm} from "../../data/confirmModalStore.ts";
 import st from "./index.module.css";
 import {TDatabaseInspection} from "../../data/types/dataSources.ts";
 import clsx from "clsx";
-import CheveronIcon from "../../assets/chevron-forward-outline.svg?react";
-import {pushNewExplorerTab} from "../../data/openTabsStore.ts";
+import ChevronIcon from "../../assets/chevron-forward-outline.svg?react";
 import {PAGES} from "../../const/pages.ts";
-import {useLocation, useNavigate} from "react-router-dom";
+import {useNavigate} from "react-router-dom";
 import {Analytics} from "../../utils/analytics.ts";
 import {DataSourceIcon} from "../../widgets/Icons";
 import {EUserTeamRole} from "@dataramen/types";
 import {useRequireRole} from "../../hooks/useRequireRole.ts";
 import {closeMenuSidebar} from "../../data/showSidebarMenuStore.ts";
 import {Sidebar} from "../../widgets/Sidebar";
+import {useCreateWorkbenchTab} from "../../data/queries/workbenchTabs.ts";
+import {createTableOptions} from "../../widgets/ExplorerView/utils.ts";
 
 const formatter = new Intl.DateTimeFormat("en", {
   dateStyle: "full",
@@ -70,10 +71,11 @@ function Component ({ id }: { id: string }) {
   const { data: tables } = useDatabaseInspections(id);
 
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const update = useUpdateDataSource();
   const inspector = useManualInspectDataSource();
   const deleter = useDeleteDataSource();
+
+  const createWorkbenchTab = useCreateWorkbenchTab();
 
   const lastInspected = useMemo(() => {
     if (dataSource?.lastInspected) {
@@ -122,16 +124,17 @@ function Component ({ id }: { id: string }) {
   };
 
   const openTable = (table: string) => {
-    pushNewExplorerTab(table, {
-      table,
-      dataSourceId: id,
-    }, true);
-
-    setDataSourceModal(undefined);
-    closeMenuSidebar();
-    if (pathname !== PAGES.workbench.path) {
-      navigate(PAGES.workbench.path);
-    }
+    createWorkbenchTab.mutateAsync({
+      name: table,
+      opts: createTableOptions({
+        table,
+        dataSourceId: id,
+      })
+    }).then((result) => {
+      setDataSourceModal(undefined);
+      closeMenuSidebar();
+      navigate(`${PAGES.workbench.path}/tab/${result.id}`);
+    });
 
     Analytics.event("On open table [Datasource modal]");
   };
@@ -213,7 +216,7 @@ function Component ({ id }: { id: string }) {
           <div key={table.id}>
             <div className={st.tableNameContainer}>
               <button className={clsx(st.chevron, dropdownVisibility[table.id] && st.down)} onClick={() => toggleDropdown(table.id)}>
-                <CheveronIcon width={16} height={16} />
+                <ChevronIcon width={16} height={16} />
               </button>
 
               <button className={clsx(st.tableName, "flex-1")} onClick={() => toggleDropdown(table.id)}>

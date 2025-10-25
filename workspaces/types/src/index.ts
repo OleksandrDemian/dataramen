@@ -5,3 +5,4 @@ export * from "./teams";
 export * from "./users";
 export * from "./schemas";
 export * from "./queryHistory";
+export * from "./workbenchTabs";
