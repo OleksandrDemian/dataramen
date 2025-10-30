@@ -6,10 +6,10 @@ import {DataSourceColumnsAutocomplete} from "../../../DataSourceColumnsAutocompl
 import {TInputColumn} from "@dataramen/types";
 import clsx from "clsx";
 import {hideExplorerModal, toggleExplorerModal, useExplorerModals} from "../../hooks/useExplorerModals.ts";
-import {useGlobalHotkey} from "../../../../hooks/useGlobalHotkey.ts";
 import {gte} from "../../../../utils/numbers.ts";
 import { inputColumnToAlias } from "@dataramen/common";
 import CloseButton from "./../../../../assets/close-outline.svg?react";
+import {useHotkeys} from "react-hotkeys-hook";
 
 const COUNT_ALL = "COUNT all";
 
@@ -73,9 +73,9 @@ export const AggregateModal = () => {
     }));
   };
 
-  useGlobalHotkey("a", () => {
+  useHotkeys("a", () => {
     toggleExplorerModal("aggregate");
-  }, "Aggregate data");
+  });
 
   return (
     <Modal isVisible={show} onClose={onClose} backdropClose portal>

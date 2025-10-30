@@ -15,9 +15,12 @@ import {Alert} from "../../widgets/Alert";
 import {useParseError} from "../../hooks/useParseError.ts";
 import {TQueryMutationValue} from "@dataramen/types";
 import {TDatabaseInspectionColumn} from "../../data/types/dataSources.ts";
+import {invalidateTabData} from "../../data/queries/workbenchTabs.ts";
+import {useWorkbenchTabId} from "../../hooks/useWorkbenchTabId.ts";
 
 export const Component = ({ data }: { data: TEntityCreatorStore }) => {
-  const [form, { change, touched }] = useForm<Record<string, string>>({})
+  const [form, { change, touched }] = useForm<Record<string, string>>({});
+  const workbenchTabId = useWorkbenchTabId();
 
   const { mutateAsync: execute, error } = useInsert();
   const errorMessage = useParseError(error);
@@ -64,7 +67,12 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
       datasourceId: data.dataSourceId,
       table: data.table,
       values,
-    }).then(closeEntityCreatorModal);
+    }).then(() => {
+      closeEntityCreatorModal();
+      if (workbenchTabId) {
+        invalidateTabData(workbenchTabId);
+      }
+    });
   };
 
   return (

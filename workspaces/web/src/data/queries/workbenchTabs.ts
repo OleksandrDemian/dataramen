@@ -15,6 +15,19 @@ const updateCachedWorkbenchTabs = (fn: (store: TGetWorkbenchTabsEntry[]) => TGet
   );
 };
 
+const updateCachedWorbenchTab = (id: string, fn: (store: IWorkbenchTab) => IWorkbenchTab) => {
+  queryClient.setQueryData<IWorkbenchTab | undefined>(
+    ["workbench-tabs", id],
+    (store) => {
+      if (store) {
+        return fn(store);
+      }
+
+      return store;
+    },
+  );
+};
+
 export const useWorkbenchTabs = () => {
   return useQuery({
     queryKey: ["workbench-tabs"],
@@ -72,6 +85,11 @@ export const useUpdateWorkbenchTab = () => {
       return true;
     },
     onMutate: ({ id, payload }) => {
+      updateCachedWorbenchTab(id, (data) => ({
+        ...data,
+        ...payload,
+      }));
+
       updateCachedWorkbenchTabs(
         (state) => {
           return state.map((entry) => {
@@ -105,12 +123,19 @@ export const useRunWorkbenchTab = (workbenchTabId: string, props: TWorkbenchOpti
     size = 20
   } = props;
   return useQuery<TRunWorkbenchQuery>({
-    queryKey: ["workbench-tab-runner", dataSourceId, table, page, size, filters, aggregations, joins, orderBy, groupBy, columns, searchAll],
+    queryKey: ["workbench-tab-runner", workbenchTabId, dataSourceId, table, page, size, filters, aggregations, joins, orderBy, groupBy, columns, searchAll],
     queryFn: async () => {
       const { data } = await apiClient.post<{ data: TRunWorkbenchQuery }>(`/workbench-tabs/${workbenchTabId}/run`, props);
       return data.data;
     },
     retry: 1,
     enabled: !!table && !!dataSourceId,
+    cacheTime: 0,
   });
 };
+
+export const invalidateTabData = (tabId: string) => {
+  return queryClient.invalidateQueries({
+    queryKey: ["workbench-tab-runner", tabId],
+  });
+}

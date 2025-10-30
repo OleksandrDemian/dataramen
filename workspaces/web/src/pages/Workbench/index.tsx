@@ -8,6 +8,7 @@ import {ScreenQuery} from "../../utils/screen.ts";
 import {ExplorerTab} from "./ExplorerTab";
 import {useArchiveTab, useWorkbenchTabs} from "../../data/queries/workbenchTabs.ts";
 import {PAGES} from "../../const/pages.ts";
+import {useHotkeys} from "react-hotkeys-hook";
 
 // const renderTooltip: ITooltip["render"] = ({
 //  content,
@@ -116,6 +117,13 @@ export const WorkbenchPage = () => {
       fallbackTab(tabId);
     }
   };
+
+  useHotkeys("ctrl+w", () => {
+    if (id) {
+      archiveTab.mutate(id);
+      fallbackTab(id);
+    }
+  }, { preventDefault: true });
 
   return (
     <div className="h-screen max-h-screen bg-(--bg) flex flex-col">

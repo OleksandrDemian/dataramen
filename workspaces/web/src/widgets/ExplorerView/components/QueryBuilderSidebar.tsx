@@ -10,16 +10,14 @@ import {inputColumnToAlias, OPERATOR_LABEL} from "@dataramen/common";
 import {TInputColumn} from "@dataramen/types";
 import {useDataSource} from "../../../data/queries/dataSources.ts";
 import {OrderByClause, QueryFilter} from "@dataramen/sql-builder";
-import {prompt} from "../../../data/promptModalStore.ts";
 import Chevron from "../../../assets/chevron-forward-outline.svg?react";
 import toast from "react-hot-toast";
-import {useGlobalHotkey} from "../../../hooks/useGlobalHotkey.ts";
 import {toggleShowQuerySidebar, useShowQuerySidebar} from "../../../data/showQuerySidebarStore.ts";
 import {Sidebar} from "../../Sidebar";
 import {useMediaQuery} from "../../../hooks/useMediaQuery.ts";
 import {ScreenQuery} from "../../../utils/screen.ts";
 import {showExplorerModal} from "../hooks/useExplorerModals.ts";
-import {useUpdateWorkbenchTab} from "../../../data/queries/workbenchTabs.ts";
+import {useRenameTab} from "../../../hooks/useRenameTab.ts";
 
 export const QueryBuilderSidebar = () => {
   const show = useShowQuerySidebar();
@@ -82,25 +80,9 @@ function SectionHead ({ onShow, show, title, items }: TSectionHeadProps) {
 }
 
 function Actions () {
-  const { name, tabId } = useContext(TableContext);
+  const { name } = useContext(TableContext);
   const { data } = useContext(QueryResultContext);
-  const updateWorkbenchTab = useUpdateWorkbenchTab();
-
-  const onRenameTab = () => {
-    if (tabId) {
-      prompt("New tab name", name)
-        .then((newName) => {
-          if (newName) {
-            updateWorkbenchTab.mutate({
-              id: tabId,
-              payload: {
-                name: newName,
-              },
-            });
-          }
-        });
-    }
-  };
+  const { rename } = useRenameTab();
 
   const onCopyRawQuery = () => {
     if (data?.result.query) {
@@ -109,11 +91,9 @@ function Actions () {
     }
   };
 
-  useGlobalHotkey("r", onRenameTab, "Rename tab");
-
   return (
     <div className="grid lg:grid-cols-2 gap-1 px-2 mb-4">
-      <button className={st.sidebarAction} onClick={onRenameTab}>
+      <button className={st.sidebarAction} onClick={() => rename(name)}>
         <span>✏️ Rename tab</span>
       </button>
 

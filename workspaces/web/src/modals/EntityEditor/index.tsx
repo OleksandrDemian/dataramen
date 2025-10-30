@@ -17,9 +17,12 @@ import {TDatabaseInspectionColumn} from "../../data/types/dataSources.ts";
 import {EUserTeamRole, TQueryMutationValue} from "@dataramen/types";
 import {useRequireRole} from "../../hooks/useRequireRole.ts";
 import {genSimpleId} from "../../utils/id.ts";
+import {useWorkbenchTabId} from "../../hooks/useWorkbenchTabId.ts";
+import {invalidateTabData} from "../../data/queries/workbenchTabs.ts";
 
 const Component = ({ data }: { data: TEntityEditorStore }) => {
   const [form, { change, set, reset, touched }] = useForm<{ [key: string]: string }>({});
+  const workbenchTabId = useWorkbenchTabId();
 
   const [filter, setFilter] = useState<string>("");
   const { data: queryResult, isLoading: isLoadingResult } = useEntity(data.dataSourceId, data.tableName, data.entityId);
@@ -88,7 +91,12 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
         operator: "=",
       })),
       values,
-    }).then(closeEntityEditorModal);
+    }).then(() => {
+      closeEntityEditorModal();
+      if (workbenchTabId) {
+        invalidateTabData(workbenchTabId);
+      }
+    });
   };
 
   const keyString = data.entityId.map(([col, val]) => `${col} = ${val}`).join(", ") || '';

@@ -13,8 +13,8 @@ import st from "./index.module.css";
 import {TFilterForm} from "./types.ts";
 import {filterValueToString, mapFiltersToWhere, validateFilters} from "./utils.ts";
 import {hideExplorerModal, toggleExplorerModal, useExplorerModals} from "../../hooks/useExplorerModals.ts";
-import {useGlobalHotkey} from "../../../../hooks/useGlobalHotkey.ts";
 import CloseButton from "./../../../../assets/close-outline.svg?react";
+import {useHotkeys} from "react-hotkeys-hook";
 
 const FilterEntry = ({
   filter,
@@ -246,7 +246,6 @@ export const FiltersModal = () => {
 
   useEffect(() => {
     if (!showModal) {
-      setFilters([]);
       return;
     }
 
@@ -277,16 +276,16 @@ export const FiltersModal = () => {
     // do not use state as dependency, we only need to update filters when showModal becomes true
   }, [showModal]);
 
-  useGlobalHotkey("f", () => {
+  useHotkeys("f", () => {
     toggleExplorerModal("filters");
-  }, "Add new filter");
+  });
 
-  useGlobalHotkey("ctrl+f", () => {
+  useHotkeys("ctrl+f", () => {
     alert("Save filters");
-  }, "Save filters");
+  });
 
   return (
-    <Modal isVisible={showModal} onClose={handleOnClose} portal>
+    <Modal isVisible={showModal} onClose={handleOnClose} portal onClosed={() => setFilters([])}>
       <ModalClose onClick={handleOnClose} />
       <h2 className="text-lg font-semibold">Filters</h2>
 

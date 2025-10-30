@@ -10,20 +10,23 @@ import {prompt} from "../../../data/promptModalStore.ts";
 import {useDataSource} from "../../../data/queries/dataSources.ts";
 import {useRequireRole} from "../../../hooks/useRequireRole.ts";
 import {toggleShowQuerySidebar} from "../../../data/showQuerySidebarStore.ts";
-import {useGlobalHotkey} from "../../../hooks/useGlobalHotkey.ts";
 import {showExplorerModal} from "../hooks/useExplorerModals.ts";
 import {Tooltip} from "react-tooltip";
 import Chevron from "../../../assets/chevron-forward-outline.svg?react";
+import Refresh from "../../../assets/refresh-outline.svg?react";
+import Duplicate from "../../../assets/duplicate-outline.svg?react";
+import Share from "../../../assets/share-social-outline.svg?react";
 import toast from "react-hot-toast";
 import {PAGES} from "../../../const/pages.ts";
 import {useCreateWorkbenchTab} from "../../../data/queries/workbenchTabs.ts";
 import {useNavigate} from "react-router-dom";
+import {useRenameTab} from "../../../hooks/useRenameTab.ts";
+import {useHotkeys} from "react-hotkeys-hook";
 
-export function TableOptions () {
+export function WorkbenchTabOptions () {
   return (
     <div className="flex items-center bg-white border-b border-gray-200 overflow-auto no-scrollbar">
       <QueryManipulation />
-      <TabOptions />
       <Pagination />
     </div>
   );
@@ -35,6 +38,7 @@ function QueryManipulation() {
   const { data } = useContext(QueryResultContext);
   const isEditor = useRequireRole(EUserTeamRole.EDITOR);
   const saveQuery = useSaveQuery();
+  const { rename } = useRenameTab();
 
   const onInsert = () => {
     if (data?.result.columns?.[0].table) {
@@ -58,7 +62,10 @@ function QueryManipulation() {
     });
   };
 
-  useGlobalHotkey("s", onSaveQuery, "Save query");
+  const onRename = () => rename(name);
+
+  useHotkeys("s", onSaveQuery);
+  useHotkeys("r", onRename);
 
   return (
     <div className={st.tableConfig}>
@@ -73,6 +80,11 @@ function QueryManipulation() {
       </button>
 
       <SearchAll />
+
+      <button data-tooltip-id="default" data-tooltip-content="Clone in a new tab" onClick={onRename} className={clsx(st.tableAction, st.blue)}>
+        <span>Rename</span>
+        <span className="hotkey">R</span>
+      </button>
 
       <button data-tooltip-id="explorer-more-actions" className={clsx(st.tableAction, st.blue)}>
         <span className="whitespace-nowrap">More actions</span>
@@ -122,18 +134,19 @@ function QueryManipulation() {
 }
 
 const rows = [5, 10, 20, 50, 100, 200];
-
-function TabOptions () {
+function Pagination () {
+  const { page, size, setPage, setSize } = usePagination();
+  const { data, refetch } = useContext(QueryResultContext);
   const { name } = useContext(TableContext);
   const { state } = useContext(TableOptionsContext);
-  const { refetch, data: queryResult } = useContext(QueryResultContext);
-  const { size, setSize } = usePagination();
+
   const createWorkbenchTab = useCreateWorkbenchTab();
   const navigate = useNavigate();
 
-  const canShare = true; //window?.location.hostname !== 'localhost';
+  const currentStartIndex = page * size;
+  const canShare = true;// window?.location.hostname !== 'localhost';
 
-  const onOpen = () => {
+  const onCloneTab = () => {
     createWorkbenchTab.mutateAsync({
       name,
       opts: state,
@@ -143,77 +156,97 @@ function TabOptions () {
   };
 
   const onShare = () => {
-    if (queryResult?.result.queryHistoryId) {
+    if (data?.result.queryHistoryId) {
       const url = new URL(window.location.href);
       url.pathname = PAGES.share.path;
-      url.searchParams.set("shareId", queryResult.result.queryHistoryId);
+      url.searchParams.set("shareId", data.result.queryHistoryId);
       navigator.clipboard.writeText(url.toString());
       toast.success("Share link copied to clipboard");
     }
   };
 
-  useGlobalHotkey("e", toggleShowQuerySidebar, "Show editor sidebar");
+  useHotkeys("e", toggleShowQuerySidebar);
+  useHotkeys("d", onCloneTab);
+
+  const onPrevPage = () => {
+    if (page > 0) {
+      setPage(page - 1);
+    }
+  };
+
+  const onNextPage = () => {
+    console.log(data?.result.hasMore);
+    if (data?.result.hasMore) {
+      setPage(page + 1);
+    }
+  };
 
   return (
     <div className={st.tableConfig}>
-      {/* @ts-ignore onClick refetch*/}
-      <button data-tooltip-id="default" data-tooltip-content="Refresh data" onClick={refetch} className={clsx(st.tableAction, st.blue)}>
-        Refresh
-      </button>
+      <span
+        className={st.paginationIndicator}
+        data-tooltip-id="rows-num"
+      >
+        {currentStartIndex + 1} - {currentStartIndex + size}
+      </span>
+
+      <span
+        data-tooltip-content="Previous page"
+        data-tooltip-id="default"
+        className={clsx(st.tableAction, st.blue)}
+        onClick={onPrevPage}
+        role="button"
+      >
+        <Chevron width={16} height={16} className="rotate-180" />
+      </span>
+      <span
+        data-tooltip-content="Next page"
+        data-tooltip-id="default"
+        className={clsx(st.tableAction, st.blue)}
+        onClick={onNextPage}
+        role="button"
+      >
+        <Chevron width={16} height={16} />
+      </span>
+      <span
+        data-tooltip-content="Refresh data"
+        data-tooltip-id="default"
+        className={clsx(st.tableAction, st.blue)}
+        onClick={() => refetch()}
+        role="button"
+      >
+        <Refresh width={16} height={16} />
+      </span>
 
       {canShare && (
-        <button data-tooltip-id="default" data-tooltip-content="Share query" onClick={onShare} className={clsx(st.tableAction, st.blue)}>
-          Share
-        </button>
+        <span
+          data-tooltip-content="Share query"
+          data-tooltip-id="default"
+          className={clsx(st.tableAction, st.blue)}
+          onClick={onShare}
+          role="button"
+        >
+          <Share width={16} height={16} />
+        </span>
       )}
 
-      <button data-tooltip-id="default" data-tooltip-content="Clone in a new tab" onClick={onOpen} className={clsx(st.tableAction, st.blue)}>
-        Clone
-      </button>
-
-      <button data-tooltip-id="rows-num" className={clsx(st.tableAction, st.size, st.blue)}>
-        <span className="whitespace-nowrap">{size} rows</span>
-        <Chevron width={16} height={16} className="rotate-90" />
-      </button>
+      <span
+        data-tooltip-content="Duplicate tab"
+        data-tooltip-id="default"
+        className={clsx(st.tableAction, st.blue)}
+        onClick={onCloneTab}
+        role="button"
+      >
+        <Duplicate width={16} height={16} />
+      </span>
 
       <Tooltip id="rows-num" className="z-10 shadow-md flex" clickable variant="light" opacity={1}>
         {rows.map((num) => (
-          <button onClick={() => setSize(num)} className={clsx(st.tableAction, st.blue)}>
+          <button key={num} onClick={() => setSize(num, true)} className={clsx(st.tableAction, st.blue)}>
             <span>{num}</span>
           </button>
         ))}
       </Tooltip>
-    </div>
-  );
-}
-
-function Pagination () {
-  const { page, size, setPage } = usePagination();
-  const { data } = useContext(QueryResultContext);
-
-  const hasMore = data?.result.rows.length === size;
-
-  return (
-    <div className={st.tableConfig}>
-      <button
-        data-tooltip-content="Previous page"
-        data-tooltip-id="default"
-        disabled={page <= 0}
-        className={clsx(st.tableAction, st.blue)}
-        onClick={() => setPage(page - 1)}
-      >
-        Prev
-      </button>
-      <span className="text-sm bg-gray-50 rounded-md px-2 border border-gray-200">{page+1}</span>
-      <button
-        data-tooltip-content="Next page"
-        data-tooltip-id="default"
-        disabled={!hasMore}
-        className={clsx(st.tableAction, st.blue)}
-        onClick={() => setPage(page + 1)}
-      >
-        Next
-      </button>
     </div>
   );
 }
@@ -242,7 +275,7 @@ function SearchAll () {
     });
   };
 
-  useGlobalHotkey("k", onSearchAll, "Search text");
+  useHotkeys("k", onSearchAll);
 
   if (state.searchAll) {
     return (

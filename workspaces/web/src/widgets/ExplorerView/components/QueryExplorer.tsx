@@ -13,6 +13,7 @@ import {useContextMenuHandler} from "./ContextualMenu.handler.ts";
 import {useOrderByStatements} from "../hooks/useOrderByStatements.ts";
 import {useCellActions} from "../hooks/useCellActions.ts";
 import {RowOptions, TRowOptionsProps} from "./RowOptions.tsx";
+import {gte} from "../../../utils/numbers.ts";
 
 const orderEmojis = {
   ASC: "⬆️",
@@ -25,16 +26,17 @@ const TableHeaders = () => {
 
   const columns = data?.result.columns || [];
   const orderBy = orderByList[0];
+  const showTableName = gte(data?.result.tables.length, 1);
 
   return (
     <thead>
       <tr>
-        <td className="p-1 text-center w-8 text-sm text-gray-600">#</td>
+        <td className="py-1 px-4 text-center text-sm text-gray-600 border-r">#</td>
         {columns.map(column => (
           <td className={st.headerCell} key={column.full}>
             <div className="overflow-hidden">
-              <p className="text-xs truncate">{column.table || '-'}</p>
-              <p className="text-sm font-bold truncate">{column.column}</p>
+              {showTableName && <p className="text-xs truncate italic">{column.table || '-'}</p>}
+              <p className="text-sm font-semibold truncate">{column.column}</p>
             </div>
 
             <div className={st.headerActions}>
@@ -59,9 +61,10 @@ function CellValue ({ value, row, col }: { value: TDbValue; col: number; row: nu
   }
 
   const sanitized = sanitizeCellValue(value);
+
   return (
     <>
-      <span data-row={row} className="truncate block pointer-events-none">{sanitized}</span>
+      <span data-row={row} className={st.value}>{sanitized}</span>
       <div className={st.cellActions}>
         <button data-copy-col={col} data-copy-row={row}>📋</button>
         <button data-show-col={col} data-show-row={row}>👀</button>
@@ -84,7 +87,7 @@ const TableRow = memo(({
 }) => {
   return (
     <tr className={clsx(st.tableRowCells, isLastRow && "rounded-b-lg")}>
-      <td className="p-1 text-center align-middle text-xs w-8 text-blue-500">{index + 1 + offset}</td>
+      <td className="py-1 px-4 text-center align-middle text-xs w-8 text-blue-500 border-r">{index + 1 + offset}</td>
       {row.map((value, i) => (
         <td className={st.cell} key={i} data-row={index}>
           <CellValue value={value} col={i} row={index} />

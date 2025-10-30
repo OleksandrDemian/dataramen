@@ -1,11 +1,11 @@
 {
   "name": "@dataramen/server",
-  "version": "0.0.75",
+  "version": "0.0.76",
   "license": "MIT",
   "main": "dist/server.js",
   "scripts": {
-    "build": "node build.mjs",
-    "start": "yarn build && node dist/server.js .env",
+    "build": "node build.mjs build",
+    "dev": "node build.mjs watch",
     "typecheck": "tsc"
   },
   "dependencies": {

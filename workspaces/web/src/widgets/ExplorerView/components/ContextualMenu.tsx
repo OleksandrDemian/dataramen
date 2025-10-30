@@ -1,7 +1,8 @@
 import {ReactNode, useEffect, useMemo, useRef} from "react";
 import st from "./ContextualMenu.module.css";
-import {TContextMenuHandler} from "./ContextualMenu.handler.ts";
+import {ContextualMenuInternals, TContextMenuHandler} from "./ContextualMenu.handler.ts";
 import {isLaptop} from "../../../utils/screen.ts";
+import clsx from "clsx";
 
 type TPos = {
   top?: number;
@@ -44,7 +45,7 @@ export const ContextualMenu = ({ children, handler }: { children: ReactNode, han
     }
 
     return position;
-  }, [handler]);
+  }, [handler.position]);
 
   useEffect(() => {
     const onClose = (e: KeyboardEvent) => {
@@ -64,7 +65,7 @@ export const ContextualMenu = ({ children, handler }: { children: ReactNode, han
   }
 
   return (
-    <div className={st.container}>
+    <div className={clsx(st.container, handler.state === "out" && st.animateHide, handler.state === "in" && st.animateShow)} onAnimationEnd={handler[ContextualMenuInternals.ON_ANIMATION_END]}>
       <div
         className={st.backdrop}
         onClick={(e) => {
@@ -75,7 +76,7 @@ export const ContextualMenu = ({ children, handler }: { children: ReactNode, han
       />
 
       <div
-        className={st.content}
+        className={clsx(st.content, handler.state === "out" && st.animateHide, handler.state === "in" && st.animateShow)}
         style={posStyle}
       >
         {children}

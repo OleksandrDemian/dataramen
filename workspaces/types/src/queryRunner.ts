@@ -47,17 +47,11 @@ export type TExecuteQueryResult = {
 export type TRunSqlResult = TExecuteQueryResult & {
   tables: string[];
   queryHistoryId: string;
+  hasMore: boolean;
   allColumns: {
     table: string;
     column: string;
     full: string;
     type: string;
   }[];
-};
-
-export type TExecuteRawQuery = {
-  datasourceId?: string;
-  sql: string;
-  page?: number;
-  size?: number;
 };

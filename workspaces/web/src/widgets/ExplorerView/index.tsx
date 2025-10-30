@@ -7,7 +7,7 @@ import {
 } from "./context/TableContext.ts";
 import {QueryBuilderSidebar} from "./components/QueryBuilderSidebar.tsx";
 import {useCreateTableContext, useCreateTableOptionsContext} from "./utils.ts";
-import {TableOptions} from "./components/TableOptions.tsx";
+import {WorkbenchTabOptions} from "./components/WorkbenchTabOptions.tsx";
 import {FiltersModal} from "./components/FiltersModal";
 import {JoinsModal} from "./components/JoinsModal";
 import {ColumnsPicker} from "./components/ColumnsPicker";
@@ -31,12 +31,11 @@ export const ExplorerView = ({ options, updater, name, tabId }: TDataSourceExplo
     <TableContext value={context}>
       <TableOptionsContext value={tableOptionsContext}>
         <QueryResultContext value={query}>
-          <TableOptions />
+          <WorkbenchTabOptions />
 
           <div className="flex-1 flex overflow-hidden">
-            <div className="m-2 flex-1 overflow-auto pb-24 lg:pb-12 no-scrollbar">
+            <div className="flex-1 overflow-auto pb-24 lg:pb-12 no-scrollbar">
               {/* workaround, somehow this fixes table head disalignment glitch */}
-              <div className="pb-0.5 sticky bottom-0" />
               <QueryExplorer />
             </div>
 

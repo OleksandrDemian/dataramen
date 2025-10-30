@@ -145,11 +145,11 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
     <ContextualMenu handler={handler}>
       {entities.length > 0 && (
         <div className={st.optionsContainer}>
-          <label className="flex items-center gap-2 border-b border-b-gray-200 p-2 bg-(--bg)">
-            <span className="font-semibold">📝</span>
+          <label className="flex items-center justify-between gap-2 border-b border-b-gray-200 p-2">
+            <span className="font-semibold">📝 Edit row</span>
             <input
-              className="flex-1 outline-0"
-              placeholder="Edit/View row"
+              className="input"
+              placeholder="Filter entities"
               value={entityFilter}
               onChange={(e) => setEntityFilter(e.target.value)}
             />
@@ -173,11 +173,11 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
 
       {hooks.length > 0 && (
         <div className={st.optionsContainer}>
-          <label className="flex items-center gap-2 border-b border-b-gray-200 p-2 bg-(--bg)">
-            <span className="font-semibold">↗️</span>
+          <label className="flex items-center justify-between gap-2 border-b border-b-gray-200 p-2">
+            <span className="font-semibold">↗️ Connected tables</span>
             <input
-              className="flex-1 outline-0"
-              placeholder="Connected tables"
+              className="input"
+              placeholder="Filter tables"
               value={hooksFilter}
               onChange={(e) => setHooksFilter(e.target.value)}
             />

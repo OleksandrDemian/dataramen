@@ -8,12 +8,12 @@ import {useContextMenuHandler} from "../../../ExplorerView/components/Contextual
 import {prompt} from "../../../../data/promptModalStore.ts";
 import {PAGES} from "../../../../const/pages.ts";
 import {setDataSourceModal} from "../../../../data/dataSourceModalStore.ts";
-import {useGlobalHotkey} from "../../../../hooks/useGlobalHotkey.ts";
 import {Analytics} from "../../../../utils/analytics.ts";
 import { TProjectDataSource } from "@dataramen/types";
 import {DataSourceIcon} from "../../../Icons";
 import {gte} from "../../../../utils/numbers.ts";
 import {useCreateWorkbenchTab} from "../../../../data/queries/workbenchTabs.ts";
+import {useHotkeys} from "react-hotkeys-hook";
 
 const Query = ({
   name,
@@ -73,13 +73,13 @@ const Datasource = ({ dataSource, index }: { dataSource: TProjectDataSource, ind
     Analytics.event("On open datasource [Sidebar]");
   };
 
-  useGlobalHotkey(index.toString(), () => {
+  useHotkeys(index.toString(), () => {
     setDataSourceModal((cur) => {
       if (cur === dataSource.id) return undefined;
       return dataSource.id;
     });
     Analytics.event("On open datasource [Hotkey]");
-  }, dataSource.name);
+  });
 
   return (
     <button className={st.menu} onClick={onOpen}>

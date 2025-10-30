@@ -11,10 +11,11 @@ export const usePagination = () => {
     }));
   }, [setState]);
 
-  const setSize = useCallback((size: number) => {
+  const setSize = useCallback((size: number, resetPage: boolean = false) => {
     setState((prevState) => ({
       ...prevState,
       size,
+      page: resetPage ? 0 : prevState.page,
     }));
   }, [setState]);
 

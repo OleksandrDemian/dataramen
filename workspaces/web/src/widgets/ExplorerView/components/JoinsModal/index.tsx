@@ -10,10 +10,10 @@ import {useContext, useMemo, useState} from "react";
 import {THook} from "../../../../data/types/hooks.ts";
 import {QueryResultContext, TableContext} from "../../context/TableContext.ts";
 import {useJoinStatements} from "../../hooks/useJoinStatements.ts";
-import {useGlobalHotkey} from "../../../../hooks/useGlobalHotkey.ts";
 import toast from "react-hot-toast";
 import CloseIcon from "../../../../assets/close-outline.svg?react";
 import {Alert} from "../../../Alert";
+import {useHotkeys} from "react-hotkeys-hook";
 
 export const JoinsModal = () => {
   const { isFetching } = useContext(QueryResultContext);
@@ -30,13 +30,13 @@ export const JoinsModal = () => {
 
   const onClose = () => hideExplorerModal("joins");
 
-  useGlobalHotkey("j", () => {
+  useHotkeys("j", () => {
     if (availableJoins.length > 0) {
       showExplorerModal("joins");
     } else {
       toast.error("No available tables to join");
     }
-  }, "Add new join");
+  });
 
   return (
     <Modal isVisible={showModal} onClose={onClose} portal>

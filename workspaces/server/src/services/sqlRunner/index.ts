@@ -32,7 +32,7 @@ export const runSelect = async (
   req: FastifyRequest,
   props: TExecuteQuery
 ): Promise<TRunSqlResult> => {
-  const { datasourceId, size, page, name } = props;
+  const { datasourceId, size = 20, page, name } = props;
   const { table, filters, joins, groupBy, searchAll, orderBy } = props.opts;
   const columns = computeColumns(
     props.opts.columns,
@@ -71,7 +71,7 @@ export const runSelect = async (
 
   const queryBuilder = new SelectQueryBuilder(dataSource.dbType as DatabaseDialect);
   queryBuilder.setTable(table);
-  queryBuilder.setLimit(size || 20);
+  queryBuilder.setLimit(size + 1); // add 1 to see if there are more results
   queryBuilder.setOffset(size * page);
 
   filters?.forEach((w) => {
@@ -150,11 +150,18 @@ export const runSelect = async (
     }
   );
 
+  const hasMore = result.rows.length > size;
+  if (hasMore) {
+    // remove extra row
+    result.rows.pop();
+  }
+
   return {
     ...result,
     queryHistoryId: historyPromise.id,
     tables,
     allColumns,
+    hasMore,
   };
 };
 

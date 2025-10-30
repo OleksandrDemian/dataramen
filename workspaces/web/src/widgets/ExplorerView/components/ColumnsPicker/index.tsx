@@ -12,8 +12,8 @@ import {
   toggleExplorerModal,
   useExplorerModals
 } from "../../hooks/useExplorerModals.ts";
-import {useGlobalHotkey} from "../../../../hooks/useGlobalHotkey.ts";
 import toast from "react-hot-toast";
+import {useHotkeys} from "react-hotkeys-hook";
 
 type TColumn = {
   label: string;
@@ -181,7 +181,7 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
     return true;
   }, [newColumns, allColumns])
 
-  useGlobalHotkey(HotKey[mode], () => {
+  useHotkeys(HotKey[mode], () => {
     if (mode === "columns") {
       if (ignoreColumns) {
         toast.error("Columns are ignored when there is at least one aggregation or group by");
@@ -191,7 +191,7 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
     } else {
       toggleExplorerModal("groupBy");
     }
-  }, "Manage " + mode);
+  });
 
   // init columns after each close
   useEffect(() => {

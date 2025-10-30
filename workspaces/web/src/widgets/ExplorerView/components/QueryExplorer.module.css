@@ -5,21 +5,12 @@
   border-collapse: separate;
   border-spacing: 0;
 
-  th {
-    @apply border-y border-r border-gray-200;
-  }
-
   td {
-    @apply border-b border-r border-gray-200;
-  }
-
-  th:first-child,
-  td:first-child {
-    @apply border-l border-gray-200;
+    @apply border-b border-gray-100;
   }
 
   thead td {
-    @apply border-t border-gray-200 sticky z-1 bg-white top-0;
+    @apply sticky z-1 bg-white top-0;
   }
 }
 
@@ -44,7 +35,8 @@
 }
 
 .header-cell {
-  @apply px-2 py-1 cursor-default truncate hover:bg-(--bg) text-left;
+  padding: 8px 12px;
+  @apply cursor-default truncate hover:bg-(--bg) text-left;
 
   .header-actions {
     display: none;
@@ -56,7 +48,7 @@
 }
 
 .cell {
-  padding: 4px 12px;
+  padding: 8px 12px;
   max-width: 250px;
   min-width: 100px;
   @apply relative text-gray-800;
@@ -71,6 +63,10 @@
 
   &:hover {
     @apply ring-4 ring-blue-200 z-1 bg-white;
+  }
+
+  .value {
+    @apply truncate block pointer-events-none;
   }
 }
 
@@ -103,7 +99,7 @@
 }
 
 .table-action {
-  @apply gap-2 px-2 py-1 cursor-pointer text-sm rounded-md font-semibold;
+  @apply gap-2 px-2 py-1 cursor-pointer text-sm rounded-md select-none;
 
   &.blue {
     &:hover {
@@ -174,4 +170,10 @@
 
 .option-item-active {
   @apply text-blue-500 border-blue-300 bg-blue-50;
+}
+
+.pagination-indicator {
+  @apply text-sm bg-gray-100 rounded-md px-2 border border-gray-200 cursor-pointer whitespace-nowrap text-center;
+  min-width: 80px;
+  height: 22px;
 }
