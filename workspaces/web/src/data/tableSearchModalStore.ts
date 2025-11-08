@@ -5,7 +5,7 @@ import {createTableOptions} from "../widgets/ExplorerView/utils.ts";
 import {PAGES} from "../const/pages.ts";
 import {useCallback, useEffect} from "react";
 import {Analytics} from "../utils/analytics.ts";
-import {useCreateWorkbenchTab} from "./queries/workbenchTabs.ts";
+import {useCreateWorkbenchTab, useRestoreArchivedTab} from "./queries/workbenchTabs.ts";
 
 type PromiseResult = {
   type: TFindQuery["type"];
@@ -37,12 +37,16 @@ export const searchTable = async (): Promise<PromiseResult | undefined> => {
 export const useSearchTable = (eventSource: string) => {
   const navigate = useNavigate();
   const createWorkbenchTab = useCreateWorkbenchTab();
+  const restoreTab = useRestoreArchivedTab();
 
   useEffect(() => {
     if (createWorkbenchTab?.data?.id){
-      navigate(`${PAGES.workbench.path}/tab/${createWorkbenchTab.data.id}`)
+      navigate(`${PAGES.workbench.path}/tab/${createWorkbenchTab.data.id}`);
     }
-  }, [createWorkbenchTab.data]);
+    if (restoreTab?.data) {
+      navigate(`${PAGES.workbench.path}/tab/${restoreTab?.data}`);
+    }
+  }, [createWorkbenchTab.data, restoreTab.data]);
 
   return useCallback(() => {
     const isOpened = !!SearchTableModalStore.get();
@@ -63,6 +67,8 @@ export const useSearchTable = (eventSource: string) => {
         createWorkbenchTab.mutate({
           queryId: searchResult.id,
         });
+      } else if (searchResult?.type === "tab") {
+        restoreTab.mutate(searchResult.id);
       }
     });
 

@@ -6,11 +6,12 @@ import {runSelect} from "../../services/sqlRunner";
 import {
   IWorkbenchTab,
   TCreateWorkbenchTab,
-  TExecuteQuery,
   TGetWorkbenchTabsEntry,
-  TQueryOptions, TUpdateWorkbenchTab, TWorkbenchOptions
+  TUpdateWorkbenchTab,
+  TWorkbenchOptions
 } from "@dataramen/types";
 import {validateCreateWorkbenchTab} from "./validators";
+import {generateSearchString} from "../../utils/generateSearchString";
 
 export default createRouter((instance) => {
   instance.route({
@@ -74,8 +75,11 @@ export default createRouter((instance) => {
     handler: async (request) => {
       const { opts, name, queryId } = getRequestPayload<TCreateWorkbenchTab>(request, validateCreateWorkbenchTab);
       let baseOptions: Partial<TWorkbenchOptions>;
+      let dataSourceId: string;
       let finalName = name;
+
       if (opts) {
+        dataSourceId = opts.dataSourceId;
         baseOptions = opts;
       } else {
         const query = await QueriesRepository.findOne({
@@ -91,6 +95,7 @@ export default createRouter((instance) => {
           throw new HttpError(404, "Query not Found");
         }
 
+        dataSourceId = query.dataSource.id;
         baseOptions = {
           table: query.opts.table!,
           filters: query.opts.filters,
@@ -115,6 +120,9 @@ export default createRouter((instance) => {
         WorkbenchTabsRepository.create({
           name: finalName || new Date().toISOString(), // fallback to date
           opts: baseOptions,
+          dataSource: {
+            id: dataSourceId,
+          },
           user: {
             id: request.user.id,
           },
@@ -158,6 +166,7 @@ export default createRouter((instance) => {
         // do not await
         WorkbenchTabsRepository.update(id, {
           opts: newOptions,
+          searchString: generateSearchString(newOptions, workbenchTab.name),
         });
       }
 
@@ -206,7 +215,12 @@ export default createRouter((instance) => {
         throw new HttpError(404, "Not Found");
       }
 
-      return WorkbenchTabsRepository.update(id, body);
+      await WorkbenchTabsRepository.update(id, body);
+      return {
+        data: {
+          id,
+        },
+      };
     }
   })
 });

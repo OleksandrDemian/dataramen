@@ -15,7 +15,7 @@ const updateCachedWorkbenchTabs = (fn: (store: TGetWorkbenchTabsEntry[]) => TGet
   );
 };
 
-const updateCachedWorbenchTab = (id: string, fn: (store: IWorkbenchTab) => IWorkbenchTab) => {
+const updateCachedWorkbenchTab = (id: string, fn: (store: IWorkbenchTab) => IWorkbenchTab) => {
   queryClient.setQueryData<IWorkbenchTab | undefined>(
     ["workbench-tabs", id],
     (store) => {
@@ -78,6 +78,18 @@ export const useArchiveTab = () => {
   })
 };
 
+export const useRestoreArchivedTab = () => {
+  return useMutation({
+    mutationFn: async (tabId: string) => {
+      await apiClient.patch(`/workbench-tabs/${tabId}`, {
+        archived: false,
+      });
+      return tabId;
+    },
+    onSuccess: () => invalidateWorkbenchTabs(),
+  });
+};
+
 export const useUpdateWorkbenchTab = () => {
   return useMutation({
     mutationFn: async ({ id, payload }: { id: string; payload: TUpdateWorkbenchTab }) => {
@@ -85,7 +97,7 @@ export const useUpdateWorkbenchTab = () => {
       return true;
     },
     onMutate: ({ id, payload }) => {
-      updateCachedWorbenchTab(id, (data) => ({
+      updateCachedWorkbenchTab(id, (data) => ({
         ...data,
         ...payload,
       }));
@@ -138,4 +150,10 @@ export const invalidateTabData = (tabId: string) => {
   return queryClient.invalidateQueries({
     queryKey: ["workbench-tab-runner", tabId],
   });
-}
+};
+
+export const invalidateWorkbenchTabs = () => {
+  return queryClient.invalidateQueries({
+    queryKey: ["workbench-tabs"],
+  });
+};

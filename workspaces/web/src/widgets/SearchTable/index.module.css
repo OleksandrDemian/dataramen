@@ -22,11 +22,25 @@
   }
 }
 
+.ds-container {
+  min-height: 42px;
+  @apply flex overflow-x-auto mb-2 gap-2;
+}
+
 .ds-entry {
   max-width: 120px;
-  @apply py-1 px-2 border border-gray-200 rounded-lg flex items-center gap-1 cursor-pointer;
+  min-height: 42px;
+  opacity: 0.5;
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  @apply py-2 px-3 border border-gray-200 rounded-md items-center gap-1 cursor-pointer;
 
   span {
     @apply truncate;
+  }
+
+  &.enabled {
+    opacity: 1;
+    @apply border-blue-200;
   }
 }

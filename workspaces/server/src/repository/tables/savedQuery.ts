@@ -23,6 +23,10 @@ export const SavedQuery = new EntitySchema<ISavedQuerySchema>({
       default: () => "CURRENT_TIMESTAMP",
       onUpdate: "CURRENT_TIMESTAMP",
     },
+    searchString: {
+      type: String,
+      default: () => null,
+    },
   },
   relations: {
     team: {

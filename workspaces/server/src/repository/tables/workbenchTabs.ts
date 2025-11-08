@@ -1,6 +1,7 @@
 import { EntitySchema } from "typeorm";
 import {TIMESTAMP_COLUMN_TYPE} from "../../utils/dbUtils";
 import {IWorkbenchTabSchema} from "@dataramen/types";
+import {devNull} from "node:os";
 
 export const WorkbenchTab = new EntitySchema<IWorkbenchTabSchema>({
   name: "WorkbenchTab",
@@ -31,6 +32,10 @@ export const WorkbenchTab = new EntitySchema<IWorkbenchTabSchema>({
       type: Boolean,
       default: false,
     },
+    searchString: {
+      type: String,
+      default: () => null,
+    },
   },
   relations: {
     team: {
@@ -41,6 +46,11 @@ export const WorkbenchTab = new EntitySchema<IWorkbenchTabSchema>({
     user: {
       type: "many-to-one",
       target: () => "User",
+      joinColumn: true,
+    },
+    dataSource: {
+      type: "many-to-one",
+      target: () => "DataSource",
       joinColumn: true,
     },
   },

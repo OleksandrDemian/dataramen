@@ -1,8 +1,10 @@
 import { createRouter } from "../../utils/createRouter";
 import { getRequestParams, getRequestPayload } from "../../utils/request";
-import {AppDataSource, QueriesRepository, SavedQueriesRepository} from "../../repository/db";
+import {QueriesRepository, SavedQueriesRepository} from "../../repository/db";
 import { EUserTeamRole, TCreateSavedQuery } from "@dataramen/types";
 import { atLeast } from "../../hooks/role";
+import {generateSearchString} from "../../utils/generateSearchString";
+import {HttpError} from "../../utils/httpError";
 
 export default createRouter((instance) => {
   /**
@@ -16,9 +18,19 @@ export default createRouter((instance) => {
     },
     handler: async (request) => {
       const payload = getRequestPayload<TCreateSavedQuery>(request);
+      const query = await QueriesRepository.findOne({
+        where: {
+          id: payload.queryId,
+        }
+      });
+
+      if (!query) {
+        throw new HttpError(400, "Query not found");
+      }
+
       const savedQuery = await SavedQueriesRepository.save(
         SavedQueriesRepository.create({
-          isPersonal: true,
+          isPersonal: false,
           team: {
             id: request.user.currentTeamId,
           },
@@ -28,6 +40,7 @@ export default createRouter((instance) => {
           query: {
             id: payload.queryId,
           },
+          searchString: generateSearchString(query.opts, payload.name),
         }),
       );
 

@@ -143,7 +143,7 @@ export const WorkbenchPage = () => {
             data-tooltip-content={t.name}
             onAuxClick={onAuxTabClick}
           >
-            <span className="truncate w-full">📄 {t.name}</span>
+            <span className="truncate w-full">🛠️ {t.name}</span>
             <button data-tab-id={t.id} className={st.closeButton} onClick={onCloseTab}>
               <CloseIcon width={20} height={20} />
             </button>

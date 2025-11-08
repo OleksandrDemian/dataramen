@@ -41,7 +41,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
     }
 
     createWorkbenchTab.mutateAsync({
-      name: "⬇️ " + state.table,
+      name: `${state.table} > [${state.joins.map(j => j.table).join()}]`,
       opts: createTableOptions({
         joins: state.joins,
         table: state.table,
@@ -75,7 +75,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
     });
 
     createWorkbenchTab.mutateAsync({
-      name: `↗️ ${hook.on.toColumn} equals ${value}`,
+      name: `${hook.on.toTable} ${hook.on.toColumn} equals ${value}`,
       opts: createTableOptions({
         // todo: do I need to inherit joins? Probably not
         table: hook.on.toTable,
@@ -145,7 +145,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
     <ContextualMenu handler={handler}>
       {entities.length > 0 && (
         <div className={st.optionsContainer}>
-          <label className="flex items-center justify-between gap-2 border-b border-b-gray-200 p-2">
+          <label className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-b-gray-200 p-2">
             <span className="font-semibold">📝 Edit row</span>
             <input
               className="input"
@@ -173,7 +173,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
 
       {hooks.length > 0 && (
         <div className={st.optionsContainer}>
-          <label className="flex items-center justify-between gap-2 border-b border-b-gray-200 p-2">
+          <label className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-b-gray-200 p-2">
             <span className="font-semibold">↗️ Connected tables</span>
             <input
               className="input"
