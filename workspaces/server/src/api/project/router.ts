@@ -3,16 +3,17 @@ import {getRequestParams, getRequestQuery} from "../../utils/request";
 import {
   DatabaseInspectionRepository,
   DataSourceRepository,
-  QueriesRepository, SavedQueriesRepository,
+  SavedQueriesRepository,
+  WorkbenchTabsRepository,
 } from "../../repository/db";
-import {And, Brackets, FindOptionsWhere, In, Like} from "typeorm";
-import {IDataSource, IDataSourceSchema, TFindQuery, TProjectDataSource, TProjectQuery} from "@dataramen/types";
+import {FindOptionsWhere, In, Like, Raw} from "typeorm";
+import {IDataSourceSchema, TFindQuery, TProjectDataSource, TProjectQuery} from "@dataramen/types";
 
 export default createRouter((instance) => {
   instance.route({
     method: "get",
     url: "/team/:teamId/datasources",
-    handler: async (request, reply) => {
+    handler: async (request) => {
       const { teamId } = getRequestParams<{ teamId: string }>(request);
 
       const dataSources = await DataSourceRepository.find({
@@ -44,7 +45,7 @@ export default createRouter((instance) => {
   instance.route({
     method: "get",
     url: "/team/:teamId/queries",
-    handler: async (request, reply) => {
+    handler: async (request) => {
       const queryParams = getRequestParams<{ teamId?: string; }>(request);
       const teamId = queryParams.teamId || request.user.currentTeamId;
 
@@ -92,7 +93,7 @@ export default createRouter((instance) => {
     handler: async (request) => {
       const { teamId } = getRequestParams<{ teamId: string }>(request);
       const { search, size, selectedDataSources } = getRequestQuery<{ search: string, size: string; selectedDataSources?: string[] }>(request);
-      const perResultSize = (parseInt(size) || 20) / 2;
+      const perResultSize = search.length > 3 ? parseInt(size) || 20 : 8;
 
       const dsFilter: FindOptionsWhere<IDataSourceSchema> = {};
 
@@ -100,10 +101,11 @@ export default createRouter((instance) => {
         dsFilter.id = In(selectedDataSources);
       }
 
-      const [tables, queries] = await Promise.all([
+      // todo: optimize this API
+      const [tables, tabs, queries] = await Promise.all([
         DatabaseInspectionRepository.find({
           where: {
-            tableName: Like(`%${search}%`),
+            tableName: Raw((alias) => `LOWER(${alias}) LIKE :search`, { search: `%${search.toLowerCase()}%` }),
             datasource: dsFilter,
           },
           relations: {
@@ -118,32 +120,40 @@ export default createRouter((instance) => {
             },
           },
           order: {
-            tableName: "ASC",
+            tableName: 'ASC',
+          },
+          take: perResultSize,
+        }),
+        WorkbenchTabsRepository.find({
+          where:  {
+            searchString: Like(`%${search.toLowerCase()}%`),
+            team: { id: teamId },
+            user: { id: request.user.id },
+            dataSource: dsFilter
+          },
+          relations: {
+            dataSource: true,
+          },
+          select: {
+            id: true,
+            name: true,
+            updatedAt: true,
+            dataSource: {
+              id: true,
+              name: true,
+            },
+          },
+          order: {
+            updatedAt: 'ASC',
           },
           take: perResultSize,
         }),
         SavedQueriesRepository.find({
-          where:  [
-            {
-              // select team queries
-              query: {
-                dataSource: dsFilter,
-                name: Like(`%${search}%`),
-              },
-              team: { id: teamId },
-              isPersonal: false,
-            },
-            {
-              // select private queries
-              query: {
-                dataSource: dsFilter,
-                name: Like(`%${search}%`),
-              },
-              team: { id: teamId },
-              isPersonal: true,
-              user: { id: request.user.id },
-            }
-          ],
+          where: {
+            searchString: Like(`%${search.toLowerCase()}%`),
+            team: { id: teamId },
+            query: { dataSource: dsFilter },
+          },
           relations: {
             query: {
               dataSource: true,
@@ -151,6 +161,7 @@ export default createRouter((instance) => {
           },
           select: {
             id: true,
+            updatedAt: true,
             query: {
               id: true,
               name: true,
@@ -160,12 +171,10 @@ export default createRouter((instance) => {
             }
           },
           order: {
-            query: {
-              name: "ASC",
-            }
+            updatedAt: 'ASC',
           },
           take: perResultSize,
-        })
+        }),
       ]);
 
       const result: TFindQuery[] = [];
@@ -177,6 +186,16 @@ export default createRouter((instance) => {
           dataSourceName: t.datasource?.name || '--',
           dataSourceId: t.datasource?.id || '--',
           type: 'table',
+        });
+      });
+
+      tabs.forEach((t) => {
+        result.push({
+          name: t.name,
+          id: t.id,
+          dataSourceName: t.dataSource?.name || '--',
+          dataSourceId: t.dataSource?.id || '--',
+          type: 'tab',
         });
       });
 

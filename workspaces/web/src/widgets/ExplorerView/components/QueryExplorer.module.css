@@ -6,7 +6,7 @@
   border-spacing: 0;
 
   td {
-    @apply border-b border-gray-100;
+    @apply border-b border-r border-gray-100;
   }
 
   thead td {

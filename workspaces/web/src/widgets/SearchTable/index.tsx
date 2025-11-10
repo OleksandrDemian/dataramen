@@ -8,18 +8,22 @@ import {TFindQuery} from "@dataramen/types";
 import {useDataSources} from "../../data/queries/dataSources.ts";
 import {toggleSelectedDataSource, useSelectedDataSources} from "../../data/selectedDataSourcesStore.ts";
 import {reduceArrayToMap} from "../../utils/reducers.ts";
+import {DataSourceIcon} from "../Icons";
+import clsx from "clsx";
 
 const EMOJI: Record<TFindQuery["type"], string> = {
   table: "📄",
   query: "📖",
+  tab: '🛠️',
 };
 
 export type TSearchTableProps = {
   onTable: (table: string, dsId: string) => void;
   onQuery: (queryId: string, dsId: string) => void;
+  onWorkbenchTab: (tabId: string, dsId: string) => void;
   autoFocus?: boolean;
 };
-export const SearchQuery = ({ onTable, onQuery, autoFocus }: TSearchTableProps) => {
+export const SearchQuery = ({ onTable, onQuery, onWorkbenchTab, autoFocus }: TSearchTableProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeIndex, setActiveIndex] = useState(-1);
   const debouncedSearch = useDebouncedValue(searchTerm, 200);
@@ -56,6 +60,8 @@ export const SearchQuery = ({ onTable, onQuery, autoFocus }: TSearchTableProps) 
       onTable(query.name, query.dataSourceId);
     } else if (query.type === "query") {
       onQuery(query.id, query.dataSourceId);
+    } else if (query.type === "tab") {
+      onWorkbenchTab(query.id, query.dataSourceId);
     }
   };
 
@@ -94,16 +100,12 @@ export const SearchQuery = ({ onTable, onQuery, autoFocus }: TSearchTableProps) 
   return (
     <div className="overflow-hidden flex flex-col w-full lg:w-lg">
       {gte(dataSources?.length, 0) && (
-        <div className="flex overflow-x-auto mb-2 gap-2 no-scrollbar">
+        <div className={st.dsContainer}>
           {dataSources.map(ds => (
-            <label key={ds.id} className={st.dsEntry}>
-              <input
-                type="checkbox"
-                checked={enabled[ds.id] === true}
-                onChange={() => toggleSelectedDataSource(ds.id)}
-              />
+            <button key={ds.id} className={clsx(st.dsEntry, enabled[ds.id] && st.enabled)} onClick={() => toggleSelectedDataSource(ds.id)}>
+              <DataSourceIcon size={24} type={ds.dbType} />
               <span>{ds.name}</span>
-            </label>
+            </button>
           ))}
         </div>
       )}

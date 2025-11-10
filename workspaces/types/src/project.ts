@@ -5,7 +5,7 @@ export type TFindQuery = {
   name: string;
   dataSourceName: string;
   dataSourceId: string;
-  type: 'table' | 'query';
+  type: 'table' | 'tab' | 'query';
 };
 
 export type TProjectDataSource = Pick<

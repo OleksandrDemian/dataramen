@@ -70,7 +70,7 @@ export interface IDataSourceSchema extends IDataSource {
 export interface IQuery {
   id: string;
   name: string;
-  opts: Partial<TQueryOptions>;
+  opts: TQueryOptions;
   isPersonal: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -87,6 +87,7 @@ export interface ISavedQuery {
   isPersonal: boolean;
   createdAt: Date;
   updatedAt: Date;
+  searchString: string | null;
 }
 
 export interface ISavedQuerySchema extends ISavedQuery {
@@ -135,9 +136,11 @@ export interface IWorkbenchTab {
   createdAt: Date;
   updatedAt: Date;
   opts: Partial<TWorkbenchOptions>;
+  searchString: string | null;
 }
 
 export interface IWorkbenchTabSchema extends IWorkbenchTab {
   user: IUserSchema;
   team: ITeamSchema;
+  dataSource: IDataSourceSchema;
 }

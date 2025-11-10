@@ -13,6 +13,10 @@ export const SearchTableModal = () => {
     data?.onConfirm("query", id, dsId);
   };
 
+  const onWorkbenchTab = (id: string, dsId: string) => {
+    data?.onConfirm("tab", id, dsId);
+  };
+
   const onClose = () => {
     data?.onCancel();
   };
@@ -20,7 +24,7 @@ export const SearchTableModal = () => {
   return (
     <Modal isVisible={!!data} onClose={onClose}>
       <ModalClose onClick={onClose} />
-      <SearchQuery autoFocus onTable={onTable} onQuery={onQuery} />
+      <SearchQuery autoFocus onTable={onTable} onQuery={onQuery} onWorkbenchTab={onWorkbenchTab} />
     </Modal>
   );
 };

@@ -8,6 +8,7 @@ import {createTableOptions} from "../../../widgets/ExplorerView/utils.ts";
 
 export const ExplorerTab = ({ id }: { id: string }) => {
   const { data: tab } = useWorkbenchTab(id);
+
   const updater = useCallback((fn: (opts: TWorkbenchOptions) => TWorkbenchOptions) => {
     if (!tab) {
       return;
