@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+.container {
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+
+  @apply p-1 bg-white flex gap-2 overflow-x-auto;
+}
+
+.pill {
+  @apply px-3 py-1 rounded-md flex items-center gap-1 cursor-pointer;
+
+  p {
+    max-width: 100px;
+    @apply truncate inline-block;
+  }
+}
+
+.yellow-pill {
+  composes: pill;
+  @apply bg-yellow-200 text-yellow-900;
+}
+
+.green-pill {
+  composes: pill;
+  @apply bg-green-200 text-green-900;
+}
+
+.blue-pill {
+  composes: pill;
+  @apply bg-blue-200 text-blue-900;
+}

@@ -29,10 +29,14 @@ export function sanitizeCellValue (value: TDbValue, expectedType?: string): stri
   }
 }
 
-export const filterToString = (filter: QueryFilter) => {
+export const filterToString = (filter: QueryFilter): string => {
   const value = filter.value?.map((v) => v.value).join(", ") || '';
   return `${filter.column} ${filter.operator} ${value}`;
 };
+
+export const filterValueToString = (filter: QueryFilter): string => {
+  return filter.value?.map((v) => v.value).join(", ") || '';
+}
 
 export const generateColumnLabel = (columnName: string): string => {
   // Replace underscores, hyphens with spaces

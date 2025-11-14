@@ -130,14 +130,17 @@
 }
 
 .options-container {
-  max-height: 30vh;
-
   @apply w-full lg:w-md lg:max-w-lg;
   @apply rounded-lg bg-white flex flex-col shadow-lg border border-gray-200 overflow-hidden;
 
   & + & {
     margin-top: 8px;
   }
+}
+
+.row-options-entries-list {
+  max-height: 30vh;
+  @apply flex flex-col overflow-y-auto;
 }
 
 .cell-action-btn {
@@ -164,7 +167,7 @@
   @apply text-left p-2;
 
   &:hover {
-    @apply bg-gray-100 cursor-pointer;
+    @apply bg-(--bg) cursor-pointer;
   }
 }
 

@@ -14,6 +14,7 @@ import {ColumnsPicker} from "./components/ColumnsPicker";
 import {AggregateModal} from "./components/AggregateModal";
 import {TWorkbenchOptions} from "@dataramen/types";
 import {useRunWorkbenchTab} from "../../data/queries/workbenchTabs.ts";
+import {QueryInfoRow} from "./components/QueryInfoRow.tsx";
 
 export type TDataSourceExplorerTabProps = {
   options: TWorkbenchOptions;
@@ -32,8 +33,9 @@ export const ExplorerView = ({ options, updater, name, tabId }: TDataSourceExplo
       <TableOptionsContext value={tableOptionsContext}>
         <QueryResultContext value={query}>
           <WorkbenchTabOptions />
+          <QueryInfoRow />
 
-          <div className="flex-1 flex overflow-hidden">
+          <div className="flex-1 flex overflow-hidden border-t border-gray-200">
             <div className="flex-1 overflow-auto pb-24 lg:pb-12 no-scrollbar">
               {/* workaround, somehow this fixes table head disalignment glitch */}
               <QueryExplorer />

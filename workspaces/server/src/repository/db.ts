@@ -32,7 +32,7 @@ export const AppDataSource = new TypeOrm({
   password: Env.str("APP_DB_PASSWORD"),
   port: Env.num("APP_DB_PORT"),
   schema: Env.str("APP_DB_SCHEMA"),
-  logging: true, // Env.bool("APP_DB_LOGGING"),
+  logging: Env.bool("APP_DB_LOGGING"),
   migrationsRun: true, // for now run migration by default
   migrations: [posix.join(__dirname, "migrations", "*.js")],
   entities: [
