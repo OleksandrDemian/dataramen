@@ -98,8 +98,13 @@
   }
 }
 
+.tab-name {
+  max-width: 120px;
+  @apply truncate;
+}
+
 .table-action {
-  @apply gap-2 px-2 py-1 cursor-pointer text-sm rounded-md select-none;
+  @apply gap-2 px-2 py-1 cursor-pointer text-sm rounded-md select-none truncate;
 
   &.blue {
     &:hover {

@@ -289,7 +289,7 @@ function Filters () {
                 <p className={clsx(st.subText, "truncate")}>{f.column}</p>
                 <p className={clsx(st.text, "truncate")}>{OPERATOR_LABEL[f.operator]} {stringifyValues(f.value)}</p>
               </div>
-              <button className={st.closeButton} onClick={() => removeFilter(f)}>
+              <button className={st.closeButton} onClick={() => removeFilter(f.id)}>
                 <CloseIcon width={20} height={20} />
               </button>
             </div>

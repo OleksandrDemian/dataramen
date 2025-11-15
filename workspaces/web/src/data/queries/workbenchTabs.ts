@@ -143,6 +143,7 @@ export const useRunWorkbenchTab = (workbenchTabId: string, props: TWorkbenchOpti
     retry: 1,
     enabled: !!table && !!dataSourceId,
     cacheTime: 0,
+    keepPreviousData: true,
   });
 };
 

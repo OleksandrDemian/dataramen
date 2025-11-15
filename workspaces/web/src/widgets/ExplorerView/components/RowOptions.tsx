@@ -173,8 +173,8 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
         )}
 
         {hooks.length > 0 && (
-          <div>
-            <label className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-y bg-(--bg) border-gray-200 p-2">
+          <div className="not-first:border-t border-gray-200">
+            <label className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b bg-(--bg) border-gray-200 p-2">
               <span className="font-semibold">↗️ Connected tables</span>
               <input
                 className="input bg-white!"

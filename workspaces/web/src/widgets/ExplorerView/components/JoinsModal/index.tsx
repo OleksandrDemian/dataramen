@@ -11,14 +11,13 @@ import {THook} from "../../../../data/types/hooks.ts";
 import {QueryResultContext, TableContext} from "../../context/TableContext.ts";
 import {useJoinStatements} from "../../hooks/useJoinStatements.ts";
 import toast from "react-hot-toast";
-import CloseIcon from "../../../../assets/close-outline.svg?react";
 import {Alert} from "../../../Alert";
 import {useHotkeys} from "react-hotkeys-hook";
 
 export const JoinsModal = () => {
   const { isFetching } = useContext(QueryResultContext);
   const showModal = useExplorerModals((s) => s.joins);
-  const { toggle, joins } = useJoinStatements();
+  const { toggle } = useJoinStatements();
   const { availableJoins } = useContext(TableContext);
 
   const [filter, setFilter] = useState("");
@@ -44,22 +43,6 @@ export const JoinsModal = () => {
       <div className={st.joinModal}>
         <h2 className="text-lg font-semibold mb-4">Join table</h2>
 
-        {joins.length > 0 && (
-          <div className={st.cardsList}>
-            {joins.map((j, i) => (
-              <div className={st.card} key={j.table + j.on}>
-                <p className="text-sm truncate">{j.table} on {j.on}</p>
-
-                {i === joins.length - 1 && (
-                  <button className={st.closeButton} onClick={() => toggle(j)} disabled={isFetching}>
-                    <CloseIcon width={20} height={20} />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
         {availableJoins.length > 0 ? (
           <input
             className="input w-full"
@@ -71,7 +54,7 @@ export const JoinsModal = () => {
           />
         ) : (
           <Alert variant="warning">
-            <p className="text-sm truncate">No more tables to join</p>
+            <p className="text-sm truncate">There is nothing else to join</p>
           </Alert>
         )}
 
@@ -91,6 +74,7 @@ export const JoinsModal = () => {
                   on: hook.where
                 });
                 setFilter("");
+                onClose();
               }}
             />
           ))}
