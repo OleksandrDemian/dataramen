@@ -138,8 +138,7 @@ export const WorkbenchPage = () => {
             key={t.id}
             onClick={() => navigate(`${PAGES.workbench.path}/tab/${t.id}`)}
             className={clsx(st.tab, t.id === id && st.active)}
-            data-tab-id={t.id}
-            data-tooltip-id="tab"
+            data-tooltip-id="default"
             data-tooltip-content={t.name}
             onAuxClick={onAuxTabClick}
           >

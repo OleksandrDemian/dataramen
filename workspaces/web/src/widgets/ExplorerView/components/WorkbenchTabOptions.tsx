@@ -9,7 +9,6 @@ import {EUserTeamRole} from "@dataramen/types";
 import {prompt} from "../../../data/promptModalStore.ts";
 import {useDataSource} from "../../../data/queries/dataSources.ts";
 import {useRequireRole} from "../../../hooks/useRequireRole.ts";
-import {toggleShowQuerySidebar} from "../../../data/showQuerySidebarStore.ts";
 import {showExplorerModal} from "../hooks/useExplorerModals.ts";
 import {Tooltip} from "react-tooltip";
 import Chevron from "../../../assets/chevron-forward-outline.svg?react";
@@ -69,29 +68,26 @@ function QueryManipulation() {
 
   return (
     <div className={st.tableConfig}>
-      <button data-tooltip-id="default" data-tooltip-content="Manage filters" onClick={() => showExplorerModal("filters")} className={clsx(st.tableAction, st.blue)}>
-        <span>Filter</span>
-        <span className="hotkey">F</span>
-      </button>
-
-      <button data-tooltip-id="default" data-tooltip-content="Join tables" onClick={() => showExplorerModal("joins")} className={clsx(st.tableAction, st.blue)}>
-        <span>Join</span>
-        <span className="hotkey">J</span>
-      </button>
-
-      <SearchAll />
-
-      <button data-tooltip-id="default" data-tooltip-content="Clone in a new tab" onClick={onRename} className={clsx(st.tableAction, st.blue)}>
-        <span>Rename</span>
-        <span className="hotkey">R</span>
+      <button data-tooltip-id="default" data-tooltip-content="Rename tab" onClick={onRename} className={clsx(st.tableAction, st.blue, "block")}>
+        <span className={st.tabName}>🛠️ {name}</span>
       </button>
 
       <button data-tooltip-id="explorer-more-actions" className={clsx(st.tableAction, st.blue)}>
-        <span className="whitespace-nowrap">More actions</span>
+        <span className="whitespace-nowrap">Options</span>
         <Chevron width={16} height={16} className="rotate-90" />
       </button>
 
       <Tooltip id="explorer-more-actions" className="z-10 shadow-md flex flex-col" clickable variant="light" opacity={1}>
+        <button data-tooltip-id="default" data-tooltip-content="Manage filters" onClick={() => showExplorerModal("filters")} className={clsx(st.tableAction, st.modal, st.blue)}>
+          <span>Filters</span>
+          <span className="hotkey">F</span>
+        </button>
+
+        <button data-tooltip-id="default" data-tooltip-content="Join tables" onClick={() => showExplorerModal("joins")} className={clsx(st.tableAction, st.modal, st.blue)}>
+          <span>Joins</span>
+          <span className="hotkey">J</span>
+        </button>
+
         <button onClick={() => showExplorerModal("columns")} className={clsx(st.tableAction, st.modal, st.blue, "justify-between")}>
           <span>Columns</span>
           <span className="hotkey">C</span>
@@ -105,11 +101,6 @@ function QueryManipulation() {
         <button onClick={() => showExplorerModal("aggregate")} className={clsx(st.tableAction, st.modal, st.blue, "justify-between")}>
           <span>Aggregate</span>
           <span className="hotkey">A</span>
-        </button>
-
-        <button onClick={toggleShowQuerySidebar} className={clsx(st.tableAction, st.modal, st.blue, "justify-between")}>
-          <span>Query editor</span>
-          <span className="hotkey">E</span>
         </button>
 
         {isEditor && (
@@ -136,15 +127,12 @@ function QueryManipulation() {
 const rows = [5, 10, 20, 50, 100, 200];
 function Pagination () {
   const { page, size, setPage, setSize } = usePagination();
-  const { data, refetch } = useContext(QueryResultContext);
+  const { data, refetch, isFetching } = useContext(QueryResultContext);
   const { name } = useContext(TableContext);
   const { state } = useContext(TableOptionsContext);
 
   const createWorkbenchTab = useCreateWorkbenchTab();
   const navigate = useNavigate();
-
-  const currentStartIndex = page * size;
-  const canShare = true;// window?.location.hostname !== 'localhost';
 
   const onCloneTab = () => {
     createWorkbenchTab.mutateAsync({
@@ -165,8 +153,12 @@ function Pagination () {
     }
   };
 
-  useHotkeys("e", toggleShowQuerySidebar);
   useHotkeys("d", onCloneTab);
+
+  const currentStartIndex = page * size;
+  const canShare = true;// window?.location.hostname !== 'localhost';
+  const hasMoreData = !isFetching && !!data?.result.hasMore;
+  const currentBatchRows = data?.result.rows.length || 0;
 
   const onPrevPage = () => {
     if (page > 0) {
@@ -175,8 +167,7 @@ function Pagination () {
   };
 
   const onNextPage = () => {
-    console.log(data?.result.hasMore);
-    if (data?.result.hasMore) {
+    if (hasMoreData) {
       setPage(page + 1);
     }
   };
@@ -187,7 +178,7 @@ function Pagination () {
         className={st.paginationIndicator}
         data-tooltip-id="rows-num"
       >
-        {currentStartIndex + 1} - {currentStartIndex + size}
+        {size} rows
       </span>
 
       <span
@@ -199,10 +190,17 @@ function Pagination () {
       >
         <Chevron width={16} height={16} className="rotate-180" />
       </span>
+
+      <span
+        className={st.paginationIndicator}
+      >
+        {currentStartIndex + 1} - {currentStartIndex + currentBatchRows}{hasMoreData && "+"}
+      </span>
+
       <span
         data-tooltip-content="Next page"
         data-tooltip-id="default"
-        className={clsx(st.tableAction, st.blue)}
+        className={clsx(st.tableAction, hasMoreData ? st.blue : "opacity-30")}
         onClick={onNextPage}
         role="button"
       >
@@ -248,47 +246,5 @@ function Pagination () {
         ))}
       </Tooltip>
     </div>
-  );
-}
-
-function SearchAll () {
-  const { state, setState } = useContext(TableOptionsContext);
-
-  const onRemoveSearchAll = () => {
-    setState((s) => ({
-      ...s,
-      searchAll: undefined,
-    }));
-  };
-
-  const onSearchAll = () => {
-    prompt("Search all text values for", state.searchAll || "", {
-      type: "info",
-      message: "This will search all text values using LIKE operator (numbers, dates and other non string values are not searched)."
-    }).then((result) => {
-      if (result !== undefined) {
-        setState((s) => ({
-          ...s,
-          searchAll: result.length > 0 ? result : undefined,
-        }));
-      }
-    });
-  };
-
-  useHotkeys("k", onSearchAll);
-
-  if (state.searchAll) {
-    return (
-      <button data-tooltip-id="default" data-tooltip-content="Remove search all filter" onClick={onRemoveSearchAll} className={clsx(st.tableAction, st.red)}>
-        <span className="truncate px-1">❌ {state.searchAll}</span>
-      </button>
-    );
-  }
-
-  return (
-    <button data-tooltip-id="default" data-tooltip-content="Search text in all columns" onClick={onSearchAll} className={clsx(st.tableAction, st.blue)}>
-      <span className="whitespace-nowrap">Search text</span>
-      <span className="hotkey">K</span>
-    </button>
   );
 }

@@ -4,7 +4,7 @@
   @apply flex px-2 whitespace-nowrap items-center gap-2;
 
   &:hover {
-    @apply bg-gray-100 cursor-pointer;
+    @apply bg-(--bg) cursor-pointer;
   }
 }
 

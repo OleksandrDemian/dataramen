@@ -1,4 +1,4 @@
-import {TDbValue} from "@dataramen/types";
+import {TDbValue, TInputColumn} from "@dataramen/types";
 import {QueryFilter} from "@dataramen/sql-builder";
 
 export function sanitizeCellValue (value: TDbValue, expectedType?: string): string {
@@ -29,9 +29,21 @@ export function sanitizeCellValue (value: TDbValue, expectedType?: string): stri
   }
 }
 
-export const filterToString = (filter: QueryFilter) => {
+export const filterToString = (filter: QueryFilter): string => {
   const value = filter.value?.map((v) => v.value).join(", ") || '';
   return `${filter.column} ${filter.operator} ${value}`;
+};
+
+export const filterValueToString = (filter: QueryFilter): string => {
+  return filter.value?.map((v) => v.value).join(", ") || '';
+}
+
+export const aggToString = (agg: TInputColumn): string => {
+  if (agg.distinct) {
+    return [agg.fn, "DISTINCT", agg.value].join(" ");
+  }
+
+  return [agg.fn, agg.value].join(" ");
 };
 
 export const generateColumnLabel = (columnName: string): string => {

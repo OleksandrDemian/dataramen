@@ -143,63 +143,65 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
 
   return (
     <ContextualMenu handler={handler}>
-      {entities.length > 0 && (
-        <div className={st.optionsContainer}>
-          <label className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-b-gray-200 p-2">
-            <span className="font-semibold">📝 Edit row</span>
-            <input
-              className="input"
-              placeholder="Filter entities"
-              value={entityFilter}
-              onChange={(e) => setEntityFilter(e.target.value)}
-            />
-          </label>
-
-          <div className="flex flex-col overflow-y-auto">
-            {gte(filteredEntities.length, 0) ? filteredEntities.map((ent) => (
-              <button
-                key={ent}
-                className={clsx(st.optionItem, "font-semibold")}
-                onClick={() => showEntity(ent)}
-              >
-                <span>📄 {ent}</span>
-              </button>
-            )) : (
-              <p className="text-center p-2 text-gray-800">Empty</p>
-            )}
-          </div>
-        </div>
-      )}
-
-      {hooks.length > 0 && (
-        <div className={st.optionsContainer}>
-          <label className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-b-gray-200 p-2">
-            <span className="font-semibold">↗️ Connected tables</span>
-            <input
-              className="input"
-              placeholder="Filter tables"
-              value={hooksFilter}
-              onChange={(e) => setHooksFilter(e.target.value)}
-            />
-          </label>
-
-          <div className="flex flex-col overflow-y-auto">
-            {filteredHooks.length > 0 ? filteredHooks.map((hook) => (
-              <HookButton
-                hook={hook}
-                onClick={() => showRelatedData(hook)}
-                key={hook.where}
+      <div className={st.optionsContainer}>
+        {entities.length > 0 && (
+          <div>
+            <label className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b bg-(--bg) border-b-gray-200 p-2">
+              <span className="font-semibold">📝 Edit row</span>
+              <input
+                className="input bg-white!"
+                placeholder="Filter entities"
+                value={entityFilter}
+                onChange={(e) => setEntityFilter(e.target.value)}
               />
-            )) : (
-              <p className="text-center p-2 text-gray-800">Empty</p>
-            )}
-          </div>
-        </div>
-      )}
+            </label>
 
-      {hasNestedData && (
-        <button onClick={showNestedData} className={st.underlyingRowsBtn}>🎯 Underlying rows</button>
-      )}
+            <div className={st.rowOptionsEntriesList}>
+              {gte(filteredEntities.length, 0) ? filteredEntities.map((ent) => (
+                <button
+                  key={ent}
+                  className={clsx(st.optionItem, "font-semibold")}
+                  onClick={() => showEntity(ent)}
+                >
+                  <span>📄 {ent}</span>
+                </button>
+              )) : (
+                <p className="text-center p-2 text-gray-800">Empty</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {hooks.length > 0 && (
+          <div className="not-first:border-t border-gray-200">
+            <label className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b bg-(--bg) border-gray-200 p-2">
+              <span className="font-semibold">↗️ Connected tables</span>
+              <input
+                className="input bg-white!"
+                placeholder="Filter tables"
+                value={hooksFilter}
+                onChange={(e) => setHooksFilter(e.target.value)}
+              />
+            </label>
+
+            <div className={st.rowOptionsEntriesList}>
+              {filteredHooks.length > 0 ? filteredHooks.map((hook) => (
+                <HookButton
+                  hook={hook}
+                  onClick={() => showRelatedData(hook)}
+                  key={hook.where}
+                />
+              )) : (
+                <p className="text-center p-2 text-gray-800">Empty</p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {hasNestedData && (
+          <button onClick={showNestedData} className={st.underlyingRowsBtn}>🎯 Underlying rows</button>
+        )}
+      </div>
     </ContextualMenu>
   );
 };

@@ -10,16 +10,9 @@ import {gte} from "../../../../utils/numbers.ts";
 import { inputColumnToAlias } from "@dataramen/common";
 import CloseButton from "./../../../../assets/close-outline.svg?react";
 import {useHotkeys} from "react-hotkeys-hook";
+import {aggToString} from "../../../../utils/sql.ts";
 
 const COUNT_ALL = "COUNT all";
-
-const aggToString = (agg: TInputColumn): string => {
-  if (agg.distinct) {
-    return [agg.fn, "DISTINCT", agg.value].join(" ");
-  }
-
-  return [agg.fn, agg.value].join(" ");
-};
 
 export const AggregateModal = () => {
   const show = useExplorerModals((s) => s.aggregate);
