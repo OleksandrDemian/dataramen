@@ -129,6 +129,10 @@
     justify-content: center;
   }
 
+  &.selected-size {
+    @apply bg-blue-50 text-blue-800 ring-2 ring-offset-1 ring-blue-200;
+  }
+
   &:not(.modal) {
     @apply flex items-center;
   }

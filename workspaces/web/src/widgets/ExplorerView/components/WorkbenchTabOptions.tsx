@@ -175,10 +175,10 @@ function Pagination () {
   return (
     <div className={st.tableConfig}>
       <span
-        className={st.paginationIndicator}
         data-tooltip-id="rows-num"
+        className={st.paginationIndicator}
       >
-        {size} rows
+        {currentStartIndex + 1} - {currentStartIndex + currentBatchRows}{hasMoreData && "+"}
       </span>
 
       <span
@@ -189,12 +189,6 @@ function Pagination () {
         role="button"
       >
         <Chevron width={16} height={16} className="rotate-180" />
-      </span>
-
-      <span
-        className={st.paginationIndicator}
-      >
-        {currentStartIndex + 1} - {currentStartIndex + currentBatchRows}{hasMoreData && "+"}
       </span>
 
       <span
@@ -238,9 +232,9 @@ function Pagination () {
         <Duplicate width={16} height={16} />
       </span>
 
-      <Tooltip id="rows-num" className="z-10 shadow-md flex" clickable variant="light" opacity={1}>
+      <Tooltip id="rows-num" className="z-10 shadow-md flex gap-1" clickable variant="light" opacity={1}>
         {rows.map((num) => (
-          <button key={num} onClick={() => setSize(num, true)} className={clsx(st.tableAction, st.blue)}>
+          <button key={num} onClick={() => setSize(num, true)} className={clsx(st.tableAction, st.blue, num === size && st.selectedSize)}>
             <span>{num}</span>
           </button>
         ))}

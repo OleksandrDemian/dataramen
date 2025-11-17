@@ -110,12 +110,9 @@ export const WorkbenchPage = () => {
     }
   };
 
-  const onAuxTabClick: MouseEventHandler<HTMLDivElement> = (event) => {
-    if (event.button === 1) {
-      const tabId = event.currentTarget.dataset.tabId as string;
-      archiveTab.mutate(tabId);
-      fallbackTab(tabId);
-    }
+  const archiveTabHandler = (tabId: string) => {
+    archiveTab.mutate(tabId);
+    fallbackTab(tabId);
   };
 
   useHotkeys("ctrl+w", () => {
@@ -140,7 +137,7 @@ export const WorkbenchPage = () => {
             className={clsx(st.tab, t.id === id && st.active)}
             data-tooltip-id="default"
             data-tooltip-content={t.name}
-            onAuxClick={onAuxTabClick}
+            onAuxClick={() => archiveTabHandler(t.id)}
           >
             <span className="truncate w-full">🛠️ {t.name}</span>
             <button data-tab-id={t.id} className={st.closeButton} onClick={onCloseTab}>
