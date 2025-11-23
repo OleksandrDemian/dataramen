@@ -7,7 +7,13 @@ import {
   WorkbenchTabsRepository,
 } from "../../repository/db";
 import {FindOptionsWhere, In, Like, Raw} from "typeorm";
-import {IDataSourceSchema, TFindQuery, TProjectDataSource, TProjectQuery} from "@dataramen/types";
+import {
+  IDataSourceSchema,
+  TFindQuery,
+  TProjectDataSource,
+  TProjectQuery,
+  TProjectTabsHistoryEntry
+} from "@dataramen/types";
 
 export default createRouter((instance) => {
   instance.route({
@@ -214,4 +220,39 @@ export default createRouter((instance) => {
       } satisfies { data: TFindQuery[] };
     },
   });
+
+  instance.route({
+    method: "get",
+    url: "/team/:teamId/tabs-history",
+    handler: async (request) => {
+      const { teamId } = getRequestParams<{ teamId: string }>(request);
+      const userId = request.user.id;
+
+      const workbenchTabs = await WorkbenchTabsRepository.find({
+        where: {
+          team: { id: teamId },
+          user: { id: userId },
+        },
+        relations: {
+          dataSource: true,
+        },
+        order: {
+          updatedAt: 'DESC',
+        },
+      });
+
+      return {
+        data: workbenchTabs.map((t) => ({
+          name: t.name,
+          id: t.id,
+          updatedAt: t.updatedAt,
+          archived: t.archived,
+          createdAt: t.createdAt,
+          dataSourceId: t.dataSource?.id,
+          dataSourceName: t.dataSource?.name,
+          dataSourceType: t.dataSource?.dbType,
+        })),
+      } satisfies { data: TProjectTabsHistoryEntry[] };
+    },
+  })
 });

@@ -1,4 +1,4 @@
-import {IDataSource, IQuery} from "./schemas";
+import {IDataSource, IQuery, IWorkbenchTab} from "./schemas";
 
 export type TFindQuery = {
   id: string;
@@ -26,4 +26,10 @@ export type TProjectQuery = Pick<
   'updatedAt'
 > & {
   savedQueryId: string;
+};
+
+export type TProjectTabsHistoryEntry = Pick<IWorkbenchTab, 'id' | 'name' | 'archived' | 'createdAt' | 'updatedAt'> & {
+  dataSourceName?: string;
+  dataSourceId?: string;
+  dataSourceType?: string;
 };

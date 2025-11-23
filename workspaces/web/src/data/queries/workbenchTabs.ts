@@ -7,6 +7,7 @@ import {
   TRunWorkbenchQuery, TUpdateWorkbenchTab, TWorkbenchOptions
 } from "@dataramen/types";
 import {queryClient} from "../queryClient.ts";
+import {invalidateTabsHistory} from "./project.ts";
 
 const updateCachedWorkbenchTabs = (fn: (store: TGetWorkbenchTabsEntry[]) => TGetWorkbenchTabsEntry[]) => {
   queryClient.setQueryData<TGetWorkbenchTabsEntry[]>(
@@ -146,6 +147,18 @@ export const useRunWorkbenchTab = (workbenchTabId: string, props: TWorkbenchOpti
     keepPreviousData: true,
   });
 };
+
+export const useDeleteWorkbenchTab = () => {
+  return useMutation({
+    mutationFn: async (id: string) => {
+      await apiClient.delete(`/workbench-tabs/${id}`);
+    },
+    onSuccess: () => {
+      invalidateWorkbenchTabs();
+      invalidateTabsHistory();
+    },
+  });
+}
 
 export const invalidateTabData = (tabId: string) => {
   return queryClient.invalidateQueries({

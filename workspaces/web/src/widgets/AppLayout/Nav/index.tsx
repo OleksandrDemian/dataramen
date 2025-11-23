@@ -27,7 +27,6 @@ export const Nav = () => {
         <div className={st.header}>
           <button onClick={onHome} className="flex justify-between items-center">
             <span>🏠 Home</span>
-            <span className="hotkey">H</span>
           </button>
           <button onClick={searchTable} className="flex justify-between items-center">
             <span>🔎 New query</span>

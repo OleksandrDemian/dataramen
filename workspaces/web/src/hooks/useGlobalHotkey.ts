@@ -4,6 +4,7 @@ import {PAGES} from "../const/pages.ts";
 import {useCurrentUser} from "../data/queries/users.ts";
 import {useWorkbenchTabs} from "../data/queries/workbenchTabs.ts";
 import {useHotkeys} from "react-hotkeys-hook";
+import {updateShowTabsHistory} from "../data/showTabsHistorySidebarStore.ts";
 
 export const useSetupGlobalListeners = () => {
   const searchAndOpen = useSearchTable("Hotkey");
@@ -35,6 +36,6 @@ export const useSetupGlobalListeners = () => {
   }, { enabled: isHome });
 
   useHotkeys("h", () => {
-    navigate(PAGES.home.path);
-  }, { enabled: !isHome });
+    updateShowTabsHistory({ show: true });
+  });
 };

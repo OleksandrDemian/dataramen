@@ -1,7 +1,7 @@
 import {useQuery} from "react-query";
 import {apiClient} from "../clients.ts";
 import {queryClient} from "../queryClient.ts";
-import {TFindQuery, TProjectDataSource, TProjectQuery} from "@dataramen/types";
+import {TFindQuery, TProjectDataSource, TProjectQuery, TProjectTabsHistoryEntry} from "@dataramen/types";
 
 export const useTeamDataSources = (teamId?: string) => {
   return useQuery({
@@ -67,5 +67,23 @@ export const useSearchQueries = (search: string, props: {
     enabled: !!props.teamId,
     staleTime: 0,
     keepPreviousData: true,
-  })
+  });
+};
+
+export const useTabsHistory = (teamId?: string) => {
+  return useQuery({
+    queryKey: ['project', "tabs-history", teamId],
+    queryFn: async () => {
+      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[] }>(`/project/team/${teamId}/tabs-history`);
+      return data.data;
+    },
+    staleTime: 0,
+    enabled: !!teamId,
+  });
+};
+
+export const invalidateTabsHistory = () => {
+  return queryClient.invalidateQueries({
+    queryKey: ['project', "tabs-history"],
+  });
 };
