@@ -3,19 +3,21 @@ import {
   TWorkbenchOptions,
 } from "@dataramen/types";
 
-export function generateSearchString (opts: TWorkbenchOptions | TQueryOptions, ...extra: string[]) {
+export function generateSearchString (opts: Partial<TWorkbenchOptions | TQueryOptions>, ...extra: string[]) {
   const args: string[] = [...extra];
 
   if (opts.searchAll) {
     args.push(opts.searchAll);
   }
 
-  for (const f of opts.filters) {
-    if (!f.value) continue;
+  if (opts.filters) {
+    for (const f of opts.filters) {
+      if (!f.value) continue;
 
-    for (const v of f.value) {
-      if (v.value) {
-        args.push(v.value.toString());
+      for (const v of f.value) {
+        if (v.value) {
+          args.push(v.value.toString());
+        }
       }
     }
   }

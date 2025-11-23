@@ -39,21 +39,15 @@ export const useDeleteSavedQuery = () => {
   });
 }
 
-export const useUpdateQuery = () => {
+export const useUpdateSavedQuery = () => {
   return useMutation({
     mutationFn: async ({ id, payload }: { id: string, payload: Partial<TUpdateQuery> }) => {
-      const { data } = await apiClient.patch<{ data: TQuery }>("/queries/" + id, payload);
+      const { data } = await apiClient.patch("/saved-queries/" + id, payload);
       return data.data;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(["query", data.id]);
+    onSuccess: () => {
       invalidateTeamProjectFiles();
       invalidateTeamTrash();
-      if (data.isTrash) {
-        Analytics.event("Query trashed");
-      } else {
-        Analytics.event("Query updated");
-      }
     },
   });
 };
