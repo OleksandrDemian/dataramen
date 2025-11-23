@@ -12,6 +12,7 @@ import {
 } from "@dataramen/types";
 import {validateCreateWorkbenchTab} from "./validators";
 import {generateSearchString} from "../../utils/generateSearchString";
+import * as worker_threads from "node:worker_threads";
 
 export default createRouter((instance) => {
   instance.route({
@@ -215,7 +216,16 @@ export default createRouter((instance) => {
         throw new HttpError(404, "Not Found");
       }
 
-      await WorkbenchTabsRepository.update(id, body);
+      let searchString: string | null = workbenchTab.searchString;
+      if (body.name) {
+        searchString = generateSearchString(workbenchTab.opts, body.name);
+      }
+
+      await WorkbenchTabsRepository.update(id, {
+        ...body,
+        searchString,
+      });
+
       return {
         data: {
           id,

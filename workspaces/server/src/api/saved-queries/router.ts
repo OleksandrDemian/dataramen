@@ -1,15 +1,12 @@
 import { createRouter } from "../../utils/createRouter";
 import { getRequestParams, getRequestPayload } from "../../utils/request";
-import {QueriesRepository, SavedQueriesRepository} from "../../repository/db";
-import { EUserTeamRole, TCreateSavedQuery } from "@dataramen/types";
+import {AppDataSource, QueriesRepository, SavedQueriesRepository} from "../../repository/db";
+import {EUserTeamRole, TCreateSavedQuery, TUpdateQuery} from "@dataramen/types";
 import { atLeast } from "../../hooks/role";
 import {generateSearchString} from "../../utils/generateSearchString";
 import {HttpError} from "../../utils/httpError";
 
 export default createRouter((instance) => {
-  /**
-   * Create saved query, save query
-   */
   instance.route({
     method: "post",
     url: "/",
@@ -74,6 +71,48 @@ export default createRouter((instance) => {
           data: "Query not found",
         };
       }
+    },
+  });
+
+  instance.route({
+    method: "patch",
+    url: "/:id",
+    handler: async (request) => {
+      return await AppDataSource.transaction(async () => {
+        const { id } = getRequestParams<{ id: string }>(request);
+        const payload = getRequestPayload<{ name: string }>(request, (payload) => {
+          if (!payload.name) {
+            throw new HttpError(400, "Name is required");
+          }
+        });
+
+        const savedQuery = await SavedQueriesRepository.findOne({
+          where: {
+            id: id,
+          },
+          relations: {
+            query: true,
+          },
+        });
+
+        if (!savedQuery) {
+          throw new HttpError(400, "Query not found");
+        }
+
+        const searchString = generateSearchString(savedQuery.query.opts, payload.name);
+        await Promise.all([
+          SavedQueriesRepository.update({ id }, {
+            searchString,
+          }),
+          QueriesRepository.update({ id: savedQuery.query.id }, {
+            name: payload.name,
+          }),
+        ]);
+
+        return {
+          data: true,
+        };
+      });
     },
   });
 });

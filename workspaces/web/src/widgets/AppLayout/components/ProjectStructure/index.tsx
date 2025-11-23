@@ -3,7 +3,7 @@ import st from "./index.module.css";
 import {useNavigate} from "react-router-dom";
 import {useTeamDataSources, useTeamSavedQueries} from "../../../../data/queries/project.ts";
 import {ContextualMenu} from "../../../ExplorerView/components/ContextualMenu.tsx";
-import {useDeleteSavedQuery, useUpdateQuery} from "../../../../data/queries/queries.ts";
+import {useDeleteSavedQuery, useUpdateSavedQuery} from "../../../../data/queries/queries.ts";
 import {useContextMenuHandler} from "../../../ExplorerView/components/ContextualMenu.handler.ts";
 import {prompt} from "../../../../data/promptModalStore.ts";
 import {PAGES} from "../../../../const/pages.ts";
@@ -99,7 +99,7 @@ export const ProjectStructure = () => {
 
   const createWorkbenchTab = useCreateWorkbenchTab();
 
-  const updateQuery = useUpdateQuery();
+  const updateQuery = useUpdateSavedQuery();
   const deleteSavedQuery = useDeleteSavedQuery();
 
   const openQuery = (queryId: string) => {
@@ -113,10 +113,12 @@ export const ProjectStructure = () => {
 
   const updateQueryName = async (queryId: string) => {
     const current = projectQueries?.find((query) => query.id === queryId);
+    if (!current) return;
+
     const name = await prompt("New name?", current?.name);
     if (name) {
       updateQuery.mutate({
-        id: queryId,
+        id: current.savedQueryId,
         payload: {
           name,
         },
