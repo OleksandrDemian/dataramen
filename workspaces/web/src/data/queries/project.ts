@@ -1,4 +1,4 @@
-import {useQuery} from "@tanstack/react-query";
+import {useInfiniteQuery, useQuery} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {queryClient} from "../queryClient.ts";
 import {TFindQuery, TProjectDataSource, TProjectQuery, TProjectTabsHistoryEntry} from "@dataramen/types";
@@ -75,32 +75,28 @@ export const useSearchQueries = (search: string, props: {
   });
 };
 
-
-export const useTabsHistory = (teamId?: string) => {
-  return useQuery({
-    queryKey: ['project', "tabs-history", teamId],
-    queryFn: async () => {
-      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[] }>(`/project/team/${teamId}/tabs-history?page=0&size=2`);
-      return data.data;
-    },
-    staleTime: 0,
-    enabled: !!teamId,
-  });
-};
-
-/**
 export const useInfiniteTabHistory = (teamId?: string) => {
   return useInfiniteQuery({
+    queryKey: ['project', "tabs-history", teamId],
     queryFn: async ({ pageParam }) => {
-      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[] }>(`/project/team/${teamId}/tabs-history?size=2&page=${pageParam}`);
-      return data.data;
+      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[]; hasMore: boolean; }>(`/project/team/${teamId}/tabs-history?page=${pageParam}&size=30`);
+      return data;
+    },
+    select: ({ pages }) => {
+      return pages.flatMap((f) => f.data);
+    },
+    enabled: !!teamId,
+    initialPageParam: 0,
+    getNextPageParam: (response, allPages) => {
+      if (response.hasMore) {
+        return allPages.length;
+      }
+
+      return undefined;
     },
     staleTime: 0,
-    enabled: !!teamId,
-    getNextPageParam: (lastPage: number) => lastPage + 1,
   });
-}
-*/
+};
 
 export const invalidateTabsHistory = () => {
   return queryClient.invalidateQueries({

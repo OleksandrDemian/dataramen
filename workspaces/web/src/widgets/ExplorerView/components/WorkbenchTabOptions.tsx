@@ -184,7 +184,7 @@ function Pagination () {
       <span
         data-tooltip-content="Previous page"
         data-tooltip-id="default"
-        className={clsx(st.tableAction, st.blue)}
+        className={clsx(st.tableAction, st.blue, page < 1 && "opacity-30")}
         onClick={onPrevPage}
         role="button"
       >

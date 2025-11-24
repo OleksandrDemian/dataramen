@@ -1,6 +1,6 @@
 {
   "name": "@dataramen/server",
-  "version": "0.0.81-beta.1",
+  "version": "0.0.81-beta.3",
   "license": "MIT",
   "main": "dist/server.js",
   "scripts": {
@@ -18,7 +18,7 @@
     "mysql2": "^3.14.1",
     "pg": "^8.15.6",
     "sqlite3": "^5.1.7",
-    "typeorm": "^0.3.23",
+    "typeorm": "^0.3.27",
     "bcryptjs": "^3.0.2",
     "jose": "^6.0.12",
     "reflect-metadata": "^0.2.2",
