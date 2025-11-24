@@ -6,6 +6,7 @@ import {DataSourceIcon} from "../../widgets/Icons";
 import {useNavigate} from "react-router-dom";
 import {PAGES} from "../../const/pages.ts";
 import {useDeleteWorkbenchTab, useRestoreArchivedTab} from "../../data/queries/workbenchTabs.ts";
+import {Alert} from "../../widgets/Alert";
 
 const dateFormatter = new Intl.DateTimeFormat();
 
@@ -27,11 +28,17 @@ export const TabsHistorySidebar = () => {
     deleteTab.mutate(id);
   };
 
+  const hasTabs = tabsHistory && tabsHistory.length > 0;
+
   return (
     <Sidebar isVisible={show} onClose={() => updateShowTabsHistory({ show: false })} backdropClose>
       <div className="w-full lg:w-md flex flex-col">
+        {!hasTabs && (
+          <Alert variant="warning">History is empty.</Alert>
+        )}
+
         {tabsHistory?.map((tab) => (
-          <div className="p-4 border-b border-gray-200">
+          <div className="p-4 border-b border-gray-200" key={tab.id}>
             <div className="flex gap-2 items-center">
               <p className="text-sm font-semibold flex-1 truncate">{tab.name}</p>
               {tab.dataSourceType && (

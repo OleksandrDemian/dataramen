@@ -1,4 +1,4 @@
-import {MutationCache, QueryClient} from "react-query";
+import {MutationCache, QueryClient} from "@tanstack/react-query";
 import {isAxiosError} from "axios";
 import toast from "react-hot-toast";
 

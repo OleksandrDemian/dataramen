@@ -179,15 +179,15 @@ function Component ({ id }: { id: string }) {
 
       {isEditor && (
         <div className="mt-2 flex gap-2">
-          <button disabled={inspector.isLoading} onClick={onInspect} className="button tertiary flex items-center gap-1">
+          <button disabled={inspector.isPending} onClick={onInspect} className="button tertiary flex items-center gap-1">
             Refresh schema
           </button>
 
-          <button disabled={inspector.isLoading} onClick={onRename} className="button tertiary">
+          <button disabled={inspector.isPending} onClick={onRename} className="button tertiary">
             Rename
           </button>
 
-          <button disabled={inspector.isLoading} onClick={onDelete} className="button tertiary">
+          <button disabled={inspector.isPending} onClick={onDelete} className="button tertiary">
             Delete
           </button>
         </div>

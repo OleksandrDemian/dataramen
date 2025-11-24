@@ -1,6 +1,6 @@
 import {TDatabaseInspection} from "../types/dataSources.ts";
 import {THook} from "../types/hooks.ts";
-import {useQuery} from "react-query";
+import {useQuery} from "@tanstack/react-query";
 import {QUERY_DATASOURCE_KEY} from "../keysConst.ts";
 import {queryClient} from "../queryClient.ts";
 import {apiClient} from "../clients.ts";

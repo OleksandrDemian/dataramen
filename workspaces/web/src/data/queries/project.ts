@@ -1,4 +1,4 @@
-import {useQuery} from "react-query";
+import {useQuery} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {queryClient} from "../queryClient.ts";
 import {TFindQuery, TProjectDataSource, TProjectQuery, TProjectTabsHistoryEntry} from "@dataramen/types";
@@ -35,8 +35,12 @@ export const invalidateTeamProjectFiles = (teamId?: string) => {
   }
 
   return Promise.all([
-    queryClient.invalidateQueries(datasourcesQueryKey),
-    queryClient.invalidateQueries(queriesQueryKey),
+    queryClient.invalidateQueries({
+      queryKey: datasourcesQueryKey,
+    }),
+    queryClient.invalidateQueries({
+      queryKey: queriesQueryKey,
+    }),
   ]);
 };
 
@@ -45,7 +49,9 @@ export const invalidateTeamTrash = (teamId?: string) => {
   if (teamId) {
     queryKey.push(teamId);
   }
-  return queryClient.invalidateQueries(queryKey);
+  return queryClient.invalidateQueries({
+    queryKey: queryKey,
+  });
 };
 
 export const useSearchQueries = (search: string, props: {
@@ -66,21 +72,35 @@ export const useSearchQueries = (search: string, props: {
     },
     enabled: !!props.teamId,
     staleTime: 0,
-    keepPreviousData: true,
   });
 };
+
 
 export const useTabsHistory = (teamId?: string) => {
   return useQuery({
     queryKey: ['project', "tabs-history", teamId],
     queryFn: async () => {
-      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[] }>(`/project/team/${teamId}/tabs-history`);
+      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[] }>(`/project/team/${teamId}/tabs-history?page=0&size=2`);
       return data.data;
     },
     staleTime: 0,
     enabled: !!teamId,
   });
 };
+
+/**
+export const useInfiniteTabHistory = (teamId?: string) => {
+  return useInfiniteQuery({
+    queryFn: async ({ pageParam }) => {
+      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[] }>(`/project/team/${teamId}/tabs-history?size=2&page=${pageParam}`);
+      return data.data;
+    },
+    staleTime: 0,
+    enabled: !!teamId,
+    getNextPageParam: (lastPage: number) => lastPage + 1,
+  });
+}
+*/
 
 export const invalidateTabsHistory = () => {
   return queryClient.invalidateQueries({

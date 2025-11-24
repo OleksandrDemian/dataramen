@@ -14,9 +14,9 @@ export const PeopleSettingsModal = () => {
   const { data: user } = useCurrentUser();
   const { data: teamUsers } = useTeamUsers(user?.teamId);
 
-  const { mutate: createUser, isLoading: isCreatingUser } = useCreateUser();
-  const { mutate: changeRole, isLoading: isChangingRole } = useUpdateUserTeamRole();
-  const { mutate: removeUser, isLoading: isRemovingUser } = useRemoveUser();
+  const { mutate: createUser, isPending: isCreatingUser } = useCreateUser();
+  const { mutate: changeRole, isPending: isChangingRole } = useUpdateUserTeamRole();
+  const { mutate: removeUser, isPending: isRemovingUser } = useRemoveUser();
   const [form, { change, reset }] = useForm<{ username: string; password: string }>({
     password: "",
     username: "",

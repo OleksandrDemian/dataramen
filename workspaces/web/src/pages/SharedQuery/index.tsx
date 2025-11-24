@@ -25,7 +25,7 @@ export const SharedQuery = () => {
 
   return (
     <div className="page-container flex items-center justify-center h-screen">
-      {createWorkbenchTab.isLoading && (
+      {createWorkbenchTab.isPending && (
         <div className="flex items-center flex-col gap-2">
           <Spinner />
           <p>Fetching query information</p>

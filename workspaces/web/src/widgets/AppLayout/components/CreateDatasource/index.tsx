@@ -71,7 +71,7 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
     Analytics.event("Cancel Datasource");
   };
 
-  const disableUi = createDataSource.isLoading || manualInspector.isLoading;
+  const disableUi = createDataSource.isPending || manualInspector.isPending;
   const isProdMode = !form.allowInsert && !form.allowUpdate;
 
   return (
@@ -86,11 +86,11 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
         </Alert>
       )}
 
-      {createDataSource.isLoading && (
+      {createDataSource.isPending && (
         <Alert className="mb-2" variant="info">Creating connection</Alert>
       )}
 
-      {manualInspector.isLoading && (
+      {manualInspector.isPending && (
         <Alert className="mb-2" variant="info">Inspecting connection</Alert>
       )}
 

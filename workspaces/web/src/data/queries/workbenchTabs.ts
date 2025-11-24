@@ -1,4 +1,4 @@
-import {useMutation, useQuery} from "react-query";
+import {useMutation, useQuery} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {
   IWorkbenchTab,
@@ -10,16 +10,16 @@ import {queryClient} from "../queryClient.ts";
 import {invalidateTabsHistory} from "./project.ts";
 
 const updateCachedWorkbenchTabs = (fn: (store: TGetWorkbenchTabsEntry[]) => TGetWorkbenchTabsEntry[]) => {
-  queryClient.setQueryData<TGetWorkbenchTabsEntry[]>(
+  queryClient.setQueryData(
     ["workbench-tabs"],
-    (store) => fn(store || []),
+    (store: TGetWorkbenchTabsEntry[] | undefined) => fn(store || []),
   );
 };
 
 const updateCachedWorkbenchTab = (id: string, fn: (store: IWorkbenchTab) => IWorkbenchTab) => {
-  queryClient.setQueryData<IWorkbenchTab | undefined>(
+  queryClient.setQueryData(
     ["workbench-tabs", id],
-    (store) => {
+    (store: IWorkbenchTab | undefined) => {
       if (store) {
         return fn(store);
       }
@@ -143,8 +143,6 @@ export const useRunWorkbenchTab = (workbenchTabId: string, props: TWorkbenchOpti
     },
     retry: 1,
     enabled: !!table && !!dataSourceId,
-    cacheTime: 0,
-    keepPreviousData: true,
   });
 };
 

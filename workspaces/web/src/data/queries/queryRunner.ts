@@ -1,39 +1,8 @@
-import {useMutation, useQuery} from "react-query";
+import {useMutation, useQuery} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {TDbValue, TExecuteInsert, TExecuteQuery, TExecuteUpdate, TRunSqlResult} from "@dataramen/types";
 import {QueryFilter} from "@dataramen/sql-builder";
 import {genSimpleId} from "../../utils/id.ts";
-
-export const useTableExplorer = (props: TExecuteQuery, onSuccess?: (data: TRunSqlResult) => void) => {
-  const {
-    datasourceId,
-    opts: {
-      searchAll,
-      table,
-      filters,
-      joins,
-      orderBy,
-      groupBy,
-      columns,
-      aggregations,
-    },
-    page = 0,
-    size = 20
-  } = props;
-  return useQuery<TRunSqlResult>({
-    queryKey: ["explorer", datasourceId, table, page, size, filters, aggregations, joins, orderBy, groupBy, columns, searchAll],
-    queryFn: async () => {
-      const { data } = await apiClient.post<{ data: TRunSqlResult }>("/runner/select", props);
-      return data.data;
-    },
-    retry: 1,
-    enabled: !!table && !!datasourceId,
-    keepPreviousData: true,
-    staleTime: 0,
-    cacheTime: 0,
-    onSuccess,
-  });
-};
 
 export const useEntity = (dataSourceId?: string, table?: string, key?: [string, TDbValue][]) => {
   return useQuery<TRunSqlResult>({
@@ -73,7 +42,6 @@ export const useEntity = (dataSourceId?: string, table?: string, key?: [string, 
     retry: 1,
     enabled: !!table && !!dataSourceId && !!key,
     staleTime: 0,
-    cacheTime: 0,
   });
 };
 

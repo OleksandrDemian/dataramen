@@ -1,4 +1,4 @@
-import {useMutation, useQuery} from "react-query";
+import {useMutation, useQuery} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {queryClient} from "../queryClient.ts";
 import {QUERY_AUTH_USER_KEY} from "../keysConst.ts";
@@ -7,7 +7,10 @@ import {IUser, TCreateUser, TUser} from "@dataramen/types";
 import {AccessTokenHandler} from "../../services/accessTokenHandler.ts";
 
 export const useAccessToken = () => {
-  return useQuery(["accessToken"], AccessTokenHandler.get);
+  return useQuery({
+    queryKey: ["accessToken"],
+    queryFn: AccessTokenHandler.get,
+  });
 };
 
 export const useCurrentUser = () => {

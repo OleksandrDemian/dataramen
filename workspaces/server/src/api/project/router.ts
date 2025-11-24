@@ -226,6 +226,10 @@ export default createRouter((instance) => {
     url: "/team/:teamId/tabs-history",
     handler: async (request) => {
       const { teamId } = getRequestParams<{ teamId: string }>(request);
+      const query = getRequestQuery<{ page: number; size: number; }>(request);
+
+      const page = Number(query.page);
+      const size = Number(query.size);
       const userId = request.user.id;
 
       const workbenchTabs = await WorkbenchTabsRepository.find({
@@ -239,7 +243,15 @@ export default createRouter((instance) => {
         order: {
           updatedAt: 'DESC',
         },
+        take: size + 1,
+        skip: page * size,
       });
+
+      let hasMore = false;
+      if (workbenchTabs.length > size) {
+        workbenchTabs.pop();
+        hasMore = true;
+      }
 
       return {
         data: workbenchTabs.map((t) => ({
@@ -252,7 +264,8 @@ export default createRouter((instance) => {
           dataSourceName: t.dataSource?.name,
           dataSourceType: t.dataSource?.dbType,
         })),
-      } satisfies { data: TProjectTabsHistoryEntry[] };
+        hasMore,
+      } satisfies { data: TProjectTabsHistoryEntry[]; hasMore: boolean; };
     },
   })
 });
