@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 .root {
-  @apply flex flex-col overflow-hidden w-full lg:w-md p-4;
+  @apply w-full lg:w-md;
 }
 
 .section-open-btn {
@@ -58,4 +58,26 @@
 .column-type {
   font-weight: 500;
   @apply text-blue-600 text-sm;
+}
+
+.action {
+  &:not(:disabled) {
+    @apply cursor-pointer hover:underline;
+  }
+
+  &:disabled {
+    @apply opacity-40;
+  }
+
+  @apply text-sm;
+}
+
+.action-blue {
+  composes: action;
+  @apply text-blue-800;
+}
+
+.action-red {
+  composes: action;
+  @apply text-red-800;
 }

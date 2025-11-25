@@ -131,21 +131,21 @@ export const UsefulLinks = () => {
 
       <div className="grid lg:grid-cols-3 gap-2 mt-4">
         <a className="card-white hover:bg-gray-50!" href="https://dataramen.xyz/">
-          <h2 className={st.actionTitle}>Documentation</h2>
+          <h2 className={st.actionTitle}>↗️ Documentation</h2>
           <p className={st.actionSubtext}>Learn how to use DataRamen</p>
         </a>
 
         <a className="card-white hover:bg-gray-50!" href="https://github.com/OleksandrDemian/dataramen">
-          <h2 className={st.actionTitle}>Github</h2>
+          <h2 className={st.actionTitle}>↗️ Github</h2>
           <p className={st.actionSubtext}>Codebase is open source</p>
         </a>
 
         <a className="card-white hover:bg-gray-50!" href="#" onClick={() => updateShowTabsHistory({ show: true })}>
           <h2 className={st.actionTitle}>
-            <span>Tabs history</span>
+            <span>⌛ Recent tabs</span>
             <span className="hotkey">H</span>
           </h2>
-          <p className={st.actionSubtext}>Manage tabs history</p>
+          <p className={st.actionSubtext}>Manage recent tabs</p>
         </a>
       </div>
     </div>

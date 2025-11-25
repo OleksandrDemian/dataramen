@@ -1,6 +1,6 @@
 import CloseIcon from "../../assets/close-outline.svg?react";
 import st from "./index.module.css";
-import {MouseEventHandler} from "react";
+import {MouseEventHandler, useEffect} from "react";
 import clsx from "clsx";
 import {useNavigate, useParams} from "react-router-dom";
 import {useMediaQuery} from "../../hooks/useMediaQuery.ts";
@@ -8,7 +8,7 @@ import {ScreenQuery} from "../../utils/screen.ts";
 import {ExplorerTab} from "./ExplorerTab";
 import {useArchiveTab, useWorkbenchTabs} from "../../data/queries/workbenchTabs.ts";
 import {PAGES} from "../../const/pages.ts";
-import {useHotkeys} from "react-hotkeys-hook";
+import {tryScrollIntoTab} from "../../utils/scrollIntoTab.ts";
 
 // const renderTooltip: ITooltip["render"] = ({
 //  content,
@@ -115,12 +115,11 @@ export const WorkbenchPage = () => {
     fallbackTab(tabId);
   };
 
-  useHotkeys("ctrl+w", () => {
+  useEffect(() => {
     if (id) {
-      archiveTab.mutate(id);
-      fallbackTab(id);
+      tryScrollIntoTab(id);
     }
-  }, { preventDefault: true });
+  }, [id]);
 
   return (
     <div className="h-screen max-h-screen bg-(--bg) flex flex-col">
@@ -136,6 +135,8 @@ export const WorkbenchPage = () => {
             onClick={() => navigate(`${PAGES.workbench.path}/tab/${t.id}`)}
             className={clsx(st.tab, t.id === id && st.active)}
             data-tooltip-id="default"
+            // DO NOT REMOVE data-tab-id attribute, it is used to scroll into tab
+            data-tab-id={t.id}
             data-tooltip-content={t.name}
             onAuxClick={() => archiveTabHandler(t.id)}
           >

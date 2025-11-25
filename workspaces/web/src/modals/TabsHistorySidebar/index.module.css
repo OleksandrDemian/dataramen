@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+.container {
+  @apply w-full lg:w-md flex flex-col;
+}
+
+.header {
+  @apply sticky top-0 flex justify-between items-center px-4 py-2 border-b border-gray-200 bg-white;
+}
+
+.close-button {
+  @apply cursor-pointer hover:bg-gray-200 rounded-full p-1;
+}
+
+.tab-container {
+  @apply p-4 border-b border-gray-100;
+}
+
+.tab-name {
+  @apply text-sm font-semibold flex-1 truncate;
+}
+
+.badge {
+  @apply rounded-md text-sm border px-2;
+}
+
+.archived-badge {
+  composes: badge;
+  @apply bg-yellow-50 border-yellow-200 text-yellow-800;
+}
+
+.active-badge {
+  composes: badge;
+  @apply bg-green-50 border-green-200 text-green-800;
+}
+
+.action {
+  @apply text-sm hover:underline cursor-pointer;
+}
+
+.action-blue {
+  @apply text-blue-800;
+}
+
+.action-red {
+  @apply text-red-800;
+}
+
+.load-more-btn {
+  @apply text-blue-800 text-sm;
+}

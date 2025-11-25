@@ -169,49 +169,51 @@ function Component ({ id }: { id: string }) {
 
   return (
     <div className={st.root}>
-      <h3 className="page-head flex gap-2">
-        {dataSource && <DataSourceIcon size={32} type={dataSource.dbType} />}
-        <span className="truncate">{dataSource?.name}</span>
-      </h3>
+      <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
+        <h3 className="page-head flex gap-2">
+          {dataSource && <DataSourceIcon size={32} type={dataSource.dbType} />}
+          <span className="truncate">{dataSource?.name}</span>
+        </h3>
 
-      <p className="mt-2 text-xs text-gray-800">Last DB inspection</p>
-      <p className="text-sm font-semibold">{lastInspected}</p>
+        <p className="mt-2 text-xs text-gray-800">Last DB inspection</p>
+        <p className="text-sm font-semibold">{lastInspected}</p>
 
-      {isEditor && (
-        <div className="mt-2 flex gap-2">
-          <button disabled={inspector.isPending} onClick={onInspect} className="button tertiary flex items-center gap-1">
-            Refresh schema
-          </button>
+        {isEditor && (
+          <div className="mt-2 flex gap-2">
+            <button disabled={inspector.isPending} onClick={onInspect} className={st.actionBlue}>
+              Refresh schema
+            </button>
 
-          <button disabled={inspector.isPending} onClick={onRename} className="button tertiary">
-            Rename
-          </button>
+            <button disabled={inspector.isPending} onClick={onRename} className={st.actionBlue}>
+              Rename
+            </button>
 
-          <button disabled={inspector.isPending} onClick={onDelete} className="button tertiary">
-            Delete
-          </button>
+            <button disabled={inspector.isPending} onClick={onDelete} className={st.actionRed}>
+              Delete
+            </button>
+          </div>
+        )}
+
+        <div className="flex gap-2 items-center mb-2 mt-4">
+          <select
+            className="input"
+            value={searchType}
+            onChange={(e) => setSearchType(e.currentTarget.value as any)}
+          >
+            <option value="table">Table</option>
+            <option value="column">Column</option>
+          </select>
+          <input
+            className="input flex-1 bg-gray-50"
+            placeholder={isColumn ? "Search column" : "Search table"}
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            autoFocus
+          />
         </div>
-      )}
-
-      <div className="flex gap-2 items-center mb-2 mt-4">
-        <select
-          className="input"
-          value={searchType}
-          onChange={(e) => setSearchType(e.currentTarget.value as any)}
-        >
-          <option value="table">Table</option>
-          <option value="column">Column</option>
-        </select>
-        <input
-          className="input flex-1 bg-gray-50"
-          placeholder={isColumn ? "Search column" : "Search table"}
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          autoFocus
-        />
       </div>
 
-      <div className="overflow-y-auto">
+      <div className="overflow-y-auto p-4">
         {filtered?.map((table) => (
           <div key={table.id}>
             <div className={st.tableNameContainer}>
