@@ -5,7 +5,6 @@ import {
   TableOptionsContext,
   TTableOptionsUpdater
 } from "./context/TableContext.ts";
-import {QueryBuilderSidebar} from "./components/QueryBuilderSidebar.tsx";
 import {useCreateTableContext, useCreateTableOptionsContext} from "./utils.ts";
 import {WorkbenchTabOptions} from "./components/WorkbenchTabOptions.tsx";
 import {FiltersModal} from "./components/FiltersModal";
@@ -55,7 +54,7 @@ export const ExplorerView = ({ options, updater, name, tabId }: TDataSourceExplo
             <ColumnsPicker mode="columns" />
             <ColumnsPicker mode="groupBy" />
             <AggregateModal />
-            <QueryBuilderSidebar />
+            {/*<QueryBuilderSidebar />*/}
           </div>
         </QueryResultContext>
       </TableOptionsContext>
