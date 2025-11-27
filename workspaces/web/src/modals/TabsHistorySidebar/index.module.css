@@ -39,13 +39,15 @@
 }
 
 .action-blue {
+  composes: action;
   @apply text-blue-800;
 }
 
 .action-red {
+  composes: action;
   @apply text-red-800;
 }
 
 .load-more-btn {
-  @apply text-blue-800 text-sm;
+  @apply text-blue-800 text-sm p-2 cursor-pointer;
 }

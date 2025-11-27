@@ -14,7 +14,7 @@ const dateFormatter = new Intl.DateTimeFormat();
 
 const Component = () => {
   const { data: user } = useCurrentUser();
-  const { data: tabs, fetchNextPage, hasNextPage, isFetching } = useInfiniteTabHistory(user?.teamId);
+  const { data: tabs, fetchNextPage, hasNextPage, isFetching } = useInfiniteTabHistory(user?.teamId, 5);
   const navigate = useNavigate();
   const restoreTab = useRestoreArchivedTab();
   const deleteTab = useDeleteWorkbenchTab();
@@ -69,7 +69,7 @@ const Component = () => {
       ))}
 
       {hasNextPage && !isFetching && (
-        <div className="flex justify-center mt-4">
+        <div className="flex justify-center my-2">
           <button className={st.loadMoreBtn} onClick={() => fetchNextPage()}>Load more</button>
         </div>
       )}

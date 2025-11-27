@@ -123,7 +123,7 @@ export const SearchQuery = ({ onTable, onQuery, onWorkbenchTab, autoFocus }: TSe
         <div className="overflow-y-auto max-h-full mt-2">
           {tables.map((table, i) => (
             <button key={table.id} className={st.entry} data-is-active={activeIndex === i} data-table-id={table.id} onClick={onClick}>
-              <p className="font-semibold">{EMOJI[table.type]} {table.name}</p>
+              <p className="font-semibold truncate">{EMOJI[table.type]} {table.name}</p>
               <p className={st.ds}>📦 {table.dataSourceName}</p>
             </button>
           ))}
