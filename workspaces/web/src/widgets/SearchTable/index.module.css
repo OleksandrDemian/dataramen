@@ -5,7 +5,9 @@
 }
 
 .entry {
-  @apply px-2 py-1 rounded-lg cursor-pointer w-full text-left flex justify-between items-center;
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  @apply px-2 py-1 rounded-lg cursor-pointer w-full text-left items-center gap-2;
 
   &[data-is-active="true"], &:focus, &:hover {
     @apply bg-blue-50;
@@ -17,7 +19,6 @@
   }
 
   .ds {
-    max-width: 120px;
     @apply text-xs text-blue-600 truncate;
   }
 }
