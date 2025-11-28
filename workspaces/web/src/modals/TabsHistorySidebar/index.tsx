@@ -14,7 +14,7 @@ const dateFormatter = new Intl.DateTimeFormat();
 
 const Component = () => {
   const { data: user } = useCurrentUser();
-  const { data: tabs, fetchNextPage, hasNextPage, isFetching } = useInfiniteTabHistory(user?.teamId, 5);
+  const { data: tabs, fetchNextPage, hasNextPage, isFetching } = useInfiniteTabHistory(user?.teamId, 25);
   const navigate = useNavigate();
   const restoreTab = useRestoreArchivedTab();
   const deleteTab = useDeleteWorkbenchTab();
