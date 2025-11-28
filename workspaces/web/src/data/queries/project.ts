@@ -1,7 +1,7 @@
-import {useQuery} from "react-query";
+import {useInfiniteQuery, useQuery} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {queryClient} from "../queryClient.ts";
-import {TFindQuery, TProjectDataSource, TProjectQuery} from "@dataramen/types";
+import {TFindQuery, TProjectDataSource, TProjectQuery, TProjectTabsHistoryEntry} from "@dataramen/types";
 
 export const useTeamDataSources = (teamId?: string) => {
   return useQuery({
@@ -35,8 +35,12 @@ export const invalidateTeamProjectFiles = (teamId?: string) => {
   }
 
   return Promise.all([
-    queryClient.invalidateQueries(datasourcesQueryKey),
-    queryClient.invalidateQueries(queriesQueryKey),
+    queryClient.invalidateQueries({
+      queryKey: datasourcesQueryKey,
+    }),
+    queryClient.invalidateQueries({
+      queryKey: queriesQueryKey,
+    }),
   ]);
 };
 
@@ -45,7 +49,9 @@ export const invalidateTeamTrash = (teamId?: string) => {
   if (teamId) {
     queryKey.push(teamId);
   }
-  return queryClient.invalidateQueries(queryKey);
+  return queryClient.invalidateQueries({
+    queryKey: queryKey,
+  });
 };
 
 export const useSearchQueries = (search: string, props: {
@@ -66,6 +72,34 @@ export const useSearchQueries = (search: string, props: {
     },
     enabled: !!props.teamId,
     staleTime: 0,
-    keepPreviousData: true,
-  })
+  });
+};
+
+export const useInfiniteTabHistory = (teamId?: string, resultsPerPage: number = 30) => {
+  return useInfiniteQuery({
+    queryKey: ['project', "tabs-history", teamId, resultsPerPage],
+    queryFn: async ({ pageParam }) => {
+      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[]; hasMore: boolean; }>(`/project/team/${teamId}/tabs-history?page=${pageParam}&size=${resultsPerPage}`);
+      return data;
+    },
+    select: ({ pages }) => {
+      return pages.flatMap((f) => f.data);
+    },
+    enabled: !!teamId,
+    initialPageParam: 0,
+    getNextPageParam: (response, allPages) => {
+      if (response.hasMore) {
+        return allPages.length;
+      }
+
+      return undefined;
+    },
+    staleTime: 0,
+  });
+};
+
+export const invalidateTabsHistory = () => {
+  return queryClient.invalidateQueries({
+    queryKey: ['project', "tabs-history"],
+  });
 };

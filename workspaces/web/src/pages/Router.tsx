@@ -16,6 +16,7 @@ import {PeopleSettingsModal} from "../modals/PeopleSettingsModal";
 import {LoginPage} from "./Login";
 import {useLoginGuard} from "../hooks/useLoginGuard.ts";
 import {SharedQuery} from "./SharedQuery";
+import {TabsHistorySidebar} from "../modals/TabsHistorySidebar";
 
 function Router() {
   useSetupGlobalListeners();
@@ -38,6 +39,7 @@ function Router() {
       <SearchTableModal />
       <AccountSettingsModal />
       <PeopleSettingsModal />
+      <TabsHistorySidebar />
 
       <PromptModal />
       <ConfirmModal />

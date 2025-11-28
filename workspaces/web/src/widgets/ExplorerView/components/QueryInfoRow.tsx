@@ -15,6 +15,10 @@ import {prompt} from "../../../data/promptModalStore.ts";
 import {useHotkeys} from "react-hotkeys-hook";
 import {useDebouncedValue} from "../../../hooks/useDebouncedValue.ts";
 
+function calculateIsEnabled (current?: boolean) {
+  return !(current === true || current === undefined);
+}
+
 export const QueryInfoRow = () => {
   const { state: { table, dataSourceId, aggregations, columns, groupBy } } = useContext(TableOptionsContext);
   const { filters, setFilters, removeFilter } = useWhereStatements();
@@ -29,7 +33,7 @@ export const QueryInfoRow = () => {
   const onTriggerFilterEnabled = (filterId: string) => {
     setFilters(filters.map((f) => ({
       ...f,
-      isEnabled: filterId === f.id ? !f.isEnabled : f.isEnabled,
+      isEnabled: filterId === f.id ? calculateIsEnabled(f.isEnabled) : f.isEnabled,
     })), true);
   };
 

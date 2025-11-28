@@ -1,20 +1,9 @@
-import {useMutation, useQuery} from "react-query";
+import {useMutation} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {queryClient} from "../queryClient.ts";
 import {invalidateTeamProjectFiles, invalidateTeamTrash} from "./project.ts";
 import { TCreateSavedQuery, TQuery, TUpdateQuery } from "@dataramen/types";
 import {Analytics} from "../../utils/analytics.ts";
-
-export const useQueryById = (id?: string | null) => {
-  return useQuery({
-    queryKey: ["query", id],
-    queryFn: async () => {
-      const { data } = await apiClient.get<{ data: TQuery }>("/queries/" + id);
-      return data.data;
-    },
-    enabled: !!id,
-  });
-};
 
 export const useSaveQuery = () => {
   return useMutation({
@@ -23,7 +12,9 @@ export const useSaveQuery = () => {
       return data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries(["queries"]);
+      queryClient.invalidateQueries({
+        queryKey: ["queries"],
+      });
       invalidateTeamProjectFiles();
       Analytics.event("Query created");
     }

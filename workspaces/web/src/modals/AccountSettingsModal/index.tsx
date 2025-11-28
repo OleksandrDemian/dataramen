@@ -34,7 +34,7 @@ const PasswordAlert = ({ repeatPassword, password }: { password: string; repeatP
 export const AccountSettingsModal = () => {
   const opened = useAccountSettingsModal();
   const { data: account } = useCurrentUser();
-  const { mutateAsync: updatePassword, isLoading: isUpdating } = useUpdateUser();
+  const { mutateAsync: updatePassword, isPending: isUpdating } = useUpdateUser();
   const navigate = useNavigate();
 
   const [{ password, repeatPassword }, { change, touched, reset }] = useForm<{

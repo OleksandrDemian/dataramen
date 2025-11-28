@@ -33,7 +33,7 @@ export const AccessTokenHandler = (() => {
 
   const refresh = () => {
     if (isFetching) {
-      return accessTokenPromise
+      return accessTokenPromise;
     }
 
     isFetching = true;
@@ -58,10 +58,7 @@ export const AccessTokenHandler = (() => {
   };
 
   const get = async (): Promise<string | undefined> => {
-    return accessTokenPromise.then(accessToken => {
-      triggerAccessTokenUpdate();
-      return accessToken;
-    });
+    return accessTokenPromise;
   };
 
   const login = (params: TAuthUserParams) => {

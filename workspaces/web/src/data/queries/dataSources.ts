@@ -1,4 +1,4 @@
-import {useMutation, useQuery} from "react-query";
+import {useMutation, useQuery} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {
   TCreateDataSource,
@@ -13,10 +13,12 @@ import {invalidateTeamProjectFiles} from "./project.ts";
 import {Analytics} from "../../utils/analytics.ts";
 
 export const useDataSource = (id?: string) => {
-  return useQuery([QUERY_DATASOURCE_KEY, id], async () => {
-    const {data} = await apiClient.get<{ data: TDataSource }>("/data-sources/" + id);
-    return data.data;
-  }, {
+  return useQuery({
+    queryKey: [QUERY_DATASOURCE_KEY, id],
+    queryFn: async () => {
+      const {data} = await apiClient.get<{ data: TDataSource }>("/data-sources/" + id);
+      return data.data;
+    },
     enabled: !!id,
   });
 };
@@ -52,12 +54,15 @@ export const useDatabaseInspections = (dsId?: string) => {
 };
 
 export const useCreateDataSource = () => {
-  return useMutation(async (dataSource: TCreateDataSource) => {
-    const {data} = await apiClient.post<{ data: TDataSource }>("/data-sources", dataSource);
-    return data.data;
-  }, {
+  return useMutation({
+    mutationFn: async (dataSource: TCreateDataSource) => {
+      const {data} = await apiClient.post<{ data: TDataSource }>("/data-sources", dataSource);
+      return data.data;
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries([QUERY_DATASOURCE_KEY]);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_DATASOURCE_KEY],
+      });
       invalidateTeamProjectFiles();
       Analytics.event("Datasource created");
     },
@@ -75,7 +80,9 @@ export const useUpdateDataSource = () => {
       return data.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries([QUERY_DATASOURCE_KEY]);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_DATASOURCE_KEY],
+      });
       invalidateTeamProjectFiles();
     },
   });
@@ -87,7 +94,9 @@ export const useManualInspectDataSource = () => {
       await apiClient.post(`/data-sources/${id}/inspect`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries([QUERY_DATASOURCE_KEY]);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_DATASOURCE_KEY],
+      });
       Analytics.event("Datasource inspected");
     }
   });
@@ -99,7 +108,9 @@ export const useDeleteDataSource = () => {
       await apiClient.delete(`/data-sources/${id}`);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries([QUERY_DATASOURCE_KEY]);
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_DATASOURCE_KEY],
+      });
       invalidateTeamProjectFiles();
       Analytics.event("Datasource deleted");
     },

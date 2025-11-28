@@ -1,4 +1,4 @@
-import {useMutation, useQuery} from "react-query";
+import {useMutation, useQuery} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {EUserTeamRole, TTeamUser} from "@dataramen/types";
 import {queryClient} from "../queryClient.ts";

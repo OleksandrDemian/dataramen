@@ -7,7 +7,7 @@ import {
   TRunWorkbenchQuery, TWorkbenchOptions
 } from "@dataramen/types";
 import {THook} from "../../../data/types/hooks.ts";
-import {UseQueryResult} from "react-query";
+import {UseQueryResult} from "@tanstack/react-query";
 import {createTableOptions} from "../utils.ts";
 
 export type TTableContext = {

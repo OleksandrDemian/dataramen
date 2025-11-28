@@ -12,7 +12,6 @@ import {
 } from "@dataramen/types";
 import {validateCreateWorkbenchTab} from "./validators";
 import {generateSearchString} from "../../utils/generateSearchString";
-import * as worker_threads from "node:worker_threads";
 
 export default createRouter((instance) => {
   instance.route({
@@ -168,6 +167,7 @@ export default createRouter((instance) => {
         WorkbenchTabsRepository.update(id, {
           opts: newOptions,
           searchString: generateSearchString(newOptions, workbenchTab.name),
+          updatedAt: new Date(),
         });
       }
 
@@ -232,5 +232,25 @@ export default createRouter((instance) => {
         },
       };
     }
-  })
+  });
+
+  instance.route({
+    method: "delete",
+    url: "/:id",
+    handler: async (request) => {
+      const { id } = getRequestParams<{ id: string }>(request);
+      const userId = request.user.id;
+
+      await WorkbenchTabsRepository.delete({
+        id,
+        user: {
+          id: userId,
+        }
+      });
+
+      return {
+        data: true,
+      };
+    },
+  });
 });

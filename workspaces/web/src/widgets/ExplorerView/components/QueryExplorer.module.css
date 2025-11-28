@@ -149,7 +149,7 @@
 
 .row-options-entries-list {
   max-height: 30vh;
-  @apply flex flex-col overflow-y-auto;
+  @apply flex flex-col overflow-y-auto my-2;
 }
 
 .cell-action-btn {

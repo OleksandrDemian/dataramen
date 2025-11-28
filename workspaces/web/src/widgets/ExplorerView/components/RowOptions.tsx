@@ -29,11 +29,11 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
   } = useContext(TableContext);
   const { state } = useContext(TableOptionsContext);
   const { data: result } = useContext(QueryResultContext);
-  const [entityFilter, setEntityFilter] = useState<string>('');
-  const [hooksFilter, setHooksFilter] = useState<string>('');
+  const [filter, setFilter] = useState<string>('');
   const row = useMemo(() => result?.result.rows[rowIndex], [result, rowIndex]);
   const createWorkbenchTab = useCreateWorkbenchTab();
   const navigate = useNavigate();
+  const [tab, setTab] = useState<"hooks" | "entities">("hooks")
 
   const showNestedData = () => {
     if (!row) {
@@ -113,17 +113,17 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
   };
 
   const filteredEntities = useMemo<string[]>(() => {
-    if (!entityFilter) {
+    if (!filter) {
       return entities;
     }
 
-    return entities.filter((ent) => ent.includes(entityFilter));
-  }, [entities, entityFilter]);
+    return entities.filter((ent) => ent.includes(filter));
+  }, [entities, filter]);
 
   const filteredHooks = useMemo(() => {
     if (!result) return [];
 
-    const lowercaseFilter = hooksFilter.toLowerCase();
+    const lowercaseFilter = filter.toLowerCase();
     return hooks.filter(h => {
       // check if available for hooking
       const hasColumn = result.result.columns.some((c) => {
@@ -137,64 +137,56 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
       // check if name matches
       return h.on.toTable.toLowerCase().includes(lowercaseFilter);
     });
-  }, [hooksFilter, hooks, result]);
+  }, [filter, hooks, result]);
 
   const hasNestedData = state.groupBy.length > 0;
 
   return (
     <ContextualMenu handler={handler}>
       <div className={st.optionsContainer}>
-        {entities.length > 0 && (
-          <div>
-            <label className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b bg-(--bg) border-b-gray-200 p-2">
-              <span className="font-semibold">📝 Edit row</span>
-              <input
-                className="input bg-white!"
-                placeholder="Filter entities"
-                value={entityFilter}
-                onChange={(e) => setEntityFilter(e.target.value)}
-              />
-            </label>
+        <div className="grid grid-cols-2 mb-2">
+          <button className={clsx("p-2 cursor-pointer border-b", tab === "hooks" ? "border-white" : "border-r rounded-br-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("hooks")}>
+            Drill down
+          </button>
+          <button className={clsx("p-2 cursor-pointer border-b", tab === "entities" ? "border-white" : "border-l rounded-bl-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("entities")}>
+            Entities
+          </button>
+        </div>
 
-            <div className={st.rowOptionsEntriesList}>
-              {gte(filteredEntities.length, 0) ? filteredEntities.map((ent) => (
-                <button
-                  key={ent}
-                  className={clsx(st.optionItem, "font-semibold")}
-                  onClick={() => showEntity(ent)}
-                >
-                  <span>📄 {ent}</span>
-                </button>
-              )) : (
-                <p className="text-center p-2 text-gray-800">Empty</p>
-              )}
-            </div>
+        <input
+          className="input mx-2"
+          placeholder="Filter"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+        />
+
+        {tab === "entities" && entities.length > 0 && (
+          <div className={st.rowOptionsEntriesList}>
+            {gte(filteredEntities.length, 0) ? filteredEntities.map((ent) => (
+              <button
+                key={ent}
+                className={clsx(st.optionItem, "font-semibold")}
+                onClick={() => showEntity(ent)}
+              >
+                <span>📄 {ent}</span>
+              </button>
+            )) : (
+              <p className="text-center p-2 text-gray-800">Empty</p>
+            )}
           </div>
         )}
 
-        {hooks.length > 0 && (
-          <div className="not-first:border-t border-gray-200">
-            <label className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b bg-(--bg) border-gray-200 p-2">
-              <span className="font-semibold">↗️ Connected tables</span>
-              <input
-                className="input bg-white!"
-                placeholder="Filter tables"
-                value={hooksFilter}
-                onChange={(e) => setHooksFilter(e.target.value)}
+        {tab === "hooks" && hooks.length > 0 && (
+          <div className={st.rowOptionsEntriesList}>
+            {filteredHooks.length > 0 ? filteredHooks.map((hook) => (
+              <HookButton
+                hook={hook}
+                onClick={() => showRelatedData(hook)}
+                key={hook.where}
               />
-            </label>
-
-            <div className={st.rowOptionsEntriesList}>
-              {filteredHooks.length > 0 ? filteredHooks.map((hook) => (
-                <HookButton
-                  hook={hook}
-                  onClick={() => showRelatedData(hook)}
-                  key={hook.where}
-                />
-              )) : (
-                <p className="text-center p-2 text-gray-800">Empty</p>
-              )}
-            </div>
+            )) : (
+              <p className="text-center p-2 text-gray-800">Empty</p>
+            )}
           </div>
         )}
 
