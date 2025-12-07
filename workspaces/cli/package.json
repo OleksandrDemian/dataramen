@@ -1,6 +1,6 @@
 {
   "name": "@dataramen/cli",
-  "version": "0.0.60",
+  "version": "0.0.61-beta.1",
   "repository": "https://github.com/OleksandrDemian/dataramen.git",
   "author": "Oleksandr Demian <oleksandrovsky@gmail.com>",
   "license": "MIT",
@@ -13,12 +13,11 @@
   "dependencies": {
     "fs-extra": "^11.3.0",
     "open": "^10.2.0",
-    "yargs": "^18.0.0",
+    "commander": "^14.0.2",
     "yocto-spinner": "^1.0.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.3",
-    "@types/yargs": "^17.0.33",
     "esbuild": "^0.25.5"
   },
   "files": [

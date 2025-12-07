@@ -1,43 +1,61 @@
 #!/usr/bin/env node
 
-import yargs from "yargs";
-import { hideBin } from "yargs/helpers";
-import {Commands} from "./commands";
+import { Command } from "commander";
+import { Commands } from "./commands";
+import {cliPkg} from "./pkgUtils";
 
-yargs(hideBin(process.argv))
-  .command({
+const program = new Command();
+
+const app: { command: string; description: string; handler: (...args: string[]) => void }[] = [
+  {
     command: "start",
-    describe: "Start local server, restarts if already running",
+    description: "Start local server, restarts if already running",
     handler: Commands.start,
-  })
-  .command({
+  },
+  {
     command: "logs",
-    describe: "Listen for logs",
+    description: "Listen for logs",
     handler: Commands.logs,
-  })
-  .command({
+  },
+  {
     command: "stop",
-    describe: "Stop the server",
+    description: "Stop the server",
     handler: Commands.stop,
-  })
-  .command({
+  },
+  {
     command: "open",
-    describe: "Stop the server",
+    description: "Open webapp",
     handler: Commands.open,
-  })
-  .command({
-    command: "set [prop] [value]",
-    describe: "Set env value",
+  },
+  {
+    command: "set <prop> <value>",
+    description: "Set env value",
     handler: Commands.setEnvVariable,
-  })
-  .command({
-    command: "unset [prop]",
-    describe: "Remove env value",
+  },
+  {
+    command: "unset <prop>",
+    description: "Remove env value",
     handler: Commands.unsetEnvVariable,
-  })
-  .command({
-    command: "version",
-    describe: "Show version",
-    handler: Commands.version,
-  })
-  .parse();
+  },
+];
+
+// App metadata
+program
+  .name("dataramen")
+  .description("A cozy web GUI for MySQL and PostgreSQL - built for developers who like to move fast and stay focused.")
+  .version(cliPkg().version, "-v, --version", "Show version");
+
+// Default start dataramen
+program
+  .command("default", { hidden: true, isDefault: true })
+  .action(Commands.start);
+
+// initialize other commands
+app.forEach((command) => {
+  program
+    .command(command.command)
+    .description(command.description)
+    .action(command.handler);
+});
+
+program.parse();

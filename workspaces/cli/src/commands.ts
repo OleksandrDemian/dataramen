@@ -10,7 +10,6 @@ import {isPortFree} from "./netUtils";
 import {generateDefaultEnvValues} from "./envUtils";
 import {SERVER_CHECK_INTERVAL, SERVER_CHECK_TIMEOUT, waitServerAvailability} from "./waitServerAvailability";
 import {env} from "./envHandler";
-import {ArgumentsCamelCase} from "yargs";
 
 async function start () {
   const hasPm2 = await checkPm2();
@@ -81,16 +80,16 @@ async function openApp () {
   await open(`http://localhost:${port}`);
 }
 
-function setEnvVariable (args: ArgumentsCamelCase<{ prop: string; value: string; }>) {
-  env.set(args.prop, args.value);
+function setEnvVariable (prop: string, value: string) {
+  env.set(prop, value);
   env.flush();
-  console.log(`Environment property set: ${args.prop}`);
+  console.log(`Environment property set: ${prop}`);
 }
 
-function unsetEnvVariable (args: ArgumentsCamelCase<{ prop: string; }>) {
-  env.unset(args.prop);
+function unsetEnvVariable (prop: string) {
+  env.unset(prop);
   env.flush();
-  console.log(`Environment property unset: ${args.prop}`);
+  console.log(`Environment property unset: ${prop}`);
 }
 
 export const Commands = {
