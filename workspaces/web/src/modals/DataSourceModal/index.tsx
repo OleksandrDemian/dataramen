@@ -23,18 +23,26 @@ import {closeMenuSidebar} from "../../data/showSidebarMenuStore.ts";
 import {Sidebar} from "../../widgets/Sidebar";
 import {useCreateWorkbenchTab} from "../../data/queries/workbenchTabs.ts";
 import {createTableOptions} from "../../widgets/ExplorerView/utils.ts";
+import CopyIcon from "../../assets/duplicate-outline.svg?react";
+import OpenIcon from "../../assets/open-outline.svg?react"
+import EditIcon from "../../assets/pencil-outline.svg?react"
+import RefreshIcon from "../../assets/refresh-outline.svg?react"
+import TrashIcon from "../../assets/trash-bin-outline.svg?react"
+import {copyText} from "../../utils/copyText.ts";
 
 const formatter = new Intl.DateTimeFormat("en", {
   dateStyle: "full",
   timeStyle: "long",
 });
 
+const tableActionSize = 18;
+
 function getLabelClass (label: string, filter: string): string | undefined {
   if (!!filter && label.toLowerCase().includes(filter)) {
-    return "bg-yellow-200";
+    return "bg-yellow-200 cursor-pointer";
   }
 
-  return undefined;
+  return "cursor-pointer";
 }
 
 const InspectionList = ({ insp, filter, expanded }: { insp: TDatabaseInspection; filter: string; expanded: boolean }) => {
@@ -55,7 +63,7 @@ const InspectionList = ({ insp, filter, expanded }: { insp: TDatabaseInspection;
       {columns.map((col) => (
         <>
           <li key={col.name + col.type}>
-            {col.isPrimary ? '🔐' : '🏷️'} <span className={getLabelClass(col.name, filter)}>{col.name}</span> <span className={st.columnType}>[{col.type}]</span>
+            {col.isPrimary ? '🔐' : '🏷️'} <span onClick={() => copyText(col.name)} className={getLabelClass(col.name, filter)}>{col.name}</span> <span className={st.columnType}>[{col.type}]</span>
             {col.ref && (
               <span> ➡️ <span className={st.columnType}>{col.ref.table}</span>.{col.ref.field}</span>
             )}
@@ -181,15 +189,18 @@ function Component ({ id }: { id: string }) {
         {isEditor && (
           <div className="mt-2 flex gap-2">
             <button disabled={inspector.isPending} onClick={onInspect} className={st.actionBlue}>
-              Refresh schema
+              <RefreshIcon width={16} height={16} />
+              INSPECT
             </button>
 
             <button disabled={inspector.isPending} onClick={onRename} className={st.actionBlue}>
-              Rename
+              <EditIcon width={16} height={16} />
+              RENAME
             </button>
 
             <button disabled={inspector.isPending} onClick={onDelete} className={st.actionRed}>
-              Delete
+              <TrashIcon width={16} height={16} />
+              DELETE
             </button>
           </div>
         )}
@@ -217,7 +228,7 @@ function Component ({ id }: { id: string }) {
         {filtered?.map((table) => (
           <div key={table.id}>
             <div className={st.tableNameContainer}>
-              <button className={clsx(st.chevron, dropdownVisibility[table.id] && st.down)} onClick={() => toggleDropdown(table.id)}>
+              <button className={clsx(st.chevron, dropdownVisibility[table.id] ? st.down : st.up)} onClick={() => toggleDropdown(table.id)}>
                 <ChevronIcon width={16} height={16} />
               </button>
 
@@ -225,8 +236,12 @@ function Component ({ id }: { id: string }) {
                 {table.tableName}
               </button>
 
-              <button className={st.link} onClick={() => openTable(table.tableName)}>
-                ↗️
+              <button className={st.link} onClick={() => openTable(table.tableName)} data-tooltip-id="default-xs" data-tooltip-content="Explore table data">
+                <OpenIcon width={tableActionSize} height={tableActionSize} />
+              </button>
+
+              <button className={st.link} onClick={() => copyText(table.tableName)} data-tooltip-id="default-xs" data-tooltip-content="Copy table name">
+                <CopyIcon width={tableActionSize} height={tableActionSize} />
               </button>
             </div>
 

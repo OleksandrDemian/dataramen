@@ -12,8 +12,12 @@
   @apply hover:bg-gray-100 cursor-pointer rounded-lg;
 }
 
-.down {
+.up {
   rotate: 90deg;
+}
+
+.down {
+  rotate: 270deg;
 }
 
 .chevron {
@@ -25,7 +29,7 @@
 
   .link {
     border-radius: 4px;
-    @apply hover:bg-blue-50 cursor-pointer p-1;
+    @apply hover:bg-gray-100 cursor-pointer p-1;
   }
 
   &:hover {
@@ -62,22 +66,22 @@
 
 .action {
   &:not(:disabled) {
-    @apply cursor-pointer hover:underline;
+    @apply cursor-pointer;
   }
 
   &:disabled {
     @apply opacity-40;
   }
 
-  @apply text-sm;
+  @apply text-xs font-semibold flex items-center gap-1 py-1 px-2 rounded-md border;
 }
 
 .action-blue {
   composes: action;
-  @apply text-blue-800;
+  @apply text-blue-800 bg-blue-50 border-blue-200;
 }
 
 .action-red {
   composes: action;
-  @apply text-red-800;
+  @apply text-red-800 bg-red-50 border-red-200;
 }

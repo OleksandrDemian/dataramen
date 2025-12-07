@@ -12,6 +12,7 @@ const DesktopLayout = ({ children, isLogin }: { children: ReactNode; isLogin: bo
   return (
     <div className={st.desktopLayout}>
       <Tooltip id="default" className="z-100" />
+      <Tooltip id="default-xs" className="z-100 text-xs!" />
       {!isLogin && <Nav />}
 
       <main className={st.main}>
