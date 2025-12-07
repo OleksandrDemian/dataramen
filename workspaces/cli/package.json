@@ -1,6 +1,8 @@
 {
   "name": "@dataramen/cli",
-  "version": "0.0.59",
+  "version": "0.0.60",
+  "repository": "https://github.com/OleksandrDemian/dataramen.git",
+  "author": "Oleksandr Demian <oleksandrovsky@gmail.com>",
   "license": "MIT",
   "bin": {
     "dataramen": "bin/run.js"

@@ -195,26 +195,28 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
 
   // init columns after each close
   useEffect(() => {
-    if (!showModal) {
-      setNewColumns({});
-      return;
+    if (showModal) {
+      setNewColumns(
+        () => reduceStringArrayToBooleanObject(
+          state[mode].map((c) => {
+            if (c.fn) {
+              return c.fn + " " + c.value;
+            }
+
+            return c.value;
+          }),
+        ),
+      );
     }
-
-    setNewColumns(
-      () => reduceStringArrayToBooleanObject(
-        state[mode].map((c) => {
-          if (c.fn) {
-            return c.fn + " " + c.value;
-          }
-
-          return c.value;
-        }),
-      ),
-    );
   }, [showModal, setNewColumns, /* don't include state in dependencies */]);
 
+  const onClosed = () => {
+    setFilter("");
+    setNewColumns({});
+  };
+
   return (
-    <Modal isVisible={showModal} onClose={onCancel} portal>
+    <Modal isVisible={showModal} onClose={onCancel} portal onClosed={onClosed}>
       <ModalClose onClick={onCancel}/>
       <div className={st.container}>
         <h2 className="text-lg font-semibold">
