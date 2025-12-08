@@ -1,4 +1,4 @@
-import {PROCESS_NAME, SERVER_PATH} from "./const";
+import {PROCESS_NAME, SERVER_PATH} from "../const";
 import {serverPkg} from "./pkgUtils";
 import * as fs from "fs-extra";
 import {join} from "node:path";

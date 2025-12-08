@@ -1,6 +1,6 @@
 import {readFileSync, writeFileSync} from "fs-extra";
 import {join} from "node:path";
-import {SERVER_PATH} from "./const";
+import {SERVER_PATH} from "../const";
 
 type TRawValue = string | undefined;
 type EnvVariables = Record<string, TRawValue>;

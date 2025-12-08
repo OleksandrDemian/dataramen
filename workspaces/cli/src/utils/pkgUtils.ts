@@ -1,6 +1,6 @@
 import * as fs from "fs-extra";
 import {join} from "node:path";
-import {SERVER_PATH} from "./const";
+import {SERVER_PATH} from "../const";
 
 function useJson (path: string) {
   let file = undefined;
