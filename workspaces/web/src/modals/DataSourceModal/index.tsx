@@ -177,7 +177,7 @@ function Component ({ id }: { id: string }) {
 
   return (
     <div className={st.root}>
-      <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
+      <div className="sticky top-0 bg-white border-b border-gray-200 p-4 z-1">
         <h3 className="page-head flex gap-2">
           {dataSource && <DataSourceIcon size={32} type={dataSource.dbType} />}
           <span className="truncate">{dataSource?.name}</span>
