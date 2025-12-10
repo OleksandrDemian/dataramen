@@ -22,7 +22,8 @@ import {
   isAllowedFunction,
   isAggregationFunction,
   PostgreSqlFunctions,
-  MySqlColumnFunctions, OrderByClause
+  MySqlColumnFunctions,
+  OrderByClause
 } from "@dataramen/sql-builder";
 import {In} from "typeorm";
 import {inputColumnToAlias, STRING_TYPES} from "@dataramen/common";
@@ -122,6 +123,11 @@ export const runSelect = async (
     }
   }
 
+  const columnTypes = allColumns.reduce((acc, cur) => {
+    acc[cur.full] = cur.type;
+    return acc;
+  }, {} as Record<string, string>);
+
   let selectedColumns: string[];
   if (columns && columns.length > 0) {
     selectedColumns = columns.map((c) => processInputColumn(c, dataSource.dbType));
@@ -161,6 +167,10 @@ export const runSelect = async (
     queryHistoryId: historyPromise.id,
     tables,
     allColumns,
+    columns: result.columns.map((c) => ({
+      ...c,
+      type: columnTypes[c.full],
+    })),
     hasMore,
   };
 };

@@ -23,7 +23,7 @@ import {closeMenuSidebar} from "../../data/showSidebarMenuStore.ts";
 import {Sidebar} from "../../widgets/Sidebar";
 import {useCreateWorkbenchTab} from "../../data/queries/workbenchTabs.ts";
 import {createTableOptions} from "../../widgets/ExplorerView/utils.ts";
-import CopyIcon from "../../assets/duplicate-outline.svg?react";
+import CopyIcon from "../../assets/copy-outline.svg?react";
 import OpenIcon from "../../assets/open-outline.svg?react"
 import EditIcon from "../../assets/pencil-outline.svg?react"
 import RefreshIcon from "../../assets/refresh-outline.svg?react"

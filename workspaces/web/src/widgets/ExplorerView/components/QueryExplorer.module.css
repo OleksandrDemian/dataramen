@@ -10,7 +10,7 @@
   }
 
   thead td {
-    @apply sticky z-1 bg-white top-0;
+    @apply sticky z-1 bg-(--bg) top-0 border-gray-200;
   }
 }
 
@@ -72,21 +72,26 @@
 
 .cell-actions {
   bottom: -24px;
-  @apply absolute border border-gray-200 bg-white shadow-md rounded-lg flex items-center;
+  @apply absolute border border-gray-200 bg-white shadow-md rounded-lg flex items-center overflow-hidden;
 
   button {
     @apply hover:bg-(--bg) cursor-pointer p-1 text-sm;
+
+    svg {
+      @apply pointer-events-none;
+    }
   }
 }
 
 .header-actions {
-  right: 2px;
-  top: 2px;
+  right: 0;
+  top: 0;
+  bottom: 0;
 
-  @apply absolute border border-gray-200 bg-white shadow-md rounded-lg flex items-center;
+  @apply absolute border-l border-gray-200 bg-white flex items-center p-1;
 
   button {
-    @apply text-sm font-semibold hover:bg-gray-100 cursor-pointer p-1;
+    @apply text-sm font-semibold hover:bg-gray-100 cursor-pointer rounded-md p-1;
   }
 }
 

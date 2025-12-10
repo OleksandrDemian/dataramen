@@ -145,16 +145,16 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
     <ContextualMenu handler={handler}>
       <div className={st.optionsContainer}>
         <div className="grid grid-cols-2 mb-2">
-          <button className={clsx("p-2 cursor-pointer border-b", tab === "hooks" ? "border-white" : "border-r rounded-br-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("hooks")}>
+          <button className={clsx("p-2 cursor-pointer text-sm border-b", tab === "hooks" ? "border-white" : "border-r rounded-br-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("hooks")}>
             Drill down
           </button>
-          <button className={clsx("p-2 cursor-pointer border-b", tab === "entities" ? "border-white" : "border-l rounded-bl-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("entities")}>
-            Entities
+          <button className={clsx("p-2 cursor-pointer text-sm border-b", tab === "entities" ? "border-white" : "border-l rounded-bl-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("entities")}>
+            Expand row
           </button>
         </div>
 
         <input
-          className="input mx-2"
+          className="input mx-2 text-sm"
           placeholder="Filter"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
@@ -165,13 +165,13 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
             {gte(filteredEntities.length, 0) ? filteredEntities.map((ent) => (
               <button
                 key={ent}
-                className={clsx(st.optionItem, "font-semibold")}
+                className={clsx(st.optionItem, "font-semibold text-sm")}
                 onClick={() => showEntity(ent)}
               >
                 <span>📄 {ent}</span>
               </button>
             )) : (
-              <p className="text-center p-2 text-gray-800">Empty</p>
+              <p className="text-center p-2 text-gray-800 text-sm">Empty</p>
             )}
           </div>
         )}
@@ -185,7 +185,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
                 key={hook.where}
               />
             )) : (
-              <p className="text-center p-2 text-gray-800">Empty</p>
+              <p className="text-center p-2 text-gray-800 text-sm">Empty</p>
             )}
           </div>
         )}

@@ -130,6 +130,9 @@ export const STRING_TYPES: string[] = [
   "character", "character varying", "text", "citext", "uuid", "xml", "json", "jsonb",
 ];
 
+const _STRING_TYPES_SET = new Set(STRING_TYPES);
+export const isStringType = (type: string) => _STRING_TYPES_SET.has(type);
+
 export const NUMERIC_TYPES: string[] = [
   // MySQL
   "integer", "smallint", "decimal", "numeric", "float", "real", "double precision", "int",

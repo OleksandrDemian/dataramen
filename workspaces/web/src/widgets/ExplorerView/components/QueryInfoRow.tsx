@@ -30,6 +30,7 @@ export const QueryInfoRow = () => {
   const onAggregateClick = () => showExplorerModal("aggregate");
   const onColumnsClick = () => showExplorerModal("columns");
   const onGroupByClick = () => showExplorerModal("groupBy");
+
   const onTriggerFilterEnabled = (filterId: string) => {
     setFilters(filters.map((f) => ({
       ...f,
@@ -148,7 +149,7 @@ export const QueryInfoRow = () => {
         </button>
       )}
 
-      <SearchAll />
+      {false && <SearchAll />}
     </div>
   );
 };
