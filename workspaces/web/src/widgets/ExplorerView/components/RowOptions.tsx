@@ -144,7 +144,7 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
   return (
     <ContextualMenu handler={handler}>
       <div className={st.optionsContainer}>
-        <div className="grid grid-cols-2 mb-2">
+        <div className="grid grid-cols-2">
           <button className={clsx("p-2 cursor-pointer text-sm border-b", tab === "hooks" ? "border-white" : "border-r rounded-br-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("hooks")}>
             Drill down
           </button>
@@ -154,13 +154,13 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
         </div>
 
         <input
-          className="input mx-2 text-sm"
+          className="input mx-2 text-sm my-2"
           placeholder="Filter"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         />
 
-        {tab === "entities" && entities.length > 0 && (
+        {tab === "entities" && (
           <div className={st.rowOptionsEntriesList}>
             {gte(filteredEntities.length, 0) ? filteredEntities.map((ent) => (
               <button
@@ -176,9 +176,9 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
           </div>
         )}
 
-        {tab === "hooks" && hooks.length > 0 && (
+        {tab === "hooks" && (
           <div className={st.rowOptionsEntriesList}>
-            {filteredHooks.length > 0 ? filteredHooks.map((hook) => (
+            {gte(filteredHooks.length, 0) ? filteredHooks.map((hook) => (
               <HookButton
                 hook={hook}
                 onClick={() => showRelatedData(hook)}

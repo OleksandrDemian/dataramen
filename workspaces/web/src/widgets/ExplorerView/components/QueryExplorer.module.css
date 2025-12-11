@@ -154,7 +154,7 @@
 
 .row-options-entries-list {
   max-height: 30vh;
-  @apply flex flex-col overflow-y-auto my-2;
+  @apply flex flex-col overflow-y-auto mb-2;
 }
 
 .cell-action-btn {
@@ -169,8 +169,8 @@
   min-width: 180px;
   max-width: 60vw;
   max-height: 30vh;
-  @apply text-left rounded-lg w-full mt-2;
-  @apply p-2 bg-white flex flex-col gap-2 shadow-lg border border-gray-200 overflow-y-auto relative;
+  @apply text-left w-full mt-2;
+  @apply p-2 bg-white flex flex-col gap-2 shadow-lg border-t border-gray-200 overflow-y-auto relative;
 
   &:hover {
     @apply bg-gray-100 cursor-pointer;
