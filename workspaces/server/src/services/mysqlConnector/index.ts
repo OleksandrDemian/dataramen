@@ -10,6 +10,7 @@ import {
 import {TReferencesInspection} from "../../types/connectors";
 import {TExecuteQueryResult} from "@dataramen/types";
 import {HttpError} from "../../utils/httpError";
+import {lowercase} from "../../utils/stringUtils";
 
 const getConnection = ({ database, password, user, url }: TDynamicConnectionConfig) => {
   return mysql.createConnection({
@@ -23,7 +24,7 @@ const getConnection = ({ database, password, user, url }: TDynamicConnectionConf
 
 const extractPrimaryKeys = async (connection: mysql.Connection) => {
   const query = `
-      SELECT TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION
+      SELECT LOWER(TABLE_NAME) as TABLE_NAME, COLUMN_NAME, ORDINAL_POSITION
       FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE
       WHERE CONSTRAINT_NAME = 'PRIMARY'
       ORDER BY TABLE_NAME, ORDINAL_POSITION;
@@ -34,7 +35,7 @@ const extractPrimaryKeys = async (connection: mysql.Connection) => {
   const primaryKeysMap: {[key: string]: string[]} = {};
 
   (rows as any[]).forEach(row => {
-    const tableName = row.TABLE_NAME;
+    const tableName = lowercase(row.TABLE_NAME);
     const columnName = row.COLUMN_NAME;
 
     if (!primaryKeysMap[tableName]) {
@@ -50,7 +51,7 @@ const extractPrimaryKeys = async (connection: mysql.Connection) => {
 const getReferences = async (connection: mysql.Connection) => {
   const query = `
       SELECT
-          TABLE_NAME AS table_name,
+          LOWER(TABLE_NAME) AS table_name,
           COLUMN_NAME AS field,
           REFERENCED_TABLE_NAME AS referenced_table,
           REFERENCED_COLUMN_NAME AS referenced_field
@@ -84,8 +85,8 @@ const inspectSchema = async (dataSource: TDynamicConnectionConfig, connection: m
   const refs = await getReferences(connection);
   const primaryKeys = await extractPrimaryKeys(connection);
   const rows = tables.map(async (table) => {
-    const tableName = Object.values(table)[0];
-    const inspectColumnsQuery = `select COLUMN_NAME, DATA_TYPE from information_schema.columns where table_schema = '${dataSource.database}' and table_name = '${tableName}'`;
+    const tableName = lowercase(Object.values(table)[0]);
+    const inspectColumnsQuery = `select COLUMN_NAME, DATA_TYPE from information_schema.columns where table_schema = '${dataSource.database}' and LOWER(table_name) = '${tableName}'`;
     const [columns] = await connection.query(inspectColumnsQuery);
     const ref = refs[tableName];
 
@@ -108,7 +109,7 @@ const inspectSchema = async (dataSource: TDynamicConnectionConfig, connection: m
           return col1.isPrimary ? -1 : 1;
         }),
       createdAt: new Date(),
-      tableName,
+      tableName: tableName,
       updatedAt: new Date(),
     };
   });
@@ -143,9 +144,9 @@ const executeQuery = async (query: string, connection: mysql.Connection, opts: T
       return  {
         columns: columns?.map((column: { orgName: string; orgTable?: string; name: string; }) => ({
           column: column.orgName || column.name,
-          table: column.orgTable,
+          table: lowercase(column.orgTable),
           alias: column.name,
-          full: column.orgTable ? column.orgTable + "." + column.orgName : column.name,
+          full: column.orgTable ? lowercase(column.orgTable) + "." + column.orgName : column.name,
         })) || [],
         rows,
         query,

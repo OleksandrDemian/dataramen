@@ -144,48 +144,48 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
   return (
     <ContextualMenu handler={handler}>
       <div className={st.optionsContainer}>
-        <div className="grid grid-cols-2 mb-2">
-          <button className={clsx("p-2 cursor-pointer border-b", tab === "hooks" ? "border-white" : "border-r rounded-br-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("hooks")}>
+        <div className="grid grid-cols-2">
+          <button className={clsx("p-2 cursor-pointer text-sm border-b", tab === "hooks" ? "border-white" : "border-r rounded-br-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("hooks")}>
             Drill down
           </button>
-          <button className={clsx("p-2 cursor-pointer border-b", tab === "entities" ? "border-white" : "border-l rounded-bl-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("entities")}>
-            Entities
+          <button className={clsx("p-2 cursor-pointer text-sm border-b", tab === "entities" ? "border-white" : "border-l rounded-bl-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("entities")}>
+            Expand row
           </button>
         </div>
 
         <input
-          className="input mx-2"
+          className="input mx-2 text-sm my-2"
           placeholder="Filter"
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         />
 
-        {tab === "entities" && entities.length > 0 && (
+        {tab === "entities" && (
           <div className={st.rowOptionsEntriesList}>
             {gte(filteredEntities.length, 0) ? filteredEntities.map((ent) => (
               <button
                 key={ent}
-                className={clsx(st.optionItem, "font-semibold")}
+                className={clsx(st.optionItem, "font-semibold text-sm")}
                 onClick={() => showEntity(ent)}
               >
                 <span>📄 {ent}</span>
               </button>
             )) : (
-              <p className="text-center p-2 text-gray-800">Empty</p>
+              <p className="text-center p-2 text-gray-800 text-sm">Empty</p>
             )}
           </div>
         )}
 
-        {tab === "hooks" && hooks.length > 0 && (
+        {tab === "hooks" && (
           <div className={st.rowOptionsEntriesList}>
-            {filteredHooks.length > 0 ? filteredHooks.map((hook) => (
+            {gte(filteredHooks.length, 0) ? filteredHooks.map((hook) => (
               <HookButton
                 hook={hook}
                 onClick={() => showRelatedData(hook)}
                 key={hook.where}
               />
             )) : (
-              <p className="text-center p-2 text-gray-800">Empty</p>
+              <p className="text-center p-2 text-gray-800 text-sm">Empty</p>
             )}
           </div>
         )}

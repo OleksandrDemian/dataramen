@@ -14,19 +14,68 @@ import {useOrderByStatements} from "../hooks/useOrderByStatements.ts";
 import {useCellActions} from "../hooks/useCellActions.ts";
 import {RowOptions, TRowOptionsProps} from "./RowOptions.tsx";
 import {gte} from "../../../utils/numbers.ts";
+import {prompt} from "../../../data/promptModalStore.ts";
+import {isStringType} from "@dataramen/common";
+import {useWhereStatements} from "../hooks/useWhereStatements.ts";
+import {genSimpleId} from "../../../utils/id.ts";
+import {QueryFilter} from "@dataramen/sql-builder";
+import ArrowUpIcon from "../../../assets/arrow-up-outline.svg?react";
+import SwapIcon from "../../../assets/swap-vertical-outline.svg?react";
+import SearchIcon from "../../../assets/search-outline.svg?react";
+import CopyIcon from "../../../assets/copy-outline.svg?react";
+import EyeIcon from "../../../assets/eye-outline.svg?react";
 
-const orderEmojis = {
-  ASC: "⬆️",
-  DESC: "⬇️",
+type TNewFilter = {
+  value: string;
+  column: string;
+  type: string;
+};
+
+const orderIconClass = {
+  ASC: "",
+  DESC: "rotate-180",
+};
+
+const updateFilters = (filters: QueryFilter[], { type, column, value }: TNewFilter): QueryFilter[] => {
+  const newFilters: QueryFilter[] = filters.map((f) => ({
+    ...f,
+    // disable other filters for the same column
+    isEnabled: f.column === column ? false : f.isEnabled,
+  }));
+
+  newFilters.push({
+    id: genSimpleId(),
+    column,
+    isEnabled: true,
+    connector: "AND",
+    value: [{
+      value,
+      isColumn: false,
+    }],
+    operator: isStringType(type) ? "LIKE" : "=",
+  });
+
+  return newFilters;
 };
 
 const TableHeaders = () => {
   const { data } = useContext(QueryResultContext);
   const { orderBy: orderByList, updateOrderBy } = useOrderByStatements();
+  const { setFilters, filters } = useWhereStatements();
 
   const columns = data?.result.columns || [];
   const orderBy = orderByList[0];
   const showTableName = gte(data?.result.tables.length, 1);
+
+  const onFilter = (column: string, type?: string) => {
+    prompt("Filter value", "").then((value) => {
+      if (!type || !value) {
+        return;
+      }
+
+      setFilters(updateFilters(filters, { column, type, value }));
+    });
+  };
 
   return (
     <thead>
@@ -41,7 +90,13 @@ const TableHeaders = () => {
 
             <div className={st.headerActions}>
               <button onClick={() => updateOrderBy(column.full)}>
-                {orderBy?.column === column.full ? orderEmojis[orderBy.direction] : '↕️'}
+                {orderBy?.column === column.full ?
+                  <ArrowUpIcon className={orderIconClass[orderBy.direction]} width={16} height={16} /> :
+                  <SwapIcon width={16} height={16} />
+                }
+              </button>
+              <button onClick={() => onFilter(column.full, column.type)}>
+                <SearchIcon width={16} height={16} />
               </button>
             </div>
           </td>
@@ -66,9 +121,15 @@ function CellValue ({ value, row, col }: { value: TDbValue; col: number; row: nu
     <>
       <span data-row={row} className={st.value}>{sanitized}</span>
       <div className={st.cellActions}>
-        <button data-copy-col={col} data-copy-row={row}>📋</button>
-        <button data-show-col={col} data-show-row={row}>👀</button>
-        <button data-filter-col={col} data-filter-row={row}>🔎</button>
+        <button data-copy-col={col} data-copy-row={row}>
+          <CopyIcon width={16} height={16} />
+        </button>
+        <button data-show-col={col} data-show-row={row}>
+          <EyeIcon width={16} height={16} />
+        </button>
+        <button data-filter-col={col} data-filter-row={row}>
+          <SearchIcon width={16} height={16} />
+        </button>
       </div>
     </>
   );

@@ -36,6 +36,7 @@ export type TResultColumn = {
   table?: string;
   alias: string;
   full: string;
+  type?: string;
 };
 
 export type TExecuteQueryResult = {

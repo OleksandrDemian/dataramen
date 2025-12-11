@@ -27,7 +27,7 @@ const getConnection = async ({ database, password, user, url, port }: TDynamicCo
 const extractPrimaryKeys = async (client: pg.Client) => {
   const query = `
       SELECT
-          kcu.table_name,
+          LOWER(kcu.table_name) as table_name,
           kcu.column_name,
           kcu.ordinal_position
       FROM
@@ -38,7 +38,7 @@ const extractPrimaryKeys = async (client: pg.Client) => {
       WHERE
           tc.constraint_type = 'PRIMARY KEY'
       ORDER BY
-          kcu.table_name, kcu.ordinal_position;
+          table_name, kcu.ordinal_position;
   `;
 
   const result = await client.query(query);
@@ -62,9 +62,9 @@ const extractPrimaryKeys = async (client: pg.Client) => {
 const getReferences = async (connection: pg.Client) => {
   const query = `
     SELECT
-      tc.table_name AS table_name,
+      LOWER(tc.table_name) AS table_name,
       kcu.column_name AS field,
-      ccu.table_name AS referenced_table,
+      LOWER(ccu.table_name) AS referenced_table,
       ccu.column_name AS referenced_field
     FROM
       information_schema.table_constraints AS tc
@@ -93,7 +93,7 @@ const getReferences = async (connection: pg.Client) => {
 };
 
 const inspectSchema = async (dataSource: TDynamicConnectionConfig, connection: pg.Client): Promise<TIntrospectionResult[]> => {
-  const tableQuery = `SELECT tablename FROM pg_catalog.pg_tables WHERE schemaname = '${dataSource.schema}'`;
+  const tableQuery = `SELECT LOWER(tablename) as tablename FROM pg_catalog.pg_tables WHERE schemaname = '${dataSource.schema}'`;
   const result = await connection.query(tableQuery);
   const tables = result.rows as Array<{ tablename: string }>;
   const refs = await getReferences(connection);
@@ -104,7 +104,7 @@ const inspectSchema = async (dataSource: TDynamicConnectionConfig, connection: p
         SELECT column_name, data_type
         FROM information_schema.columns
         WHERE
-            table_name = '${tableName}' and
+            LOWER(table_name) = '${tableName}' and
             table_schema = '${dataSource.schema}'
     `;
     const { rows } = await connection.query(pgQuery);
@@ -138,12 +138,12 @@ const inspectSchema = async (dataSource: TDynamicConnectionConfig, connection: p
 
 type TExtractResult = Record<string, { table: string; column: string; }>;
 const extractTableNames = async (columnIds: string[], connection: pg.Client): Promise<TExtractResult> => {
-  const query = `select relname, attname, concat(pg_class.oid, '-', attnum) as row_key
+  const query = `select LOWER(relname) as relname, attname, concat(pg_class.oid, '-', attnum) as row_key
    from pg_attribute
       left join pg_class on pg_attribute.attrelid = pg_class.oid
    where
      concat(pg_class.oid, '-', attnum) IN (${columnIds.join(", ")})
-     limit 25;`;
+   limit 75;`; // hard limit for no reason, check if needed, otherwise remove
 
   const result = await connection.query(query);
   return result.rows.reduce<TExtractResult>((acc, row) => {

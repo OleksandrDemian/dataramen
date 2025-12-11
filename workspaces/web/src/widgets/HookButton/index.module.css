@@ -9,7 +9,7 @@
 }
 
 .content {
-  @apply flex-1 text-left overflow-hidden py-1;
+  @apply flex-1 text-left overflow-hidden py-1 text-sm;
 }
 
 .table {
