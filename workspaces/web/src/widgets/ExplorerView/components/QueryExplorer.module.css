@@ -7,11 +7,23 @@
 
   td {
     @apply border-b border-r border-gray-100;
+
+    &:first-child {
+      @apply py-1 px-1 text-center align-middle text-xs w-8 text-blue-500 border-r-gray-200 sticky z-2 left-0 bg-(--bg);
+    }
   }
 
   thead td {
     @apply sticky z-1 bg-(--bg) top-0 border-gray-200;
+
+    &:first-child {
+      @apply py-1 px-1 text-center text-sm text-gray-600 border-r z-3 left-0;
+    }
   }
+}
+
+.row-index-btn {
+  @apply flex gap-1 items-center hover:bg-blue-100 hover:ring-2 ring-blue-200 ring-offset-1 rounded-md px-1 cursor-pointer;
 }
 
 .semi-transparent {
@@ -178,7 +190,7 @@
 }
 
 .option-item {
-  @apply text-left p-2;
+  @apply text-left p-1;
 
   &:hover {
     @apply bg-(--bg) cursor-pointer;

@@ -20,6 +20,7 @@ import {useWhereStatements} from "../hooks/useWhereStatements.ts";
 import {genSimpleId} from "../../../utils/id.ts";
 import {QueryFilter} from "@dataramen/sql-builder";
 import ArrowUpIcon from "../../../assets/arrow-up-outline.svg?react";
+import ChevronIcon from "../../../assets/chevron-forward-outline.svg?react";
 import SwapIcon from "../../../assets/swap-vertical-outline.svg?react";
 import SearchIcon from "../../../assets/search-outline.svg?react";
 import CopyIcon from "../../../assets/copy-outline.svg?react";
@@ -80,7 +81,7 @@ const TableHeaders = () => {
   return (
     <thead>
       <tr>
-        <td className="py-1 px-4 text-center text-sm text-gray-600 border-r">#</td>
+        <td>#</td>
         {columns.map(column => (
           <td className={st.headerCell} key={column.full}>
             <div className="overflow-hidden">
@@ -148,9 +149,14 @@ const TableRow = memo(({
 }) => {
   return (
     <tr className={clsx(st.tableRowCells, isLastRow && "rounded-b-lg")}>
-      <td className="py-1 px-4 text-center align-middle text-xs w-8 text-blue-500 border-r">{index + 1 + offset}</td>
+      <td>
+        <button data-row={row} className={st.rowIndexBtn}>
+          <ChevronIcon className="pointer-events-none" width={16} height={16} />
+          {index + 1 + offset}
+        </button>
+      </td>
       {row.map((value, i) => (
-        <td className={st.cell} key={i} data-row={index}>
+        <td className={st.cell} key={i}>
           <CellValue value={value} col={i} row={index} />
         </td>
       ))}
@@ -168,13 +174,15 @@ export const QueryExplorer = () => {
   const contextMenuHandler = useContextMenuHandler();
   const [row, setRow] = useState<TRowOptionsProps["rowIndex"] | undefined>(undefined);
 
-  const onContextMenu: MouseEventHandler<HTMLTableElement> = (e) => {
+  const onTableClick: MouseEventHandler<HTMLTableElement> = (e) => {
     const dataset = (e.target as HTMLElement)?.dataset;
     const row = dataset?.row;
 
     if (row != undefined) {
       setRow(parseInt(row));
       contextMenuHandler.open(e);
+    } else {
+      clickHandler(e);
     }
   };
 
@@ -200,8 +208,7 @@ export const QueryExplorer = () => {
       {result && (
         <table
           className={clsx(st.table, isFetching && st.semiTransparent)}
-          onContextMenu={onContextMenu}
-          onClick={clickHandler}
+          onClick={onTableClick}
         >
           <TableHeaders />
 

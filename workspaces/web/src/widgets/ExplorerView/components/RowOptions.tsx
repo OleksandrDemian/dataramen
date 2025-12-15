@@ -145,10 +145,10 @@ export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
     <ContextualMenu handler={handler}>
       <div className={st.optionsContainer}>
         <div className="grid grid-cols-2">
-          <button className={clsx("p-2 cursor-pointer text-sm border-b", tab === "hooks" ? "border-white" : "border-r rounded-br-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("hooks")}>
+          <button className={clsx("p-2 cursor-pointer text-sm border-b font-semibold", tab === "hooks" ? "border-white" : "border-r rounded-br-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("hooks")}>
             Drill down
           </button>
-          <button className={clsx("p-2 cursor-pointer text-sm border-b", tab === "entities" ? "border-white" : "border-l rounded-bl-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("entities")}>
+          <button className={clsx("p-2 cursor-pointer text-sm border-b font-semibold", tab === "entities" ? "border-white" : "border-l rounded-bl-lg border-gray-200 bg-gray-50 text-gray-400")} onClick={() => setTab("entities")}>
             Expand row
           </button>
         </div>
