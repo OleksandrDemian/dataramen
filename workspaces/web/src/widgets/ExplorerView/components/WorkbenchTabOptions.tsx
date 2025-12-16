@@ -68,37 +68,37 @@ function QueryManipulation() {
 
   return (
     <div className={st.tableConfig}>
-      <button data-tooltip-id="default" data-tooltip-content="Rename tab" onClick={onRename} className={clsx(st.tableAction, st.blue, "block")}>
+      <button data-tooltip-id="default" data-tooltip-content="Rename tab" onClick={onRename} className={clsx(st.tableAction, st.gray, "block")}>
         <span className={st.tabName}>🛠️ {name}</span>
       </button>
 
-      <button data-tooltip-id="explorer-more-actions" className={clsx(st.tableAction, st.blue)}>
+      <button data-tooltip-id="explorer-more-actions" className={clsx(st.tableAction, st.gray)}>
         <span className="whitespace-nowrap">Options</span>
         <Chevron width={16} height={16} className="rotate-90" />
       </button>
 
       <Tooltip id="explorer-more-actions" className="z-10 shadow-md flex flex-col" clickable variant="light" opacity={1}>
-        <button data-tooltip-id="default" data-tooltip-content="Manage filters" onClick={() => showExplorerModal("filters")} className={clsx(st.tableAction, st.modal, st.blue)}>
+        <button data-tooltip-id="default" onClick={() => showExplorerModal("filters")} className={clsx(st.tableAction, st.modal, st.gray)}>
           <span>Filters</span>
           <span className="hotkey">F</span>
         </button>
 
-        <button data-tooltip-id="default" data-tooltip-content="Join tables" onClick={() => showExplorerModal("joins")} className={clsx(st.tableAction, st.modal, st.blue)}>
+        <button data-tooltip-id="default" onClick={() => showExplorerModal("joins")} className={clsx(st.tableAction, st.modal, st.gray)}>
           <span>Joins</span>
           <span className="hotkey">J</span>
         </button>
 
-        <button onClick={() => showExplorerModal("columns")} className={clsx(st.tableAction, st.modal, st.blue, "justify-between")}>
+        <button onClick={() => showExplorerModal("columns")} className={clsx(st.tableAction, st.modal, st.gray, "justify-between")}>
           <span>Columns</span>
           <span className="hotkey">C</span>
         </button>
 
-        <button onClick={() => showExplorerModal("groupBy")} className={clsx(st.tableAction, st.modal, st.blue, "justify-between")}>
+        <button onClick={() => showExplorerModal("groupBy")} className={clsx(st.tableAction, st.modal, st.gray, "justify-between")}>
           <span>Group by</span>
           <span className="hotkey">G</span>
         </button>
 
-        <button onClick={() => showExplorerModal("aggregate")} className={clsx(st.tableAction, st.modal, st.blue, "justify-between")}>
+        <button onClick={() => showExplorerModal("aggregate")} className={clsx(st.tableAction, st.modal, st.gray, "justify-between")}>
           <span>Aggregate</span>
           <span className="hotkey">A</span>
         </button>
@@ -107,13 +107,13 @@ function QueryManipulation() {
           <>
             <div className="h-0.5 my-2 bg-gray-100" />
 
-            <button onClick={onSaveQuery} className={clsx(st.tableAction, st.modal, st.blue)}>
+            <button onClick={onSaveQuery} className={clsx(st.tableAction, st.modal, st.gray)}>
               <span>Save query</span>
               <span className="hotkey">S</span>
             </button>
 
             {dataSource?.allowInsert === true && (
-              <button onClick={onInsert} className={clsx(st.tableAction, st.modal, st.blue)}>
+              <button onClick={onInsert} className={clsx(st.tableAction, st.modal, st.gray)}>
                 Insert new row
               </button>
             )}
@@ -184,7 +184,7 @@ function Pagination () {
       <span
         data-tooltip-content="Previous page"
         data-tooltip-id="default"
-        className={clsx(st.tableAction, st.blue, page < 1 && "opacity-30")}
+        className={clsx(st.tableAction, st.gray, page < 1 && "opacity-30")}
         onClick={onPrevPage}
         role="button"
       >
@@ -194,7 +194,7 @@ function Pagination () {
       <span
         data-tooltip-content="Next page"
         data-tooltip-id="default"
-        className={clsx(st.tableAction, hasMoreData ? st.blue : "opacity-30")}
+        className={clsx(st.tableAction, hasMoreData ? st.gray : "opacity-30")}
         onClick={onNextPage}
         role="button"
       >
@@ -203,7 +203,7 @@ function Pagination () {
       <span
         data-tooltip-content="Refresh data"
         data-tooltip-id="default"
-        className={clsx(st.tableAction, st.blue)}
+        className={clsx(st.tableAction, st.gray)}
         onClick={() => refetch()}
         role="button"
       >
@@ -214,7 +214,7 @@ function Pagination () {
         <span
           data-tooltip-content="Share query"
           data-tooltip-id="default"
-          className={clsx(st.tableAction, st.blue)}
+          className={clsx(st.tableAction, st.gray)}
           onClick={onShare}
           role="button"
         >
@@ -225,7 +225,7 @@ function Pagination () {
       <span
         data-tooltip-content="Duplicate tab"
         data-tooltip-id="default"
-        className={clsx(st.tableAction, st.blue)}
+        className={clsx(st.tableAction, st.gray)}
         onClick={onCloneTab}
         role="button"
       >
@@ -234,7 +234,7 @@ function Pagination () {
 
       <Tooltip id="rows-num" className="z-10 shadow-md flex gap-1" clickable variant="light" opacity={1}>
         {rows.map((num) => (
-          <button key={num} onClick={() => setSize(num, true)} className={clsx(st.tableAction, st.blue, num === size && st.selectedSize)}>
+          <button key={num} onClick={() => setSize(num, true)} className={clsx(st.tableAction, st.gray, num === size && st.selectedSize)}>
             <span>{num}</span>
           </button>
         ))}

@@ -1,16 +1,11 @@
-import {TCommand} from "../types/commands";
-import start from "./start";
-import logs from "./logs";
-import stop from "./stop";
-import open from "./open";
-import set from "./set";
-import unset from "./unset";
+import {TCommand, TModule} from "../types/commands";
+import {rootModule} from "./root";
+import {envModule} from "./env";
+import start from "./root/start";
 
-export const commandsList: TCommand[] = [
-  start,
-  logs,
-  stop,
-  open,
-  set,
-  unset,
+export const commandModules: TModule[] = [
+  rootModule,
+  envModule,
 ];
+
+export const defaultCommand: TCommand = start;

@@ -4,6 +4,10 @@ import {SERVER_PATH} from "../const";
 
 type TRawValue = string | undefined;
 type EnvVariables = Record<string, TRawValue>;
+type EnvState = {
+  fileName: string;
+  customValues: EnvVariables;
+};
 
 function getEnvFileSafe (envFile: string): string | undefined {
   try {
@@ -50,7 +54,7 @@ export function parseEnv(envName: string): EnvVariables {
 }
 
 function useEnvHandler () {
-  const state = {
+  const state: EnvState = {
     customValues: {},
     fileName: ".env",
   };
@@ -86,11 +90,12 @@ function useEnvHandler () {
     getBoolean: (prop: string) => getBoolean(getValue(prop)),
     flush: flush,
     set: (prop: string, value: string | number | boolean) => {
-      state.customValues[prop] = value;
+      state.customValues[prop] = value.toString();
     },
     unset: (prop: string) => {
       delete state.customValues[prop];
     },
+    values: () => ({...state.customValues}),
   };
 }
 

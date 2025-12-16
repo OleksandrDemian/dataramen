@@ -1,5 +1,5 @@
-import {TCommand} from "../types/commands";
-import {env} from "../utils/envHandler";
+import {TCommand} from "../../types/commands";
+import {env} from "../../utils/envHandler";
 import { default as openUrl } from "open";
 
 const open: TCommand = {

@@ -35,16 +35,10 @@ const PORT = Env.num("PORT", 4466);
 const ALLOWED_ORIGINS = Env.str("ALLOWED_ORIGINS", "").split(",").map((v) => v.trim());
 const HOST = '0.0.0.0';
 
-const allowedOrigins = [
+const allowedOrigins = ALLOWED_ORIGINS.includes("*") ? "*" : [
   `http://localhost:${PORT}`,
   ...ALLOWED_ORIGINS
 ];
-
-const allowAllOrigins = ALLOWED_ORIGINS.includes("*");
-
-function allowOrigin (origin: string): boolean {
-  return allowAllOrigins || allowedOrigins.includes(origin);
-}
 
 function registerRouter (fn: TRouter, prefix: string) {
   server.register(fn, { prefix });
@@ -54,26 +48,9 @@ function registerRouter (fn: TRouter, prefix: string) {
 (async function initialize () {
   validateEnvVariables();
 
-  // const routers = glob.sync("./api/**/router.js", {
-  //   cwd: __dirname,
-  // });
-  //
-  // routers.forEach((file) => {
-  //   const apiName = file.split("/")[2];
-  //   const prefix = "/api/" + folderNameToSnakeCase(apiName);
-  //   server.register(require(file), { prefix });
-  //   console.log(`${prefix} -> ${apiName} controller `);
-  // });
-
   await server.register(fastifyCookie, {});
   await server.register(cors, {
-    origin: (origin, cb) => {
-      if (origin && allowOrigin(origin)) {
-        cb(null, true);
-      } else {
-        cb(new Error('Not allowed by CORS'), false);
-      }
-    },
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true,
   });

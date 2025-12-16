@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@keyframes show {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes hide {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(20px);
+  }
+}
+
+.container {
+  z-index: 50;
+  @apply fixed inset-0;
+
+  &.animate-show {
+    animation: show 0.15s forwards;
+    @apply opacity-100 pointer-events-auto;
+  }
+
+  &.animate-hide {
+    animation: hide 0.15s forwards;
+    @apply pointer-events-none;
+  }
+}
+
+.backdrop {
+  @apply inset-0 absolute bg-black opacity-40;
+}
+
+.content {
+  @apply fixed bg-white p-2 rounded-lg shadow-md border border-gray-100;
+
+  &.animate-show {
+    animation: slide-up 0.15s forwards;
+    @apply opacity-100 pointer-events-auto;
+  }
+
+  &.animate-hide {
+    animation: slide-down 0.15s forwards;
+    @apply pointer-events-none;
+  }
+}

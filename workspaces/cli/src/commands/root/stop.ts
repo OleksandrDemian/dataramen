@@ -1,5 +1,5 @@
-import {TCommand} from "../types/commands";
-import {stopExisting} from "../utils/cliUtils";
+import {TCommand} from "../../types/commands";
+import {stopExisting} from "../../utils/cliUtils";
 
 const stop: TCommand = {
   command: "stop",

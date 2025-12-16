@@ -1,4 +1,4 @@
-import {memo, MouseEventHandler, useContext, useState} from "react";
+import {memo, MouseEventHandler, useContext, useRef, useState} from "react";
 import clsx from "clsx";
 import {useParseError} from "../../../hooks/useParseError.ts";
 import {Alert} from "../../Alert";
@@ -11,8 +11,7 @@ import {
 import {TDbValue} from "@dataramen/types";
 import {useContextMenuHandler} from "./ContextualMenu.handler.ts";
 import {useOrderByStatements} from "../hooks/useOrderByStatements.ts";
-import {useCellActions} from "../hooks/useCellActions.ts";
-import {RowOptions, TRowOptionsProps} from "./RowOptions.tsx";
+import {RowOptions} from "./RowOptions";
 import {gte} from "../../../utils/numbers.ts";
 import {prompt} from "../../../data/promptModalStore.ts";
 import {isStringType} from "@dataramen/common";
@@ -23,8 +22,8 @@ import ArrowUpIcon from "../../../assets/arrow-up-outline.svg?react";
 import ChevronIcon from "../../../assets/chevron-forward-outline.svg?react";
 import SwapIcon from "../../../assets/swap-vertical-outline.svg?react";
 import SearchIcon from "../../../assets/search-outline.svg?react";
-import CopyIcon from "../../../assets/copy-outline.svg?react";
-import EyeIcon from "../../../assets/eye-outline.svg?react";
+import {TContextMenuRef} from "../../ContextualMenu";
+import {CellActions} from "./CellActions";
 
 type TNewFilter = {
   value: string;
@@ -107,7 +106,7 @@ const TableHeaders = () => {
   );
 };
 
-function CellValue ({ value, row, col }: { value: TDbValue; col: number; row: number; }) {
+function CellValue ({ value }: { value: TDbValue; }) {
   if (value === "") {
     return <span className="pointer-events-none text-black/30 truncate">{`<EMPTY STRING>`}</span>;
   }
@@ -119,20 +118,7 @@ function CellValue ({ value, row, col }: { value: TDbValue; col: number; row: nu
   const sanitized = sanitizeCellValue(value);
 
   return (
-    <>
-      <span data-row={row} className={st.value}>{sanitized}</span>
-      <div className={st.cellActions}>
-        <button data-copy-col={col} data-copy-row={row}>
-          <CopyIcon width={16} height={16} />
-        </button>
-        <button data-show-col={col} data-show-row={row}>
-          <EyeIcon width={16} height={16} />
-        </button>
-        <button data-filter-col={col} data-filter-row={row}>
-          <SearchIcon width={16} height={16} />
-        </button>
-      </div>
-    </>
+    <span className={st.value}>{sanitized}</span>
   );
 }
 
@@ -150,14 +136,15 @@ const TableRow = memo(({
   return (
     <tr className={clsx(st.tableRowCells, isLastRow && "rounded-b-lg")}>
       <td>
-        <button data-row={row} className={st.rowIndexBtn}>
+        <button data-row-action={index} className={st.rowIndexBtn}>
           <ChevronIcon className="pointer-events-none" width={16} height={16} />
           {index + 1 + offset}
         </button>
       </td>
+
       {row.map((value, i) => (
-        <td className={st.cell} key={i}>
-          <CellValue value={value} col={i} row={index} />
+        <td className={st.cell} key={i} data-row={index} data-col={i}>
+          <CellValue value={value} />
         </td>
       ))}
     </tr>
@@ -167,22 +154,36 @@ const TableRow = memo(({
 export const QueryExplorer = () => {
   const { data: result, error: queryError, isLoading, isFetching } = useContext(QueryResultContext);
   const { state: { page, size } } = useContext(TableOptionsContext);
+  const cellActionsRef = useRef<TContextMenuRef>(null);
 
   const parsedError = useParseError(queryError);
-  const clickHandler = useCellActions();
 
   const contextMenuHandler = useContextMenuHandler();
-  const [row, setRow] = useState<TRowOptionsProps["rowIndex"] | undefined>(undefined);
+  const [row, setRow] = useState<number | undefined>(undefined);
+  const [col, setCol] = useState<number | undefined>(undefined);
 
-  const onTableClick: MouseEventHandler<HTMLTableElement> = (e) => {
+  const onRowActionClick: MouseEventHandler<HTMLTableElement> = (e) => {
     const dataset = (e.target as HTMLElement)?.dataset;
-    const row = dataset?.row;
+    const row = dataset?.rowAction;
 
     if (row != undefined) {
       setRow(parseInt(row));
       contextMenuHandler.open(e);
-    } else {
-      clickHandler(e);
+    }
+  };
+
+  const onCellContext: MouseEventHandler<HTMLElement> = (e) => {
+    const dataset = (e.target as HTMLElement)?.dataset;
+    const row = dataset?.row;
+    const col = dataset?.col;
+
+    if (row != undefined && col != undefined) {
+      setRow(parseInt(row));
+      setCol(parseInt(col));
+
+      cellActionsRef.current?.open(e);
+      e.preventDefault();
+      e.stopPropagation();
     }
   };
 
@@ -197,6 +198,16 @@ export const QueryExplorer = () => {
         />
       )}
 
+      <CellActions
+        ref={cellActionsRef}
+        col={col}
+        row={row}
+        onClosed={() => {
+          setRow(undefined);
+          setCol(undefined);
+        }}
+      />
+
       {parsedError && (
         <Alert className="my-4" variant="danger">{parsedError}</Alert>
       )}
@@ -208,7 +219,8 @@ export const QueryExplorer = () => {
       {result && (
         <table
           className={clsx(st.table, isFetching && st.semiTransparent)}
-          onClick={onTableClick}
+          onClick={onRowActionClick}
+          onContextMenu={onCellContext}
         >
           <TableHeaders />
 
