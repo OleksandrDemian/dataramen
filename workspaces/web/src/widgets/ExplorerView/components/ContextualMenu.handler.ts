@@ -22,8 +22,7 @@ export const useContextMenuHandler = () => {
       setState("out");
     };
 
-    const onAnimationEnd = (e: any) => {
-      console.log("onAnimationEnd", e);
+    const onAnimationEnd = () => {
       if (state === "in") {
         setState("visible");
       } else if (state === "out") {

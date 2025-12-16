@@ -40,6 +40,12 @@ const allowedOrigins = [
   ...ALLOWED_ORIGINS
 ];
 
+const allowAllOrigins = ALLOWED_ORIGINS.includes("*");
+
+function allowOrigin (origin: string): boolean {
+  return allowAllOrigins || allowedOrigins.includes(origin);
+}
+
 function registerRouter (fn: TRouter, prefix: string) {
   server.register(fn, { prefix });
   console.log("Registered " + prefix);
@@ -62,7 +68,7 @@ function registerRouter (fn: TRouter, prefix: string) {
   await server.register(fastifyCookie, {});
   await server.register(cors, {
     origin: (origin, cb) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (origin && allowOrigin(origin)) {
         cb(null, true);
       } else {
         cb(new Error('Not allowed by CORS'), false);
