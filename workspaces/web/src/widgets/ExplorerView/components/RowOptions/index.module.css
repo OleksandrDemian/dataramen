@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+.options-container {
+  @apply w-full lg:w-md lg:max-w-lg;
+  @apply rounded-lg bg-white flex flex-col shadow-lg border border-gray-200 overflow-hidden;
+}
+
+.filter-input {
+  @apply text-sm mb-2 w-full;
+}
+
+.option-item {
+  @apply text-left p-1 font-semibold text-sm;
+
+  &:hover {
+    @apply bg-gray-50 cursor-pointer;
+  }
+}
+
+.list {
+  max-height: 30vh;
+  @apply flex flex-col overflow-y-auto;
+}
+
+.empty-text {
+  @apply text-center p-2 text-gray-800 text-sm;
+}

@@ -4,7 +4,8 @@ import {
   TDbValue,
   TInputColumn,
   TRunSqlResult,
-  TRunWorkbenchQuery, TWorkbenchOptions
+  TRunWorkbenchQuery,
+  TWorkbenchOptions,
 } from "@dataramen/types";
 import {THook} from "../../../data/types/hooks.ts";
 import {UseQueryResult} from "@tanstack/react-query";

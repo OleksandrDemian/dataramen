@@ -1,6 +1,6 @@
-import {TCommand} from "../types/commands";
+import {TCommand} from "../../types/commands";
 import {execSync} from "node:child_process";
-import {PROCESS_NAME} from "../const";
+import {PROCESS_NAME} from "../../const";
 
 const logs: TCommand = {
   command: "logs",

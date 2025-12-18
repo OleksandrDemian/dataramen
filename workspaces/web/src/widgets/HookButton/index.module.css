@@ -1,18 +1,18 @@
 @import "tailwindcss";
 
 .root {
-  @apply flex px-2 whitespace-nowrap items-center gap-2;
+  @apply flex p-1 whitespace-nowrap items-center gap-1 text-sm;
 
   &:hover {
-    @apply bg-(--bg) cursor-pointer;
+    @apply bg-gray-50 cursor-pointer;
   }
 }
 
 .content {
-  @apply flex-1 text-left overflow-hidden py-1 text-sm;
+  @apply grid grid-cols-2 overflow-hidden gap-1 items-center text-left w-full;
 }
 
-.table {
+.table-name {
   line-height: 100%;
   @apply font-semibold truncate;
 }

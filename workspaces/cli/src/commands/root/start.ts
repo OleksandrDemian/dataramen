@@ -1,13 +1,13 @@
-import {TCommand} from "../types/commands";
-import {asyncExec, checkPm2, installPm2, installServer, shouldInstall, stopExisting} from "../utils/cliUtils";
-import {generateDefaultEnvValues} from "../utils/envUtils";
-import {env} from "../utils/envHandler";
-import {isPortFree} from "../utils/netUtils";
+import {TCommand} from "../../types/commands";
+import {asyncExec, checkPm2, installPm2, installServer, shouldInstall, stopExisting} from "../../utils/cliUtils";
+import {generateDefaultEnvValues} from "../../utils/envUtils";
+import {env} from "../../utils/envHandler";
+import {isPortFree} from "../../utils/netUtils";
 import yoctoSpinner from "yocto-spinner";
-import {PROCESS_NAME, SERVER_PATH} from "../const";
+import {PROCESS_NAME, SERVER_PATH} from "../../const";
 import * as fs from "fs-extra";
 import {join} from "node:path";
-import {SERVER_CHECK_INTERVAL, SERVER_CHECK_TIMEOUT, waitServerAvailability} from "../utils/waitServerAvailability";
+import {SERVER_CHECK_INTERVAL, SERVER_CHECK_TIMEOUT, waitServerAvailability} from "../../utils/waitServerAvailability";
 import open from "open";
 
 const start: TCommand = {

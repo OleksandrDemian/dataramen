@@ -7,11 +7,23 @@
 
   td {
     @apply border-b border-r border-gray-100;
+
+    &:first-child {
+      @apply py-1 px-1 text-center align-middle text-xs w-8 text-blue-500 border-r-gray-200 lg:sticky z-2 lg:left-0 bg-(--bg);
+    }
   }
 
   thead td {
     @apply sticky z-1 bg-(--bg) top-0 border-gray-200;
+
+    &:first-child {
+      @apply py-1 px-1 text-center text-sm text-gray-600 border-r z-3 lg:left-0;
+    }
   }
+}
+
+.row-index-btn {
+  @apply flex gap-1 items-center hover:bg-white hover:ring-2 ring-blue-200 ring-offset-1 rounded-md px-1 cursor-pointer;
 }
 
 .semi-transparent {
@@ -62,7 +74,7 @@
   }
 
   &:hover {
-    @apply ring-4 ring-blue-200 z-1 bg-white;
+    @apply ring-4 ring-inset ring-blue-200 z-1 bg-white;
   }
 
   .value {
@@ -111,9 +123,9 @@
 .table-action {
   @apply gap-2 px-2 py-1 cursor-pointer text-sm rounded-md select-none truncate;
 
-  &.blue {
+  &.gray {
     &:hover {
-      @apply bg-blue-100 text-blue-800;
+      @apply bg-gray-100;
     }
   }
 
@@ -143,15 +155,6 @@
   }
 }
 
-.options-container {
-  @apply w-full lg:w-md lg:max-w-lg;
-  @apply rounded-lg bg-white flex flex-col shadow-lg border border-gray-200 overflow-hidden;
-
-  & + & {
-    margin-top: 8px;
-  }
-}
-
 .row-options-entries-list {
   max-height: 30vh;
   @apply flex flex-col overflow-y-auto mb-2;
@@ -166,22 +169,12 @@
 }
 
 .underlying-rows-btn {
-  min-width: 180px;
-  max-width: 60vw;
   max-height: 30vh;
   @apply text-left w-full mt-2;
   @apply p-2 bg-white flex flex-col gap-2 shadow-lg border-t border-gray-200 overflow-y-auto relative;
 
   &:hover {
     @apply bg-gray-100 cursor-pointer;
-  }
-}
-
-.option-item {
-  @apply text-left p-2;
-
-  &:hover {
-    @apply bg-(--bg) cursor-pointer;
   }
 }
 
