@@ -11,8 +11,30 @@ import st from "./index.module.css";
 import {gte} from "../../../../utils/numbers.ts";
 import {HookButton} from "../../../HookButton";
 import clsx from "clsx";
+import { TDbValue } from "@dataramen/types";
 
 const inputClass = clsx("input", st.filterInput);
+
+function createRelatedDataTabData (hook: THook, dataSourceId: string, value: TDbValue) {
+  return {
+    name: `${hook.on.toTable} ${hook.on.toColumn} equals ${value}`,
+    opts: createTableOptions({
+      // todo: do I need to inherit joins? Probably not
+      table: hook.on.toTable,
+      dataSourceId: dataSourceId,
+      filters: [{
+        id: genSimpleId(),
+        column: `${hook.on.toTable}.${hook.on.toColumn}`,
+        operator: value == null ? "IS NULL" : "=",
+        connector: "AND",
+        value: value != null ? [{
+          value: value,
+          isColumn: false,
+        }] : undefined,
+      }],
+    }),
+  };
+}
 
 export type TDrillDownProps = {
   rowIndex: number;
@@ -56,28 +78,15 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
       return;
     }
 
-    const value = getValue(row, {
-      value: `${hook.on.fromTable}.${hook.on.fromColumn}`,
-    });
-
-    createWorkbenchTab.mutateAsync({
-      name: `${hook.on.toTable} ${hook.on.toColumn} equals ${value}`,
-      opts: createTableOptions({
-        // todo: do I need to inherit joins? Probably not
-        table: hook.on.toTable,
-        dataSourceId: dataSourceId,
-        filters: [{
-          id: genSimpleId(),
-          column: `${hook.on.toTable}.${hook.on.toColumn}`,
-          operator: value == null ? "IS NULL" : "=",
-          connector: "AND",
-          value: value != null ? [{
-            value: value,
-            isColumn: false,
-          }] : undefined,
-        }],
-      }),
-    }).then((result) => {
+    createWorkbenchTab.mutateAsync(
+      createRelatedDataTabData(
+        hook,
+        dataSourceId,
+        getValue(row, {
+          value: `${hook.on.fromTable}.${hook.on.fromColumn}`,
+        }),
+      ),
+    ).then((result) => {
       navigate(`${PAGES.workbench.path}/tab/${result.id}`);
       onClose?.();
     });
@@ -125,6 +134,10 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
       />
 
       <div className={st.list}>
+        {hasNestedData && (
+          <button onClick={showNestedData} className={st.optionItem}>🎯 Underlying rows</button>
+        )}
+
         {gte(filteredHooks.length, 0) ? filteredHooks.map((hook) => (
           <HookButton
             hook={hook}
@@ -132,11 +145,7 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
             key={hook.where}
           />
         )) : (
-          <p className="text-center p-2 text-gray-800 text-sm">Empty</p>
-        )}
-
-        {hasNestedData && (
-          <button onClick={showNestedData} className={st.underlyingRowsBtn}>🎯 Underlying rows</button>
+          <p className={st.emptyText}>Empty</p>
         )}
       </div>
     </div>

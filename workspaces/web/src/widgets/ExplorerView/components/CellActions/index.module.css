@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+.section-name {
+  @apply mb-1 text-sm text-gray-600;
+
+  &:not(:first-child) {
+    @apply mt-2;
+  }
+}
+
 .item {
   @apply flex items-center gap-1 hover:bg-gray-100 rounded-md cursor-pointer p-1 text-sm w-full;
 }

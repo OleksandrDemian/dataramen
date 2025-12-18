@@ -10,14 +10,18 @@
 }
 
 .option-item {
-  @apply text-left p-1;
+  @apply text-left p-1 font-semibold text-sm;
 
   &:hover {
-    @apply bg-(--bg) cursor-pointer;
+    @apply bg-gray-50 cursor-pointer;
   }
 }
 
 .list {
   max-height: 30vh;
   @apply flex flex-col overflow-y-auto;
+}
+
+.empty-text {
+  @apply text-center p-2 text-gray-800 text-sm;
 }

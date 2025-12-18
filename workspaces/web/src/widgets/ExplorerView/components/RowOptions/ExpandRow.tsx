@@ -57,13 +57,13 @@ export const ExpandRow = ({ onClose, rowIndex, className }: TExpandRowProps) => 
         {gte(filteredEntities.length, 0) ? filteredEntities.map((ent) => (
           <button
             key={ent}
-            className={clsx(st.optionItem, "font-semibold text-sm")}
+            className={st.optionItem}
             onClick={() => showEntity(ent)}
           >
             <span>📄 {ent}</span>
           </button>
         )) : (
-          <p className="text-center p-2 text-gray-800 text-sm">Empty</p>
+          <p className={st.emptyText}>Empty</p>
         )}
       </div>
     </div>

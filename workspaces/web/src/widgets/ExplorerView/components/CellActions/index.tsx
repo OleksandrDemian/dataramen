@@ -17,23 +17,12 @@ export type TCellActionsProps = {
   onClosed?: VoidFunction;
 };
 export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
-  const clickHandler = useCellActions();
+  const clickHandler = useCellActions({ ref });
   const [tab, setTab] = useState<"cell" | "drill" | "expand">("cell");
 
-  const onCopyValue = () => {
-    ref.current?.close();
-    clickHandler.copyValue(row!, col!);
-  };
-
-  const onShowValue = () => {
-    ref.current?.close();
-    clickHandler.showValue(row!, col!);
-  };
-
-  const onFilterValue = () => {
-    ref.current?.close();
-    clickHandler.filterValue(row!, col!);
-  };
+  const onCopyValue = () => clickHandler.copyValue(row!, col!);
+  const onShowValue = () => clickHandler.showValue(row!, col!);
+  const onFilterValue = () => clickHandler.filterValue(row!, col!);
 
   const onMenuClosed = () => {
     onClosed?.();
@@ -45,6 +34,7 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
       <div className="w-full lg:w-sm">
         {tab === "cell" && (
           <>
+            <p className={st.sectionName}>Cell actions</p>
             <button className={st.item} onClick={onCopyValue}>
               <CopyIcon width={14} height={14} />
               Copy
@@ -57,6 +47,7 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
               <SearchIcon width={14} height={14} />
               Filter
             </button>
+            <p className={st.sectionName}>Row actions</p>
             <button className={st.item} onClick={() => setTab("drill")}>
               <ChevronIcon width={14} height={14} />
               Drill down
@@ -71,7 +62,7 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
         {tab === "drill" && (
           <>
             <button
-              className="flex gap-1 items-center cursor-pointer px-2 py-1 text-sm rounded-md bg-gray-100 hover:bg-gray-200 mb-2"
+              className="flex gap-1 items-center cursor-pointer px-2 py-1 text-sm rounded-lg bg-gray-50 hover:bg-gray-100 mb-2"
               onClick={() => setTab("cell")}
             >
               <ChevronIcon className="rotate-180" width={16} height={16} />
@@ -84,7 +75,7 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
         {tab === "expand" && (
           <>
             <button
-              className="flex gap-1 items-center cursor-pointer px-2 py-1 text-sm rounded-md bg-gray-100 hover:bg-gray-200 mb-2"
+              className="flex gap-1 items-center cursor-pointer px-2 py-1 text-sm rounded-lg bg-gray-50 hover:bg-gray-100 mb-2"
               onClick={() => setTab("cell")}
             >
               <ChevronIcon className="rotate-180" width={16} height={16} />
