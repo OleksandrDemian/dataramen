@@ -63,7 +63,7 @@
   padding: 8px 12px;
   max-width: 250px;
   min-width: 100px;
-  @apply relative text-gray-800;
+  @apply relative text-gray-800 text-sm;
 
   .cell-actions {
     display: none;

@@ -23,18 +23,19 @@ import {
   isAggregationFunction,
   PostgreSqlFunctions,
   MySqlColumnFunctions,
-  OrderByClause
+  OrderByClause, QueryFilter
 } from "@dataramen/sql-builder";
 import {In} from "typeorm";
-import {inputColumnToAlias, STRING_TYPES} from "@dataramen/common";
+import {FilterParser, inputColumnToAlias, STRING_TYPES} from "@dataramen/common";
 import {mapDataSourceToDbConnection} from "../../utils/dataSourceUtils";
+import {parseClientFilters} from "./utils";
 
 export const runSelect = async (
   req: FastifyRequest,
   props: TExecuteQuery
 ): Promise<TRunSqlResult> => {
   const { datasourceId, size = 20, page, name } = props;
-  const { table, filters, joins, groupBy, searchAll, orderBy } = props.opts;
+  const { table, joins, groupBy, searchAll, orderBy } = props.opts;
   const columns = computeColumns(
     props.opts.columns,
     props.opts.groupBy,
@@ -74,14 +75,6 @@ export const runSelect = async (
   queryBuilder.setTable(table);
   queryBuilder.setLimit(size + 1); // add 1 to see if there are more results
   queryBuilder.setOffset(size * page);
-
-  filters?.forEach((w) => {
-    if (w.fn && isAggregationFunction(w.fn)) {
-      queryBuilder.addHaving(w);
-    } else {
-      queryBuilder.addWhere(w);
-    }
-  });
 
   if (joins) {
     queryBuilder.addJoin(...joins);
@@ -127,6 +120,15 @@ export const runSelect = async (
     acc[cur.full] = cur.type;
     return acc;
   }, {} as Record<string, string>);
+
+  const filters = parseClientFilters(props.opts.filters, columnTypes);
+  filters?.forEach((w) => {
+    if (w.fn && isAggregationFunction(w.fn)) {
+      queryBuilder.addHaving(w);
+    } else {
+      queryBuilder.addWhere(w);
+    }
+  });
 
   let selectedColumns: string[];
   if (columns && columns.length > 0) {

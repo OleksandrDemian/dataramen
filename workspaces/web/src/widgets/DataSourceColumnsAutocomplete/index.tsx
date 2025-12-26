@@ -17,8 +17,9 @@ export type TDataSourceColumnsAutocompleteProps = {
   allowTables?: string[];
   placeholder?: string;
   focusId?: string;
+  inputClassName?: string;
 };
-export const DataSourceColumnsAutocomplete = ({ dataSourceId, focusId, placeholder = "Column", onChange, value, autoFocus, allowTables }: TDataSourceColumnsAutocompleteProps) => {
+export const DataSourceColumnsAutocomplete = ({ dataSourceId, inputClassName, focusId, placeholder = "Column", onChange, value, autoFocus, allowTables }: TDataSourceColumnsAutocompleteProps) => {
   const { data: inspections } = useDatabaseInspections(dataSourceId);
   const containerRef = useRef<HTMLDivElement>(null);
   const allColumns = useMemo<TSearchColumn[]>(() => {
@@ -104,7 +105,7 @@ export const DataSourceColumnsAutocomplete = ({ dataSourceId, focusId, placehold
         onKeyDown={handleKeyDown}
         value={value}
         onChange={changeHandler}
-        className="input w-full"
+        className={inputClassName}
         placeholder={placeholder}
         data-focus={focusId}
       />

@@ -1,28 +1,25 @@
 import {MouseEventHandler, useContext, useState} from "react";
 import {TableOptionsContext} from "../context/TableContext.ts";
 import st from "./QueryInfoRow.module.css";
-import {aggToString, filterToString, filterValueToString} from "../../../utils/sql.ts";
+import {aggToString} from "../../../utils/sql.ts";
 import {showExplorerModal} from "../hooks/useExplorerModals.ts";
-import {useWhereStatements} from "../hooks/useWhereStatements.ts";
 import clsx from "clsx";
 import CloseIcon from "../../../assets/close-outline.svg?react";
 import AddIcon from "../../../assets/add-outline.svg?react";
 import ChevronIcon from "../../../assets/chevron-forward-outline.svg?react";
+import FilterIcon from "../../../assets/filter-outline.svg?react";
 import {useJoinStatements} from "../hooks/useJoinStatements.ts";
 import {useDataSource} from "../../../data/queries/dataSources.ts";
 import {DataSourceIcon} from "../../Icons";
 import {prompt} from "../../../data/promptModalStore.ts";
 import {useHotkeys} from "react-hotkeys-hook";
 import {useDebouncedValue} from "../../../hooks/useDebouncedValue.ts";
-
-function calculateIsEnabled (current?: boolean) {
-  return !(current === true || current === undefined);
-}
+import {useWhereStatements} from "../hooks/useWhereStatements.ts";
 
 export const QueryInfoRow = () => {
   const { state: { table, dataSourceId, aggregations, columns, groupBy } } = useContext(TableOptionsContext);
-  const { filters, setFilters, removeFilter } = useWhereStatements();
   const { toggle, joins } = useJoinStatements();
+  const { filters } = useWhereStatements();
   const { data: dataSource } = useDataSource(dataSourceId);
 
   const onJoinClick = () => showExplorerModal("joins");
@@ -31,13 +28,6 @@ export const QueryInfoRow = () => {
   const onColumnsClick = () => showExplorerModal("columns");
   const onGroupByClick = () => showExplorerModal("groupBy");
 
-  const onTriggerFilterEnabled = (filterId: string) => {
-    setFilters(filters.map((f) => ({
-      ...f,
-      isEnabled: filterId === f.id ? calculateIsEnabled(f.isEnabled) : f.isEnabled,
-    })), true);
-  };
-
   const onRemoveJoin: MouseEventHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -45,12 +35,7 @@ export const QueryInfoRow = () => {
     toggle(joins[joins.length - 1]);
   };
 
-  const removeFilterHandler = (filterId: string): MouseEventHandler => (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    removeFilter(filterId);
-  };
+  const activeFilters = filters.filter((f) => f.isEnabled).length;
 
   return (
     <div className={st.container}>
@@ -94,26 +79,9 @@ export const QueryInfoRow = () => {
         data-tooltip-id="default"
         data-tooltip-content="Add filters, hotkey F"
       >
-        <AddIcon width={18} height={18} />
-        <p className="text-sm">Filter</p>
+        <FilterIcon width={18} height={18} />
+        <p className="text-sm">Filters [{activeFilters}/{filters.length}]</p>
       </button>
-
-      {filters.map((f) => (
-        <button
-          key={f.id}
-          onClick={() => onTriggerFilterEnabled(f.id)}
-          onAuxClick={() => removeFilter(f.id)}
-          /* explicitly check f.isEnabled === false, because undefined = TRUE */
-          className={clsx(st.bluePill, f.isEnabled === false && st.disabledPill)}
-          data-tooltip-id="default"
-          data-tooltip-content={filterToString(f)}
-        >
-          <p className="text-sm">{f.column}</p>
-          <p className="text-sm">{f.operator}</p>
-          <p className="text-sm">{filterValueToString(f)}</p>
-          <CloseIcon onClick={removeFilterHandler(f.id)} width={18} height={18} />
-        </button>
-      ))}
 
       {aggregations.map((a) => (
         <button
