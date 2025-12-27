@@ -35,7 +35,7 @@ export const QueryInfoRow = () => {
     toggle(joins[joins.length - 1]);
   };
 
-  const activeFilters = filters.filter((f) => f.isEnabled).length;
+  const activeFilters = filters.filter((f) => f.isEnabled !== false).length;
 
   return (
     <div className={st.container}>
@@ -80,7 +80,7 @@ export const QueryInfoRow = () => {
         data-tooltip-content="Add filters, hotkey F"
       >
         <FilterIcon width={18} height={18} />
-        <p className="text-sm">Filters [{activeFilters}/{filters.length}]</p>
+        <p className="text-sm">Filters <span className="py-0.5 px-1 min-w-5 inline-block rounded-md bg-white text-xs">{activeFilters}</span></p>
       </button>
 
       {aggregations.map((a) => (

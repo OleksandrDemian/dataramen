@@ -6,12 +6,11 @@ import {THook} from "../../../../data/types/hooks.ts";
 import {createTableOptions} from "../../utils.ts";
 import {genSimpleId} from "../../../../utils/id.ts";
 import {PAGES} from "../../../../const/pages.ts";
-import {QueryFilter} from "@dataramen/sql-builder";
 import st from "./index.module.css";
 import {gte} from "../../../../utils/numbers.ts";
 import {HookButton} from "../../../HookButton";
 import clsx from "clsx";
-import { TDbValue } from "@dataramen/types";
+import {TDbValue, TQueryFilter} from "@dataramen/types";
 
 const inputClass = clsx("input", st.filterInput);
 
@@ -25,12 +24,7 @@ function createRelatedDataTabData (hook: THook, dataSourceId: string, value: TDb
       filters: [{
         id: genSimpleId(),
         column: `${hook.on.toTable}.${hook.on.toColumn}`,
-        operator: value == null ? "IS NULL" : "=",
-        connector: "AND",
-        value: value != null ? [{
-          value: value,
-          isColumn: false,
-        }] : undefined,
+        value: value == null ? "IS NULL" : `${value}`,
       }],
     }),
   };
@@ -107,13 +101,9 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
           ...state.filters,
           ...state.groupBy.map((g) => ({
             id: genSimpleId(),
-            connector: "AND",
             column: g.value,
-            operator: "=",
-            value: [{
-              value: getValue(row, g),
-            }],
-          } satisfies QueryFilter))
+            value: `${getValue(row, g)}`,
+          } satisfies TQueryFilter))
         ]
       }),
     }).then((result) => {

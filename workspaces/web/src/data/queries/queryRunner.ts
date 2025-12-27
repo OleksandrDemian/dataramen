@@ -1,23 +1,25 @@
 import {useMutation, useQuery} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
-import {TDbValue, TExecuteInsert, TExecuteQuery, TExecuteUpdate, TRunSqlResult} from "@dataramen/types";
-import {QueryFilter} from "@dataramen/sql-builder";
+import {
+  TDbValue,
+  TExecuteInsert,
+  TExecuteQuery,
+  TExecuteUpdate,
+  TQueryFilter,
+  TRunSqlResult,
+} from "@dataramen/types";
 import {genSimpleId} from "../../utils/id.ts";
 
 export const useEntity = (dataSourceId?: string, table?: string, key?: [string, TDbValue][]) => {
   return useQuery<TRunSqlResult>({
     queryKey: ["entity", dataSourceId, table, key],
     queryFn: async () => {
-      const filters: QueryFilter[] = key ? key.map(([column, value]) => {
+      const filters: TQueryFilter[] = key ? key.map(([column, value]) => {
         return {
           id: genSimpleId(),
           column,
-          operator: "=",
-          value: [{
-            value,
-          }],
-          connector: "AND"
-        } satisfies QueryFilter;
+          value: `${value}`,
+        } satisfies TQueryFilter;
       }) : [];
 
       const { data } = await apiClient.post<{ data: TRunSqlResult }>("/runner/select", {

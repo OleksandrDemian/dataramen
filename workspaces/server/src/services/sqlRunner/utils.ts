@@ -10,7 +10,7 @@ const getDefaultOperator = (type: string): TQueryOperator => {
 export const parseClientFilters = (filters: TQueryFilter[], columnTypes: Record<string, string>): QueryFilter[] => {
   const parsedFilters: QueryFilter[] = [];
   for (const f of filters) {
-    if (!f.column?.length || !f.value?.length) continue;
+    if (!f.column?.length || !f.value?.length || !f.isEnabled) continue;
 
     if (f.isAdvanced) {
       const parsed = FilterParser.parse(f.value);
@@ -23,7 +23,6 @@ export const parseClientFilters = (filters: TQueryFilter[], columnTypes: Record<
         column: f.column,
         id: f.id,
         operator: parsed.operator || getDefaultOperator(columnTypes[f.column]),
-        isEnabled: f.isEnabled,
         connector: "AND",
       });
     } else {
@@ -32,7 +31,6 @@ export const parseClientFilters = (filters: TQueryFilter[], columnTypes: Record<
         column: f.column,
         id: f.id,
         operator: getDefaultOperator(columnTypes[f.column]),
-        isEnabled: f.isEnabled,
         connector: "AND",
       });
     }

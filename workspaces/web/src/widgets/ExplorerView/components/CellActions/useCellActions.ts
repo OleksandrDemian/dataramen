@@ -2,7 +2,7 @@ import {RefObject, useContext} from "react";
 import {QueryResultContext, TableContext, TableOptionsContext} from "../../context/TableContext.ts";
 import {sanitizeCellValue} from "../../../../utils/sql.ts";
 import {displayValue} from "../../../../data/valueDisplayStore.ts";
-import {QueryFilter} from "@dataramen/sql-builder";
+import {TQueryFilter} from "@dataramen/types";
 import toast from "react-hot-toast";
 import {TRunQueryResult} from "../../../../data/types/queryRunner.ts";
 import {genSimpleId} from "../../../../utils/id.ts";
@@ -56,7 +56,6 @@ export const useCellActions = ({ ref }: TUseCellActionsProps) => {
   const filterValue = (row: number, col: number) => {
     const { value, column } = getValueAndColumn(result?.result, row, col);
     const actualValue = column?.full || "";
-    const fn: string | undefined = undefined;
 
     if (column?.table === "") {
       toast.error("Filtering on aggregated column is not supported yet");
@@ -64,14 +63,13 @@ export const useCellActions = ({ ref }: TUseCellActionsProps) => {
     }
 
     if (actualValue) {
-      let filter: QueryFilter;
+      let filter: TQueryFilter;
       if (value === undefined || value === null) {
         filter = {
           id: genSimpleId(),
           isEnabled: true,
           column: actualValue,
-          connector: 'AND',
-          operator: "IS NULL"
+          value: "IS NULL"
         };
       } else {
         const sanitized = sanitizeCellValue(
@@ -82,10 +80,7 @@ export const useCellActions = ({ ref }: TUseCellActionsProps) => {
           id: genSimpleId(),
           isEnabled: true,
           column: actualValue,
-          connector: 'AND',
-          operator: "=",
-          fn,
-          value: [{ value: sanitized }],
+          value: sanitized,
         };
       }
 

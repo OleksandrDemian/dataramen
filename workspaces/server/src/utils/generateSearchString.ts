@@ -14,11 +14,7 @@ export function generateSearchString (opts: Partial<TWorkbenchOptions | TQueryOp
     for (const f of opts.filters) {
       if (!f.value) continue;
 
-      for (const v of f.value) {
-        if (v.value) {
-          args.push(v.value.toString());
-        }
-      }
+      args.push(f.value);
     }
   }
 

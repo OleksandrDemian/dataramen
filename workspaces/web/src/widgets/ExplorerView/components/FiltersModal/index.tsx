@@ -1,6 +1,6 @@
 import {Modal, ModalClose} from "../../../Modal";
 import {ChangeEventHandler, KeyboardEventHandler, useContext, useEffect, useMemo, useState} from "react";
-import {TableOptionsContext} from "../../context/TableContext.ts";
+import {QueryResultContext, TableOptionsContext} from "../../context/TableContext.ts";
 import {DataSourceColumnsAutocomplete} from "../../../DataSourceColumnsAutocomplete";
 import {TQueryFilter} from "@dataramen/types";
 import {genSimpleId} from "../../../../utils/id.ts";
@@ -59,55 +59,53 @@ const FilterEntry = ({
   };
 
   return (
-    <tr>
-      <td className="p-1">
-        <input type="checkbox" checked={filter.isEnabled !== false} onClick={() => triggerIsEnabled(filter.id)} />
-      </td>
-      <td>
-        <DataSourceColumnsAutocomplete
-          dataSourceId={dataSourceId}
-          onChange={(value) => onChangeColumn(filter.id, value)}
-          value={filter.column}
-          allowTables={allowedTables}
-          focusId="column"
-          autoFocus={autoFocus}
+    <div className={st.filterContainer}>
+      <input type="checkbox" checked={filter.isEnabled !== false} onClick={() => triggerIsEnabled(filter.id)} />
+      <DataSourceColumnsAutocomplete
+        dataSourceId={dataSourceId}
+        onChange={(value) => onChangeColumn(filter.id, value)}
+        value={filter.column}
+        allowTables={allowedTables}
+        focusId="column"
+        inputClassName="input w-full"
+        autoFocus={autoFocus}
+      />
+      <div className="flex items-center">
+        {filter.isAdvanced && (
+          <span className={st.advancedFilterIcon}>
+            <FilterIcon width={14} height={14} />
+          </span>
+        )}
+
+        <input
+          key={filter.id}
+          placeholder="Filter value"
+          value={filter.value}
+          onChange={onChange}
+          onKeyDown={onKeyDown}
+          data-focus="value"
+          className="input flex-1"
         />
-      </td>
-      <td>
-        <span className="flex items-center">
-          {filter.isAdvanced && (
-            <span className="m-1 p-1 text-xs rounded-md bg-gray-200 w-5 h-5">
-              <FilterIcon width={12} height={12} />
-            </span>
-          )}
+      </div>
 
-          <input
-            key={filter.id}
-            placeholder="Filter value"
-            value={filter.value}
-            onChange={onChange}
-            onKeyDown={onKeyDown}
-            data-focus="value"
-          />
-        </span>
-      </td>
-
-      <td className={st.filterActions}>
+      <div className={st.filterActions}>
         <button
           tabIndex={-1}
           data-tooltip-id="default"
           data-tooltip-content="Remove filter"
-          className="p-0.5 text-sm cursor-pointer" onClick={() => onRemoveFilter(filter.id)}
+          className="p-0.5 text-sm cursor-pointer rounded-md"
+          onClick={() => onRemoveFilter(filter.id)}
         >
           <CloseIcon width={20} height={20} className="text-red-600" />
         </button>
-      </td>
-    </tr>
+      </div>
+    </div>
   );
 };
 
 export const FiltersModal = () => {
   const { state } = useContext(TableOptionsContext);
+  const { refetch } = useContext(QueryResultContext);
   const { setFilters: updateFilters } = useWhereStatements();
   const showModal = useExplorerModals((s) => s.filters);
 
@@ -183,6 +181,7 @@ export const FiltersModal = () => {
       updateFilters(filters.filter(f => {
         return f.value.length > 0 && f.column.length > 0;
       }));
+      setTimeout(refetch, 1);
       handleOnClose();
     } catch (e: any) {
       if (e instanceof Error) {
@@ -238,30 +237,26 @@ export const FiltersModal = () => {
       <ModalClose onClick={handleOnClose} />
       <h2 className="text-lg font-semibold m-2">Filters</h2>
 
-      <div className="w-full lg:w-lg">
+      <div className={st.filtersContainer}>
         {filters.length < 1 && (
           <p className="p-1 text-center rounded-lg bg-gray-50 border border-gray-200">No filters</p>
         )}
 
-        <table className={st.table}>
-          <tbody>
-          {filters.map((f, i) => (
-            <FilterEntry
-              key={f.id}
-              filter={f}
-              dataSourceId={state.dataSourceId}
-              allowedTables={allowedTables}
-              onChangeColumn={handleColumnChange}
-              onChangeValue={handleValueChange}
-              onRemoveFilter={handleRemoveFilter}
-              onChangeAdvancedFilter={handleChangeAdvancedFilter}
-              triggerIsEnabled={triggerIsEnabled}
-              onSubmit={handleApplyFilters}
-              autoFocus={i === filters.length - 1}
-            />
-          ))}
-          </tbody>
-        </table>
+        {filters.map((f, i) => (
+          <FilterEntry
+            key={f.id}
+            filter={f}
+            dataSourceId={state.dataSourceId}
+            allowedTables={allowedTables}
+            onChangeColumn={handleColumnChange}
+            onChangeValue={handleValueChange}
+            onRemoveFilter={handleRemoveFilter}
+            onChangeAdvancedFilter={handleChangeAdvancedFilter}
+            triggerIsEnabled={triggerIsEnabled}
+            onSubmit={handleApplyFilters}
+            autoFocus={i === filters.length - 1}
+          />
+        ))}
       </div>
 
       <div className={st.actions}>

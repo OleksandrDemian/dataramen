@@ -16,25 +16,15 @@
   }
 }
 
-.table {
-  @apply border-collapse w-full;
+.advanced-filter-icon {
+  @apply m-1 p-1 text-xs rounded-md bg-gray-50 border border-gray-200;
+}
 
-  thead {
-    td {
-      padding: 2px 4px;
-    }
-  }
+.filters-container {
+  @apply flex flex-col gap-2 w-full lg:w-lg px-2;
+}
 
-  td {
-    @apply border border-gray-200 text-sm;
-
-    &:first-child {
-      @apply px-4;
-    }
-
-    input {
-      padding: 2px 4px;
-      flex: 1;
-    }
-  }
+.filter-container {
+  @apply grid items-center gap-1;
+  grid-template-columns: 24px 200px 1fr 30px;
 }
