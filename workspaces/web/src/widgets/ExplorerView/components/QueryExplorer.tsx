@@ -73,7 +73,7 @@ const TableHeaders = () => {
   return (
     <thead>
       <tr>
-        <td>#</td>
+        <td>🥢</td>
         {columns.map(column => (
           <td className={st.headerCell} key={column.full}>
             <div className="overflow-hidden">

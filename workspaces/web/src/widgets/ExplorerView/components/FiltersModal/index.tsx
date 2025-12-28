@@ -228,10 +228,6 @@ export const FiltersModal = () => {
     toggleExplorerModal("filters");
   });
 
-  useHotkeys("ctrl+f", () => {
-    alert("Save filters");
-  });
-
   return (
     <Modal isVisible={showModal} onClose={handleOnClose} portal onClosed={() => setFilters([])} noPadding>
       <ModalClose onClick={handleOnClose} />

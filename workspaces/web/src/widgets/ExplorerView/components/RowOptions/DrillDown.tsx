@@ -25,6 +25,7 @@ function createRelatedDataTabData (hook: THook, dataSourceId: string, value: TDb
         id: genSimpleId(),
         column: `${hook.on.toTable}.${hook.on.toColumn}`,
         value: value == null ? "IS NULL" : `${value}`,
+        isEnabled: true,
       }],
     }),
   };
@@ -87,7 +88,7 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
   };
 
   const showNestedData = () => {
-    if (!row) {
+    if (!row || !state) {
       return;
     }
 
@@ -98,11 +99,12 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
         table: state.table,
         dataSourceId: state.dataSourceId,
         filters: [
-          ...state.filters,
+          ...state.filters.filter((f) => f.isEnabled),
           ...state.groupBy.map((g) => ({
             id: genSimpleId(),
             column: g.value,
             value: `${getValue(row, g)}`,
+            isEnabled: true,
           } satisfies TQueryFilter))
         ]
       }),

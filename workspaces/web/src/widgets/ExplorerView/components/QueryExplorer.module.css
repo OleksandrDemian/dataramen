@@ -109,10 +109,6 @@
 
 .table-config {
   @apply flex gap-2 items-center p-1;
-
-  &:not(:last-child) {
-    @apply border-r border-gray-200;
-  }
 }
 
 .tab-name {
@@ -122,6 +118,10 @@
 
 .table-action {
   @apply gap-2 px-2 py-1 cursor-pointer text-sm rounded-md select-none truncate;
+
+  &.green-fixed {
+    @apply bg-green-200 text-green-900;
+  }
 
   &.gray {
     &:hover {
