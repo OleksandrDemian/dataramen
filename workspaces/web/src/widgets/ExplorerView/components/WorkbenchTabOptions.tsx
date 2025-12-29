@@ -28,7 +28,7 @@ import {DataSourceIcon} from "../../Icons";
 
 export function WorkbenchTabOptions () {
   return (
-    <div className="flex md:grid md:grid-cols-3 items-center bg-white border-b border-gray-200 overflow-auto no-scrollbar">
+    <div className="flex md:grid md:grid-cols-3 items-center bg-white overflow-auto no-scrollbar mb-2 shadow">
       <RootInfo />
       <Pagination />
       <MoreOptions />

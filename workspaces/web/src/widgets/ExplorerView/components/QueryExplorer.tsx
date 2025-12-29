@@ -88,9 +88,12 @@ const TableHeaders = () => {
                   <SwapIcon width={16} height={16} />
                 }
               </button>
-              <button onClick={() => onFilter(column.full)}>
-                <SearchIcon width={16} height={16} />
-              </button>
+              {/* check if it has table, otherwise it is aggregated or smth, not supported for now */}
+              {column.table && (
+                <button onClick={() => onFilter(column.full)}>
+                  <SearchIcon width={16} height={16} />
+                </button>
+              )}
             </div>
           </td>
         ))}

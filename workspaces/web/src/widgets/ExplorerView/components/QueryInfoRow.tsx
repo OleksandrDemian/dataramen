@@ -110,7 +110,7 @@ export const QueryInfoRow = () => {
             data-tooltip-id="default"
             data-tooltip-content="Has GROUP BY"
           >
-            <p className="text-sm">GROUP BY</p>
+            <p className="text-sm">Grouped columns</p>
           </button>
         )}
 
