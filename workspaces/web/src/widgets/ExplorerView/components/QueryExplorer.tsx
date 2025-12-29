@@ -8,16 +8,14 @@ import {
   QueryResultContext,
   TableOptionsContext,
 } from "../context/TableContext.ts";
-import {TDbValue} from "@dataramen/types";
+import {TDbValue, TQueryFilter} from "@dataramen/types";
 import {useContextMenuHandler} from "./ContextualMenu.handler.ts";
 import {useOrderByStatements} from "../hooks/useOrderByStatements.ts";
 import {RowOptions} from "./RowOptions";
 import {gte} from "../../../utils/numbers.ts";
 import {prompt} from "../../../data/promptModalStore.ts";
-import {isStringType} from "@dataramen/common";
 import {useWhereStatements} from "../hooks/useWhereStatements.ts";
 import {genSimpleId} from "../../../utils/id.ts";
-import {QueryFilter} from "@dataramen/sql-builder";
 import ArrowUpIcon from "../../../assets/arrow-up-outline.svg?react";
 import ChevronIcon from "../../../assets/chevron-forward-outline.svg?react";
 import SwapIcon from "../../../assets/swap-vertical-outline.svg?react";
@@ -28,7 +26,6 @@ import {CellActions} from "./CellActions";
 type TNewFilter = {
   value: string;
   column: string;
-  type: string;
 };
 
 const orderIconClass = {
@@ -36,8 +33,8 @@ const orderIconClass = {
   DESC: "rotate-180",
 };
 
-const updateFilters = (filters: QueryFilter[], { type, column, value }: TNewFilter): QueryFilter[] => {
-  const newFilters: QueryFilter[] = filters.map((f) => ({
+const updateFilters = (filters: TQueryFilter[], { column, value }: TNewFilter): TQueryFilter[] => {
+  const newFilters: TQueryFilter[] = filters.map((f) => ({
     ...f,
     // disable other filters for the same column
     isEnabled: f.column === column ? false : f.isEnabled,
@@ -47,12 +44,8 @@ const updateFilters = (filters: QueryFilter[], { type, column, value }: TNewFilt
     id: genSimpleId(),
     column,
     isEnabled: true,
-    connector: "AND",
-    value: [{
-      value,
-      isColumn: false,
-    }],
-    operator: isStringType(type) ? "LIKE" : "=",
+    value,
+    isAdvanced: false,
   });
 
   return newFilters;
@@ -67,20 +60,20 @@ const TableHeaders = () => {
   const orderBy = orderByList[0];
   const showTableName = gte(data?.result.tables.length, 1);
 
-  const onFilter = (column: string, type?: string) => {
+  const onFilter = (column: string) => {
     prompt("Filter value", "").then((value) => {
-      if (!type || !value) {
+      if (!value) {
         return;
       }
 
-      setFilters(updateFilters(filters, { column, type, value }));
+      setFilters(updateFilters(filters, { column, value }));
     });
   };
 
   return (
     <thead>
       <tr>
-        <td>#</td>
+        <td>🥢</td>
         {columns.map(column => (
           <td className={st.headerCell} key={column.full}>
             <div className="overflow-hidden">
@@ -95,9 +88,12 @@ const TableHeaders = () => {
                   <SwapIcon width={16} height={16} />
                 }
               </button>
-              <button onClick={() => onFilter(column.full, column.type)}>
-                <SearchIcon width={16} height={16} />
-              </button>
+              {/* check if it has table, otherwise it is aggregated or smth, not supported for now */}
+              {column.table && (
+                <button onClick={() => onFilter(column.full)}>
+                  <SearchIcon width={16} height={16} />
+                </button>
+              )}
             </div>
           </td>
         ))}
@@ -209,7 +205,7 @@ export const QueryExplorer = () => {
       />
 
       {parsedError && (
-        <Alert className="my-4" variant="danger">{parsedError}</Alert>
+        <Alert variant="danger">{parsedError}</Alert>
       )}
 
       {isLoading && (

@@ -1,16 +1,30 @@
 @import "tailwindcss";
 
 .actions {
-  @apply flex items-center justify-between;
+  @apply flex items-center justify-between m-2;
 }
 
 .filter-actions {
-  @apply flex items-center;
+  display: flex;
+  gap: 2px;
 
   button {
     width: 30px;
     height: 30px;
     @apply flex items-center justify-center;
-    @apply hover:bg-gray-100 rounded-lg;
+    @apply hover:bg-gray-100;
   }
+}
+
+.advanced-filter-icon {
+  @apply m-1 p-1 text-xs rounded-md bg-gray-50 border border-gray-200;
+}
+
+.filters-container {
+  @apply flex flex-col gap-2 w-full lg:w-lg px-2;
+}
+
+.filter-container {
+  @apply grid items-center gap-1;
+  grid-template-columns: 24px 200px 1fr 30px;
 }

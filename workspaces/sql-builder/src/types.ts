@@ -32,6 +32,8 @@ export interface QueryFilter {
   id: string;
 }
 
+export type TQueryOperator = QueryFilter["operator"];
+
 export interface OrderByClause {
   column: string;
   direction: 'ASC' | 'DESC';

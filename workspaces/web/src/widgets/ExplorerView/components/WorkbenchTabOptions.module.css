@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+.root {
+  @apply grid grid
+}

@@ -1,5 +1,4 @@
 import {TDbValue, TInputColumn} from "@dataramen/types";
-import {QueryFilter} from "@dataramen/sql-builder";
 
 export function sanitizeCellValue (value: TDbValue, expectedType?: string): string {
   if (value === undefined || value === null) {
@@ -27,15 +26,6 @@ export function sanitizeCellValue (value: TDbValue, expectedType?: string): stri
     default:
       return JSON.stringify(value);
   }
-}
-
-export const filterToString = (filter: QueryFilter): string => {
-  const value = filter.value?.map((v) => v.value).join(", ") || '';
-  return `${filter.column} ${filter.operator} ${value}`;
-};
-
-export const filterValueToString = (filter: QueryFilter): string => {
-  return filter.value?.map((v) => v.value).join(", ") || '';
 }
 
 export const aggToString = (agg: TInputColumn): string => {

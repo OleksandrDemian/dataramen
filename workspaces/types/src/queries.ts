@@ -1,9 +1,17 @@
-import {JoinClause, OrderByClause, QueryFilter} from "@dataramen/sql-builder";
+import {JoinClause, OrderByClause} from "@dataramen/sql-builder";
 import {TInputColumn} from "./queryRunner";
+
+export type TQueryFilter = {
+  id: string;
+  column: string;
+  value: string;
+  isEnabled?: boolean;
+  isAdvanced?: boolean;
+};
 
 export type TQueryOptions = {
   table: string;
-  filters: QueryFilter[];
+  filters: TQueryFilter[];
   joins: JoinClause[];
   orderBy: OrderByClause[];
   columns: TInputColumn[];
@@ -27,14 +35,6 @@ export type TUpdateQuery = {
   name: string;
   isTrash?: boolean;
   opts: Partial<TQueryOptions>;
-};
-
-export type TFindQueryParams = {
-  dataSourceId?: string;
-  teamId?: string;
-  limit?: number;
-  orderBy?: string;
-  name?: string;
 };
 
 export type TQuery = {

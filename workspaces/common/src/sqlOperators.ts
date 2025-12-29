@@ -139,6 +139,8 @@ export const NUMERIC_TYPES: string[] = [
   // PostgreSQL
   "smallint", "integer", "bigint", "decimal", "numeric", "real", "double precision", "serial", "bigserial", "money",
 ];
+const _NUMERIC_TYPES = new Set(NUMERIC_TYPES);
+export const isNumericType = (type: string) => _NUMERIC_TYPES.has(type);
 
 export const DATE_TYPES: string[] = [
   // MySQL

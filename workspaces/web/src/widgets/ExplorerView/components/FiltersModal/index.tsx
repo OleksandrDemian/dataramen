@@ -1,131 +1,102 @@
 import {Modal, ModalClose} from "../../../Modal";
-import {useContext, useEffect, useMemo, useState} from "react";
-import {TableOptionsContext} from "../../context/TableContext.ts";
+import {ChangeEventHandler, KeyboardEventHandler, useContext, useEffect, useMemo, useState} from "react";
+import {QueryResultContext, TableOptionsContext} from "../../context/TableContext.ts";
 import {DataSourceColumnsAutocomplete} from "../../../DataSourceColumnsAutocomplete";
-import {OperatorAutocomplete} from "../../../OperatorAutocomplete";
-import {allowsInput, OPERATOR_LABEL, OPERATOR_VALUE} from "@dataramen/common";
+import {TQueryFilter} from "@dataramen/types";
 import {genSimpleId} from "../../../../utils/id.ts";
 import {useWhereStatements} from "../../hooks/useWhereStatements.ts";
-import clsx from "clsx";
-import {useDatabaseInspections} from "../../../../data/queries/dataSources.ts";
-import {TDatabaseInspection, TDatabaseInspectionColumn} from "../../../../data/types/dataSources.ts";
 import st from "./index.module.css";
-import {TFilterForm} from "./types.ts";
-import {filterValueToString, mapFiltersToWhere, validateFilters} from "./utils.ts";
 import {hideExplorerModal, toggleExplorerModal, useExplorerModals} from "../../hooks/useExplorerModals.ts";
-import CloseButton from "./../../../../assets/close-outline.svg?react";
+import CloseIcon from "./../../../../assets/close-outline.svg?react";
+import AddIcon from "./../../../../assets/add-outline.svg?react";
+import FilterIcon from "./../../../../assets/filter-outline.svg?react";
 import {useHotkeys} from "react-hotkeys-hook";
+import toast from "react-hot-toast";
 
 const FilterEntry = ({
   filter,
   dataSourceId,
   allowedTables,
-  inspections,
   autoFocus,
   onChangeColumn,
-  onChangeOperator,
   onChangeValue,
   onRemoveFilter,
+  onChangeAdvancedFilter,
   triggerIsEnabled,
-  onIsColumnChange,
+  onSubmit,
 }: {
-  filter: TFilterForm;
+  filter: TQueryFilter;
   dataSourceId: string;
   allowedTables: string[];
-  inspections: TDatabaseInspection[];
   autoFocus?: boolean;
   onChangeColumn: (id: string, column: string) => void;
-  onChangeOperator: (id: string, operator: string) => void;
   onChangeValue: (id: string, value: string) => void;
   onRemoveFilter: (id: string) => void;
+  onChangeAdvancedFilter: (id: string, value: boolean) => void;
   triggerIsEnabled: (id: string) => void;
-  onIsColumnChange: (id: string, isColumn: boolean) => void;
+  onSubmit: () => void;
 }) => {
-  const columnType = useMemo<string>(() => {
-    if (!inspections) {
-      return "";
-    }
-    let colInfo: TDatabaseInspectionColumn | null = null;
-    for (const insp of inspections) {
-      for (const col of insp.columns) {
-        const full = insp.tableName + "." + col.name;
-        if (full === filter.column) {
-          colInfo = col;
-        }
+  const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const value = e.target.value;
+    if (value.charAt(0) === ":") {
+      onChangeAdvancedFilter(filter.id, true);
+    } else {
+      if (!filter.isAdvanced && ["=", "<", ">"].includes(value.charAt(0))) {
+        onChangeAdvancedFilter(filter.id, true);
       }
+      onChangeValue(filter.id, e.currentTarget.value);
     }
-    if (!colInfo?.type) {
-      return "";
+  };
+
+  const onKeyDown: KeyboardEventHandler<HTMLInputElement> = (e) => {
+    if (e.key === "Backspace") {
+      if (filter.value.length === 0 || e.currentTarget.selectionEnd === 0) {
+        onChangeAdvancedFilter(filter.id, false);
+      }
+    } else if (e.key === "Enter") {
+      onSubmit();
     }
-    return colInfo.type;
-  }, [filter.column, inspections]);
+  };
 
   return (
-    <div className="flex gap-2 items-center">
-      <label>
-        <input type="checkbox" checked={filter.isEnabled !== false} onClick={() => triggerIsEnabled(filter.id)} />
-      </label>
+    <div className={st.filterContainer}>
+      <input type="checkbox" checked={filter.isEnabled !== false} onClick={() => triggerIsEnabled(filter.id)} />
+      <DataSourceColumnsAutocomplete
+        dataSourceId={dataSourceId}
+        onChange={(value) => onChangeColumn(filter.id, value)}
+        value={filter.column}
+        allowTables={allowedTables}
+        focusId="column"
+        inputClassName="input w-full"
+        autoFocus={autoFocus}
+      />
+      <div className="flex items-center">
+        {filter.isAdvanced && (
+          <span className={st.advancedFilterIcon}>
+            <FilterIcon width={14} height={14} />
+          </span>
+        )}
 
-      <label className="w-full">
-        <DataSourceColumnsAutocomplete
-          dataSourceId={dataSourceId}
-          onChange={(value) => onChangeColumn(filter.id, value)}
-          value={filter.column}
-          allowTables={allowedTables}
-          focusId="column"
-          autoFocus={autoFocus}
+        <input
+          key={filter.id}
+          placeholder="Filter value"
+          value={filter.value}
+          onChange={onChange}
+          onKeyDown={onKeyDown}
+          data-focus="value"
+          className="input flex-1"
         />
-      </label>
-
-      <label>
-        <OperatorAutocomplete
-          onChange={(value) => onChangeOperator(filter.id, value)}
-          focusId="operator"
-          colType={columnType}
-          value={filter.operator}
-        />
-      </label>
-
-      {allowsInput(OPERATOR_VALUE[filter.operator]) && (
-        <label className="w-full">
-          {filter.isColumnRef ? (
-            <DataSourceColumnsAutocomplete
-              dataSourceId={dataSourceId}
-              onChange={(val) => onChangeValue(filter.id, val)}
-              value={filter.value}
-              allowTables={allowedTables}
-              focusId="value"
-              placeholder="Search column"
-            />
-          ) : (
-            <input
-              className="input w-full"
-              placeholder="Filter value"
-              value={filter.value}
-              onChange={(e) => onChangeValue(filter.id, e.currentTarget.value)}
-              data-focus="value"
-            />
-          )}
-        </label>
-      )}
+      </div>
 
       <div className={st.filterActions}>
         <button
           tabIndex={-1}
           data-tooltip-id="default"
-          data-tooltip-content="If enabled, the value will reference another column instead of being raw string"
-          className={clsx("p-0.5 cursor-pointer rounded-lg border", filter.isColumnRef ? "bg-blue-50 border-blue-200" : "bg-white border-white")}
-          onClick={() => onIsColumnChange(filter.id, !filter.isColumnRef)}
-        >
-          🏷️
-        </button>
-        <button
-          tabIndex={-1}
-          data-tooltip-id="default"
           data-tooltip-content="Remove filter"
-          className="p-0.5 text-sm cursor-pointer" onClick={() => onRemoveFilter(filter.id)}
+          className="p-0.5 text-sm cursor-pointer rounded-md"
+          onClick={() => onRemoveFilter(filter.id)}
         >
-          <CloseButton width={20} height={20} className="text-red-600" />
+          <CloseIcon width={20} height={20} className="text-red-600" />
         </button>
       </div>
     </div>
@@ -134,15 +105,15 @@ const FilterEntry = ({
 
 export const FiltersModal = () => {
   const { state } = useContext(TableOptionsContext);
+  const { refetch } = useContext(QueryResultContext);
   const { setFilters: updateFilters } = useWhereStatements();
   const showModal = useExplorerModals((s) => s.filters);
-  const { data: inspections } = useDatabaseInspections(state.dataSourceId);
 
   const allowedTables = useMemo(() => {
     return [state.table, ...state.joins.map((j) => j.table)];
   }, [state.table, state.joins]);
 
-  const [filters, setFilters] = useState<TFilterForm[]>([]);
+  const [filters, setFilters] = useState<TQueryFilter[]>([]);
 
   const handleColumnChange = (id: string, column: string) => {
     setFilters((f) => [
@@ -151,21 +122,6 @@ export const FiltersModal = () => {
           return {
             ...currentFilter,
             column,
-          }
-        }
-
-        return currentFilter;
-      })
-    ]);
-  };
-
-  const handleOperatorChange = (id: string, operator: string) => {
-    setFilters((f) => [
-      ...f.map((currentFilter) => {
-        if (currentFilter.id === id) {
-          return {
-            ...currentFilter,
-            operator,
           }
         }
 
@@ -196,25 +152,8 @@ export const FiltersModal = () => {
         id: genSimpleId(),
         value: "",
         column: "",
-        operator: "",
-        isColumnRef: false,
         isEnabled: true,
       },
-    ]);
-  };
-
-  const handleChangeIsColumn = (id: string, isColumn: boolean) => {
-    setFilters((f) => [
-      ...f.map((currentFilter) => {
-        if (currentFilter.id === id) {
-          return {
-            ...currentFilter,
-            isColumnRef: isColumn,
-          }
-        }
-
-        return currentFilter;
-      })
     ]);
   };
 
@@ -222,12 +161,34 @@ export const FiltersModal = () => {
     setFilters((store) => store.filter((f) => f.id !== id));
   };
 
+  const handleChangeAdvancedFilter = (id: string, isAdvanced: boolean) => {
+    setFilters((store) => store.map((f) => {
+      if (f.id === id) {
+        return {
+          ...f,
+          isAdvanced,
+        };
+      }
+
+      return f;
+    }));
+  };
+
   const handleOnClose = () => hideExplorerModal("filters");
 
   const handleApplyFilters = () => {
-    if (validateFilters(filters)) {
-      updateFilters(mapFiltersToWhere(filters));
+    try {
+      updateFilters(filters.filter(f => {
+        return f.value.length > 0 && f.column.length > 0;
+      }));
+      setTimeout(refetch, 1);
       handleOnClose();
+    } catch (e: any) {
+      if (e instanceof Error) {
+        toast.error(e.message);
+      } else {
+        toast.error(`Error during parsing, check you filters`);
+      }
     }
   };
 
@@ -251,25 +212,12 @@ export const FiltersModal = () => {
 
     setFilters(
       () => {
-        const filters: TFilterForm[] = state.filters.map((f) => ({
-          id: f.id,
-          value: filterValueToString(f),
-          column: f.column,
-          operator: OPERATOR_LABEL[f.operator],
-          isColumnRef: !!f.value?.[0]?.isColumn,
-          isEnabled: f.isEnabled,
-        }));
-
-        // push empty element to create new filter
-        filters.push({
+        const filters: TQueryFilter[] = [...state.filters, {
           id: genSimpleId(),
           value: "",
           column: "",
-          operator: "",
-          isColumnRef: false,
           isEnabled: true,
-        });
-
+        }];
         return filters;
       },
     );
@@ -280,16 +228,12 @@ export const FiltersModal = () => {
     toggleExplorerModal("filters");
   });
 
-  useHotkeys("ctrl+f", () => {
-    alert("Save filters");
-  });
-
   return (
-    <Modal isVisible={showModal} onClose={handleOnClose} portal onClosed={() => setFilters([])}>
+    <Modal isVisible={showModal} onClose={handleOnClose} portal onClosed={() => setFilters([])} noPadding>
       <ModalClose onClick={handleOnClose} />
-      <h2 className="text-lg font-semibold">Filters</h2>
+      <h2 className="text-lg font-semibold m-2">Filters</h2>
 
-      <div className="flex gap-4 flex-col w-full lg:w-lg my-4">
+      <div className={st.filtersContainer}>
         {filters.length < 1 && (
           <p className="p-1 text-center rounded-lg bg-gray-50 border border-gray-200">No filters</p>
         )}
@@ -300,13 +244,12 @@ export const FiltersModal = () => {
             filter={f}
             dataSourceId={state.dataSourceId}
             allowedTables={allowedTables}
-            inspections={inspections || []}
             onChangeColumn={handleColumnChange}
-            onChangeOperator={handleOperatorChange}
             onChangeValue={handleValueChange}
             onRemoveFilter={handleRemoveFilter}
-            onIsColumnChange={handleChangeIsColumn}
+            onChangeAdvancedFilter={handleChangeAdvancedFilter}
             triggerIsEnabled={triggerIsEnabled}
+            onSubmit={handleApplyFilters}
             autoFocus={i === filters.length - 1}
           />
         ))}
@@ -314,14 +257,15 @@ export const FiltersModal = () => {
 
       <div className={st.actions}>
         <button
-          className="button tertiary"
+          className="button tertiary flex items-center gap-1 text-sm"
           onClick={handleAddFilter}
         >
-          Add filter
+          <AddIcon width={20} height={20} />
+          <span>Add filter</span>
         </button>
 
         <button
-          className="button primary"
+          className="button primary text-sm"
           onClick={handleApplyFilters}
         >
           Apply filters

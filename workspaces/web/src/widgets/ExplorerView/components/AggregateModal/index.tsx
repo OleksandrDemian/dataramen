@@ -112,6 +112,7 @@ export const AggregateModal = () => {
             <label>
               <p className="font-semibold text-xs">Column</p>
               <DataSourceColumnsAutocomplete
+                inputClassName="input w-full"
                 dataSourceId={dataSourceId}
                 allowTables={result?.result.tables || []}
                 onChange={onColumn}

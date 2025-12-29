@@ -29,8 +29,9 @@ export type TOperatorAutocompleteProps = {
   colType?: string;
   autoFocus?: boolean;
   focusId?: string;
+  inputClassName?: string;
 }
-export const OperatorAutocomplete = ({ value, onChange, autoFocus, focusId, colType }: TOperatorAutocompleteProps) => {
+export const OperatorAutocomplete = ({ value, onChange, inputClassName, autoFocus, focusId, colType }: TOperatorAutocompleteProps) => {
   const availableOperators = useMemo(() => {
     const src = value.toLowerCase() || "";
     return getOperators(colType || '').filter((op) => op.label.includes(src));
@@ -74,7 +75,7 @@ export const OperatorAutocomplete = ({ value, onChange, autoFocus, focusId, colT
         onKeyDown={handleKeyDown}
         value={value}
         onChange={(e) => onChange(e.target.value, false)}
-        className="input w-full"
+        className={inputClassName}
         placeholder="Operator"
         autoFocus={autoFocus}
         onFocus={() => setShowAutocomplete(true)}
