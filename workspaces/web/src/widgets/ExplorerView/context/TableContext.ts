@@ -21,6 +21,7 @@ export type TTableContext = {
   entities: string[];
   getValue: (row: TRunQueryResult['rows'][0], column: TInputColumn) => TDbValue;
   getEntityKey: (entity: string, row: TRunQueryResult['rows'][0]) => [string, TDbValue][];
+  getEntityKeyByRowIndex: (entity: string, row: number) => [string, TDbValue][];
   getColumnType: (fullColumn: string) => string | undefined;
 };
 
@@ -34,6 +35,7 @@ export const TableContext = createContext<TTableContext>({
   getValue: () => undefined,
   getColumnType: () => undefined,
   getEntityKey: () => [],
+  getEntityKeyByRowIndex: () => [],
 });
 
 export type TTableOptionsUpdater = (fn: (opts: TWorkbenchOptions) => TWorkbenchOptions) => void;

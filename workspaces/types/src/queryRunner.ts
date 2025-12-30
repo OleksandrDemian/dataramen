@@ -16,6 +16,12 @@ export type TExecuteQuery = {
   name: string;
 };
 
+export type TExecuteGetEntityProps = {
+  dataSourceId: string;
+  table: string;
+  props: Record<string, string>;
+};
+
 export type TQueryMutationValue = { column: string; value: TDbValue; };
 
 export type TExecuteUpdate = {
@@ -43,6 +49,12 @@ export type TExecuteQueryResult = {
   columns: TResultColumn[];
   rows: TDbValue[][];
   query: string;
+};
+
+export type TExecuteGetEntityResponse = {
+  entity: Record<string, any>;
+  columns: TResultColumn[];
+  sql: string;
 };
 
 export type TRunSqlResult = TExecuteQueryResult & {

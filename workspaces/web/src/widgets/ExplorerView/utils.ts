@@ -115,6 +115,19 @@ export function useCreateTableContext (
           return acc;
         }, []);
       },
+      getEntityKeyByRowIndex: (entity, row) => {
+        return entities[entity].reduce<[string, TDbValue][]>((acc, col) => {
+          const index = result?.result.columns?.findIndex((column) => {
+            return column.column === col && column.table === entity;
+          });
+
+          if (index != undefined && index > -1) {
+            acc.push([col, result?.result.rows[row][index]]);
+          }
+
+          return acc;
+        }, []);
+      },
       getColumnType: (fullColumn: string) => {
         const meta = result?.result.allColumns.find((c) => c.full === fullColumn);
 

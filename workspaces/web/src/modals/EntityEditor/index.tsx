@@ -58,7 +58,7 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
   }, [filter, currentTable]);
 
   useEffect(() => {
-    const entity = queryResult?.rows[0];
+    const entity = queryResult?.entity;
     reset();
 
     if (entity && queryResult?.columns) {

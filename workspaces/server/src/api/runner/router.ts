@@ -1,15 +1,16 @@
 import {createRouter} from "../../utils/createRouter";
-import {getRequestPayload} from "../../utils/request";
-import {runInsert, runSelect, runUpdate} from "../../services/sqlRunner";
+import {getRequestParams, getRequestPayload, getRequestQuery} from "../../utils/request";
+import {getEntity, runInsert, runSelect, runUpdate} from "../../services/sqlRunner";
 import {TExecuteInsert, TExecuteQuery, TExecuteUpdate, EUserTeamRole} from "@dataramen/types";
 import {validateExecuteQueryBody, validateInsertQueryBody, validateUpdateQueryBody} from "./validators";
 import {atLeast} from "../../hooks/role";
 import {WorkbenchTabsRepository} from "../../repository/db";
+import {async} from "fast-glob";
 
 export default createRouter((instance) => {
   instance.route({
     method: "post",
-    url: "/select",
+    url: "/:dsId/select",
     handler: async (request) => {
       const payload = getRequestPayload<TExecuteQuery>(request, validateExecuteQueryBody);
       const result = await runSelect(request, payload);
@@ -21,8 +22,26 @@ export default createRouter((instance) => {
   });
 
   instance.route({
+    method: "get",
+    url: "/:dsId/entity/:table",
+    handler: async (request) => {
+      const { dsId, table } = getRequestParams<{ dsId: string; table: string; }>(request);
+      const query = getRequestQuery<Record<string, string>>(request);
+      const result = await getEntity(request, {
+        table,
+        dataSourceId: dsId,
+        props: query,
+      });
+
+      return {
+        data: result,
+      };
+    },
+  })
+
+  instance.route({
     method: "post",
-    url: "/insert",
+    url: "/:dsId/insert",
     config: {
       requireRole: atLeast(EUserTeamRole.EDITOR),
     },
@@ -38,7 +57,7 @@ export default createRouter((instance) => {
 
   instance.route({
     method: "post",
-    url: "/update",
+    url: "/:dsId/update",
     config: {
       requireRole: atLeast(EUserTeamRole.EDITOR),
     },

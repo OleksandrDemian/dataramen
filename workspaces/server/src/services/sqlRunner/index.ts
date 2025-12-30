@@ -7,12 +7,13 @@ import {
   QueriesRepository,
 } from "../../repository/db";
 import {
+  TExecuteGetEntityProps,
   TExecuteInsert,
   TExecuteQuery,
   TExecuteQueryResult,
   TExecuteUpdate,
   TInputColumn,
-  TQueryMutationValue,
+  TQueryMutationValue, TExecuteGetEntityResponse,
   TRunSqlResult
 } from "@dataramen/types";
 import {
@@ -23,10 +24,10 @@ import {
   isAggregationFunction,
   PostgreSqlFunctions,
   MySqlColumnFunctions,
-  OrderByClause, QueryFilter
+  OrderByClause
 } from "@dataramen/sql-builder";
 import {In} from "typeorm";
-import {FilterParser, inputColumnToAlias, STRING_TYPES} from "@dataramen/common";
+import {inputColumnToAlias, STRING_TYPES} from "@dataramen/common";
 import {mapDataSourceToDbConnection} from "../../utils/dataSourceUtils";
 import {parseClientFilters} from "./utils";
 
@@ -42,12 +43,7 @@ export const runSelect = async (
     props.opts.aggregations,
   );
 
-  const dataSource = await DataSourceRepository.findOne({
-    where: {
-      id: datasourceId,
-    },
-    select: ["id", "dbType", "dbDatabase", "dbPassword", "dbPasswordTag", "dbPasswordIv", "dbPort", "dbUrl", "dbSchema", "dbUser"],
-  });
+  const dataSource = await getDataSource(datasourceId);
   const tables: string[] = [table];
   const allColumns: TRunSqlResult["allColumns"] = [];
 
@@ -177,13 +173,52 @@ export const runSelect = async (
   };
 };
 
+export const getEntity = async (req: FastifyRequest, props: TExecuteGetEntityProps): Promise<TExecuteGetEntityResponse> => {
+  const dataSource = await getDataSource(props.dataSourceId);
+
+  if (!dataSource) {
+    throw new HttpError(400, "Invalid datasource");
+  }
+
+  const dbConnectionManager = await getDynamicConnection(mapDataSourceToDbConnection(dataSource, true), dataSource.dbType, req);
+  const queryBuilder = new SelectQueryBuilder(dataSource.dbType as DatabaseDialect);
+  queryBuilder.setTable(props.table);
+  queryBuilder.setLimit(2);
+  for (const [key, value] of Object.entries(props.props)) {
+    queryBuilder.addWhere({
+      value: [{ value }],
+      column: key,
+      connector: "AND",
+      isEnabled: true,
+      operator: "=",
+      id: "dummy", // todo: id here makes no sense
+    });
+  }
+
+  const sql = queryBuilder.toSQL();
+  const result = await dbConnectionManager.executeQuery(
+    sql,
+    {
+      type: "SELECT",
+      allowBulkUpdate: false,
+    }
+  );
+
+  if (result.rows.length > 1) {
+    throw new HttpError(400, "Found multiple rows for given query");
+  } else if (result.rows.length < 1) {
+    throw new HttpError(404, "Entity not found");
+  }
+
+  return {
+    entity: result.rows[0],
+    columns: result.columns,
+    sql,
+  }
+};
+
 export const runUpdate = async (req: FastifyRequest, props: TExecuteUpdate): Promise<TExecuteQueryResult> => {
-  const dataSource = await DataSourceRepository.findOne({
-    where: {
-      id: props.datasourceId,
-    },
-    select: ["id", "dbType", "dbDatabase", "dbPassword", "dbPasswordTag", "dbPasswordIv", "dbPort", "dbUrl", "dbSchema", "dbUser", "allowUpdate"],
-  });
+  const dataSource = await getDataSource(props.datasourceId);
 
   if (!dataSource) {
     throw new HttpError(404, "Data source not found");
@@ -221,12 +256,7 @@ export const runUpdate = async (req: FastifyRequest, props: TExecuteUpdate): Pro
 };
 
 export const runInsert = async (req: FastifyRequest, props: TExecuteInsert): Promise<TExecuteQueryResult> => {
-  const dataSource = await DataSourceRepository.findOne({
-    where: {
-      id: props.datasourceId,
-    },
-    select: ["id", "dbType", "dbDatabase", "dbPassword", "dbPasswordTag", "dbPasswordIv", "dbPort", "dbUrl", "dbSchema", "dbUser", "allowInsert"],
-  });
+  const dataSource = await getDataSource(props.datasourceId);
 
   if (!dataSource) {
     throw new HttpError(404, "Data source not found");
@@ -354,3 +384,12 @@ const computeColumns = (cols: TInputColumn[], groupBy: TInputColumn[], agg: TInp
 
   return result;
 };
+
+async function getDataSource (dsId: string) {
+  return DataSourceRepository.findOne({
+    where: {
+      id: dsId,
+    },
+    select: ["id", "dbType", "dbDatabase", "dbPassword", "dbPasswordTag", "dbPasswordIv", "dbPort", "dbUrl", "dbSchema", "dbUser", "allowUpdate", "allowInsert"],
+  });
+}
