@@ -3,41 +3,23 @@ import {apiClient} from "../clients.ts";
 import {
   TDbValue,
   TExecuteInsert,
-  TExecuteQuery,
   TExecuteUpdate,
-  TQueryFilter,
+  TExecuteGetEntityResponse,
   TRunSqlResult,
 } from "@dataramen/types";
-import {genSimpleId} from "../../utils/id.ts";
 
 export const useEntity = (dataSourceId?: string, table?: string, key?: [string, TDbValue][]) => {
-  return useQuery<TRunSqlResult>({
+  return useQuery<TExecuteGetEntityResponse>({
     queryKey: ["entity", dataSourceId, table, key],
     queryFn: async () => {
-      const filters: TQueryFilter[] = key ? key.map(([column, value]) => {
-        return {
-          id: genSimpleId(),
-          column,
-          value: `${value}`,
-        } satisfies TQueryFilter;
-      }) : [];
-
-      const { data } = await apiClient.post<{ data: TRunSqlResult }>("/runner/select", {
-        datasourceId: dataSourceId!,
-        opts: {
-          // todo: create dedicated endpoint to extract entity by id
-          table: table!,
-          filters,
-          joins: [],
-          columns: [],
-          orderBy: [],
-          groupBy: [],
-          aggregations: [],
-        },
-        size: 1,
-        page: 0,
-        name: `Select ${table}: [${key?.join()}]`,
-      } satisfies TExecuteQuery);
+      const { data } = await apiClient.get<{ data: TExecuteGetEntityResponse }>(`/runner/${dataSourceId}/entity/${table}`, {
+        params: key?.reduce(
+          (acc, val) => {
+            acc[val[0]] = val[1];
+            return acc;
+          }, {} as Record<string, TDbValue>
+        ),
+      });
 
       return data.data;
     },
@@ -50,7 +32,7 @@ export const useEntity = (dataSourceId?: string, table?: string, key?: [string, 
 export const useUpdate = () => {
   return useMutation({
     mutationFn: async (props: TExecuteUpdate) => {
-      const { data } = await apiClient.post<{ data: TRunSqlResult }>(`/runner/update`, props);
+      const { data } = await apiClient.post<{ data: TRunSqlResult }>(`/runner/${props.datasourceId}/update`, props);
 
       return data.data;
     },
@@ -60,7 +42,7 @@ export const useUpdate = () => {
 export const useInsert = () => {
   return useMutation({
     mutationFn: async (props: TExecuteInsert) => {
-      const { data } = await apiClient.post<{ data: TRunSqlResult }>(`/runner/insert`, props);
+      const { data } = await apiClient.post<{ data: TRunSqlResult }>(`/runner/${props.datasourceId}/insert`, props);
 
       return data.data;
     },

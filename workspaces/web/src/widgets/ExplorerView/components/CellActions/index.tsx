@@ -1,5 +1,5 @@
 import {ContextualMenu, TContextMenuRef} from "../../../ContextualMenu";
-import {RefObject, useState} from "react";
+import {RefObject, useContext, useState} from "react";
 import {useCellActions} from "./useCellActions.ts";
 import SearchIcon from "../../../../assets/search-outline.svg?react";
 import CopyIcon from "../../../../assets/copy-outline.svg?react";
@@ -9,6 +9,8 @@ import {DrillDown} from "../RowOptions/DrillDown.tsx";
 import ChevronIcon from "../../../../assets/chevron-forward-outline.svg?react";
 import ExpandIcon from "../../../../assets/chevron-expand-outline.svg?react";
 import {ExpandRow} from "../RowOptions/ExpandRow.tsx";
+import {TableContext} from "../../context/TableContext.ts";
+import {updateEntityEditor} from "../../../../data/entityEditorStore.ts";
 
 export type TCellActionsProps = {
   ref: RefObject<TContextMenuRef | null>;
@@ -19,10 +21,29 @@ export type TCellActionsProps = {
 export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
   const clickHandler = useCellActions({ ref });
   const [tab, setTab] = useState<"cell" | "drill" | "expand">("cell");
+  const {
+    entities,
+    dataSourceId,
+    getEntityKeyByRowIndex,
+  } = useContext(TableContext);
 
   const onCopyValue = () => clickHandler.copyValue(row!, col!);
   const onShowValue = () => clickHandler.showValue(row!, col!);
   const onFilterValue = () => clickHandler.filterValue(row!, col!);
+
+  const onExpand = () => {
+    if (entities.length === 1) {
+      const key = getEntityKeyByRowIndex(entities[0], row!);
+      updateEntityEditor({
+        tableName: entities[0],
+        dataSourceId,
+        entityId: key,
+      });
+      ref.current?.close();
+    } else {
+      setTab("expand");
+    }
+  };
 
   const onMenuClosed = () => {
     onClosed?.();
@@ -52,10 +73,12 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
               <ChevronIcon width={14} height={14} />
               Drill down
             </button>
-            <button className={st.item} onClick={() => setTab("expand")}>
-              <ExpandIcon width={14} height={14} />
-              Expand row
-            </button>
+            {entities?.length > 0 && (
+              <button className={st.item} onClick={onExpand}>
+                <ExpandIcon width={14} height={14} />
+                Expand row
+              </button>
+            )}
           </>
         )}
 

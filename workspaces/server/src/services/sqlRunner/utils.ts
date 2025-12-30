@@ -10,7 +10,7 @@ const getDefaultOperator = (type: string): TQueryOperator => {
 export const parseClientFilters = (filters: TQueryFilter[], columnTypes: Record<string, string>): QueryFilter[] => {
   const parsedFilters: QueryFilter[] = [];
   for (const f of filters) {
-    if (!f.column?.length || !f.value?.length || !f.isEnabled) continue;
+    if (!f.column?.length || !f.value?.length || f.isEnabled === false) continue;
 
     if (f.isAdvanced) {
       const parsed = FilterParser.parse(f.value);
