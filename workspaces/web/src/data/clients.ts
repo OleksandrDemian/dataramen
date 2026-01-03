@@ -1,19 +1,8 @@
 import axios, {isAxiosError} from "axios";
 import {AccessTokenHandler} from "../services/accessTokenHandler.ts";
 
-// todo: VITE_API_BACKEND_URL is mocked to use PORT 4466
-const baseURL = (() => {
-  // dev env or dataramen hosted app, point to env variable
-  if (location.hostname.includes("app.dataramen.xyz") || import.meta.env.DEV) {
-    return`${import.meta.env.VITE_API_BACKEND_URL}/api`;
-  }
-
-  // self hosted app, point to /api
-  return "/api";
-})();
-
 export const apiClient = axios.create({
-  baseURL,
+  baseURL: import.meta.env.VITE_API_BACKEND_URL,
   withCredentials: true,
 });
 
@@ -41,6 +30,6 @@ apiClient.interceptors.response.use(
 );
 
 export const apiClientNoAuth = axios.create({
-  baseURL,
+  baseURL: import.meta.env.VITE_API_BACKEND_URL,
   withCredentials: true,
 });
