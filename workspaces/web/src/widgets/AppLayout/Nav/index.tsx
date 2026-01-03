@@ -9,6 +9,8 @@ import {useLocation, useNavigate} from "react-router-dom";
 import {useSearchTable} from "../../../data/tableSearchModalStore.ts";
 import {updateShowTabsHistory} from "../../../data/showTabsHistorySidebarStore.ts";
 
+const enableAuth = !__CLIENT_CONFIG__.skipAuth;
+
 export const Nav = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -41,12 +43,16 @@ export const Nav = () => {
             <span className="hotkey">H</span>
           </button>
 
-          <button onClick={openAccountSettingsModal}>
-            🪪 {currentUser.username}
-          </button>
-          <button onClick={openPeopleSettings}>
-            👥 Manage users
-          </button>
+          {enableAuth && (
+            <>
+              <button onClick={openAccountSettingsModal}>
+                🪪 {currentUser.username}
+              </button>
+              <button onClick={openPeopleSettings}>
+                👥 Manage users
+              </button>
+            </>
+          )}
         </div>
       )}
 

@@ -3,7 +3,9 @@ import {useAccessToken} from "../data/queries/users.ts";
 import {useEffect} from "react";
 import {PAGES} from "../const/pages.ts";
 
-export const useLoginGuard = () => {
+export type TLoginGuardFunction = () => void;
+
+const enabledGuard: TLoginGuardFunction = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { data: token, isLoading } = useAccessToken();
@@ -14,3 +16,7 @@ export const useLoginGuard = () => {
     }
   }, [token, isLoading, navigate, pathname]);
 };
+
+const disabledGuard: TLoginGuardFunction = () => {};
+
+export const useLoginGuard: TLoginGuardFunction = __CLIENT_CONFIG__.skipAuth ? disabledGuard : enabledGuard;

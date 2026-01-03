@@ -108,6 +108,7 @@ function Pagination () {
 }
 
 const rows = [5, 10, 20, 50, 100, 200];
+const canShare = !__CLIENT_CONFIG__.skipAuth;
 function MoreOptions () {
   const { dataSourceId, name } = useContext(TableContext);
   const { data: dataSource } = useDataSource(dataSourceId);
@@ -163,7 +164,6 @@ function MoreOptions () {
   };
 
   const onRename = () => rename(name);
-  const canShare = true;// window?.location.hostname !== 'localhost';
 
   useHotkeys("s", onSaveQuery);
   useHotkeys("r", onRename);

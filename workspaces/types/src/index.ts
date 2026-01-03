@@ -6,3 +6,4 @@ export * from "./users";
 export * from "./schemas";
 export * from "./queryHistory";
 export * from "./workbenchTabs";
+export * from "./client";

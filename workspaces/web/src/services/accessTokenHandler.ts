@@ -4,6 +4,10 @@ import {readAccessToken, storeAccessToken} from "../utils/sessionAccessToken.ts"
 import {queryClient} from "../data/queryClient.ts";
 
 const fetchRefreshToken = async (): Promise<string> => {
+  if (__CLIENT_CONFIG__.skipAuth) {
+    return "dummy-refresh-token";
+  }
+
   const { data } = await apiClientNoAuth.post<{ data: TAuthUser }>("/auth/refresh");
   return data.data.accessToken;
 };
