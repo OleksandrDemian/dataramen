@@ -3,7 +3,7 @@ import {Tables} from "./utils/migrationUtils";
 
 const dataSourceFk = new TableForeignKey({
   columnNames: ["dataSourceId"],
-  referencedTableName: "data_sources",
+  referencedTableName: Tables.DataSources,
   referencedColumnNames: ["id"],
 });
 

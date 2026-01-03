@@ -48,7 +48,7 @@ export const AppDataSource = new TypeOrm({
   ],
 });
 
-export const init = async () => {
+export const initDatabase = async () => {
   if (!AppDataSource.isInitialized) {
     return AppDataSource.initialize();
   }

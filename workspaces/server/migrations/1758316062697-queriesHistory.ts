@@ -1,5 +1,5 @@
 import {MigrationInterface, QueryRunner, Table, TableColumn, TableForeignKey} from "typeorm";
-import {TIMESTAMP_COLUMN_TYPE} from "./utils/migrationUtils";
+import {Tables, TIMESTAMP_COLUMN_TYPE} from "./utils/migrationUtils";
 
 export class QueriesHistory1758316062697 implements MigrationInterface {
   name = "QueriesHistory1758316062697";
@@ -8,7 +8,7 @@ export class QueriesHistory1758316062697 implements MigrationInterface {
     // create queryHistory table
     await queryRunner.createTable(
       new Table({
-        name: "saved_queries",
+        name: Tables.SavedQueries,
         columns: [
           { name: "id", type: "uuid", isPrimary: true, isGenerated: true, generationStrategy: "uuid" },
           { name: "isPersonal", type: "boolean" },
@@ -22,26 +22,26 @@ export class QueriesHistory1758316062697 implements MigrationInterface {
     );
 
     // queryHistory FKs
-    await queryRunner.createForeignKeys("saved_queries", [
+    await queryRunner.createForeignKeys(Tables.SavedQueries, [
       new TableForeignKey({
         columnNames: ["teamId"],
-        referencedTableName: "teams",
+        referencedTableName: Tables.Teams,
         referencedColumnNames: ["id"],
       }),
       new TableForeignKey({
         columnNames: ["userId"],
-        referencedTableName: "users",
+        referencedTableName: Tables.Users,
         referencedColumnNames: ["id"],
       }),
       new TableForeignKey({
         columnNames: ["queryId"],
-        referencedTableName: "query",
+        referencedTableName: Tables.Query,
         referencedColumnNames: ["id"],
       }),
     ]);
 
     // update query table with new userId property
-    await queryRunner.addColumns("query", [
+    await queryRunner.addColumns(Tables.Query, [
       new TableColumn({
         name: "userId",
         type: "uuid",
@@ -49,38 +49,38 @@ export class QueriesHistory1758316062697 implements MigrationInterface {
       }),
     ]);
 
-    await queryRunner.createForeignKeys("query", [
+    await queryRunner.createForeignKeys(Tables.Query, [
       new TableForeignKey({
         columnNames: ["userId"],
-        referencedTableName: "users",
+        referencedTableName: Tables.Users,
         referencedColumnNames: ["id"],
       }),
     ]);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropForeignKeys("query", [
+    await queryRunner.dropForeignKeys(Tables.Query, [
       new TableForeignKey({
         columnNames: ["userId"],
-        referencedTableName: "users",
+        referencedTableName: Tables.Users,
         referencedColumnNames: ["id"],
       }),
     ]);
-    await queryRunner.dropColumns("query", ["userId"]);
-    await queryRunner.dropForeignKeys("saved_queries", [
+    await queryRunner.dropColumns(Tables.Query, ["userId"]);
+    await queryRunner.dropForeignKeys(Tables.SavedQueries, [
       new TableForeignKey({
         columnNames: ["teamId"],
-        referencedTableName: "teams",
+        referencedTableName: Tables.Teams,
         referencedColumnNames: ["id"],
       }),
       new TableForeignKey({
         columnNames: ["userId"],
-        referencedTableName: "users",
+        referencedTableName: Tables.Users,
         referencedColumnNames: ["id"],
       }),
       new TableForeignKey({
         columnNames: ["queryId"],
-        referencedTableName: "query",
+        referencedTableName: Tables.Query,
         referencedColumnNames: ["id"],
       }),
     ]);
