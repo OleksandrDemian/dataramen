@@ -1,5 +1,5 @@
 import {MigrationInterface, QueryRunner, Table, TableForeignKey} from "typeorm";
-import {TIMESTAMP_COLUMN_TYPE} from "./utils/migrationUtils";
+import {Tables, TIMESTAMP_COLUMN_TYPE} from "./utils/migrationUtils";
 
 export class WorkbenchTabs1760816916693 implements MigrationInterface {
   name = "WorkbenchTabs1760816916693";
@@ -7,7 +7,7 @@ export class WorkbenchTabs1760816916693 implements MigrationInterface {
   public async up(queryRunner: QueryRunner) {
     await queryRunner.createTable(
       new Table({
-        name: "workbench_tabs",
+        name: Tables.WorkbenchTabs,
         columns: [
           { name: "id",         type: "uuid", isPrimary: true, isGenerated: true, generationStrategy: "uuid" },
           { name: "createdAt",  type: TIMESTAMP_COLUMN_TYPE, default: "CURRENT_TIMESTAMP" },
@@ -22,43 +22,43 @@ export class WorkbenchTabs1760816916693 implements MigrationInterface {
       }),
     );
 
-    await queryRunner.createForeignKeys("saved_queries", [
+    await queryRunner.createForeignKeys(Tables.WorkbenchTabs, [
       new TableForeignKey({
         columnNames: ["teamId"],
-        referencedTableName: "teams",
+        referencedTableName: Tables.Teams,
         referencedColumnNames: ["id"],
       }),
       new TableForeignKey({
         columnNames: ["userId"],
-        referencedTableName: "users",
+        referencedTableName: Tables.Users,
         referencedColumnNames: ["id"],
       }),
       new TableForeignKey({
         columnNames: ["queryId"],
-        referencedTableName: "query",
+        referencedTableName: Tables.Query,
         referencedColumnNames: ["id"],
       }),
     ]);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropForeignKeys("workbench_tabs", [
+    await queryRunner.dropForeignKeys(Tables.WorkbenchTabs, [
       new TableForeignKey({
         columnNames: ["teamId"],
-        referencedTableName: "teams",
+        referencedTableName: Tables.Teams,
         referencedColumnNames: ["id"],
       }),
       new TableForeignKey({
         columnNames: ["userId"],
-        referencedTableName: "users",
+        referencedTableName: Tables.Users,
         referencedColumnNames: ["id"],
       }),
       new TableForeignKey({
         columnNames: ["queryId"],
-        referencedTableName: "query",
+        referencedTableName: Tables.Query,
         referencedColumnNames: ["id"],
       }),
     ]);
-    await queryRunner.dropTable("workbench_tabs", true);
+    await queryRunner.dropTable(Tables.WorkbenchTabs, true);
   }
 }

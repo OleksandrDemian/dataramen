@@ -1,7 +1,6 @@
 import { EntitySchema } from "typeorm";
 import {TIMESTAMP_COLUMN_TYPE} from "../../utils/dbUtils";
 import {IWorkbenchTabSchema} from "@dataramen/types";
-import {devNull} from "node:os";
 
 export const WorkbenchTab = new EntitySchema<IWorkbenchTabSchema>({
   name: "WorkbenchTab",

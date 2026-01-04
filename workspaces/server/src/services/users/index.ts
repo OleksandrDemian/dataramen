@@ -21,7 +21,7 @@ const getOrCreateTeam = async () => {
   );
 };
 
-export const createDefaultOwnerUser = async (): Promise<IUserSchema> => {
+export const initDefaultOwnerUser = async (): Promise<IUserSchema> => {
   const existingOwner = await UsersToTeamsRepository.findOne({
     where: {
       role: EUserTeamRole.OWNER,

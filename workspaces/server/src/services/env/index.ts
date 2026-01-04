@@ -19,9 +19,9 @@ const packageJson = (() => {
 
 const envFiles: string[] = [];
 
-if (process.argv[2]) {
+if (process.argv[3]) {
   envFiles.push(
-    resolve(process.argv[2]),
+    resolve(process.argv[3]),
   );
 }
 

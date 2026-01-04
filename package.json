@@ -9,7 +9,8 @@
   "scripts": {
     "package:cli": "node package.mjs cli",
     "package:app": "node package.mjs app",
-    "start": "node package.mjs app && node dist/code/server.js .env",
+    "start:hosted": "node dist/code/server.js hosted .env",
+    "start:local": "node dist/code/server.js local .env",
     "dev:server": "yarn workspace @dataramen/server dev",
     "dev:web": "yarn workspace @dataramen/web dev"
   }

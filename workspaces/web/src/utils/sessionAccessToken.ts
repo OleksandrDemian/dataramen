@@ -2,6 +2,10 @@ const key = "__access_token__"
 
 export const readAccessToken = () => {
   try {
+    if (__CLIENT_CONFIG__.skipAuth) {
+      return "dummy-access-token";
+    }
+
     const token = localStorage.getItem(key);
     if (token) {
       return token;
