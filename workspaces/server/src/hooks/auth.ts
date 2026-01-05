@@ -15,8 +15,8 @@ const isPublicRoute = (req: FastifyRequest): boolean => {
   return !req.url.startsWith("/api/");
 };
 
-const authenticateLocalUser = async (request: FastifyRequest) => {
-  const existingOwner = await UsersToTeamsRepository.findOne({
+const getOwner = async () => {
+  return UsersToTeamsRepository.findOne({
     where: {
       role: EUserTeamRole.OWNER,
     },
@@ -24,7 +24,11 @@ const authenticateLocalUser = async (request: FastifyRequest) => {
       user: true,
       team: true,
     }
-  });
+  })
+}
+
+const authenticateLocalUser = async (request: FastifyRequest) => {
+  const existingOwner = await getOwner();
 
   if (!existingOwner) {
     throw new HttpError(401, "User is not part of a team");
@@ -45,40 +49,36 @@ const authenticatePublicUser = async (request: FastifyRequest) => {
 
   const [_, accessToken] = authorization.split(' ');
 
-  try {
-    const { userId } = await verifyAccessToken(accessToken);
-    const user = await UserRepository.findOne({
-      where: {
-        id: userId,
-      },
-      select: {
-        id: true,
-        currentTeam: {
-          role: true,
-          team: {
-            id: true,
-          },
-        },
-      },
-      relations: {
-        currentTeam: {
-          team: true,
-        },
-      },
-    });
-
-    if (!user) {
-      throw new HttpError(401, "User is not part of a team");
-    }
-
-    request.user = {
+  const { userId } = await verifyAccessToken(accessToken);
+  const user = await UserRepository.findOne({
+    where: {
       id: userId,
-      currentTeamId: user.currentTeam.team.id,
-      currentTeamRole: user.currentTeam.role,
-    };
-  } catch (err) {
+    },
+    select: {
+      id: true,
+      currentTeam: {
+        role: true,
+        team: {
+          id: true,
+        },
+      },
+    },
+    relations: {
+      currentTeam: {
+        team: true,
+      },
+    },
+  });
+
+  if (!user) {
     throw new HttpError(401, "Unauthorized");
   }
+
+  request.user = {
+    id: userId,
+    currentTeamId: user.currentTeam.team.id,
+    currentTeamRole: user.currentTeam.role,
+  };
 };
 
 export const requestAuthHook: onRequestHookHandler = async (request) => {

@@ -78,85 +78,87 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
     <Modal isVisible={show} onClose={close}>
       <ModalClose onClick={close} />
 
-      <Alert variant="warning" className="text-sm mb-2 max-w-xl">DataRamen is currently under active development. In production-like environments, <span className="font-semibold underline">it’s recommended to use read-only database credentials</span>.</Alert>
+      <div className="max-w-xl mx-auto">
+        <Alert variant="warning" className="text-sm mb-2 max-w-xl">DataRamen is currently under active development. In production-like environments, <span className="font-semibold underline">it’s recommended to use read-only database credentials</span>.</Alert>
 
-      {createDataSource.isError && (
-        <Alert variant="danger" className="mb-2">
-          <span>Failed to connect to the database. Please check if the data are correct and retry.</span>
-        </Alert>
-      )}
+        {createDataSource.isError && (
+          <Alert variant="danger" className="mb-2">
+            <span>Failed to connect to the database. Please check if the data are correct and retry.</span>
+          </Alert>
+        )}
 
-      {createDataSource.isPending && (
-        <Alert className="mb-2" variant="info">Creating connection</Alert>
-      )}
+        {createDataSource.isPending && (
+          <Alert className="mb-2" variant="info">Creating connection</Alert>
+        )}
 
-      {manualInspector.isPending && (
-        <Alert className="mb-2" variant="info">Inspecting connection</Alert>
-      )}
+        {manualInspector.isPending && (
+          <Alert className="mb-2" variant="info">Inspecting connection</Alert>
+        )}
 
-      <div className={st.switch}>
-        <label className="button tertiary">
-          <input type="radio" name="bdType" className="mr-2" checked={form.dbType === DataSources[0].tag} onChange={() => set("dbType", DataSources[0].tag)} />
-          <span>{DataSources[0].label}</span>
-        </label>
-        <label className="button tertiary">
-          <input type="radio" name="bdType" className="mr-2" checked={form.dbType === DataSources[1].tag} onChange={() => set("dbType", DataSources[1].tag)} />
-          <span>{DataSources[1].label}</span>
-        </label>
-      </div>
+        <div className={st.switch}>
+          <label className="button tertiary">
+            <input type="radio" name="bdType" className="mr-2" checked={form.dbType === DataSources[0].tag} onChange={() => set("dbType", DataSources[0].tag)} />
+            <span>{DataSources[0].label}</span>
+          </label>
+          <label className="button tertiary">
+            <input type="radio" name="bdType" className="mr-2" checked={form.dbType === DataSources[1].tag} onChange={() => set("dbType", DataSources[1].tag)} />
+            <span>{DataSources[1].label}</span>
+          </label>
+        </div>
 
-      <div className="overflow-y-auto mt-2">
-        <div className={st.content}>
-          <div className={st.form}>
-            <div className={clsx(st.input, "col-span-2")}>
-              <label>
-                Name
-              </label>
-              <input value={form.name} onChange={change("name")} className="input"/>
+        <div className="overflow-y-auto mt-2">
+          <div className={st.content}>
+            <div className={st.form}>
+              <div className={clsx(st.input, "col-span-2")}>
+                <label>
+                  Name
+                </label>
+                <input value={form.name} onChange={change("name")} className="input"/>
+              </div>
+
+              <div className={clsx(st.input, "col-span-2")}>
+                <label>
+                  Description
+                </label>
+                <textarea value={form.description} onChange={change("description")} className="input"/>
+              </div>
+
+              {form.dbType === 'mysql' && (
+                <MySqlForm form={form} change={change} />
+              )}
+              {form.dbType === 'postgres' && (
+                <PostgreForm form={form} change={change} />
+              )}
             </div>
+          </div>
 
-            <div className={clsx(st.input, "col-span-2")}>
-              <label>
-                Description
-              </label>
-              <textarea value={form.description} onChange={change("description")} className="input"/>
-            </div>
+          <div className="mt-4">
+            <label className={st.modeSelect}>
+              <div>
+                <input type="radio" name="production-mode" className="mr-2" checked={isProdMode} onChange={() => onProductionMode(true)} />
+                <span className="text-sm font-semibold">Production mode</span>
+              </div>
+              <p className="text-xs mt-1 text-gray-600">Mutation operations (such as INSERT or UPDATE) are <strong>forbidden</strong>. You won't be able to insert new rows or edit existing data. Tables in this data source are read-only.</p>
+            </label>
 
-            {form.dbType === 'mysql' && (
-              <MySqlForm form={form} change={change} />
-            )}
-            {form.dbType === 'postgres' && (
-              <PostgreForm form={form} change={change} />
-            )}
+            <label className={st.modeSelect}>
+              <div>
+                <input type="radio" name="production-mode" className="mr-2" checked={!isProdMode} onChange={() => onProductionMode(false)} />
+                <span className="text-sm font-semibold">Dev mode</span>
+              </div>
+              <p className="text-xs mt-1 text-gray-600">Mutation operations (such as INSERT or UPDATE) are <strong>allowed</strong>. You will be able to insert new rows and edit existing data.</p>
+            </label>
           </div>
         </div>
 
-        <div className="mt-4">
-          <label className={st.modeSelect}>
-            <div>
-              <input type="radio" name="production-mode" className="mr-2" checked={isProdMode} onChange={() => onProductionMode(true)} />
-              <span className="text-sm font-semibold">Production mode</span>
-            </div>
-            <p className="text-xs mt-1 text-gray-600">Mutation operations (such as INSERT or UPDATE) are <strong>forbidden</strong>. You won't be able to insert new rows or edit existing data. Tables in this data source are read-only.</p>
-          </label>
-
-          <label className={st.modeSelect}>
-            <div>
-              <input type="radio" name="production-mode" className="mr-2" checked={!isProdMode} onChange={() => onProductionMode(false)} />
-              <span className="text-sm font-semibold">Dev mode</span>
-            </div>
-            <p className="text-xs mt-1 text-gray-600">Mutation operations (such as INSERT or UPDATE) are <strong>allowed</strong>. You will be able to insert new rows and edit existing data.</p>
-          </label>
+        <div className="flex justify-end gap-1 mt-2">
+          <button onClick={close} className="button tertiary" disabled={disableUi}>
+            Cancel
+          </button>
+          <button onClick={onSubmit} className="button primary" disabled={disableUi}>
+            Create
+          </button>
         </div>
-      </div>
-
-      <div className="flex justify-end gap-1 mt-2">
-        <button onClick={close} className="button tertiary" disabled={disableUi}>
-          Cancel
-        </button>
-        <button onClick={onSubmit} className="button primary" disabled={disableUi}>
-          Create
-        </button>
       </div>
     </Modal>
   );

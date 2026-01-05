@@ -6,12 +6,13 @@ import qs from "qs";
 import { initDatabase } from './repository/db';
 
 import "./types/extendFastify";
-import {initDefaultOwnerUser} from "./services/users";
 import {serverConfig} from "./config/serverConfig";
 import {initRoutes} from "./api";
 import {initHooks} from "./hooks";
 import {initHandlers} from "./handlers";
 import {initPlugins} from "./plugins";
+import {generateSetupAccessToken, requireSetup} from "./services/setup";
+import {initDefaultOwnerUser} from "./services/users";
 
 (async function initialize () {
   const server = fastify({
@@ -26,9 +27,7 @@ import {initPlugins} from "./plugins";
   initHandlers(server);
 
   await server.after();
-
   await initDatabase(); // init DB, perform migrations
-  await initDefaultOwnerUser(); // creates default admin user if needed
 
   server.listen({ port: serverConfig.port, host: serverConfig.host }, (err, address) => {
     if (err) {
@@ -37,4 +36,13 @@ import {initPlugins} from "./plugins";
     }
     console.log(`Server listening at ${address}`);
   });
+
+  const hasToGoThroughSetup = await requireSetup();
+  if (hasToGoThroughSetup) {
+    const token = generateSetupAccessToken();
+    console.log(`Setup access token:\n${token}`);
+    console.log(`Use the above token to finish the setup process when opening the app for the first time.`);
+  } else {
+    await initDefaultOwnerUser();
+  }
 })();

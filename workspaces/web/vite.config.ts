@@ -28,6 +28,15 @@ export default defineConfig({
   server: {
     port: 3000,
   },
+  build: {
+    outDir: './dist',
+    rollupOptions: {
+        input: {
+          main: 'index.html',
+          setup: 'setup.html',
+        },
+    },
+  },
   envDir: './env',
   define: {
     __EXPECTED_SERVER_VERSION: JSON.stringify(serverPackageJson.version),

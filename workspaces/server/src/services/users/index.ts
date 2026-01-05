@@ -1,11 +1,11 @@
 import {TeamRepository, UserRepository, UsersToTeamsRepository} from "../../repository/db";
 import {EUserTeamRole, IUserSchema} from "@dataramen/types";
 import {hashPassword} from "../../utils/passwordHash";
+import { randomBytes } from "node:crypto";
 
 const DEFAULTS = {
   teamName: "Default Team",
   username: "admin",
-  password: "admin",
 };
 
 const getOrCreateTeam = async () => {
@@ -21,7 +21,11 @@ const getOrCreateTeam = async () => {
   );
 };
 
-export const initDefaultOwnerUser = async (): Promise<IUserSchema> => {
+export type TInitDefaultOwnerUserProps = {
+  name: string;
+  password: string;
+};
+export const initDefaultOwnerUser = async (props?: TInitDefaultOwnerUserProps): Promise<IUserSchema> => {
   const existingOwner = await UsersToTeamsRepository.findOne({
     where: {
       role: EUserTeamRole.OWNER,
@@ -38,10 +42,13 @@ export const initDefaultOwnerUser = async (): Promise<IUserSchema> => {
   // Create new team or reuse existing one. For now only 1 team per server is allowed
   const team = await getOrCreateTeam();
 
-  const hashedPassword = await hashPassword(DEFAULTS.password);
+  const hashedPassword = await hashPassword(
+    props?.password || randomBytes(32).toString("hex")
+  );
+
   const user = await UserRepository.save(
     UserRepository.create({
-      username: DEFAULTS.username,
+      username: props?.name || DEFAULTS.username,
       password: hashedPassword,
     })
   );

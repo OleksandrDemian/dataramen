@@ -7,3 +7,4 @@ export * from "./schemas";
 export * from "./queryHistory";
 export * from "./workbenchTabs";
 export * from "./client";
+export * from "./setup";
