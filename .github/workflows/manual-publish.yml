@@ -12,30 +12,8 @@ on:
           - beta
           - prod
 
-permissions:
-  contents: read
-  id-token: write   # REQUIREpaD for npm Trusted Publishing
-
 jobs:
   publish:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          registry-url: https://registry.npmjs.org/
-
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile
-
-      - name: Build CLI
-        run: yarn package:cli
-
-      - name: Publish to npm
-        working-directory: workspaces/cli
-        env:
-          NPM_CONFIG_PROVENANCE: true
-        run: npm publish --tag beta --access public
+    uses: ./.github/workflows/npm-publish.yml
+    with:
+      tag: ${{ inputs.release_type }}
