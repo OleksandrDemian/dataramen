@@ -30,7 +30,7 @@ jobs:
         run: yarn package:cli
 
       - name: Publish to npm
-        working-directory: workspace/cli
+        working-directory: workspaces/cli
         run: |
           if [ "${{ inputs.tag }}" = "beta" ]; then
             npm publish --tag beta --access public
