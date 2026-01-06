@@ -31,6 +31,8 @@ jobs:
 
       - name: Publish to npm
         working-directory: workspaces/cli
+        env:
+          NPM_CONFIG_PROVENANCE: true
         run: |
           if [ "${{ inputs.tag }}" = "beta" ]; then
             npm publish --tag beta --access public
