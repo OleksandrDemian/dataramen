@@ -5,6 +5,10 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: read
+  id-token: write   # REQUIRED for npm Trusted Publishing
+
 jobs:
   publish:
     uses: ./.github/workflows/npm-publish.yml
