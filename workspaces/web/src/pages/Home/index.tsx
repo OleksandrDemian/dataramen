@@ -14,17 +14,21 @@ export const HomePage = () => {
   const hasUser = !!user;
 
   return (
-    <div className="page-container h-screen max-h-screen bg-(--bg)">
-      <div className="page-content h-full pb-12 overflow-y-auto">
-        <h2 className="font-semibold text-gray-700 mt-4 hidden lg:block">Quick actions</h2>
+    <div className="page-container h-screen max-h-screen">
+      <div className="max-w-6xl h-full pb-12 overflow-y-auto">
+        <div className="py-10 text-center w-full">
+          <h1 className="comfortaa text-3xl font-semibold">DataRamen</h1>
+        </div>
 
         {hasUser && !hasDataSources && (
-          <Alert variant="warning" className="font-semibold mt-4">
-            Connect at least one datasource to start using DataRamen
+          <Alert variant="warning" className="font-semibold">
+            Connect at least one data source to start using DataRamen
           </Alert>
         )}
 
-        <div className="grid lg:grid-cols-2 gap-2 mt-4">
+        <h2 className="font-semibold text-gray-700 mt-4 hidden lg:block">Quick actions</h2>
+
+        <div className="grid lg:grid-cols-3 gap-2 mt-4">
           <StartQuery />
           <ConnectDataSource />
 

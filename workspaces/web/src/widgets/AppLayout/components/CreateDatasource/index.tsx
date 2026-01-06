@@ -3,7 +3,7 @@ import {
   useManualInspectDataSource
 } from "../../../../data/queries/dataSources.ts";
 import st from "./index.module.css";
-import {Modal, ModalClose} from "../../../Modal";
+import {Modal} from "../../../Modal";
 import {useForm} from "../../../../hooks/form/useForm.ts";
 import {TCreateDataSource} from "../../../../data/types/dataSources.ts";
 import {Alert} from "../../../Alert";
@@ -76,9 +76,7 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
 
   return (
     <Modal isVisible={show} onClose={close}>
-      <ModalClose onClick={close} />
-
-      <div className="max-w-xl mx-auto">
+      <div className="max-w-xl mx-auto overflow-y-auto">
         <Alert variant="warning" className="text-sm mb-2 max-w-xl">DataRamen is currently under active development. In production-like environments, <span className="font-semibold underline">it’s recommended to use read-only database credentials</span>.</Alert>
 
         {createDataSource.isError && (
@@ -150,15 +148,15 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
             </label>
           </div>
         </div>
+      </div>
 
-        <div className="flex justify-end gap-1 mt-2">
-          <button onClick={close} className="button tertiary" disabled={disableUi}>
-            Cancel
-          </button>
-          <button onClick={onSubmit} className="button primary" disabled={disableUi}>
-            Create
-          </button>
-        </div>
+      <div className="flex justify-end gap-1 mt-2">
+        <button onClick={close} className="button tertiary" disabled={disableUi}>
+          Cancel
+        </button>
+        <button onClick={onSubmit} className="button primary" disabled={disableUi}>
+          Create
+        </button>
       </div>
     </Modal>
   );

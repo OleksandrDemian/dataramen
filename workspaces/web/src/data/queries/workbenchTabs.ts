@@ -1,4 +1,4 @@
-import {useMutation, useQuery} from "@tanstack/react-query";
+import {keepPreviousData, useMutation, useQuery} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {
   IWorkbenchTab,
@@ -143,6 +143,7 @@ export const useRunWorkbenchTab = (workbenchTabId: string, props: TWorkbenchOpti
     },
     retry: 1,
     enabled: !!table && !!dataSourceId,
+    placeholderData: keepPreviousData,
   });
 };
 

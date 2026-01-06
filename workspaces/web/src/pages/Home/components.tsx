@@ -19,12 +19,13 @@ export const StartQuery = () => {
   const searchAndOpen = useSearchTable("Home");
 
   return (
-    <div className="card-white lg:col-span-2" onClick={searchAndOpen}>
+    <div className="card-white hover:bg-gray-50! cursor-pointer" onClick={searchAndOpen}>
       <h2 className={st.actionTitle}>
-        <span>🔎 Start new query</span>
+        <span className="truncate">🔎 Start new query</span>
         <span className="hotkey">N</span>
       </h2>
-      <input className="input mt-3 w-full" placeholder="Search table or query to start" />
+
+      <p className={st.actionSubtext}>Select table to start new query.</p>
     </div>
   );
 };

@@ -10,6 +10,7 @@ import {toggleSelectedDataSource, useSelectedDataSources} from "../../data/selec
 import {reduceArrayToMap} from "../../utils/reducers.ts";
 import {DataSourceIcon} from "../Icons";
 import clsx from "clsx";
+import {Alert} from "../Alert";
 
 const EMOJI: Record<TFindQuery["type"], string> = {
   table: "📄",
@@ -99,8 +100,8 @@ export const SearchQuery = ({ onTable, onQuery, onWorkbenchTab, autoFocus }: TSe
 
   return (
     <div className="overflow-hidden flex flex-col w-full lg:w-lg">
-      {gte(dataSources?.length, 0) && (
-        <div className={st.dsContainer}>
+      {gte(dataSources?.length, 0) ? (
+        <div className={st.dsContainer + " " + "no-scrollbar"}>
           {dataSources.map(ds => (
             <button key={ds.id} className={clsx(st.dsEntry, enabled[ds.id] && st.enabled)} onClick={() => toggleSelectedDataSource(ds.id)}>
               <DataSourceIcon size={24} type={ds.dbType} />
@@ -108,6 +109,8 @@ export const SearchQuery = ({ onTable, onQuery, onWorkbenchTab, autoFocus }: TSe
             </button>
           ))}
         </div>
+      ) : (
+        <Alert variant="warning" className="mb-4">Connect at least one data source to start using DataRamen</Alert>
       )}
 
       <input

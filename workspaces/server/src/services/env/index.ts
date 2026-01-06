@@ -29,13 +29,16 @@ config({
   path: envFiles,
 });
 
-populate(process.env as any, {
-  SERVER_VERSION: packageJson.version,
-
-  // defaults
+const DEFAULT_CONFIG = {
   APP_DB_TYPE: "sqlite",
   APP_DB_DATABASE: "<home>/.dataramen/.runtime/db.sqlite3",
-  PROD: "true"
+};
+populate(process.env as any, {
+  SERVER_VERSION: packageJson.version,
+  PROD: "true",
+
+  // defaults
+  ...DEFAULT_CONFIG
 }, {
   override: false, // prevent from overriding any existing value in custom env file
 });
@@ -86,4 +89,8 @@ export const Env = {
   str: getString,
   num: getNumber,
   bool: getBoolean,
+};
+
+export const hasCustomDbConfiguration = (): boolean => {
+  return Env.str("APP_DB_TYPE") !== DEFAULT_CONFIG.APP_DB_TYPE && Env.str("APP_DB_DATABASE") !== DEFAULT_CONFIG.APP_DB_DATABASE;
 };

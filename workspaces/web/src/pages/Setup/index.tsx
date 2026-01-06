@@ -102,17 +102,30 @@ export const Setup = () => {
             <Badge done={steps.appDb} />
           </div>
 
-          <p>By default, DataRamen uses an <span className="font-semibold">SQLite</span> database to store internal data such as query history, users, and connections.</p>
-          <p>You can (and we strongly recommend that you do) configure a custom database instead. Follow <a target="_blank" href="https://dataramen.xyz/guides/configure-custom-app-db/" className="text-blue-800 underline">these instructions</a> to set it up.</p>
+          {__CLIENT_CONFIG__.usesCustomDb ? (
+            <>
+              <p>You are using custom database to store internal data such as query history, users, and connections.</p>
 
-          <Alert variant="warning">
-            Keep in mind that if you are running in ephemeral environment and using default Sqlite config you will lose your data.
-          </Alert>
+              <label>
+                <input className="mr-2" type="checkbox" checked={form.confirmDb} disabled={isSubmitting} onChange={change("confirmDb")} />
+                I confirm that my database configuration is correct
+              </label>
+            </>
+          ) : (
+            <>
+              <p>You are using default <span className="font-semibold">SQLite</span> database to store internal data such as query history, users, and connections.</p>
+              <p>You can (and we strongly recommend that you do) configure a custom database instead. Follow <a target="_blank" href="https://dataramen.xyz/guides/configure-custom-app-db/" className="text-blue-800 underline">these instructions</a> to set it up.</p>
 
-          <label>
-            <input className="mr-2" type="checkbox" checked={form.confirmDb} disabled={isSubmitting} onChange={change("confirmDb")} />
-            I confirm that my database configuration is correct
-          </label>
+              <Alert variant="warning">
+                Keep in mind that if you are running in ephemeral environment you may lose your data. If you are running in a Docker, make sure you mount SQLite DB as a volume.
+              </Alert>
+
+              <label>
+                <input className="mr-2" type="checkbox" checked={form.confirmDb} disabled={isSubmitting} onChange={change("confirmDb")} />
+                I confirm that my database configuration is correct
+              </label>
+            </>
+          )}
         </div>
 
         <div className={line} />
