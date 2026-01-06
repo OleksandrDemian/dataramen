@@ -1,5 +1,3 @@
-import {Env} from "../services/env";
-
 export type TModeConfig = {
   bindServerUrl: string;
   skipAuth: boolean;

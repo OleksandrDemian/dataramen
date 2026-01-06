@@ -12,6 +12,7 @@ import userSettings from "./userSettings/router";
 import savedQueries from "./saved-queries/router";
 import workbenchTabs from "./workbenchTabs/router";
 import client from "./client/router";
+import setup from "./setup/router";
 
 const routes: ([TRouter, string])[] = [
   [client, `/`],
@@ -27,6 +28,7 @@ const routes: ([TRouter, string])[] = [
   [userSettings, `/api/user-settings`],
   [savedQueries, `/api/saved-queries`],
   [workbenchTabs, `/api/workbench-tabs`],
+  [setup, `/api/setup`],
 ];
 
 export const initRoutes = (server: FastifyInstance) => {

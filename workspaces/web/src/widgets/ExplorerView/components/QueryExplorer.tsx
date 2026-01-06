@@ -29,8 +29,8 @@ type TNewFilter = {
 };
 
 const orderIconClass = {
-  ASC: "",
-  DESC: "rotate-180",
+  DESC: "",
+  ASC: "rotate-180",
 };
 
 const updateFilters = (filters: TQueryFilter[], { column, value }: TNewFilter): TQueryFilter[] => {

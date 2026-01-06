@@ -1,6 +1,8 @@
 import {createRouter} from "../../utils/createRouter";
 import {modeConfig} from "../../config/modeConfig";
 import { TClientConfig } from "@dataramen/types";
+import {requireSetup} from "../../services/setup";
+import {hasCustomDbConfiguration} from "../../services/env";
 
 export default createRouter((instance) => {
   // inject dynamic config into index.html
@@ -11,9 +13,10 @@ export default createRouter((instance) => {
       const clientConfig: TClientConfig = {
         skipAuth: modeConfig.skipAuth,
         modeName: modeConfig.name,
+        usesCustomDb: hasCustomDbConfiguration(),
       };
 
-      res
+      return res
         .type('application/javascript')
         .send(`window.__CLIENT_CONFIG__ = ${JSON.stringify(clientConfig)};`);
     },
@@ -22,8 +25,26 @@ export default createRouter((instance) => {
   instance.route({
     method: "get",
     url: "/",
-    handler: (_, rep) => {
-      rep.sendFile("index.html");
+    handler: async (_, rep) => {
+      const redirectToSetup = await requireSetup();
+      if (redirectToSetup) {
+        return rep.redirect("/setup");
+      } else {
+        return rep.sendFile("index.html");
+      }
+    },
+  });
+
+  instance.route({
+    method: "get",
+    url: "/setup",
+    handler: async (_, rep) => {
+      const renderSetup = await requireSetup();
+      if (renderSetup) {
+        return rep.sendFile("setup.html");
+      } else {
+        return rep.redirect("/");
+      }
     },
   });
 });
