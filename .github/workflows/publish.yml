@@ -1,9 +1,23 @@
-name: Publish on Release Tag
+name: NPM Publish
 
 on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Publish tag (prod or beta)'
+        required: true
+        type: choice
+        options:
+          - prod
+          - beta
   push:
     tags:
-      - "v*"
+      - 'v*'
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -11,6 +25,38 @@ permissions:
 
 jobs:
   publish:
-    uses: ./.github/workflows/npm-publish.yml
-    with:
-      tag: prod
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build CLI
+        run: yarn package:cli
+
+      - name: Determine tag
+        id: determine-tag
+        run: |
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "tag=prod" >> $GITHUB_OUTPUT
+          else
+            echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish to npm
+        working-directory: workspaces/cli
+        env:
+          NPM_CONFIG_PROVENANCE: true
+        run: |
+          if [ "${{ steps.determine-tag.outputs.tag }}" = "beta" ]; then
+            npm publish --tag beta --access public
+          else
+            npm publish --access public
+          fi
