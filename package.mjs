@@ -86,7 +86,7 @@ function copyResources () {
   fs.copySync(join(webPath, "dist"), join(distPath, "code", "web"));
 
   if (target === "cli") {
-    fs.copySync(join(cliPath, "bin", "run.js"), join(distPath, "code", "cli.js"));
+    fs.copySync(join(cliPath, "bin", "app.js"), join(distPath, "code", "cli.js"));
     fs.copySync(join(cliPath, "README.md"), join(distPath, "README.md"));
   }
 
