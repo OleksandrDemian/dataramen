@@ -1,0 +1,39 @@
+name: NPM Publish
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write   # REQUIRED for npm Trusted Publishing
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build CLI
+        run: yarn package:cli
+
+      - name: Publish to npm
+        working-directory: workspace/cli
+        run: |
+          if [ "${{ inputs.tag }}" = "beta" ]; then
+            npm publish --tag beta --access public
+          else
+            npm publish --access public
+          fi
