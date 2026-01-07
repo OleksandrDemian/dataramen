@@ -10,9 +10,8 @@
       "identifier": "shell:allow-spawn",
       "allow": [
         {
-          "name": "binaries/node",
-          "sidecar": true,
-          "args": true
+          "name": "binaries/my-sidecar",
+          "sidecar": true
         }
       ]
     }

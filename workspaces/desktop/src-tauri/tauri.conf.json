@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "identifier": "app.dataramen.xyz",
   "build": {
-    "frontendDist": "../dist",
+    "frontendDist": "../dist/web",
     "beforeBuildCommand": "",
     "beforeDevCommand": ""
   },
@@ -31,6 +31,6 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "externalBin": ["binaries/node"]
+    "externalBin": ["binaries/my-sidecar"]
   }
 }
