@@ -10,7 +10,7 @@ export const initPlugins = (server: FastifyInstance) => {
   server.register(cors, {
     origin: serverConfig.allowedOrigins,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    credentials: true,
+    credentials: serverConfig.allowedOrigins === '*' ? undefined : true,
   });
 
   server.register(fastifyStatic, {
