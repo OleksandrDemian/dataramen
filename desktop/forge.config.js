@@ -1,6 +1,9 @@
 module.exports = {
   packagerConfig: {
     icon: 'assets/icon',
+    appBundleId: 'com.dataramen.desktop',
+
+    // disable signing
     osxSign: false,
     osxNotarize: false,
 
@@ -14,12 +17,16 @@ module.exports = {
     {
       name: '@electron-forge/maker-dmg',
       platforms: ['darwin'],
-      config: {},
+      config: {
+        name: 'dataramen-desktop',
+      },
     },
     {
       name: '@electron-forge/maker-squirrel',
       platforms: ['win32'],
-      config: {},
+      config: {
+        name: 'dataramen-desktop',
+      },
     },
   ],
 };
