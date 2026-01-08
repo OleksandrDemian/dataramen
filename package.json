@@ -1,6 +1,7 @@
 {
   "name": "dataramen",
   "version": "0.0.91",
+  "private": true,
   "repository": "https://github.com/OleksandrDemian/dataramen.git",
   "author": "Oleksandr Demian <oleksandrovsky@gmail.com>",
   "license": "MIT",
