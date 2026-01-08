@@ -1,0 +1,39 @@
+name: Build macOS (Electron Forge)
+
+on:
+  push:
+    branches:
+      - experiment/desktop-app
+
+jobs:
+  build-mac:
+    name: Build mac app
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build (electron-forge make)
+        env:
+          CI: "true"
+        run: yarn prepare:desktop
+
+      # Electron Forge typically outputs to ./out/make/** (config-dependent)
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-build
+          path: |
+            desktop/out/make/**
+          if-no-files-found: error
+          retention-days: 14

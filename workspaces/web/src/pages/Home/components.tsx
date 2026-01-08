@@ -131,12 +131,12 @@ export const UsefulLinks = () => {
       <h2 className="font-semibold text-gray-700">Useful links</h2>
 
       <div className="grid lg:grid-cols-3 gap-2 mt-4">
-        <a className="card-white hover:bg-gray-50!" href="https://dataramen.xyz/">
+        <a className="card-white hover:bg-gray-50!" href="https://dataramen.xyz/" target="_blank">
           <h2 className={st.actionTitle}>↗️ Documentation</h2>
           <p className={st.actionSubtext}>Learn how to use DataRamen</p>
         </a>
 
-        <a className="card-white hover:bg-gray-50!" href="https://github.com/OleksandrDemian/dataramen">
+        <a className="card-white hover:bg-gray-50!" href="https://github.com/OleksandrDemian/dataramen" target="_blank">
           <h2 className={st.actionTitle}>↗️ Github</h2>
           <p className={st.actionSubtext}>Codebase is open source</p>
         </a>

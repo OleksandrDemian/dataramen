@@ -55,8 +55,8 @@ const serverStarter = (() => {
 
 function createWindow () {
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1024,
+    height: 700,
     icon: path.join(__dirname, '/web/dataramen.png'),
     webPreferences: {
       preload: __dirname + '/preload.js'
