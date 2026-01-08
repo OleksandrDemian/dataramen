@@ -14,4 +14,5 @@ export type TEnvKeys =
   | 'APP_DB_SCHEMA'
   | 'APP_DB_LOGGING'
   | 'PROD'
+  | 'IS_DESKTOP'
   ;

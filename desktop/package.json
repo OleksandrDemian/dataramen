@@ -1,0 +1,34 @@
+{
+  "name": "@dataramen/desktop",
+  "productName": "DataRamen",
+  "version": "0.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
+  },
+  "dependencies": {
+    "@fastify/cors": "^11.0.1",
+    "@fastify/static": "^8.2.0",
+    "@fastify/cookie": "^11.0.2",
+    "dotenv": "^16.5.0",
+    "fast-glob": "^3.3.3",
+    "fastify": "^5.3.2",
+    "mysql2": "^3.14.1",
+    "pg": "^8.15.6",
+    "sqlite3": "^5.1.7",
+    "typeorm": "^0.3.27",
+    "bcryptjs": "^3.0.2",
+    "jose": "^6.0.12",
+    "reflect-metadata": "^0.2.2",
+    "qs": "^6.14.0"
+  },
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "@electron-forge/cli": "^7.10.2",
+    "@electron-forge/maker-dmg": "^7.10.2",
+    "@electron-forge/maker-zip": "^7.10.2",
+    "macos-alias": "^0.2.12"
+  }
+}

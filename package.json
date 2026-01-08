@@ -4,8 +4,10 @@
   "repository": "https://github.com/OleksandrDemian/dataramen.git",
   "author": "Oleksandr Demian <oleksandrovsky@gmail.com>",
   "license": "MIT",
-  "private": true,
   "workspaces": ["workspaces/*"],
+  "dependencies": {
+    "fs-extra": "^10.1.0"
+  },
   "scripts": {
     "package:cli": "node package.mjs cli",
     "package:app": "node package.mjs app",

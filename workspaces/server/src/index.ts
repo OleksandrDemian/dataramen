@@ -1,4 +1,4 @@
-import {validateEnvVariables} from "./services/env";
+import {Env, validateEnvVariables} from "./services/env";
 
 import "reflect-metadata";
 import fastify from 'fastify';
@@ -14,7 +14,7 @@ import {initPlugins} from "./plugins";
 import {generateSetupAccessToken, requireSetup} from "./services/setup";
 import {initDefaultOwnerUser} from "./services/users";
 
-(async function initialize () {
+async function initialize () {
   const server = fastify({
     querystringParser: str => qs.parse(str),
   });
@@ -45,4 +45,13 @@ import {initDefaultOwnerUser} from "./services/users";
   } else {
     await initDefaultOwnerUser();
   }
-})();
+}
+
+if (!Env.bool("IS_DESKTOP")) {
+  // if not desktop, start the app, it is run from CLI
+  initialize();
+}
+
+export {
+  initialize,
+};

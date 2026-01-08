@@ -1,3 +1,5 @@
+import {Env} from "../services/env";
+
 export type TModeConfig = {
   bindServerUrl: string;
   skipAuth: boolean;
@@ -7,6 +9,7 @@ export type TModeConfig = {
 export enum EModeName {
   local = "local",
   hosted = "hosted",
+  desktop = "desktop",
 }
 
 const modeConfigs: Record<EModeName, TModeConfig> = {
@@ -19,10 +22,15 @@ const modeConfigs: Record<EModeName, TModeConfig> = {
     bindServerUrl: '127.0.0.1', // bind to localhost only, in order to prevent public access (app is only accessible locally)
     skipAuth: true,             // no need to authenticate when running app locally
     name: EModeName.local,
+  },
+  desktop: {
+    bindServerUrl: '127.0.0.1', // bind to localhost only, in order to prevent public access (app is only accessible locally)
+    skipAuth: true,             // no need to authenticate when running app locally
+    name: EModeName.desktop,
   }
 };
 
-const modeArg = process.argv[2] as EModeName | undefined;
+const modeArg = Env.bool('IS_DESKTOP') ? 'desktop' : process.argv[2] as EModeName | undefined;
 if (!modeArg) {
   throw new Error(`Invalid mode "${process.argv[2]}"`);
 }
