@@ -1,6 +1,8 @@
 {
   "name": "@dataramen/desktop",
   "productName": "DataRamen",
+  "description": "Dataramen desktop application",
+  "author": "Oleksandr Demian",
   "version": "0.0.0",
   "main": "main.js",
   "scripts": {

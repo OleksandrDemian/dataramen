@@ -3,7 +3,7 @@ name: Build macOS (Electron Forge)
 on:
   push:
     branches:
-      - experiment/desktop-app
+      - experiment/desktop-app-disabled
 
 jobs:
   build-mac:
