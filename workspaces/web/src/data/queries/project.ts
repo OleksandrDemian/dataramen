@@ -75,11 +75,12 @@ export const useSearchQueries = (search: string, props: {
   });
 };
 
-export const useInfiniteTabHistory = (teamId?: string, resultsPerPage: number = 30) => {
+export const useInfiniteTabHistory = (teamId?: string, resultsPerPage: number = 30, archived?: boolean) => {
   return useInfiniteQuery({
     queryKey: ['project', "tabs-history", teamId, resultsPerPage],
     queryFn: async ({ pageParam }) => {
-      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[]; hasMore: boolean; }>(`/project/team/${teamId}/tabs-history?page=${pageParam}&size=${resultsPerPage}`);
+      const filterValue = archived !== undefined ? `&archived=${archived}` : '';
+      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[]; hasMore: boolean; }>(`/project/team/${teamId}/tabs-history?page=${pageParam}&size=${resultsPerPage}${filterValue}`);
       return data;
     },
     select: ({ pages }) => {

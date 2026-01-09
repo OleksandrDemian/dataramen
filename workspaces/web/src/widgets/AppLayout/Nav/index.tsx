@@ -8,6 +8,9 @@ import {PAGES} from "../../../const/pages.ts";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useSearchTable} from "../../../data/tableSearchModalStore.ts";
 import {updateShowTabsHistory} from "../../../data/showTabsHistorySidebarStore.ts";
+import ChevronIcon from "../../../assets/chevron-forward-outline.svg?react";
+import {useState} from "react";
+import clsx from "clsx";
 
 const enableAuth = !__CLIENT_CONFIG__.skipAuth;
 
@@ -16,6 +19,7 @@ export const Nav = () => {
   const { pathname } = useLocation();
   const { data: currentUser } = useCurrentUser();
   const searchTable = useSearchTable("Desktop nav");
+  const [showSidebarMenu, setShowSidebarMenu] = useState(false);
 
   const onHome = () => {
     closeMenuSidebar();
@@ -25,22 +29,34 @@ export const Nav = () => {
   };
 
   const onShowRecentTabs = () => updateShowTabsHistory({ show: true });
+  const tooltipId = showSidebarMenu ? undefined : 'default';
 
   return (
-    <nav className={st.nav}>
+    <nav className={clsx(st.nav, showSidebarMenu ? st.shown : st.hidden)}>
       {currentUser && (
         <div className={st.header}>
-          <button onClick={onHome} className="flex justify-between items-center">
-            <span>🏠 Home</span>
-          </button>
-          <button onClick={searchTable} className="flex justify-between items-center">
-            <span>🔎 New query</span>
-            <span className="hotkey">N</span>
+          <button onClick={() => setShowSidebarMenu(!showSidebarMenu)} className={`${st.navItem} mb-4`}>
+            <span className={clsx(st.expand, showSidebarMenu ? st.show : st.hide)}>
+              <ChevronIcon width={20} height={20} />
+            </span>
+            <span className="text-(--text-color-tertiary) text-sm">Hide sidebar</span>
           </button>
 
-          <button onClick={onShowRecentTabs} className="flex justify-between items-center">
-            <span>⌛ Recent tabs</span>
-            <span className="hotkey">H</span>
+          <button onClick={onHome} className={st.navItem} data-tooltip-content="Go home" data-tooltip-id={tooltipId}>
+            <span className={st.icon}>🏠</span>
+            <span>Home</span>
+          </button>
+
+          <button onClick={searchTable} className={st.navItem} data-tooltip-content="New query" data-tooltip-id={tooltipId}>
+            <span className={st.icon}>🔎</span>
+            <span>New query</span>
+            <span className="hotkey secondary">N</span>
+          </button>
+
+          <button onClick={onShowRecentTabs} className={st.navItem} data-tooltip-content="Recent tabs" data-tooltip-id={tooltipId}>
+            <span className={st.icon}>⌛</span>
+            <span>Recent tabs</span>
+            <span className="hotkey secondary">H</span>
           </button>
 
           {enableAuth && (
@@ -56,7 +72,9 @@ export const Nav = () => {
         </div>
       )}
 
-      <ProjectStructure />
+      <div className={clsx(st.projectWrapper, showSidebarMenu ? st.show : st.hide)}>
+        <ProjectStructure />
+      </div>
     </nav>
   );
 };

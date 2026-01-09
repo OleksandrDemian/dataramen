@@ -1,9 +1,5 @@
 @import "tailwindcss";
 
-.data-source-panel {
-  @apply cursor-pointer hover:bg-gray-50!;
-}
-
 .data-source-entry {
   display: grid;
   grid-template-columns: 32px 1fr;
@@ -11,24 +7,11 @@
 }
 
 .action-title {
-  @apply font-semibold text-xl flex justify-between items-center;
+  @apply font-semibold flex justify-between items-center text-(--text-color-primary);
 }
 
 .action-subtext {
   @apply text-sm text-gray-700 mt-2 truncate;
-}
-
-.tab {
-  display: grid;
-  grid-template-columns: 30px 1fr;
-  height: 30px;
-  max-width: 150px;
-
-  @apply px-1 py-1 lg:py-0.5 text-gray-700 hover:bg-gray-50 cursor-pointer rounded-full;
-}
-
-.useful-links {
-
 }
 
 .dev-tag {
@@ -37,4 +20,34 @@
 
 .prod-tag {
   @apply border border-blue-200 bg-blue-100 text-sm text-blue-700 px-2 rounded-md;
+}
+
+.recent-tabs-container {
+  border: 1px solid var(--bg-ter);
+  @apply bg-(--bg) rounded py-4 z-1;
+}
+
+.recent-tabs-entry {
+  @apply p-1 px-4 flex items-center justify-between gap-2;
+
+  &:hover {
+    @apply bg-(--bg-sec) cursor-pointer;
+  }
+}
+
+.home-action-button {
+  border: 1px solid var(--bg-ter);
+  @apply bg-white p-4 rounded-lg hover:bg-gray-50! cursor-pointer;
+}
+
+.home-gray-card {
+  @apply bg-(--bg-sec) p-4 rounded;
+}
+
+.home-card-title {
+  @apply font-semibold text-(--text-color-secondary);
+}
+
+.home-card-grid-content {
+  @apply grid lg:grid-cols-3 gap-2 mt-4;
 }

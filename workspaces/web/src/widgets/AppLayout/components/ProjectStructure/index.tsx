@@ -1,5 +1,6 @@
 import {useCurrentUser} from "../../../../data/queries/users.ts";
 import st from "./index.module.css";
+import stNav from "../../Nav/index.module.css";
 import {useNavigate} from "react-router-dom";
 import {useTeamDataSources, useTeamSavedQueries} from "../../../../data/queries/project.ts";
 import {ContextualMenu} from "../../../ExplorerView/components/ContextualMenu.tsx";
@@ -32,7 +33,7 @@ const Query = ({
 
   return (
     <button
-      className={st.menu}
+      className={stNav.navItem}
       onContextMenu={contextHandler.open}
       onClick={() => onOpen(id)}
     >
@@ -62,7 +63,8 @@ const Query = ({
           </button>
         </div>
       </ContextualMenu>
-      <span>📖 {name}</span>
+      <span className={stNav.icon}>📖</span>
+      <span>{name}</span>
     </button>
   );
 };
@@ -82,10 +84,12 @@ const Datasource = ({ dataSource, index }: { dataSource: TProjectDataSource, ind
   });
 
   return (
-    <button className={st.menu} onClick={onOpen}>
-      <DataSourceIcon size={20} type={dataSource.dbType} />
-      <p className="truncate flex-1 text-left mx-1.5">{dataSource.name}</p>
-      <span className="hotkey">{index}</span>
+    <button className={stNav.navItem} onClick={onOpen}>
+      <span className={stNav.icon}>
+        <DataSourceIcon size={20} type={dataSource.dbType} />
+      </span>
+      <span>{dataSource.name}</span>
+      <span className="hotkey secondary">{index}</span>
     </button>
   );
 };
@@ -140,8 +144,8 @@ export const ProjectStructure = () => {
     <div className={st.container}>
       <div className="flex-1 overflow-y-auto">
         {gte(projectDataSources?.length, 0) && (
-          <div className="mt-4">
-            <p className="font-semibold text-sm text-gray-600 mb-2">DATA SOURCES</p>
+          <div className="mt-4 flex flex-col">
+            <p className="font-semibold truncate text-(--text-color-secondary) mb-2">Data sources</p>
             {projectDataSources.map((dataSource, index) => (
               <Datasource dataSource={dataSource} key={dataSource.id} index={index + 1} />
             ))}
@@ -149,8 +153,8 @@ export const ProjectStructure = () => {
         )}
 
         {gte(projectQueries?.length, 0) && (
-          <div className="mt-4">
-            <p className="font-semibold text-sm text-gray-600 mb-2">SAVED QUERIES</p>
+          <div className="mt-4 flex flex-col">
+            <p className="font-semibold truncate text-(--text-color-secondary) mb-2">Saved queries</p>
             {projectQueries.map((file) => (
               <Query
                 onDelete={deleteQuery}

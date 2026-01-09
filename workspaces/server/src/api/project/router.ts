@@ -225,8 +225,8 @@ export default createRouter((instance) => {
     method: "get",
     url: "/team/:teamId/tabs-history",
     handler: async (request) => {
-      const { teamId } = getRequestParams<{ teamId: string }>(request);
-      const query = getRequestQuery<{ page: number; size: number; }>(request);
+      const { teamId, } = getRequestParams<{ teamId: string }>(request);
+      const query = getRequestQuery<{ page: number; size: number; archived?: string }>(request);
 
       const page = Number(query.page);
       const size = Number(query.size);
@@ -236,6 +236,7 @@ export default createRouter((instance) => {
         where: {
           team: { id: teamId },
           user: { id: userId },
+          archived: query.archived ? query.archived === "true" : undefined,
         },
         relations: {
           dataSource: true,

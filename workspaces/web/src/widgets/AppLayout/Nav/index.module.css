@@ -15,10 +15,19 @@
 
 .nav {
   position: relative;
-  max-width: 250px;
   max-height: 100vh;
   overflow: hidden;
-  @apply border-r border-gray-300 flex flex-col w-full;
+  border-right: 1px solid var(--bg-ter);
+  @apply flex flex-col w-full bg-(--bg-sec);
+  transition: max-width ease-in-out 250ms;
+
+  &.shown {
+    max-width: 250px;
+  }
+
+  &.hidden {
+    max-width: 46px;
+  }
 }
 
 .nav-path {
@@ -51,18 +60,63 @@
 
 .header {
   padding: 8px;
-  @apply flex flex-col border-b border-gray-300;
-
-  button {
-    @apply text-lg lg:text-base px-2 py-2 md:py-1;
-    @apply text-ellipsis whitespace-nowrap overflow-hidden enabled:hover:bg-gray-100 text-left cursor-pointer rounded-lg;
-
-    &:disabled {
-      @apply cursor-not-allowed opacity-40;
-    }
-  }
+  @apply flex flex-col;
 }
 
 .logout {
   border-radius: 0;
+}
+
+.expand {
+  @apply hover:bg-(--bg-ter) p-1 cursor-pointer rounded-lg;
+
+  svg {
+    transition: rotate ease-in-out 250ms;
+  }
+
+  &.show {
+    svg {
+      @apply rotate-180;
+    }
+  }
+
+  &.hide {
+    svg {
+      @apply rotate-0;
+    }
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+}
+
+.nav-item {
+  display: grid;
+  grid-template-columns: 30px 1fr 30px;
+  height: 30px;
+
+  @apply text-(--text-color-primary) items-center;
+  @apply truncate overflow-hidden enabled:hover:bg-(--bg-ter) text-left cursor-pointer rounded-lg;
+
+  &:disabled {
+    @apply cursor-not-allowed opacity-40;
+  }
+}
+
+.project-wrapper {
+  transition: opacity ease-in-out 250ms;
+
+  &.hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &.show {
+    opacity: 1;
+  }
 }

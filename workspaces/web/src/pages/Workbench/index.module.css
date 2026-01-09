@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 .tabs {
-  @apply flex bg-white border-t border-gray-200 overflow-x-auto p-1 gap-1;
+  border-top: 1px solid var(--bg-ter);
+  @apply flex bg-white overflow-x-auto p-1 gap-1;
 
   &.mobile {
     @apply fixed left-0 right-0;

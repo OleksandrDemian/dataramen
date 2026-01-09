@@ -8,9 +8,7 @@ import {useForm} from "../../../../hooks/form/useForm.ts";
 import {TCreateDataSource} from "../../../../data/types/dataSources.ts";
 import {Alert} from "../../../Alert";
 import {useCurrentUser} from "../../../../data/queries/users.ts";
-import clsx from "clsx";
-import {MySqlForm} from "./MySqlForm.tsx";
-import {PostgreForm} from "./PostgreForm.tsx";
+import {DatasourceForm, TFormShape} from "./DatasourceForm.tsx";
 import {Analytics} from "../../../../utils/analytics.ts";
 
 const DataSources = [
@@ -23,6 +21,27 @@ const DataSources = [
     tag: "mysql",
   },
 ];
+
+const MySQLShape: TFormShape<TCreateDataSource> = {
+  fields: [
+    { label: "Database URL", name: "dbUrl", type: "text" },
+    { label: "Database port", name: "dbPort", type: "number" },
+    { label: "Username", name: "dbUser", type: "text" },
+    { label: "Password", name: "dbPassword", type: "password" },
+    { label: "Database", name: "dbDatabase", type: "text" },
+  ],
+};
+
+const PostgresSQLShape: TFormShape<TCreateDataSource> = {
+  fields: [
+    { label: "Database URL", name: "dbUrl", type: "text" },
+    { label: "Database port", name: "dbPort", type: "number" },
+    { label: "Username", name: "dbUser", type: "text" },
+    { label: "Password", name: "dbPassword", type: "password" },
+    { label: "Database", name: "dbDatabase", type: "text" },
+    { label: "Schema", name: "dbSchema", type: "text" },
+  ],
+};
 
 export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { show: boolean; onClose: VoidFunction; dbType: string; }) => {
   const createDataSource = useCreateDataSource();
@@ -75,7 +94,7 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
   const isProdMode = !form.allowInsert && !form.allowUpdate;
 
   return (
-    <Modal isVisible={show} onClose={close}>
+    <Modal isVisible={show} onClose={close} portal>
       <div className="max-w-xl mx-auto overflow-y-auto">
         <Alert variant="warning" className="text-sm mb-2 max-w-xl">DataRamen is currently under active development. In production-like environments, <span className="font-semibold underline">it’s recommended to use read-only database credentials</span>.</Alert>
 
@@ -104,29 +123,26 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
           </label>
         </div>
 
-        <div className="overflow-y-auto mt-2">
+        <div className="mt-2">
           <div className={st.content}>
-            <div className={st.form}>
-              <div className={clsx(st.input, "col-span-2")}>
-                <label>
-                  Name
-                </label>
-                <input value={form.name} onChange={change("name")} className="input"/>
-              </div>
+            <DatasourceForm
+              form={form}
+              change={change}
+              shape={form.dbType === 'mysql' ? MySQLShape : PostgresSQLShape}
+            />
 
-              <div className={clsx(st.input, "col-span-2")}>
-                <label>
-                  Description
-                </label>
-                <textarea value={form.description} onChange={change("description")} className="input"/>
-              </div>
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold">
+                Name
+              </label>
+              <input value={form.name} onChange={change("name")} className="input"/>
+            </div>
 
-              {form.dbType === 'mysql' && (
-                <MySqlForm form={form} change={change} />
-              )}
-              {form.dbType === 'postgres' && (
-                <PostgreForm form={form} change={change} />
-              )}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold">
+                Description <span className="text-(--text-color-secondary)">(optional)</span>
+              </label>
+              <textarea value={form.description} onChange={change("description")} className="input"/>
             </div>
           </div>
 

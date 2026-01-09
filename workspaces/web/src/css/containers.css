@@ -2,14 +2,14 @@
 
 .page-container {
   max-width: 100%;
-  @apply p-2;
+  @apply p-4;
 }
 
 .page-content {
   margin-right: auto;
   margin-left: auto;
 
-  max-width: 720px;
+  max-width: 1024px;
   width: 100%;
 
   display: flex;
@@ -67,7 +67,3 @@
   z-index: 1;
   @apply hover:bg-blue-200;
 }
-
-.card-white {
-   @apply bg-white p-4 rounded-lg border border-gray-200;
- }

@@ -13,7 +13,14 @@
 }
 
 @theme {
-  --bg: #f9f8f7;
+  --bg: #FFFFFF;
+  --bg-sec: #F9F9F9;
+  --bg-ter: #F2F2F2;
+  --bg-quat: #E9E9E9;
+
+  --text-color-primary: #212121;
+  --text-color-secondary: #6B6B6B;
+  --text-color-tertiary: #A6A6A6;
 }
 
 @layer utilities {
@@ -57,7 +64,17 @@
     min-height: 22px;
     max-height: 22px;
 
-    @apply hidden lg:flex items-center justify-center cursor-pointer text-center bg-gray-100 border border-gray-200 rounded-sm text-xs font-semibold;
+    @apply hidden lg:flex items-center justify-center cursor-pointer text-center rounded-sm text-xs font-semibold;
+
+    &.secondary {
+      border: 1px solid var(--bg-ter);
+      @apply bg-(--bg);
+    }
+
+    &:not(.secondary) {
+      border: 1px solid var(--bg-ter);
+      @apply bg-(--bg-sec)
+    }
   }
 
   .comfortaa {
