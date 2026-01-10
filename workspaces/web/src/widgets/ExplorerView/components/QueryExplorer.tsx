@@ -12,7 +12,7 @@ import {TDbValue, TQueryFilter} from "@dataramen/types";
 import {useContextMenuHandler} from "./ContextualMenu.handler.ts";
 import {useOrderByStatements} from "../hooks/useOrderByStatements.ts";
 import {RowOptions} from "./RowOptions";
-import {gte} from "../../../utils/numbers.ts";
+import {gt} from "../../../utils/numbers.ts";
 import {prompt} from "../../../data/promptModalStore.ts";
 import {useWhereStatements} from "../hooks/useWhereStatements.ts";
 import {genSimpleId} from "../../../utils/id.ts";
@@ -58,7 +58,7 @@ const TableHeaders = () => {
 
   const columns = data?.result.columns || [];
   const orderBy = orderByList[0];
-  const showTableName = gte(data?.result.tables.length, 1);
+  const showTableName = gt(data?.result.tables.length, 1);
 
   const onFilter = (column: string) => {
     prompt("Filter value", "").then((value) => {

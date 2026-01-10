@@ -17,7 +17,7 @@
   position: relative;
   max-height: 100vh;
   overflow: hidden;
-  border-right: 1px solid var(--bg-ter);
+  border-right: 1px solid var(--bg-quat);
   @apply flex flex-col w-full bg-(--bg-sec);
   transition: max-width ease-in-out 250ms;
 
@@ -26,7 +26,7 @@
   }
 
   &.hidden {
-    max-width: 46px;
+    max-width: 56px;
   }
 }
 
@@ -91,17 +91,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
 }
 
 .nav-item {
   display: grid;
-  grid-template-columns: 30px 1fr 30px;
-  height: 30px;
+  grid-template-columns: 40px 1fr 40px;
+  height: 40px;
 
   @apply text-(--text-color-primary) items-center;
-  @apply truncate overflow-hidden enabled:hover:bg-(--bg-ter) text-left cursor-pointer rounded-lg;
+  @apply truncate overflow-hidden text-left cursor-pointer rounded-lg gap-2;
+
+  &:hover:enabled {
+    @apply bg-(--bg-quat);
+  }
 
   &:disabled {
     @apply cursor-not-allowed opacity-40;
@@ -110,6 +114,8 @@
 
 .project-wrapper {
   transition: opacity ease-in-out 250ms;
+  flex: 1;
+  overflow-y: auto;
 
   &.hide {
     opacity: 0;

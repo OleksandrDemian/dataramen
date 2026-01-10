@@ -22,7 +22,7 @@ const Component = () => {
   const onOpenTab = (id: string) => {
     restoreTab.mutate(id);
     updateShowTabsHistory({ show: false });
-    navigate(`${PAGES.workbench.path}/tab/${id}`);
+    navigate(PAGES.workbenchTab.build({ id }));
   };
 
   const onDeleteTab = (id: string) => {

@@ -52,30 +52,49 @@ export default createRouter((instance) => {
     method: "get",
     url: "/team/:teamId/queries",
     handler: async (request) => {
-      const queryParams = getRequestParams<{ teamId?: string; }>(request);
-      const teamId = queryParams.teamId || request.user.currentTeamId;
+      const params = getRequestParams<{ teamId?: string; }>(request);
+      const queryParams = getRequestQuery<{ nameFilter: string; size: string; }>(request);
+      const teamId = params.teamId || request.user.currentTeamId;
+
+      const queryFilter = queryParams.nameFilter?.length ? {
+        name: Raw((alias) => `LOWER(${alias}) LIKE :search`, { search: `%${queryParams.nameFilter.toLowerCase()}%` })
+      } : undefined;
 
       const queries = await SavedQueriesRepository.find({
         where: [
           {
             isPersonal: false,
-            team: { id: teamId }
+            team: { id: teamId },
+            query: queryFilter,
           },
           {
             isPersonal: true,
             team: { id: teamId },
+            query: queryFilter,
             user: { id: request.user.id },
           },
         ],
         relations: {
-          query: true,
+          query: {
+            dataSource: true,
+          },
         },
+        take: Number(queryParams.size) || 20,
         select: {
           id: true,
           query: {
             id: true,
             name: true,
             updatedAt: true,
+            dataSource: {
+              name: true,
+              dbType: true,
+            },
+          },
+        },
+        order: {
+          query: {
+            updatedAt: "DESC",
           },
         },
       });
@@ -85,6 +104,8 @@ export default createRouter((instance) => {
         id: q.query.id,
         updatedAt: q.query.updatedAt,
         savedQueryId: q.id,
+        datasourceName: q.query.dataSource.name,
+        datasourceType: q.query.dataSource.dbType,
       }));
 
       return {

@@ -6,7 +6,7 @@
   border-spacing: 0;
 
   td {
-    border-color: var(--bg-ter);
+    border-color: var(--bg-quat);
     @apply border-b border-r;
 
     &:first-child {
@@ -15,7 +15,7 @@
   }
 
   thead td {
-    border-color: var(--bg-ter);
+    border-color: var(--bg-quat);
     @apply sticky z-1 bg-(--bg-sec) top-0;
 
     &:first-child {

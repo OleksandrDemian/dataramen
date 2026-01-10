@@ -26,6 +26,8 @@ export type TProjectQuery = Pick<
   'updatedAt'
 > & {
   savedQueryId: string;
+  datasourceType: string;
+  datasourceName: string;
 };
 
 export type TProjectTabsHistoryEntry = Pick<IWorkbenchTab, 'id' | 'name' | 'archived' | 'createdAt' | 'updatedAt'> & {

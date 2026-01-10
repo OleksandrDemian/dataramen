@@ -6,7 +6,7 @@ import {DataSourceColumnsAutocomplete} from "../../../DataSourceColumnsAutocompl
 import {TInputColumn} from "@dataramen/types";
 import clsx from "clsx";
 import {hideExplorerModal, toggleExplorerModal, useExplorerModals} from "../../hooks/useExplorerModals.ts";
-import {gte} from "../../../../utils/numbers.ts";
+import {gt} from "../../../../utils/numbers.ts";
 import { inputColumnToAlias } from "@dataramen/common";
 import CloseButton from "./../../../../assets/close-outline.svg?react";
 import {useHotkeys} from "react-hotkeys-hook";
@@ -76,7 +76,7 @@ export const AggregateModal = () => {
       <div>
         <h2 className="text-lg font-semibold">Aggregate</h2>
 
-        {gte(state.aggregations.length, 0) && (
+        {gt(state.aggregations.length, 0) && (
           <div className="flex flex-col gap-1 mt-4">
             {state.aggregations.map((agg, i) => (
               <p className="p-2 rounded-md bg-gray-50 flex items-center justify-between" key={i}>

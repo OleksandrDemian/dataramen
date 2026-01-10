@@ -127,14 +127,14 @@ function MoreOptions () {
       name,
       opts: state,
     }).then((result) => {
-      navigate(`${PAGES.workbench.path}/tab/${result.id}`)
+      navigate(PAGES.workbenchTab.build({ id: result.id }));
     })
   };
 
   const onShare = () => {
     if (data?.result.queryHistoryId) {
       const url = new URL(window.location.href);
-      url.pathname = PAGES.share.path;
+      url.pathname = PAGES.share.build();
       url.searchParams.set("shareId", data.result.queryHistoryId);
       navigator.clipboard.writeText(url.toString());
       toast.success("Share link copied to clipboard");

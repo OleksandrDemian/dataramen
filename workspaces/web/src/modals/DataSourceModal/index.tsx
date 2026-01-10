@@ -19,7 +19,6 @@ import {Analytics} from "../../utils/analytics.ts";
 import {DataSourceIcon} from "../../widgets/Icons";
 import {EUserTeamRole} from "@dataramen/types";
 import {useRequireRole} from "../../hooks/useRequireRole.ts";
-import {closeMenuSidebar} from "../../data/showSidebarMenuStore.ts";
 import {Sidebar} from "../../widgets/Sidebar";
 import {useCreateWorkbenchTab} from "../../data/queries/workbenchTabs.ts";
 import {createTableOptions} from "../../widgets/ExplorerView/utils.ts";
@@ -140,8 +139,7 @@ function Component ({ id }: { id: string }) {
       })
     }).then((result) => {
       setDataSourceModal(undefined);
-      closeMenuSidebar();
-      navigate(`${PAGES.workbench.path}/tab/${result.id}`);
+      navigate(PAGES.workbenchTab.build({ id: result.id }));
     });
 
     Analytics.event("On open table [Datasource modal]");

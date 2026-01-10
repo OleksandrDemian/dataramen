@@ -23,7 +23,7 @@
 }
 
 .recent-tabs-container {
-  border: 1px solid var(--bg-ter);
+  border: 1px solid var(--bg-quat);
   @apply bg-(--bg) rounded py-4 z-1;
 }
 
@@ -36,11 +36,12 @@
 }
 
 .home-action-button {
-  border: 1px solid var(--bg-ter);
+  border: 1px solid var(--bg-quat);
   @apply bg-white p-4 rounded-lg hover:bg-gray-50! cursor-pointer;
 }
 
 .home-gray-card {
+  border: 1px solid var(--bg-quat);
   @apply bg-(--bg-sec) p-4 rounded;
 }
 

@@ -1,7 +1,15 @@
 import {useDataSources} from "../../data/queries/dataSources.ts";
 import {useCurrentUser} from "../../data/queries/users.ts";
 import {Alert} from "../../widgets/Alert";
-import {StartQuery, ConnectDataSource, WorkbenchTabs, ListDataSources, UsefulLinks, RecentTabs} from "./components.tsx";
+import {
+  StartQuery,
+  ConnectDataSource,
+  WorkbenchTabs,
+  ListDataSources,
+  UsefulLinks,
+  RecentTabs,
+  SavedQueriesAction
+} from "./components.tsx";
 import st from "./index.module.css";
 
 export const HomePage = () => {
@@ -16,7 +24,7 @@ export const HomePage = () => {
 
   return (
     <div className="page-container h-screen max-h-screen overflow-y-auto no-scrollbar">
-      <div className="page-content pb-12">
+      <div className="page-content">
         <div className="py-10 text-center w-full sticky top-0 z-0">
           <h1 className="comfortaa text-3xl font-semibold text-(--text-color-primary)">DataRamen</h1>
         </div>
@@ -38,6 +46,8 @@ export const HomePage = () => {
               {hasUser && (
                 <WorkbenchTabs />
               )}
+
+              <SavedQueriesAction />
             </div>
           </div>
 

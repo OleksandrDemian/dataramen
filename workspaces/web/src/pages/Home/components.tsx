@@ -14,7 +14,7 @@ import {useDataSources} from "../../data/queries/dataSources.ts";
 import {setDataSourceModal} from "../../data/dataSourceModalStore.ts";
 import {useWorkbenchTabs} from "../../data/queries/workbenchTabs.ts";
 import {updateShowTabsHistory} from "../../data/showTabsHistorySidebarStore.ts";
-import {useInfiniteTabHistory} from "../../data/queries/project.ts";
+import {useRecentTabs} from "../../data/queries/project.ts";
 
 export const StartQuery = () => {
   const searchAndOpen = useSearchTable("Home");
@@ -24,6 +24,18 @@ export const StartQuery = () => {
       <h2 className={st.actionTitle}>
         <span className="truncate">🔎 Start new query</span>
         <span className="hotkey">N</span>
+      </h2>
+    </div>
+  );
+};
+
+export const SavedQueriesAction = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className={st.homeActionButton} onClick={() => navigate(PAGES.savedQueries.build())}>
+      <h2 className={st.actionTitle}>
+        <span className="truncate">💾 Saved queries</span>
       </h2>
     </div>
   );
@@ -70,7 +82,7 @@ export const WorkbenchTabs = () => {
 
   const onOpenWorkbench = () => {
     if (tabs && tabs.length > 0) {
-      navigate(`${PAGES.workbench.path}/tab/${tabs[0].id}`);
+      navigate(PAGES.workbenchTab.build({ id: tabs[0].id }));
       Analytics.event("On open workbench [Home]");
     } else {
       searchAndOpen();
@@ -151,7 +163,7 @@ export const UsefulLinks = () => {
 
 export const RecentTabs = () => {
   const { data: user } = useCurrentUser();
-  const { data: tabs, isLoading } = useInfiniteTabHistory(user?.teamId, 10, false);
+  const { data: tabs, isLoading } = useRecentTabs(user?.teamId);
   const navigate = useNavigate();
 
   if (isLoading || !tabs?.length) {
@@ -159,7 +171,7 @@ export const RecentTabs = () => {
   }
 
   const openTab = (tabId: string) => {
-    navigate(`${PAGES.workbench.path}/tab/${tabId}`);
+    navigate(PAGES.workbenchTab.build({ id: tabId }));
   };
 
   return (

@@ -14,8 +14,8 @@ export const MobileNav = () => {
   const searchTable = useSearchTable("Mobile nav");
 
   const onHome = () => {
-    if (pathname !== PAGES.home.path) {
-      navigate(PAGES.home.path);
+    if (!PAGES.home.check(pathname)) {
+      navigate(PAGES.home.build());
     }
   }
 

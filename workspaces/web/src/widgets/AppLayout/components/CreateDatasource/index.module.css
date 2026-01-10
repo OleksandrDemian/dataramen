@@ -24,7 +24,7 @@
 }
 
 .form {
-  border: 1px solid var(--bg-ter);
+  border: 1px solid var(--bg-quat);
 
   @apply rounded-md;
 }
