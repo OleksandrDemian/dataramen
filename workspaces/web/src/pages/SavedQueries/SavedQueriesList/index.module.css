@@ -3,7 +3,7 @@
 .queries-container {
   border: 1px solid var(--bg-quat);
 
-  @apply flex flex-col bg-(--bg) z-2 flex-1 overflow-y-auto;
+  @apply flex flex-col bg-(--bg) z-2 flex-1 overflow-y-auto pb-4 rounded;
 }
 
 .query-entry {

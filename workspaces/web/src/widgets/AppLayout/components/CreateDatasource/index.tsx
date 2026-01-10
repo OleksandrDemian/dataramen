@@ -96,8 +96,6 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
   return (
     <Modal isVisible={show} onClose={close} portal>
       <div className="max-w-xl mx-auto overflow-y-auto">
-        <Alert variant="warning" className="text-sm mb-2 max-w-xl">DataRamen is currently under active development. In production-like environments, <span className="font-semibold underline">it’s recommended to use read-only database credentials</span>.</Alert>
-
         {createDataSource.isError && (
           <Alert variant="danger" className="mb-2">
             <span>Failed to connect to the database. Please check if the data are correct and retry.</span>
@@ -136,13 +134,6 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
                 Name
               </label>
               <input value={form.name} onChange={change("name")} className="input"/>
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold">
-                Description <span className="text-(--text-color-secondary)">(optional)</span>
-              </label>
-              <textarea value={form.description} onChange={change("description")} className="input"/>
             </div>
           </div>
 

@@ -55,7 +55,7 @@ export const Nav = () => {
             data-tooltip-content="Home"
           >
             <span className={st.icon}>🏠</span>
-            <span>Home</span>
+            <span className="truncate">Home</span>
           </button>
 
           <button
@@ -65,7 +65,7 @@ export const Nav = () => {
             data-tooltip-content="New query"
           >
             <span className={st.icon}>🔎</span>
-            <span>New query</span>
+            <span className="truncate">New query</span>
             <span className="hotkey secondary">N</span>
           </button>
 
@@ -76,7 +76,7 @@ export const Nav = () => {
             data-tooltip-content="Recent tabs"
           >
             <span className={st.icon}>⌛</span>
-            <span>Recent tabs</span>
+            <span className="truncate">Recent tabs</span>
             <span className="hotkey secondary">H</span>
           </button>
 
@@ -87,7 +87,7 @@ export const Nav = () => {
             data-tooltip-content="Saved queries"
           >
             <span className={st.icon}>💾</span>
-            <span>Saved queries</span>
+            <span className="truncate">Saved queries</span>
           </button>
 
           {gt(workbenchTabs?.length, 0) && (
@@ -98,7 +98,7 @@ export const Nav = () => {
               data-tooltip-content="Workbench"
             >
               <span className={st.icon}>🛠️</span>
-              <span>Workbench</span>
+              <span className="truncate">Workbench</span>
             </button>
           )}
 
@@ -111,7 +111,7 @@ export const Nav = () => {
                 data-tooltip-content="User settings"
               >
                 <span className={st.icon}>🪪</span>
-                <span>{currentUser.username}</span>
+                <span className="truncate">{currentUser.username}</span>
               </button>
               <button
                 onClick={openPeopleSettings}
@@ -120,7 +120,7 @@ export const Nav = () => {
                 data-tooltip-content="Manage users"
               >
                 <span className={st.icon}>👥</span>
-                <span>Manage users</span>
+                <span className="truncate">Manage users</span>
               </button>
             </>
           )}

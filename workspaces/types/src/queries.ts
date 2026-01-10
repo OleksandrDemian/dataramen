@@ -33,14 +33,12 @@ export type TCreateSavedQuery = {
 
 export type TUpdateQuery = {
   name: string;
-  isTrash?: boolean;
   opts: Partial<TQueryOptions>;
 };
 
 export type TQuery = {
   id: string;
   name: string;
-  isTrash?: boolean;
   opts: Partial<TQueryOptions>;
   createdAt: Date;
   updatedAt: Date;

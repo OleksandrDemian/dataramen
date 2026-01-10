@@ -68,7 +68,7 @@
 }
 
 .expand {
-  @apply hover:bg-(--bg-ter) p-1 cursor-pointer rounded-lg;
+  @apply p-1 cursor-pointer rounded-lg;
 
   svg {
     transition: rotate ease-in-out 250ms;
@@ -101,7 +101,7 @@
   height: 40px;
 
   @apply text-(--text-color-primary) items-center;
-  @apply truncate overflow-hidden text-left cursor-pointer rounded-lg gap-2;
+  @apply overflow-hidden text-left cursor-pointer rounded-lg gap-1;
 
   &:hover:enabled {
     @apply bg-(--bg-quat);

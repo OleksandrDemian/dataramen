@@ -53,9 +53,11 @@ export default createRouter((instance) => {
     url: "/team/:teamId/queries",
     handler: async (request) => {
       const params = getRequestParams<{ teamId?: string; }>(request);
-      const queryParams = getRequestQuery<{ nameFilter: string; size: string; }>(request);
+      const queryParams = getRequestQuery<{ nameFilter: string; size: string; page: string; }>(request);
       const teamId = params.teamId || request.user.currentTeamId;
 
+      const take = Number(queryParams.size) || 20;
+      const page = Number(queryParams.page) || 0;
       const queryFilter = queryParams.nameFilter?.length ? {
         name: Raw((alias) => `LOWER(${alias}) LIKE :search`, { search: `%${queryParams.nameFilter.toLowerCase()}%` })
       } : undefined;
@@ -79,7 +81,8 @@ export default createRouter((instance) => {
             dataSource: true,
           },
         },
-        take: Number(queryParams.size) || 20,
+        take: take + 1,
+        skip: page * take,
         select: {
           id: true,
           query: {
@@ -99,6 +102,11 @@ export default createRouter((instance) => {
         },
       });
 
+      const hasMore = queries.length > take;
+      if (hasMore) {
+        queries.pop();
+      }
+
       const data: TProjectQuery[] = queries.map((q) => ({
         name: q.query.name,
         id: q.query.id,
@@ -109,7 +117,38 @@ export default createRouter((instance) => {
       }));
 
       return {
-        data
+        data,
+        hasMore,
+      };
+    },
+  });
+
+  instance.route({
+    method: "get",
+    url: "/team/:teamId/count-saved-queries",
+    handler: async (request) => {
+      const params = getRequestParams<{ teamId?: string; }>(request);
+      const teamId = params.teamId || request.user.currentTeamId;
+
+      const queries = await SavedQueriesRepository.count({
+        where: [
+          {
+            isPersonal: false,
+            team: { id: teamId },
+          },
+          {
+            isPersonal: true,
+            team: { id: teamId },
+            user: { id: request.user.id },
+          },
+        ],
+        select: {
+          id: true,
+        },
+      });
+
+      return {
+        data: queries,
       };
     },
   });

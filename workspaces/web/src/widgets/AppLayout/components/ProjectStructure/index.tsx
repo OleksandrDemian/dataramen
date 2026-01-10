@@ -28,7 +28,7 @@ const Datasource = ({ dataSource, index }: { dataSource: TProjectDataSource, ind
       <span className={stNav.icon}>
         <DataSourceIcon size={20} type={dataSource.dbType} />
       </span>
-      <span>{dataSource.name}</span>
+      <span className="truncate">{dataSource.name}</span>
       <span className="hotkey secondary">{index}</span>
     </button>
   );
