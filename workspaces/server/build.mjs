@@ -38,7 +38,7 @@ async function watch () {
 
             console.log(`<<<${buildCounter > 0 ? 'Restarting' : 'Starting'} server after build>>>\n\n\n`);
             buildCounter++;
-            serverProcess = spawn("node", ["dist/server.js", "local", ".env"], { stdio: "inherit" });
+            serverProcess = spawn("node", ["dist/server.js", "--mode=local", "--env=.env"], { stdio: "inherit" });
           });
         },
       }

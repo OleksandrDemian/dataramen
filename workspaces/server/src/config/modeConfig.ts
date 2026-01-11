@@ -1,3 +1,5 @@
+import {Args} from "../utils/argsParser";
+
 export type TModeConfig = {
   bindServerUrl: string;
   skipAuth: boolean;
@@ -22,9 +24,9 @@ const modeConfigs: Record<EModeName, TModeConfig> = {
   }
 };
 
-const modeArg = process.argv[2] as EModeName | undefined;
+const modeArg = Args.str("mode") as EModeName | undefined;
 if (!modeArg) {
-  throw new Error(`Invalid mode "${process.argv[2]}"`);
+  throw new Error(`Invalid mode "${Args.str("mode")}"`);
 }
 
 export const modeConfig = modeConfigs[modeArg];
