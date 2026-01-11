@@ -1,4 +1,4 @@
-import {useInfiniteQuery, useQuery} from "@tanstack/react-query";
+import {useInfiniteQuery, useMutation, useQuery} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {queryClient} from "../queryClient.ts";
 import {TFindQuery, TProjectDataSource, TProjectQuery, TProjectTabsHistoryEntry} from "@dataramen/types";
@@ -8,17 +8,6 @@ export const useTeamDataSources = (teamId?: string) => {
     queryKey: ['project', 'datasources', teamId],
     queryFn: async () => {
       const { data } = await apiClient.get<{ data: TProjectDataSource[] }>(`/project/team/${teamId}/datasources`);
-      return data.data;
-    },
-    enabled: !!teamId,
-  });
-};
-
-export const useTeamSavedQueries = (teamId?: string) => {
-  return useQuery({
-    queryKey: ['project', 'saved-queries', teamId],
-    queryFn: async () => {
-      const { data } = await apiClient.get<{ data: TProjectQuery[] }>(`/project/team/${teamId}/queries`);
       return data.data;
     },
     enabled: !!teamId,
@@ -75,11 +64,12 @@ export const useSearchQueries = (search: string, props: {
   });
 };
 
-export const useInfiniteTabHistory = (teamId?: string, resultsPerPage: number = 30) => {
+export const useInfiniteTabHistory = (teamId?: string, resultsPerPage: number = 30, archived?: boolean) => {
   return useInfiniteQuery({
-    queryKey: ['project', "tabs-history", teamId, resultsPerPage],
+    queryKey: ['project', "tabs-history", teamId, resultsPerPage, archived],
     queryFn: async ({ pageParam }) => {
-      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[]; hasMore: boolean; }>(`/project/team/${teamId}/tabs-history?page=${pageParam}&size=${resultsPerPage}`);
+      const filterValue = archived !== undefined ? `&archived=${archived}` : '';
+      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[]; hasMore: boolean; }>(`/project/team/${teamId}/tabs-history?page=${pageParam}&size=${resultsPerPage}${filterValue}`);
       return data;
     },
     select: ({ pages }) => {
@@ -98,8 +88,76 @@ export const useInfiniteTabHistory = (teamId?: string, resultsPerPage: number = 
   });
 };
 
-export const invalidateTabsHistory = () => {
-  return queryClient.invalidateQueries({
-    queryKey: ['project', "tabs-history"],
+export const useTeamSavedQueries = (teamId?: string, nameFilter: string = '', size: number = 20) => {
+  return useInfiniteQuery({
+    queryKey: ['project', 'saved-queries', teamId, nameFilter, size],
+    queryFn: async ({ pageParam }) => {
+      const queryParams = new URLSearchParams();
+      queryParams.set("nameFilter", nameFilter);
+      queryParams.set("size", size.toString());
+      queryParams.set("page", pageParam.toString());
+      const { data } = await apiClient.get<{ data: TProjectQuery[]; hasMore: boolean; }>(`/project/team/${teamId}/queries?${queryParams.toString()}`);
+      return data;
+    },
+    enabled: !!teamId,
+    initialPageParam: 0,
+    select: ({ pages }) => {
+      return pages.flatMap((f) => f.data);
+    },
+    getNextPageParam: (response, allPages) => {
+      if (response.hasMore) {
+        return allPages.length;
+      }
+
+      return undefined;
+    },
   });
+};
+
+export const useRecentTabs = (teamId?: string, resultsPerPage: number = 10, archived: boolean = false) => {
+  return useQuery({
+    queryKey: ['project', "recent-tabs", teamId, resultsPerPage, archived],
+    queryFn: async () => {
+      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[]; hasMore: boolean; }>(`/project/team/${teamId}/tabs-history?page=0&size=${resultsPerPage}&archived=${archived}`);
+      return data.data;
+    },
+    enabled: !!teamId,
+    staleTime: 0,
+  });
+};
+
+export const useFetchLastTab = (teamId?: string) => {
+  return useMutation<TProjectTabsHistoryEntry | undefined>({
+    mutationFn: async () => {
+      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[]; hasMore: boolean; }>(`/project/team/${teamId}/tabs-history?page=0&size=${1}&archived=${false}`);
+      return data.data?.length ? data.data[0] : undefined;
+    },
+  });
+};
+
+export const useCountQueries = (teamId?: string) => {
+  return useQuery({
+    queryKey: ["project", "count-saved-queries", teamId],
+    queryFn: async () => {
+      const { data } = await apiClient.get<{ data: number }>(`/project/team/${teamId}/count-saved-queries`);
+      return data.data;
+    },
+  });
+};
+
+export const invalidateTabsHistory = () => {
+  return Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: ['project', "tabs-history"],
+    }),
+    queryClient.invalidateQueries({
+      queryKey: ['project', "recent-tabs"],
+    }),
+  ]);
+};
+
+export const invalidateCountSavedQueries = () => {
+  return queryClient.invalidateQueries({
+    queryKey: ["project", "count-saved-queries"],
+  })
 };

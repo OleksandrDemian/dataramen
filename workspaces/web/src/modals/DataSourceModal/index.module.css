@@ -29,12 +29,12 @@
 
   .link {
     border-radius: 4px;
-    @apply hover:bg-gray-100 cursor-pointer p-1;
+    @apply hover:bg-(--bg-sec) cursor-pointer p-1;
   }
 
   &:hover {
     .table-name {
-      @apply bg-gray-100;
+      @apply bg-(--bg-sec);
     }
   }
 }
@@ -73,15 +73,35 @@
     @apply opacity-40;
   }
 
-  @apply text-xs font-semibold flex items-center gap-1 py-1 px-2 rounded-md border;
+  @apply text-xs font-semibold flex justify-center gap-1 py-1 px-2 rounded-md;
 }
 
 .action-blue {
   composes: action;
-  @apply text-blue-800 bg-blue-50 border-blue-200;
+  &:hover {
+    @apply text-blue-800 bg-blue-50 border-blue-200;
+  }
 }
 
 .action-red {
   composes: action;
-  @apply text-red-800 bg-red-50 border-red-200;
+  &:hover {
+    @apply text-red-800 bg-red-50 border-red-200;
+  }
+}
+
+.db-header-container {
+  border: 1px solid var(--bg-quat);
+
+  @apply bg-(--bg-sec) p-2 rounded;
+}
+
+.db-header {
+  @apply flex gap-2 items-center justify-start;
+}
+
+.db-subheader {
+  composes: db-header;
+
+  @apply justify-between mt-1;
 }

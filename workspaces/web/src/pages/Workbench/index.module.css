@@ -1,60 +1,6 @@
 @import "tailwindcss";
 
-.tabs {
-  @apply flex bg-white border-t border-gray-200 overflow-x-auto p-1 gap-1;
-
-  &.mobile {
-    @apply fixed left-0 right-0;
-    bottom: 53px;
-  }
-}
-
-.tab {
-  max-width: 200px;
-
-  @apply p-2 inline-flex gap-1 justify-between items-center font-semibold text-sm bg-white rounded-md cursor-pointer;
-
-  &.active {
-    @apply bg-blue-100 text-blue-600;
-  }
-
-  &:hover {
-    @apply bg-gray-100;
-  }
-
-  &:hover > .close-button, &.active > .close-button {
-    opacity: 1;
-  }
-}
-
-.active-tab {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  height: 2px;
-  @apply bg-blue-600;
-}
-
-.close-button {
-  opacity: 0;
-  cursor: pointer;
-}
-
-.tooltip-label {
-  width: 200px;
-  max-width: 200px;
-  display: grid;
-  grid-template-columns: 1fr 20px;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 16px;
-
-  @apply hover:bg-gray-100 text-left cursor-pointer overflow-hidden;
-}
-
-.tooltip-info-entry {
-  width: 200px;
-  max-width: 200px;
-  padding: 4px 16px;
+.search-container {
+  border: 1px solid var(--bg-quat);
+  @apply bg-(--bg-sec) flex justify-center z-2 p-4 flex-1 overflow-y-auto;
 }

@@ -1,27 +1,32 @@
 @import "tailwindcss";
 
 .input {
-  @apply flex flex-col;
+  display: grid;
+  grid-template-columns: 140px 1fr;
 
-  &.small {
-    @apply col-span-2 md:col-span-1;
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--bg-sec);
   }
 
-  label {
-    @apply text-sm font-semibold;
+  .label {
+    @apply text-sm font-semibold py-1 px-2 bg-(--bg-sec) flex items-center justify-end;
+  }
+
+  input {
+    @apply p-1;
   }
 }
 
 .content {
-  width: 600px;
-  max-width: 100%;
+  width: 100%;
+
+  @apply flex flex-col gap-2;
 }
 
 .form {
-  overflow-y: auto;
-  display: grid;
-  gap: 8px;
-  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--bg-quat);
+
+  @apply rounded-md;
 }
 
 .switch {

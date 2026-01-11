@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 .root {
-  @apply fixed bottom-0 right-0 left-0 lg:hidden grid grid-cols-4 gap-2 bg-white border-t border-gray-200;
+  border-top: 1px solid var(--bg-quat);
+  @apply bg-(--bg-sec) fixed bottom-0 right-0 left-0 lg:hidden grid gap-2 z-50;
 
   button {
     @apply p-1 text-lg;

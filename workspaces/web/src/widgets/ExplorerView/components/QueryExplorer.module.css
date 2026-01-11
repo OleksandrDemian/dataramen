@@ -6,15 +6,17 @@
   border-spacing: 0;
 
   td {
-    @apply border-b border-r border-gray-100;
+    border-color: var(--bg-quat);
+    @apply border-b border-r;
 
     &:first-child {
-      @apply py-1 px-1 text-center align-middle text-xs w-8 text-blue-500 border-r-gray-200 lg:sticky z-2 lg:left-0 bg-(--bg);
+      @apply py-1 px-1 text-center align-middle text-xs w-8 text-blue-500 lg:sticky z-2 lg:left-0 bg-(--bg-sec);
     }
   }
 
   thead td {
-    @apply sticky z-1 bg-(--bg) top-0 border-gray-200;
+    border-color: var(--bg-quat);
+    @apply sticky z-1 bg-(--bg-sec) top-0;
 
     &:first-child {
       @apply py-1 px-1 text-center text-sm text-gray-600 border-r z-3 lg:left-0;
@@ -42,13 +44,13 @@
   @apply bg-white;
 
   &:hover {
-    @apply bg-(--bg);
+    @apply bg-(--bg-sec);
   }
 }
 
 .header-cell {
   padding: 8px 12px;
-  @apply cursor-default truncate hover:bg-(--bg) text-left;
+  @apply cursor-default truncate hover:bg-(--bg-sec) text-left;
 
   .header-actions {
     display: none;
@@ -87,7 +89,7 @@
   @apply absolute border border-gray-200 bg-white shadow-md rounded-lg flex items-center overflow-hidden;
 
   button {
-    @apply hover:bg-(--bg) cursor-pointer p-1 text-sm;
+    @apply hover:bg-(--bg-sec) cursor-pointer p-1 text-sm;
 
     svg {
       @apply pointer-events-none;

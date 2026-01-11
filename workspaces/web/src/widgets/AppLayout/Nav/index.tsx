@@ -3,11 +3,15 @@ import {ProjectStructure} from "../components/ProjectStructure";
 import {useCurrentUser} from "../../../data/queries/users.ts";
 import {openAccountSettingsModal} from "../../../data/accountSettingsModalStore.ts";
 import {openPeopleSettings} from "../../../data/peopleSettingsModalStore.ts";
-import {closeMenuSidebar} from "../../../data/showSidebarMenuStore.ts";
 import {PAGES} from "../../../const/pages.ts";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useSearchTable} from "../../../data/tableSearchModalStore.ts";
 import {updateShowTabsHistory} from "../../../data/showTabsHistorySidebarStore.ts";
+import ChevronIcon from "../../../assets/chevron-forward-outline.svg?react";
+import {useState} from "react";
+import clsx from "clsx";
+import {gt} from "../../../utils/numbers.ts";
+import {useWorkbenchTabs} from "../../../data/queries/workbenchTabs.ts";
 
 const enableAuth = !__CLIENT_CONFIG__.skipAuth;
 
@@ -16,47 +20,122 @@ export const Nav = () => {
   const { pathname } = useLocation();
   const { data: currentUser } = useCurrentUser();
   const searchTable = useSearchTable("Desktop nav");
+  const [showSidebarMenu, setShowSidebarMenu] = useState(false);
+  const { data: workbenchTabs } = useWorkbenchTabs();
 
   const onHome = () => {
-    closeMenuSidebar();
-    if (pathname !== PAGES.home.path) {
-      navigate(PAGES.home.path);
+    if (!PAGES.home.check(pathname)) {
+      navigate(PAGES.home.build());
+    }
+  };
+
+  const onWorkbench = (id: string) => {
+    if (!PAGES.workbenchTab.check(pathname)) {
+      navigate(PAGES.workbenchTab.build({ id }));
+    }
+  };
+
+  const onSavedQueries = () => {
+    if (!PAGES.savedQueries.check(pathname)) {
+      navigate(PAGES.savedQueries.build());
     }
   };
 
   const onShowRecentTabs = () => updateShowTabsHistory({ show: true });
+  const tooltipId = showSidebarMenu ? undefined : "default";
 
   return (
-    <nav className={st.nav}>
+    <nav className={clsx(st.nav, showSidebarMenu ? st.shown : st.hidden)}>
       {currentUser && (
         <div className={st.header}>
-          <button onClick={onHome} className="flex justify-between items-center">
-            <span>🏠 Home</span>
-          </button>
-          <button onClick={searchTable} className="flex justify-between items-center">
-            <span>🔎 New query</span>
-            <span className="hotkey">N</span>
+          <button
+            onClick={onHome}
+            className={st.navItem}
+            data-tooltip-id={tooltipId}
+            data-tooltip-content="Home"
+          >
+            <span className={st.icon}>🏠</span>
+            <span className="truncate">Home</span>
           </button>
 
-          <button onClick={onShowRecentTabs} className="flex justify-between items-center">
-            <span>⌛ Recent tabs</span>
-            <span className="hotkey">H</span>
+          <button
+            onClick={searchTable}
+            className={st.navItem}
+            data-tooltip-id={tooltipId}
+            data-tooltip-content="New query"
+          >
+            <span className={st.icon}>🔎</span>
+            <span className="truncate">New query</span>
+            <span className="hotkey secondary">N</span>
           </button>
+
+          <button
+            onClick={onShowRecentTabs}
+            className={st.navItem}
+            data-tooltip-id={tooltipId}
+            data-tooltip-content="Recent tabs"
+          >
+            <span className={st.icon}>⌛</span>
+            <span className="truncate">Recent tabs</span>
+            <span className="hotkey secondary">H</span>
+          </button>
+
+          <button
+            onClick={onSavedQueries}
+            className={st.navItem}
+            data-tooltip-id={tooltipId}
+            data-tooltip-content="Saved queries"
+          >
+            <span className={st.icon}>💾</span>
+            <span className="truncate">Saved queries</span>
+          </button>
+
+          {gt(workbenchTabs?.length, 0) && (
+            <button
+              onClick={() => onWorkbench(workbenchTabs[0].id)}
+              className={st.navItem}
+              data-tooltip-id={tooltipId}
+              data-tooltip-content="Workbench"
+            >
+              <span className={st.icon}>🛠️</span>
+              <span className="truncate">Workbench</span>
+            </button>
+          )}
 
           {enableAuth && (
             <>
-              <button onClick={openAccountSettingsModal}>
-                🪪 {currentUser.username}
+              <button
+                onClick={openAccountSettingsModal}
+                className={st.navItem}
+                data-tooltip-id={tooltipId}
+                data-tooltip-content="User settings"
+              >
+                <span className={st.icon}>🪪</span>
+                <span className="truncate">{currentUser.username}</span>
               </button>
-              <button onClick={openPeopleSettings}>
-                👥 Manage users
+              <button
+                onClick={openPeopleSettings}
+                className={st.navItem}
+                data-tooltip-id={tooltipId}
+                data-tooltip-content="Manage users"
+              >
+                <span className={st.icon}>👥</span>
+                <span className="truncate">Manage users</span>
               </button>
             </>
           )}
         </div>
       )}
 
-      <ProjectStructure />
+      <div className={clsx(st.projectWrapper, showSidebarMenu ? st.show : st.hide)}>
+        <ProjectStructure />
+      </div>
+
+      <button onClick={() => setShowSidebarMenu(!showSidebarMenu)} className={`${st.navItem} m-2`}>
+        <span className={clsx(st.icon, st.expand, showSidebarMenu ? st.show : st.hide)}>
+          <ChevronIcon width={20} height={20} />
+        </span>
+      </button>
     </nav>
   );
 };

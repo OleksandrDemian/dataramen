@@ -11,8 +11,8 @@ const enabledGuard: TLoginGuardFunction = () => {
   const { data: token, isLoading } = useAccessToken();
 
   useEffect(() => {
-    if (!token && !isLoading && pathname !== PAGES.login.path) {
-      navigate(PAGES.login.path);
+    if (!token && !isLoading && !PAGES.login.check(pathname)) {
+      navigate(PAGES.login.build());
     }
   }, [token, isLoading, navigate, pathname]);
 };

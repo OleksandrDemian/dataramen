@@ -2,6 +2,8 @@ import { config, populate } from 'dotenv';
 import { join, resolve } from "node:path";
 import { readFileSync } from "node:fs";
 import {TEnvKeys} from "../../types/env";
+import {createValuesHandler} from "../../utils/valuesHandler";
+import {Args} from "../../utils/argsParser";
 
 const packageJson = (() => {
   try {
@@ -19,10 +21,9 @@ const packageJson = (() => {
 
 const envFiles: string[] = [];
 
-if (process.argv[3]) {
-  envFiles.push(
-    resolve(process.argv[3]),
-  );
+const envFile = Args.str("env");
+if (envFile) {
+  envFiles.push(resolve(envFile));
 }
 
 config({
@@ -59,37 +60,7 @@ export const validateEnvVariables = () => {
   }
 };
 
-function getString(name: TEnvKeys, fallback: string): string;
-function getString(name: TEnvKeys): string | undefined;
-function getString(name: TEnvKeys, fallback: string | undefined = undefined): string | undefined {
-  return process.env[name] || fallback;
-}
-
-function getNumber (name: TEnvKeys, fallback: number): number;
-function getNumber (name: TEnvKeys): number | undefined;
-function getNumber (name: TEnvKeys, fallback: number | undefined = undefined): number | undefined {
-  const value = process.env[name];
-  if (!value) {
-    return fallback;
-  }
-
-  const num = Number(value);
-  if (!isNaN(num) && value.trim() !== '') {
-    return num;
-  }
-
-  return fallback;
-}
-
-function getBoolean(name: TEnvKeys): boolean {
-  return process.env[name] === "true" || process.env[name] === "TRUE" || process.env[name] === "1";
-}
-
-export const Env = {
-  str: getString,
-  num: getNumber,
-  bool: getBoolean,
-};
+export const Env = createValuesHandler<TEnvKeys>(process.env as any);
 
 export const hasCustomDbConfiguration = (): boolean => {
   return Env.str("APP_DB_TYPE") !== DEFAULT_CONFIG.APP_DB_TYPE && Env.str("APP_DB_DATABASE") !== DEFAULT_CONFIG.APP_DB_DATABASE;

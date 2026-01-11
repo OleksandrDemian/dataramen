@@ -7,7 +7,7 @@ export const useWorkbenchTabId = (): string | undefined => {
   return useMemo(() => {
     const match = matchPath(
       {
-        path: `${PAGES.workbench.path}/tab/:id`,
+        path: PAGES.workbenchTab.path,
         end: false, // or true if you want an exact match
       },
       pathname

@@ -6,7 +6,7 @@ import {EntityEditor} from "../modals/EntityEditor";
 import {ConfirmModal} from "../modals/ConfirmModal";
 import {PromptModal} from "../modals/PromptModal";
 import {ValueDisplayModal} from "../modals/ValueDisplayModal";
-import {WorkbenchPage} from "./Workbench";
+import {WorkbenchTabPage} from "./WorkbenchTab";
 import {DataSourceModal} from "../modals/DataSourceModal";
 import {SearchTableModal} from "../modals/SearchTableModal";
 import {useSetupGlobalListeners} from "../hooks/useGlobalHotkey.ts";
@@ -17,6 +17,8 @@ import {LoginPage} from "./Login";
 import {useLoginGuard} from "../hooks/useLoginGuard.ts";
 import {SharedQuery} from "./SharedQuery";
 import {TabsHistorySidebar} from "../modals/TabsHistorySidebar";
+import {SavedQueriesPage} from "./SavedQueries";
+import {WorkbenchPage} from "./Workbench";
 
 function Router() {
   useSetupGlobalListeners();
@@ -27,9 +29,11 @@ function Router() {
     <>
       <Routes>
         <Route path={PAGES.home.path} element={<HomePage />} />
-        <Route path={`${PAGES.workbench.path}/tab/:id`} element={<WorkbenchPage />} />
+        <Route path={PAGES.workbench.path} element={<WorkbenchPage />} />
+        <Route path={PAGES.workbenchTab.path} element={<WorkbenchTabPage />} />
         <Route path={PAGES.login.path} element={<LoginPage />} />
         <Route path={PAGES.share.path} element={<SharedQuery />} />
+        <Route path={PAGES.savedQueries.path} element={<SavedQueriesPage />} />
       </Routes>
 
       <EntityCreator />

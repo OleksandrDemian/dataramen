@@ -9,6 +9,8 @@ import {useDeleteWorkbenchTab, useRestoreArchivedTab} from "../../data/queries/w
 import {Alert} from "../../widgets/Alert";
 import CloseIcon from "../../assets/close-outline.svg?react";
 import st from "./index.module.css";
+import {useRef} from "react";
+import {ContextualMenu, TContextMenuRef} from "../../widgets/ContextualMenu";
 
 const dateFormatter = new Intl.DateTimeFormat();
 
@@ -19,14 +21,18 @@ const Component = () => {
   const restoreTab = useRestoreArchivedTab();
   const deleteTab = useDeleteWorkbenchTab();
 
+  const contextActionsRef = useRef<TContextMenuRef>(null);
+  const contextItemRef = useRef<string>(null);
+
   const onOpenTab = (id: string) => {
     restoreTab.mutate(id);
     updateShowTabsHistory({ show: false });
-    navigate(`${PAGES.workbench.path}/tab/${id}`);
+    navigate(PAGES.workbenchTab.build({ id }));
   };
 
-  const onDeleteTab = (id: string) => {
-    deleteTab.mutate(id);
+  const onDelete = () => {
+    contextActionsRef.current?.close();
+    deleteTab.mutate(contextItemRef.current!);
   };
 
   const hasTabs = tabs && tabs?.length > 0;
@@ -34,7 +40,7 @@ const Component = () => {
   return (
     <div className={st.container}>
       <div className={st.header}>
-        <h3 className="text-lg">Tabs history</h3>
+        <h3 className="text-lg">Recent tabs</h3>
         <button className={st.closeButton} onClick={() => updateShowTabsHistory({ show: false })}>
           <CloseIcon width={24} height={24} />
         </button>
@@ -45,28 +51,38 @@ const Component = () => {
       )}
 
       {tabs?.map((tab) => (
-        <div className={st.tabContainer} key={tab.id}>
+        <div
+          className={st.tabContainer}
+          key={tab.id}
+          onClick={() => onOpenTab(tab.id)}
+          onContextMenu={(e) => {
+            contextItemRef.current = tab.id;
+            contextActionsRef.current?.open(e, false);
+          }}
+        >
           <div className="flex gap-2 items-center">
             <p className={st.tabName}>{tab.name}</p>
             {tab.dataSourceType && (
               <DataSourceIcon size={16} type={tab.dataSourceType} />
             )}
-            <p className="text-sm">{tab.dataSourceName}</p>
+            <p className="text-xs text-(--text-color-secondary)">{tab.dataSourceName}</p>
           </div>
           <div className="flex gap-2 items-center mt-1">
-            <p className="text-sm italic">{dateFormatter.format(new Date(tab.updatedAt))}</p>
+            <p className="text-xs text-(--text-color-secondary) italic">{dateFormatter.format(new Date(tab.updatedAt))}</p>
             {tab.archived ? (
               <span className={st.archivedBadge}>Archived</span>
             ) : (
               <span className={st.activeBadge}>Active</span>
             )}
-            <span className="flex-1" />
-
-            <button onClick={() => onOpenTab(tab.id)} className={st.actionBlue}>Open</button>
-            <button onClick={() => onDeleteTab(tab.id)} className={st.actionRed}>Delete</button>
           </div>
         </div>
       ))}
+
+      <ContextualMenu ref={contextActionsRef}>
+        <button onClick={onDelete} className={st.deleteAction}>
+          🗑 Delete
+        </button>
+      </ContextualMenu>
 
       {hasNextPage && !isFetching && (
         <div className="flex justify-center my-2">

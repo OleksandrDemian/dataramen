@@ -14,18 +14,29 @@ import {useDataSources} from "../../data/queries/dataSources.ts";
 import {setDataSourceModal} from "../../data/dataSourceModalStore.ts";
 import {useWorkbenchTabs} from "../../data/queries/workbenchTabs.ts";
 import {updateShowTabsHistory} from "../../data/showTabsHistorySidebarStore.ts";
+import {useRecentTabs} from "../../data/queries/project.ts";
 
 export const StartQuery = () => {
   const searchAndOpen = useSearchTable("Home");
 
   return (
-    <div className="card-white hover:bg-gray-50! cursor-pointer" onClick={searchAndOpen}>
+    <div className={st.homeActionButton} onClick={searchAndOpen}>
       <h2 className={st.actionTitle}>
         <span className="truncate">🔎 Start new query</span>
         <span className="hotkey">N</span>
       </h2>
+    </div>
+  );
+};
 
-      <p className={st.actionSubtext}>Select table to start new query.</p>
+export const SavedQueriesAction = () => {
+  const navigate = useNavigate();
+
+  return (
+    <div className={st.homeActionButton} onClick={() => navigate(PAGES.savedQueries.build())}>
+      <h2 className={st.actionTitle}>
+        <span className="truncate">💾 Saved queries</span>
+      </h2>
     </div>
   );
 };
@@ -55,11 +66,10 @@ export const ConnectDataSource = () => {
       )}
 
       <div
-        className="card-white hover:bg-gray-50! cursor-pointer"
+        className={st.homeActionButton}
         onClick={() => onCreateNewDataSource("postgres")}
       >
         <p className={st.actionTitle}>🧙‍♂️ Connection wizard</p>
-        <p className={st.actionSubtext}>Configure new database connection.</p>
       </div>
     </div>
   );
@@ -72,7 +82,7 @@ export const WorkbenchTabs = () => {
 
   const onOpenWorkbench = () => {
     if (tabs && tabs.length > 0) {
-      navigate(`${PAGES.workbench.path}/tab/${tabs[0].id}`);
+      navigate(PAGES.workbenchTab.build({ id: tabs[0].id }));
       Analytics.event("On open workbench [Home]");
     } else {
       searchAndOpen();
@@ -80,13 +90,11 @@ export const WorkbenchTabs = () => {
   };
 
   return (
-    <div className="card-white hover:bg-gray-50! cursor-pointer" onClick={onOpenWorkbench}>
+    <div className={st.homeActionButton} onClick={onOpenWorkbench}>
       <h2 className={st.actionTitle}>
         <span>🛠️ Workbench</span>
         <span className="hotkey">W</span>
       </h2>
-
-      <p className={st.actionSubtext}>Continue your work from where you left.</p>
     </div>
   );
 };
@@ -107,15 +115,15 @@ export const ListDataSources = () => {
   }
 
   return (
-    <div className="mt-8">
-      <h2 className="font-semibold text-gray-700">Data sources</h2>
+    <div className={st.homeGrayCard}>
+      <h2 className={st.homeCardTitle}>Data sources</h2>
 
-      <div className="grid lg:grid-cols-3 gap-2 mt-4">
+      <div className={st.homeCardGridContent}>
         {dataSources?.map((d) => (
           <div key={d.id} className={st.dataSourceEntry} onClick={() => onOpen(d.id)} tabIndex={0}>
             <DataSourceIcon size={32} type={d.dbType} />
             <div className="overflow-hidden">
-              <p className="font-semibold truncate text-gray-800 flex-1">{d.name}</p>
+              <p className={st.actionTitle}>{d.name}</p>
               {d.allowInsert ? <span className={st.devTag}>dev</span> : <span className={st.prodTag}>prod</span>}
             </div>
           </div>
@@ -127,21 +135,21 @@ export const ListDataSources = () => {
 
 export const UsefulLinks = () => {
   return (
-    <div className="mt-8">
-      <h2 className="font-semibold text-gray-700">Useful links</h2>
+    <div className={st.homeGrayCard}>
+      <h2 className={st.homeCardTitle}>Useful links</h2>
 
-      <div className="grid lg:grid-cols-3 gap-2 mt-4">
-        <a className="card-white hover:bg-gray-50!" href="https://dataramen.xyz/">
+      <div className={st.homeCardGridContent}>
+        <a className={st.homeActionButton} href="https://dataramen.xyz/" target="_blank">
           <h2 className={st.actionTitle}>↗️ Documentation</h2>
           <p className={st.actionSubtext}>Learn how to use DataRamen</p>
         </a>
 
-        <a className="card-white hover:bg-gray-50!" href="https://github.com/OleksandrDemian/dataramen">
+        <a className={st.homeActionButton} href="https://github.com/OleksandrDemian/dataramen" target="_blank">
           <h2 className={st.actionTitle}>↗️ Github</h2>
           <p className={st.actionSubtext}>Codebase is open source</p>
         </a>
 
-        <a className="card-white hover:bg-gray-50!" href="#" onClick={() => updateShowTabsHistory({ show: true })}>
+        <a className={st.homeActionButton} href="#" onClick={() => updateShowTabsHistory({ show: true })}>
           <h2 className={st.actionTitle}>
             <span>⌛ Recent tabs</span>
             <span className="hotkey">H</span>
@@ -151,4 +159,34 @@ export const UsefulLinks = () => {
       </div>
     </div>
   );
+};
+
+export const RecentTabs = () => {
+  const { data: user } = useCurrentUser();
+  const { data: tabs, isLoading } = useRecentTabs(user?.teamId);
+  const navigate = useNavigate();
+
+  if (isLoading || !tabs?.length) {
+    return null;
+  }
+
+  const openTab = (tabId: string) => {
+    navigate(PAGES.workbenchTab.build({ id: tabId }));
+  };
+
+  return (
+    <div className={st.recentTabsContainer}>
+      <h2 className={st.homeCardTitle + " px-4 mb-4"}>Recent tabs</h2>
+
+      {tabs.map((tab) => (
+        <div className={st.recentTabsEntry} key={tab.id} onClick={() => openTab(tab.id)}>
+          <p className="text-(--text-color-primary) truncate">{tab.name}</p>
+          <p className="flex items-center gap-2">
+            <DataSourceIcon size={20} type={tab.dataSourceType!} />
+            <span className="text-sm text-(--text-color-secondary) truncate">{tab.dataSourceName}</span>
+          </p>
+        </div>
+      ))}
+    </div>
+  )
 };

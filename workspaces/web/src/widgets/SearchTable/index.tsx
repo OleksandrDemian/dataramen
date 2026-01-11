@@ -3,7 +3,7 @@ import {useCurrentUser} from "../../data/queries/users.ts";
 import React, {MouseEventHandler, useMemo, useState} from "react";
 import {useDebouncedValue} from "../../hooks/useDebouncedValue.ts";
 import st from "./index.module.css";
-import {gte} from "../../utils/numbers.ts";
+import {gt} from "../../utils/numbers.ts";
 import {TFindQuery} from "@dataramen/types";
 import {useDataSources} from "../../data/queries/dataSources.ts";
 import {toggleSelectedDataSource, useSelectedDataSources} from "../../data/selectedDataSourcesStore.ts";
@@ -100,7 +100,7 @@ export const SearchQuery = ({ onTable, onQuery, onWorkbenchTab, autoFocus }: TSe
 
   return (
     <div className="overflow-hidden flex flex-col w-full lg:w-lg">
-      {gte(dataSources?.length, 0) ? (
+      {gt(dataSources?.length, 0) ? (
         <div className={st.dsContainer + " " + "no-scrollbar"}>
           {dataSources.map(ds => (
             <button key={ds.id} className={clsx(st.dsEntry, enabled[ds.id] && st.enabled)} onClick={() => toggleSelectedDataSource(ds.id)}>
@@ -122,7 +122,7 @@ export const SearchQuery = ({ onTable, onQuery, onWorkbenchTab, autoFocus }: TSe
         autoFocus={autoFocus}
       />
 
-      {gte(tables?.length, 0) && (
+      {gt(tables?.length, 0) && (
         <div className="overflow-y-auto max-h-full mt-2">
           {tables.map((table, i) => (
             <button key={table.id} className={st.entry} data-is-active={activeIndex === i} data-table-id={table.id} onClick={onClick}>

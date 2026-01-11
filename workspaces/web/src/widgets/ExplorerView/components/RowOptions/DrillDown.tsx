@@ -7,7 +7,7 @@ import {createTableOptions} from "../../utils.ts";
 import {genSimpleId} from "../../../../utils/id.ts";
 import {PAGES} from "../../../../const/pages.ts";
 import st from "./index.module.css";
-import {gte} from "../../../../utils/numbers.ts";
+import {gt} from "../../../../utils/numbers.ts";
 import {HookButton} from "../../../HookButton";
 import clsx from "clsx";
 import {TDbValue, TQueryFilter} from "@dataramen/types";
@@ -82,7 +82,7 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
         }),
       ),
     ).then((result) => {
-      navigate(`${PAGES.workbench.path}/tab/${result.id}`);
+      navigate(PAGES.workbenchTab.build({ id: result.id }));
       onClose?.();
     });
   };
@@ -109,7 +109,7 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
         ]
       }),
     }).then((result) => {
-      navigate(`${PAGES.workbench.path}/tab/${result.id}`);
+      navigate(PAGES.workbenchTab.build({ id: result.id }));
       onClose?.();
     });
   };
@@ -130,7 +130,7 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
           <button onClick={showNestedData} className={st.optionItem}>🎯 Underlying rows</button>
         )}
 
-        {gte(filteredHooks.length, 0) ? filteredHooks.map((hook) => (
+        {gt(filteredHooks.length, 0) ? filteredHooks.map((hook) => (
           <HookButton
             hook={hook}
             onClick={() => showRelatedData(hook)}

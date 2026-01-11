@@ -38,7 +38,7 @@ export const AppLayout = ({children}: { children: ReactNode }) => {
   const isDesktop = useMediaQuery(ScreenQuery.laptop);
   const { pathname } = useLocation();
 
-  const isLogin = pathname === PAGES.login.path;
+  const isLogin = PAGES.login.check(pathname);
 
   if (isDesktop) {
     return (

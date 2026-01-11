@@ -52,14 +52,89 @@ export default createRouter((instance) => {
     method: "get",
     url: "/team/:teamId/queries",
     handler: async (request) => {
-      const queryParams = getRequestParams<{ teamId?: string; }>(request);
-      const teamId = queryParams.teamId || request.user.currentTeamId;
+      const params = getRequestParams<{ teamId?: string; }>(request);
+      const queryParams = getRequestQuery<{ nameFilter: string; size: string; page: string; }>(request);
+      const teamId = params.teamId || request.user.currentTeamId;
+
+      const take = Number(queryParams.size) || 20;
+      const page = Number(queryParams.page) || 0;
+      const queryFilter = queryParams.nameFilter?.length ? {
+        name: Raw((alias) => `LOWER(${alias}) LIKE :search`, { search: `%${queryParams.nameFilter.toLowerCase()}%` })
+      } : undefined;
 
       const queries = await SavedQueriesRepository.find({
         where: [
           {
             isPersonal: false,
-            team: { id: teamId }
+            team: { id: teamId },
+            query: queryFilter,
+          },
+          {
+            isPersonal: true,
+            team: { id: teamId },
+            query: queryFilter,
+            user: { id: request.user.id },
+          },
+        ],
+        relations: {
+          query: {
+            dataSource: true,
+          },
+        },
+        take: take + 1,
+        skip: page * take,
+        select: {
+          id: true,
+          query: {
+            id: true,
+            name: true,
+            updatedAt: true,
+            dataSource: {
+              name: true,
+              dbType: true,
+            },
+          },
+        },
+        order: {
+          query: {
+            updatedAt: "DESC",
+          },
+        },
+      });
+
+      const hasMore = queries.length > take;
+      if (hasMore) {
+        queries.pop();
+      }
+
+      const data: TProjectQuery[] = queries.map((q) => ({
+        name: q.query.name,
+        id: q.query.id,
+        updatedAt: q.query.updatedAt,
+        savedQueryId: q.id,
+        datasourceName: q.query.dataSource.name,
+        datasourceType: q.query.dataSource.dbType,
+      }));
+
+      return {
+        data,
+        hasMore,
+      };
+    },
+  });
+
+  instance.route({
+    method: "get",
+    url: "/team/:teamId/count-saved-queries",
+    handler: async (request) => {
+      const params = getRequestParams<{ teamId?: string; }>(request);
+      const teamId = params.teamId || request.user.currentTeamId;
+
+      const queries = await SavedQueriesRepository.count({
+        where: [
+          {
+            isPersonal: false,
+            team: { id: teamId },
           },
           {
             isPersonal: true,
@@ -67,28 +142,13 @@ export default createRouter((instance) => {
             user: { id: request.user.id },
           },
         ],
-        relations: {
-          query: true,
-        },
         select: {
           id: true,
-          query: {
-            id: true,
-            name: true,
-            updatedAt: true,
-          },
         },
       });
 
-      const data: TProjectQuery[] = queries.map((q) => ({
-        name: q.query.name,
-        id: q.query.id,
-        updatedAt: q.query.updatedAt,
-        savedQueryId: q.id,
-      }));
-
       return {
-        data
+        data: queries,
       };
     },
   });
@@ -225,8 +285,8 @@ export default createRouter((instance) => {
     method: "get",
     url: "/team/:teamId/tabs-history",
     handler: async (request) => {
-      const { teamId } = getRequestParams<{ teamId: string }>(request);
-      const query = getRequestQuery<{ page: number; size: number; }>(request);
+      const { teamId, } = getRequestParams<{ teamId: string }>(request);
+      const query = getRequestQuery<{ page: number; size: number; archived?: string }>(request);
 
       const page = Number(query.page);
       const size = Number(query.size);
@@ -236,6 +296,7 @@ export default createRouter((instance) => {
         where: {
           team: { id: teamId },
           user: { id: userId },
+          archived: query.archived ? query.archived === "true" : undefined,
         },
         relations: {
           dataSource: true,

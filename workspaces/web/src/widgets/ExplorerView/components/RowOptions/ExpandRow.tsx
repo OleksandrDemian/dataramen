@@ -3,7 +3,7 @@ import st from "./index.module.css";
 import {useContext, useMemo, useState} from "react";
 import {QueryResultContext, TableContext} from "../../context/TableContext.ts";
 import {updateEntityEditor} from "../../../../data/entityEditorStore.ts";
-import {gte} from "../../../../utils/numbers.ts";
+import {gt} from "../../../../utils/numbers.ts";
 
 const inputClass = clsx("input", st.filterInput);
 
@@ -54,7 +54,7 @@ export const ExpandRow = ({ onClose, rowIndex, className }: TExpandRowProps) => 
       />
 
       <div className={st.list}>
-        {gte(filteredEntities.length, 0) ? filteredEntities.map((ent) => (
+        {gt(filteredEntities.length, 0) ? filteredEntities.map((ent) => (
           <button
             key={ent}
             className={st.optionItem}

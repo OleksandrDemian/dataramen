@@ -1,7 +1,16 @@
 import {useDataSources} from "../../data/queries/dataSources.ts";
 import {useCurrentUser} from "../../data/queries/users.ts";
 import {Alert} from "../../widgets/Alert";
-import {StartQuery, ConnectDataSource, WorkbenchTabs, ListDataSources, UsefulLinks} from "./components.tsx";
+import {
+  StartQuery,
+  ConnectDataSource,
+  WorkbenchTabs,
+  ListDataSources,
+  UsefulLinks,
+  RecentTabs,
+  SavedQueriesAction
+} from "./components.tsx";
+import st from "./index.module.css";
 
 export const HomePage = () => {
   const {data: user} = useCurrentUser();
@@ -14,34 +23,41 @@ export const HomePage = () => {
   const hasUser = !!user;
 
   return (
-    <div className="page-container h-screen max-h-screen">
-      <div className="max-w-6xl h-full pb-12 overflow-y-auto">
-        <div className="py-10 text-center w-full">
-          <h1 className="comfortaa text-3xl font-semibold">DataRamen</h1>
+    <div className="page-container h-screen max-h-screen overflow-y-auto no-scrollbar">
+      <div className="page-content">
+        <div className="py-10 text-center w-full sticky top-0 z-0">
+          <h1 className="comfortaa text-3xl font-semibold text-(--text-color-primary)">DataRamen</h1>
         </div>
 
-        {hasUser && !hasDataSources && (
-          <Alert variant="warning" className="font-semibold">
-            Connect at least one data source to start using DataRamen
-          </Alert>
-        )}
+        <div className="flex flex-col gap-8 mt-8 bg-(--bg) z-1">
+          {hasUser && !hasDataSources && (
+            <Alert variant="warning" className="font-semibold">
+              Connect at least one data source to start using DataRamen
+            </Alert>
+          )}
 
-        <h2 className="font-semibold text-gray-700 mt-4 hidden lg:block">Quick actions</h2>
+          <div className={st.homeGrayCard}>
+            <h2 className={st.homeCardTitle}>Quick actions</h2>
 
-        <div className="grid lg:grid-cols-3 gap-2 mt-4">
-          <StartQuery />
-          <ConnectDataSource />
+            <div className={st.homeCardGridContent}>
+              <StartQuery />
+              <ConnectDataSource />
+
+              {hasUser && (
+                <WorkbenchTabs />
+              )}
+
+              <SavedQueriesAction />
+            </div>
+          </div>
 
           {hasUser && (
-            <WorkbenchTabs />
+            <ListDataSources />
           )}
+
+          <RecentTabs />
+          <UsefulLinks />
         </div>
-
-        {hasUser && (
-          <ListDataSources />
-        )}
-
-        <UsefulLinks />
       </div>
     </div>
   );

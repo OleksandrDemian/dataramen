@@ -15,10 +15,19 @@
 
 .nav {
   position: relative;
-  max-width: 250px;
   max-height: 100vh;
   overflow: hidden;
-  @apply border-r border-gray-300 flex flex-col w-full;
+  border-right: 1px solid var(--bg-quat);
+  @apply flex flex-col w-full bg-(--bg-sec);
+  transition: max-width ease-in-out 250ms;
+
+  &.shown {
+    max-width: 250px;
+  }
+
+  &.hidden {
+    max-width: 56px;
+  }
 }
 
 .nav-path {
@@ -51,18 +60,69 @@
 
 .header {
   padding: 8px;
-  @apply flex flex-col border-b border-gray-300;
-
-  button {
-    @apply text-lg lg:text-base px-2 py-2 md:py-1;
-    @apply text-ellipsis whitespace-nowrap overflow-hidden enabled:hover:bg-gray-100 text-left cursor-pointer rounded-lg;
-
-    &:disabled {
-      @apply cursor-not-allowed opacity-40;
-    }
-  }
+  @apply flex flex-col;
 }
 
 .logout {
   border-radius: 0;
+}
+
+.expand {
+  @apply p-1 cursor-pointer rounded-lg;
+
+  svg {
+    transition: rotate ease-in-out 250ms;
+  }
+
+  &.show {
+    svg {
+      @apply rotate-180;
+    }
+  }
+
+  &.hide {
+    svg {
+      @apply rotate-0;
+    }
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.nav-item {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  height: 40px;
+
+  @apply text-(--text-color-primary) items-center;
+  @apply overflow-hidden text-left cursor-pointer rounded-lg gap-1;
+
+  &:hover:enabled {
+    @apply bg-(--bg-quat);
+  }
+
+  &:disabled {
+    @apply cursor-not-allowed opacity-40;
+  }
+}
+
+.project-wrapper {
+  transition: opacity ease-in-out 250ms;
+  flex: 1;
+  overflow-y: auto;
+
+  &.hide {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  &.show {
+    opacity: 1;
+  }
 }

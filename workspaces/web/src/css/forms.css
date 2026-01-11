@@ -1,8 +1,9 @@
 .input {
-  @apply border border-gray-200 bg-gray-50 rounded-lg p-1  focus:border-blue-400 outline-0;
+  border: 1px solid var(--bg-quat);
+  @apply bg-(--bg-sec) rounded-lg p-1  focus:border-blue-400 outline-0;
 
   &:disabled {
-    @apply cursor-not-allowed bg-gray-100;
+    @apply cursor-not-allowed bg-(--bg-ter);
   }
 }
 
@@ -41,10 +42,11 @@
   }
 
   &.tertiary {
-    @apply bg-white text-gray-700 border border-gray-200;
+    border: 1px solid var(--bg-quat);
+    @apply bg-white text-gray-700;
 
     &:hover {
-      @apply bg-gray-100;
+      @apply bg-(--bg-sec);
     }
   }
 

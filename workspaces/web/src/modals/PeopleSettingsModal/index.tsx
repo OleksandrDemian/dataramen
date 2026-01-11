@@ -2,7 +2,7 @@ import {Modal, ModalClose, ModalTitle} from "../../widgets/Modal";
 import {closePeopleSettings, useShowPeopleSettings} from "../../data/peopleSettingsModalStore.ts";
 import {useCreateUser, useCurrentUser} from "../../data/queries/users.ts";
 import {useRemoveUser, useTeamUsers, useUpdateUserTeamRole} from "../../data/queries/teams.ts";
-import {gte} from "../../utils/numbers.ts";
+import {gt} from "../../utils/numbers.ts";
 import {EUserTeamRole} from "@dataramen/types";
 import {useForm} from "../../hooks/form/useForm.ts";
 import st from "./index.module.css";
@@ -61,7 +61,7 @@ export const PeopleSettingsModal = () => {
       <div className="w-full lg:w-lg flex flex-col overflow-hidden">
         <ModalTitle>Manage users</ModalTitle>
 
-        {gte(teamUsers?.length, 0) && (
+        {gt(teamUsers?.length, 0) && (
           <div className="mt-4 overflow-y-auto flex-1">
             {teamUsers.map((u) => (
               <div className={st.userEntry} key={u.id}>

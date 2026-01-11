@@ -9,19 +9,23 @@
 }
 
 .close-button {
-  @apply cursor-pointer hover:bg-gray-200 rounded-full p-1;
+  @apply cursor-pointer hover:bg-(--bg-ter) rounded-full p-1;
 }
 
 .tab-container {
-  @apply p-4 border-b border-gray-100;
+  @apply px-2 py-3 mx-2 cursor-pointer;
+
+  &:hover {
+    @apply bg-(--bg-sec) rounded;
+  }
 }
 
 .tab-name {
-  @apply text-sm font-semibold flex-1 truncate;
+  @apply text-sm font-semibold flex-1 truncate text-(--text-color-primary);
 }
 
 .badge {
-  @apply rounded-md text-sm border px-2;
+  @apply rounded-md text-xs border px-2;
 }
 
 .archived-badge {
@@ -34,18 +38,9 @@
   @apply bg-green-50 border-green-200 text-green-800;
 }
 
-.action {
-  @apply text-sm hover:underline cursor-pointer;
-}
-
-.action-blue {
-  composes: action;
-  @apply text-blue-800;
-}
-
-.action-red {
-  composes: action;
-  @apply text-red-800;
+.delete-action {
+  width: 200px;
+  @apply hover:bg-(--bg-ter) cursor-pointer px-2 py-0.5 rounded text-left;
 }
 
 .load-more-btn {

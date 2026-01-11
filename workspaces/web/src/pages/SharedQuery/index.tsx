@@ -16,7 +16,7 @@ export const SharedQuery = () => {
       createWorkbenchTab.mutateAsync({
         queryId,
       }).then((result) => {
-        navigate(`${PAGES.workbench.path}/tab/${result.id}`, {
+        navigate(PAGES.workbenchTab.build({ id: result.id }), {
           replace: true,
         });
       });

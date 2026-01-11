@@ -41,10 +41,14 @@ export const useSearchTable = (eventSource: string) => {
 
   useEffect(() => {
     if (createWorkbenchTab?.data?.id){
-      navigate(`${PAGES.workbench.path}/tab/${createWorkbenchTab.data.id}`);
+      navigate(PAGES.workbenchTab.build({
+        id: createWorkbenchTab.data.id
+      }));
     }
     if (restoreTab?.data) {
-      navigate(`${PAGES.workbench.path}/tab/${restoreTab?.data}`);
+      navigate(PAGES.workbenchTab.build({
+        id: restoreTab.data
+      }));
     }
   }, [createWorkbenchTab.data, restoreTab.data]);
 

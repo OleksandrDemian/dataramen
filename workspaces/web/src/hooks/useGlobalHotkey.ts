@@ -13,7 +13,7 @@ export const useSetupGlobalListeners = () => {
   const { data: user } = useCurrentUser();
   const { data: tabs } = useWorkbenchTabs();
 
-  const isHome = pathname === PAGES.home.path;
+  const isHome = PAGES.home.check(pathname);
 
   useHotkeys("n", () => {
     if (!user) {
@@ -29,7 +29,9 @@ export const useSetupGlobalListeners = () => {
     }
 
     if (tabs && tabs.length > 0) {
-      navigate(`${PAGES.workbench.path}/tab/${tabs[0].id}`);
+      navigate(PAGES.workbenchTab.build({
+        id: tabs[0].id,
+      }))
     } else {
       searchAndOpen();
     }
