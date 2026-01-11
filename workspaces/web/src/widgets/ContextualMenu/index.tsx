@@ -2,9 +2,10 @@ import {PropsWithChildren, Ref, useImperativeHandle, useState, MouseEvent, useRe
 import st from "./index.module.css";
 import {isLaptop} from "../../utils/screen.ts";
 import clsx from "clsx";
+import {createPortal} from "react-dom";
 
 export type TContextMenuRef = {
-  open: (e: MouseEvent) => void;
+  open: (e: MouseEvent, propagate?: boolean) => void;
   close: () => void;
 };
 
@@ -26,7 +27,12 @@ export const ContextualMenu = ({ children, ref, onClosed }: TContextualMenuProps
   const containerRef = useRef<HTMLDivElement>(null);
 
   useImperativeHandle(ref, () => ({
-    open: (e) => {
+    open: (e, propagate: boolean = true) => {
+      if (!propagate) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
       const tempPos: TPos = {};
       const isLowerHalf = e.clientY > window.innerHeight / 2;
       const isRightSide = e.clientX > window.innerWidth / 2;
@@ -70,7 +76,7 @@ export const ContextualMenu = ({ children, ref, onClosed }: TContextualMenuProps
     }
   };
 
-  return (
+  const render = (
     <div
       className={clsx(st.container, state === "out" && st.animateHide, state === "in" && st.animateShow)}
       onAnimationEnd={onAnimationEnd}
@@ -89,4 +95,5 @@ export const ContextualMenu = ({ children, ref, onClosed }: TContextualMenuProps
       </div>
     </div>
   );
+  return createPortal(render, document.body);
 };

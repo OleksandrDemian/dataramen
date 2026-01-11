@@ -83,7 +83,7 @@ export const SavedQueriesList = () => {
           <p className="text-left">📖 {file.name}</p>
           <p className="flex gap-2 items-center">
             <DataSourceIcon size={20} type={file.datasourceType} />
-            <span className="truncate text-(--text-color-secondary)">{file.datasourceName}</span>
+            <span className="truncate text-sm text-(--text-color-secondary)">{file.datasourceName}</span>
           </p>
         </button>
       ))}

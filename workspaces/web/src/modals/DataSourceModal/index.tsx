@@ -175,35 +175,36 @@ function Component ({ id }: { id: string }) {
 
   return (
     <div className={st.root}>
-      <div className="sticky top-0 bg-white border-b border-gray-200 p-4 z-1">
-        <h3 className="page-head flex gap-2">
-          {dataSource && <DataSourceIcon size={32} type={dataSource.dbType} />}
-          <span className="truncate">{dataSource?.name}</span>
-        </h3>
-
-        <p className="mt-2 text-xs text-gray-800">Last DB inspection</p>
-        <p className="text-sm font-semibold">{lastInspected}</p>
-
-        {isEditor && (
-          <div className="mt-2 flex gap-2">
-            <button disabled={inspector.isPending} onClick={onInspect} className={st.actionBlue}>
-              <RefreshIcon width={16} height={16} />
-              INSPECT
-            </button>
-
-            <button disabled={inspector.isPending} onClick={onRename} className={st.actionBlue}>
-              <EditIcon width={16} height={16} />
-              RENAME
-            </button>
-
-            <button disabled={inspector.isPending} onClick={onDelete} className={st.actionRed}>
-              <TrashIcon width={16} height={16} />
-              DELETE
-            </button>
+      <div className="sticky top-0 bg-white border-b border-gray-200 px-4 py-2 z-1">
+        <div className={st.dbHeaderContainer}>
+          <div className={st.dbHeader}>
+            {dataSource && (
+              <DataSourceIcon size={24} type={dataSource.dbType} />
+            )}
+            <p className="truncate text-(--text-color-primary) text-lg">{dataSource?.name}</p>
           </div>
-        )}
 
-        <div className="flex gap-2 items-center mb-2 mt-4">
+          <div className={st.dbSubheader}>
+            <p className="text-xs text-(--text-color-secondary) truncate">{lastInspected}</p>
+            {isEditor && (
+              <div className="flex justify-end">
+                <button disabled={inspector.isPending} onClick={onInspect} className={st.actionBlue} data-tooltip-id="default-xs" data-tooltip-content="Refresh schema">
+                  <RefreshIcon width={16} height={16} />
+                </button>
+
+                <button disabled={inspector.isPending} onClick={onRename} className={st.actionBlue} data-tooltip-id="default-xs" data-tooltip-content="Update name">
+                  <EditIcon width={16} height={16} />
+                </button>
+
+                <button disabled={inspector.isPending} onClick={onDelete} className={st.actionRed} data-tooltip-id="default-xs" data-tooltip-content="Delete data source">
+                  <TrashIcon width={16} height={16} />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="flex gap-2 items-center mt-2">
           <select
             className="input"
             value={searchType}
