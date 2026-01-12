@@ -7,26 +7,34 @@ export type TModeConfig = {
 };
 
 export enum EModeName {
-  local = "local",
-  hosted = "hosted",
+  cli = "cli",
+  default = "default",
+  docker = "docker",
+  dev = "dev",
 }
 
 const modeConfigs: Record<EModeName, TModeConfig> = {
-  hosted: {
+  default: {
     bindServerUrl: '0.0.0.0',   // bind to all interfaces in order to receive external traffic
     skipAuth: false,            // hosted mode requires authentication
-    name: EModeName.hosted,
+    name: EModeName.default,
   },
-  local: {
+  docker: {
+    bindServerUrl: '0.0.0.0',   // in docker container we have to bind to 0.0.0.0
+    skipAuth: false,            // docker mode requires authentication
+    name: EModeName.docker,
+  },
+  cli: {
     bindServerUrl: '127.0.0.1', // bind to localhost only, in order to prevent public access (app is only accessible locally)
     skipAuth: true,             // no need to authenticate when running app locally
-    name: EModeName.local,
+    name: EModeName.cli,
+  },
+  dev: {
+    bindServerUrl: '127.0.0.1', // bind to localhost only, in order to prevent public access (app is only accessible locally)
+    skipAuth: true,             // no need to authenticate when running app locally
+    name: EModeName.dev,
   }
 };
 
-const modeArg = Args.str("mode") as EModeName | undefined;
-if (!modeArg) {
-  throw new Error(`Invalid mode "${Args.str("mode")}"`);
-}
-
+const modeArg = Args.str("mode", "default") as EModeName;
 export const modeConfig = modeConfigs[modeArg];

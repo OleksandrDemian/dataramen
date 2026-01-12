@@ -1,0 +1,14 @@
+node_modules
+dist
+.yarn
+.yarn-cache
+.pnp.*
+.git
+.github
+Dockerfile
+docker-compose.yml
+*.log
+.env
+.gitattributes
+.gitignore
+.idea

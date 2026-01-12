@@ -11,10 +11,11 @@ import {TReferencesInspection} from "../../types/connectors";
 import {TExecuteQueryResult} from "@dataramen/types";
 import {HttpError} from "../../utils/httpError";
 import {lowercase} from "../../utils/stringUtils";
+import {getUrl} from "../../utils/dbUtils";
 
 const getConnection = ({ database, password, user, url }: TDynamicConnectionConfig) => {
   return mysql.createConnection({
-    host: url,
+    host: getUrl(url),
     user: user,
     database: database,
     password: password,

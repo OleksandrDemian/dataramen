@@ -3,6 +3,7 @@ import {modeConfig} from "../../config/modeConfig";
 import { TClientConfig } from "@dataramen/types";
 import {requireSetup} from "../../services/setup";
 import {hasCustomDbConfiguration} from "../../services/env";
+import {Args} from "../../utils/argsParser";
 
 export default createRouter((instance) => {
   // inject dynamic config into index.html

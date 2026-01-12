@@ -9,10 +9,11 @@ import pg from 'pg';
 import {TReferencesInspection} from "../../types/connectors";
 import {TExecuteQueryResult} from "@dataramen/types";
 import {HttpError} from "../../utils/httpError";
+import {getUrl} from "../../utils/dbUtils";
 
 const getConnection = async ({ database, password, user, url, port }: TDynamicConnectionConfig) => {
   const client = new pg.Client({
-    host: url,
+    host: getUrl(url),
     user: user,
     database: database,
     password: password,
