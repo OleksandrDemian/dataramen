@@ -40,7 +40,7 @@ const start: TCommand = {
 
       const spinner = yoctoSpinner({ text: "Starting new instance of " + PROCESS_NAME }).start();
       const appPkg = fs.readJsonSync(join(SERVER_PATH, "package.json"));
-      await asyncExec(`pm2 start "${appPkg.main}" --name "${PROCESS_NAME}" --no-autorestart -- local "${SERVER_PATH}/.env"`, {
+      await asyncExec(`pm2 start "${appPkg.main}" --name "${PROCESS_NAME}" --no-autorestart -- --mode=local --env="${SERVER_PATH}/.env"`, {
         cwd: SERVER_PATH,
       });
 
