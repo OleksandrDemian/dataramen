@@ -17,13 +17,15 @@ import {gt} from "../../../utils/numbers.ts";
 import {useWorkbenchTabs} from "../../../data/queries/workbenchTabs.ts";
 
 const enableAuth = !__CLIENT_CONFIG__.skipAuth;
-const runtimeName = ((val) => {
-  try {
-    return val.charAt(0).toUpperCase() + val.slice(1);
-  } catch (_) {
-    return "Unknown";
+const runtimeName = (() => {
+  const version = __CLIENT_CONFIG__.serverVersion || '--';
+  switch (__CLIENT_CONFIG__.modeName) {
+    case "docker": return `v${version} | Docker`;
+    case "cli": return `v${version} | CLI`;
+    case "dev": return `v${version} | DEV`;
+    default: return `v${version} | Custom`;
   }
-})(__CLIENT_CONFIG__.modeName);
+})();
 
 function ConfigIcon () {
   const size = 20;
@@ -162,13 +164,13 @@ export const Nav = () => {
 
       <div
         className={`${st.navItem} mx-2 mb-2`}
-        data-tooltip-id="default"
-        data-tooltip-content={`${runtimeName} distribution`}
+        data-tooltip-id={tooltipId}
+        data-tooltip-content={runtimeName}
       >
         <span className={st.icon}>
           <ConfigIcon />
         </span>
-        <span className="truncate text-sm text-(--text-color-secondary)">{runtimeName} distribution</span>
+        <span className="truncate text-sm text-(--text-color-secondary)">{runtimeName}</span>
       </div>
     </nav>
   );

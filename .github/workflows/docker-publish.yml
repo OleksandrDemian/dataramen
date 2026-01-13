@@ -1,4 +1,4 @@
-name: Build and publish Docker image
+name: Docker publish
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Image version tag to publish (e.g. v1.2.3 or 1.2.3)"
+        description: "Image version tag"
         required: true
         type: string
 
