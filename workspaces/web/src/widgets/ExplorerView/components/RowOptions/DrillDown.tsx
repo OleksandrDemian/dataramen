@@ -115,6 +115,7 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
   };
 
   const hasNestedData = state.groupBy.length > 0;
+  const hasFilteredHooks = gt(filteredHooks.length, 0);
 
   return (
     <div className={className}>
@@ -130,13 +131,15 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
           <button onClick={showNestedData} className={st.optionItem}>🎯 Underlying rows</button>
         )}
 
-        {gt(filteredHooks.length, 0) ? filteredHooks.map((hook) => (
+        {hasFilteredHooks && filteredHooks.map((hook) => (
           <HookButton
             hook={hook}
             onClick={() => showRelatedData(hook)}
             key={hook.where}
           />
-        )) : (
+        ))}
+
+        {!hasNestedData && !hasFilteredHooks && (
           <p className={st.emptyText}>Empty</p>
         )}
       </div>

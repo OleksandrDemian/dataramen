@@ -1,16 +1,19 @@
 {
   "name": "dataramen",
-  "version": "0.0.93",
+  "version": "0.0.94",
   "repository": "https://github.com/OleksandrDemian/dataramen.git",
   "author": "Oleksandr Demian <oleksandrovsky@gmail.com>",
   "license": "MIT",
   "private": true,
   "workspaces": ["workspaces/*"],
+  "devDependencies": {
+    "fs-extra": "^11.3.0"
+  },
   "scripts": {
     "package:cli": "node package.mjs cli",
     "package:app": "node package.mjs app",
-    "start:hosted": "node dist/code/server.js --mode=hosted --env=.env",
-    "start:local": "node dist/code/server.js --mode=local --env=.env",
+    "package:docker": "node package.mjs docker",
+    "start:hosted": "node dist/code/server.js --mode=default --env=.env",
     "dev:server": "yarn workspace @dataramen/server dev",
     "dev:web": "yarn workspace @dataramen/web dev"
   }

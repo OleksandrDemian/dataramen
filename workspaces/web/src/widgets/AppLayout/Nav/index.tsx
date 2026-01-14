@@ -8,12 +8,36 @@ import {useLocation, useNavigate} from "react-router-dom";
 import {useSearchTable} from "../../../data/tableSearchModalStore.ts";
 import {updateShowTabsHistory} from "../../../data/showTabsHistorySidebarStore.ts";
 import ChevronIcon from "../../../assets/chevron-forward-outline.svg?react";
+import DockerIcon from "../../../assets/logo-docker.svg?react";
+import TerminalIcon from "../../../assets/terminal-outline.svg?react";
+import CubeIcon from "../../../assets/cube-outline.svg?react";
 import {useState} from "react";
 import clsx from "clsx";
 import {gt} from "../../../utils/numbers.ts";
 import {useWorkbenchTabs} from "../../../data/queries/workbenchTabs.ts";
 
 const enableAuth = !__CLIENT_CONFIG__.skipAuth;
+const runtimeName = (() => {
+  const version = __CLIENT_CONFIG__.serverVersion || '--';
+  switch (__CLIENT_CONFIG__.modeName) {
+    case "docker": return `v${version} | Docker`;
+    case "cli": return `v${version} | CLI`;
+    case "dev": return `v${version} | DEV`;
+    default: return `v${version} | Custom`;
+  }
+})();
+
+function ConfigIcon () {
+  const size = 20;
+  switch (__CLIENT_CONFIG__.modeName) {
+    case 'docker':
+      return <DockerIcon className="text-(--text-color-secondary)" width={size} height={size} />;
+    case 'cli':
+      return <TerminalIcon className="text-(--text-color-secondary)" width={size} height={size} />;
+    default:
+      return <CubeIcon className="text-(--text-color-secondary)" width={size} height={size} />;
+  }
+}
 
 export const Nav = () => {
   const navigate = useNavigate();
@@ -131,11 +155,23 @@ export const Nav = () => {
         <ProjectStructure />
       </div>
 
-      <button onClick={() => setShowSidebarMenu(!showSidebarMenu)} className={`${st.navItem} m-2`}>
+      <button onClick={() => setShowSidebarMenu(!showSidebarMenu)} className={`${st.navItem} mx-2`}>
         <span className={clsx(st.icon, st.expand, showSidebarMenu ? st.show : st.hide)}>
-          <ChevronIcon width={20} height={20} />
+          <ChevronIcon className="text-(--text-color-secondary)" width={20} height={20} />
         </span>
+        <span className="truncate text-sm text-(--text-color-secondary)">Collapse menu</span>
       </button>
+
+      <div
+        className={`${st.navItem} mx-2 mb-2`}
+        data-tooltip-id={tooltipId}
+        data-tooltip-content={runtimeName}
+      >
+        <span className={st.icon}>
+          <ConfigIcon />
+        </span>
+        <span className="truncate text-sm text-(--text-color-secondary)">{runtimeName}</span>
+      </div>
     </nav>
   );
 };

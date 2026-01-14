@@ -1,11 +1,12 @@
 {
   "name": "@dataramen/cli",
-  "version": "0.0.69",
+  "version": "0.0.70",
   "repository": "https://github.com/OleksandrDemian/dataramen.git",
   "author": "Oleksandr Demian <oleksandrovsky@gmail.com>",
   "license": "MIT",
   "bin": {
-    "dataramen": "bin/app.js"
+    "dataramen": "bin/app.js",
+    "dtr": "bin/app.js"
   },
   "scripts": {
     "build": "node build.mjs"

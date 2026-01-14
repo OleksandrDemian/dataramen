@@ -7,14 +7,21 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 /**
- * @type {"cli" | "app"}
+ * @type {"cli" | "app" | "docker"}
  */
 const target = process.argv[2] || "app";
 
 const serverPath = join(__dirname, "workspaces", "server");
+const dockerPath = join(__dirname, "workspaces", "docker");
 const webPath = join(__dirname, "workspaces", "web");
 const cliPath = join(__dirname, "workspaces", "cli");
-const distPath = target === "cli" ? join(__dirname, "workspaces", "cli", "dist") : join(__dirname, "dist");
+const distPath = (() => {
+  switch (target) {
+    case "cli": return join(__dirname, "workspaces", "cli", "dist");
+    case 'docker': return join(__dirname, "docker-dist");
+    default: return join(__dirname, "dist");
+  }
+})();
 
 preparePackage().then(() => {
   if (target === "cli") {
@@ -88,6 +95,12 @@ function copyResources () {
   if (target === "cli") {
     fs.copySync(join(cliPath, "bin", "app.js"), join(distPath, "code", "cli.js"));
     fs.copySync(join(cliPath, "README.md"), join(distPath, "README.md"));
+  }
+
+  if (target === "docker") {
+    fs.copySync(join(dockerPath, "initEnv.js"), join(distPath, "initEnv.js"));
+    fs.copySync(join(dockerPath, "Dockerfile"), join(distPath, "Dockerfile"));
+    fs.copySync(join(dockerPath, "README.md"), join(distPath, "README.md"));
   }
 
   console.log("Resources copied");

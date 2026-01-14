@@ -2,7 +2,7 @@ import {createRouter} from "../../utils/createRouter";
 import {modeConfig} from "../../config/modeConfig";
 import { TClientConfig } from "@dataramen/types";
 import {requireSetup} from "../../services/setup";
-import {hasCustomDbConfiguration} from "../../services/env";
+import {Env, hasCustomDbConfiguration} from "../../services/env";
 
 export default createRouter((instance) => {
   // inject dynamic config into index.html
@@ -14,6 +14,7 @@ export default createRouter((instance) => {
         skipAuth: modeConfig.skipAuth,
         modeName: modeConfig.name,
         usesCustomDb: hasCustomDbConfiguration(),
+        serverVersion: Env.str("SERVER_VERSION", "--"),
       };
 
       return res

@@ -7,7 +7,7 @@ import EyeIcon from "../../../../assets/eye-outline.svg?react";
 import st from "./index.module.css";
 import {DrillDown} from "../RowOptions/DrillDown.tsx";
 import ChevronIcon from "../../../../assets/chevron-forward-outline.svg?react";
-import ExpandIcon from "../../../../assets/chevron-expand-outline.svg?react";
+import ExpandIcon from "../../../../assets/pencil-outline.svg?react";
 import {ExpandRow} from "../RowOptions/ExpandRow.tsx";
 import {TableContext} from "../../context/TableContext.ts";
 import {updateEntityEditor} from "../../../../data/entityEditorStore.ts";
@@ -76,7 +76,7 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
             {entities?.length > 0 && (
               <button className={st.item} onClick={onExpand}>
                 <ExpandIcon width={14} height={14} />
-                Expand row
+                Edit row
               </button>
             )}
           </>
@@ -102,7 +102,7 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
               onClick={() => setTab("cell")}
             >
               <ChevronIcon className="rotate-180" width={16} height={16} />
-              Expand row
+              Select entity
             </button>
             <ExpandRow rowIndex={row!} onClose={() => ref.current?.close()} />
           </>
