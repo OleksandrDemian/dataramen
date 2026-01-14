@@ -22,7 +22,7 @@ ARG GID=1075
 RUN addgroup -g $GID -S appuser && adduser -u $UID -S appuser -G appuser
 
 # Copy built output
-COPY --from=build /app/dist /app
+COPY --from=build /app /app
 
 # Create /data, give access to non-root user and mount as volume
 RUN mkdir -p /data
