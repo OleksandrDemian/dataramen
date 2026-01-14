@@ -24,6 +24,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build docker dist
+        run: yarn package:docker
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -55,8 +67,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: docker-dist
           push: true
+          file: docker-dist/Dockerfile
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

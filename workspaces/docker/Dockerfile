@@ -6,15 +6,6 @@ WORKDIR /app
 
 # Install deps needed to build
 COPY . .
-RUN yarn install --frozen-lockfile
-
-# Copy sources and build bundle
-COPY . .
-RUN yarn package:docker
-
-WORKDIR /app/dist
-
-# Install dist dependencies only
 RUN yarn install --prod
 
 ########################

@@ -31,11 +31,11 @@ function ConfigIcon () {
   const size = 20;
   switch (__CLIENT_CONFIG__.modeName) {
     case 'docker':
-      return <DockerIcon width={size} height={size} />;
+      return <DockerIcon className="text-(--text-color-secondary)" width={size} height={size} />;
     case 'cli':
-      return <TerminalIcon width={size} height={size} />;
+      return <TerminalIcon className="text-(--text-color-secondary)" width={size} height={size} />;
     default:
-      return <CubeIcon width={size} height={size} />;
+      return <CubeIcon className="text-(--text-color-secondary)" width={size} height={size} />;
   }
 }
 
@@ -157,7 +157,7 @@ export const Nav = () => {
 
       <button onClick={() => setShowSidebarMenu(!showSidebarMenu)} className={`${st.navItem} mx-2`}>
         <span className={clsx(st.icon, st.expand, showSidebarMenu ? st.show : st.hide)}>
-          <ChevronIcon width={20} height={20} />
+          <ChevronIcon className="text-(--text-color-secondary)" width={20} height={20} />
         </span>
         <span className="truncate text-sm text-(--text-color-secondary)">Collapse menu</span>
       </button>
