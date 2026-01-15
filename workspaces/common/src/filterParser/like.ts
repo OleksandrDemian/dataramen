@@ -10,7 +10,7 @@ export const LikeParser: TFilterParser = {
       return [{ value: removeQuotes(match[1]) }];
     }
   },
-  stringify: (filter, type) => isStringType(type) ? `${filter.value?.[0].value}` : `LIKE "%${filter.value?.[0].value}%"`,
+  stringify: (filter, type) => `LIKE "%${filter.value?.[0].value}%"`,
 };
 
 export const NotLikeParser: TFilterParser = {
@@ -20,4 +20,24 @@ export const NotLikeParser: TFilterParser = {
     if (match) return [{ value: removeQuotes(match[1]) }];
   },
   stringify: (filter) => `NOT LIKE "%${filter.value?.[0].value}%"`,
+};
+
+export const ContainsParser: TFilterParser = {
+  operator: "CONTAINS",
+  parse: (value) => {
+    const match = value.match(/^CONTAINS\s*["'](.*)["']$/i);
+    if (match) {
+      return [{ value: removeQuotes(match[1]) }];
+    }
+  },
+  stringify: (filter, type) => isStringType(type) ? `${filter.value?.[0].value}` : `CONTAINS "%${filter.value?.[0].value}%"`,
+};
+
+export const NotContainsParser: TFilterParser = {
+  operator: "NOT CONTAINS",
+  parse: (value) => {
+    const match = value.match(/^NOT CONTAINS\s*["'](.*)["']$/i);
+    if (match) return [{ value: removeQuotes(match[1]) }];
+  },
+  stringify: (filter) => `NOT CONTAINS "%${filter.value?.[0].value}%"`,
 };

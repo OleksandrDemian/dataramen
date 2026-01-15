@@ -12,8 +12,10 @@ export const OPERATORS: TOperator[] = [
   { value: ">=", label: "greater than or equal" },
   { value: "<", label: "less than" },
   { value: "<=", label: "less than or equal" },
-  { value: "LIKE", label: "contains" },
-  { value: "NOT LIKE", label: "not contains" },
+  { value: "LIKE", label: "like" },
+  { value: "NOT LIKE", label: "not like" },
+  { value: "CONTAINS", label: "contains" },
+  { value: "NOT CONTAINS", label: "not contains" },
   { value: "IN", label: "in list" },
   { value: "NOT IN", label: "not in list" },
   { value: "IS NULL", label: "is null" },
@@ -55,7 +57,7 @@ export const NUMBER_OPERATORS = generateOperators([
   // "BETWEEN",
   // "NOT BETWEEN",
   "IS NULL",
-  "IS NOT NULL"
+  "IS NOT NULL",
 ]);
 
 export const STRING_OPERATORS = generateOperators([
@@ -66,7 +68,9 @@ export const STRING_OPERATORS = generateOperators([
   "IN",
   "NOT IN",
   "IS NULL",
-  "IS NOT NULL"
+  "IS NOT NULL",
+  "CONTAINS",
+  "NOT CONTAINS",
 ]);
 
 export const BOOLEAN_OPERATORS = generateOperators([

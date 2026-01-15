@@ -153,12 +153,14 @@ const extractTableNames = async (columnIds: string[], connection: pg.Client): Pr
   }, {});
 };
 
-const executeQuery = async (query: string, connection: pg.Client, opts: TQueryOptions): Promise<TExecuteQueryResult> => {
+const executeQuery = async (query: string, params: any, connection: pg.Client, opts: TQueryOptions): Promise<TExecuteQueryResult> => {
   try {
     console.log(`[PG CONN] Query: ${query}`);
+    console.log(`[PG CONN] Params: ${JSON.stringify(params, null, 2)}`);
     const { rows, fields, command, rowCount } = await connection.query({
       text: query,
       rowMode: "array",
+      values: params,
     });
 
     if (command === "UPDATE" || command === "INSERT" || command === "DELETE") {
@@ -248,16 +250,16 @@ export const PGSqlConnector: TDynamicConnectionCreator = async (dataSource: TDyn
     dbType: 'postgres',
     dataSource,
     inspectSchema: () => inspectSchema(dataSource, client),
-    executeQuery: (query, opts) => withPathSet(
+    executeQuery: (opts) => withPathSet(
       () => { // todo: refactor this, make it better
         if (opts.type === "SELECT") {
           return withReadOnlyTransaction(
             client,
-            () => executeQuery(query, client, opts)
+            () => executeQuery(opts.sql, opts.params, client, opts)
           );
         }
 
-        return withTransaction(client, () => executeQuery(query, client, opts));
+        return withTransaction(client, () => executeQuery(opts.sql, opts.params, client, opts));
       },
     ),
     checkConnection: async () => {},

@@ -1,6 +1,6 @@
 import {QueryFilter, TQueryOperator} from "@dataramen/sql-builder";
 import {TFilterParser} from "./types";
-import {LikeParser, NotLikeParser} from "./like";
+import {ContainsParser, LikeParser, NotContainsParser, NotLikeParser} from "./like";
 import {InParser, NotInParser} from "./in";
 import {
   EqParser,
@@ -15,7 +15,9 @@ import {NotNullParser, NullParser} from "./null";
 
 const parsers: TFilterParser[] = [
   LikeParser,
+  ContainsParser,
   NotLikeParser,
+  NotContainsParser,
   InParser,
   NotInParser,
   EqParser,

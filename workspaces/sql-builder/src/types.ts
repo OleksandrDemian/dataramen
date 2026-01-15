@@ -20,6 +20,8 @@ export interface QueryFilter {
     | 'NOT IN'
     | 'IS NULL'
     | 'IS NOT NULL'
+    | 'CONTAINS'
+    | 'NOT CONTAINS'
     // | 'BETWEEN'
     // | 'NOT BETWEEN'
     // | 'EXISTS'

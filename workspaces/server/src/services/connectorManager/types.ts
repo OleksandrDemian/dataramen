@@ -6,6 +6,8 @@ export type TIntrospectionResult = Omit<IDatabaseInspectionSchema, 'id' | 'datas
 export type TQueryOptions = {
   type: QueryType;
   allowBulkUpdate?: boolean;
+  sql: string;
+  params?: any;
 };
 
 export type TDynamicConnectionConfig = {
@@ -21,7 +23,7 @@ export type TDynamicConnection = {
   dbType: string;
   dataSource: TDynamicConnectionConfig;
   inspectSchema: () => Promise<TIntrospectionResult[]>;
-  executeQuery: (query: string, options: TQueryOptions) => Promise<TExecuteQueryResult>;
+  executeQuery: (options: TQueryOptions) => Promise<TExecuteQueryResult>;
   checkConnection: () => Promise<void>;
   close: () => Promise<void>;
   isClosed: () => boolean;
