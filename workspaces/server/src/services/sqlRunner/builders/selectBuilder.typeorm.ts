@@ -1,26 +1,61 @@
-import {
-  DatabaseDialect,
-  JoinClause,
-  QueryFilter,
-} from "@dataramen/sql-builder";
-import {IDataSource, TInputColumn} from "@dataramen/types";
+import {IDataSource, TDatabaseDialect, TJoinClause} from "@dataramen/types";
 import {getDatasourceQueryBuilder} from "../utils/base";
-import {ISelectQueryBuilder} from "./types";
-import {processInputGroupBy} from "../utils";
+import {ISelectColumn, ISelectQueryBuilder} from "./types";
 import {buildQueryFilterCondition} from "../utils/filter";
+import {getEscaper} from "../utils/escape";
+import {isAllowedFunction} from "../utils/columnFunctions";
+import {PostgreSqlFunctions} from "../utils/columnFunctions/columnFunctions.postgres";
+import {MySqlColumnFunctions} from "../utils/columnFunctions/columnFunctions.mysql";
+
+const selectColumnToAlias = (column: ISelectColumn): string => {
+  const tokens: string[] = [];
+  if (column.fn) {
+    tokens.push(column.fn);
+  }
+
+  if (column.distinct) {
+    tokens.push("distinct");
+  }
+
+  tokens.push(column.column);
+  return tokens.join(" ");
+}
+
+const selectColumnParser = (dbType: TDatabaseDialect) => {
+  const escaper = getEscaper(dbType);
+  const fnProcessor = dbType === "postgres" ? PostgreSqlFunctions : MySqlColumnFunctions;
+
+  return (column: ISelectColumn) => {
+    if (column.fn && isAllowedFunction(column.fn)) {
+      return fnProcessor[column.fn](
+        escaper(column.column),
+        column.fn,
+        column.distinct,
+      );
+    }
+
+    return escaper(column.column);
+  };
+};
 
 export function createTypeormSelectBuilder (table: string, dataSource: IDataSource): ISelectQueryBuilder {
-  const queryBuilder = getDatasourceQueryBuilder(dataSource.dbType as DatabaseDialect)
+  const queryBuilder = getDatasourceQueryBuilder(dataSource.dbType)
     .from(table, table);
   let hasLimit = false;
   let paramIndex = 0;
+  const parser = selectColumnParser(dataSource.dbType);
+  const columnAliases: Record<string, string> = {};
 
   return {
     setColumns (columns) {
-      queryBuilder.select(columns);
-    },
-    addColumn(column, alias) {
-      queryBuilder.addSelect(column, alias);
+      columns.forEach((c) => {
+        const alias = selectColumnToAlias(c);
+        columnAliases[alias] = alias;
+        queryBuilder.addSelect(
+          parser(c),
+          alias,
+        );
+      });
     },
     setLimit: (limit) => {
       queryBuilder.limit(limit);
@@ -32,19 +67,31 @@ export function createTypeormSelectBuilder (table: string, dataSource: IDataSour
     addOrderBy(col, orderBy) {
       queryBuilder.addOrderBy(col, orderBy);
     },
-    addJoin({ table, alias, on }: JoinClause) {
+    addJoin({ table, alias, on }: TJoinClause) {
       queryBuilder.leftJoin(table, alias || table, on);
     },
-    addWhere(filter: QueryFilter) {
-      const [filterString, value] = buildQueryFilterCondition(filter, ++paramIndex, dataSource.dbType as DatabaseDialect);
+    addWhere(filter) {
+      const [filterString, value] = buildQueryFilterCondition({
+        ...filter,
+        column: parser(filter),
+      }, ++paramIndex, dataSource.dbType);
       queryBuilder.andWhere(filterString, value);
     },
-    addHaving(having: QueryFilter) {
-      const [filterString, value] = buildQueryFilterCondition(having, ++paramIndex, dataSource.dbType as DatabaseDialect);
+    addHaving(having) {
+      const [filterString, value] = buildQueryFilterCondition({
+        ...having,
+        column: parser(having),
+      }, ++paramIndex, dataSource.dbType);
       queryBuilder.andHaving(filterString, value);
     },
-    addGroupBy(groupBy: TInputColumn) {
-      queryBuilder.addGroupBy(processInputGroupBy(groupBy, dataSource.dbType));
+    addGroupBy(groupBy: ISelectColumn) {
+      queryBuilder.addGroupBy(
+        parser(groupBy)
+      );
+    },
+
+    hasAlias(alias: string): boolean {
+      return !!columnAliases[alias];
     },
 
     build(): { sql: string; params: any } {
@@ -54,6 +101,6 @@ export function createTypeormSelectBuilder (table: string, dataSource: IDataSour
 
       const [sql, params] = queryBuilder.getQueryAndParameters();
       return { sql, params };
-    }
+    },
   };
 }

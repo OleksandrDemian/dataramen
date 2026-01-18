@@ -1,4 +1,4 @@
-import {QueryFilter, TQueryOperator} from "@dataramen/sql-builder";
+import {TQueryOperator} from "@dataramen/types";
 import {TFilterParser} from "./types";
 import {ContainsParser, LikeParser, NotContainsParser, NotLikeParser} from "./like";
 import {InParser, NotInParser} from "./in";
@@ -31,16 +31,16 @@ const parsers: TFilterParser[] = [
   NotNullParser,
 ];
 
-const parsersMap = parsers.reduce((acc, cur)=> {
-  acc[cur.operator] = cur;
-  return acc;
-}, {} as Record<TQueryOperator, TFilterParser>);
+// const parsersMap = parsers.reduce((acc, cur)=> {
+//   acc[cur.operator] = cur;
+//   return acc;
+// }, {} as Record<TQueryOperator, TFilterParser>);
 
-function filterValueToString (filter: QueryFilter, type: string): string {
-  return parsersMap[filter.operator]?.stringify(filter, type) || '';
-}
+// function filterValueToString (values: { value: any }[], type: string): string {
+//   return parsersMap[filter.operator]?.stringify(filter, type) || '';
+// }
 
-function parseFilterValue (value: string): { operator?: TQueryOperator; value: QueryFilter["value"] } | undefined {
+function parseFilterValue (value: string): { operator?: TQueryOperator; value: any } | undefined {
   const trimmed = value.trim();
 
   for (const parser of parsers) {
@@ -58,5 +58,5 @@ function parseFilterValue (value: string): { operator?: TQueryOperator; value: Q
 
 export const FilterParser = {
   parse: parseFilterValue,
-  stringify: filterValueToString,
+  // stringify: filterValueToString,
 };

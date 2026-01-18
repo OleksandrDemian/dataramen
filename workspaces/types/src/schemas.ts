@@ -1,6 +1,7 @@
 import {TQueryOptions} from "./queries";
 import {EUserTeamRole} from "./users";
 import {TWorkbenchOptions} from "./workbenchTabs";
+import {TDatabaseDialect} from "./dialect";
 
 export interface IUser {
   id: string;
@@ -47,7 +48,7 @@ export interface IDataSource {
   dbPassword?: string;
   dbPasswordIv?: string;
   dbPasswordTag?: string;
-  dbType: string;
+  dbType: TDatabaseDialect;
   createdAt: Date;
   updatedAt: Date;
   name: string;

@@ -8,3 +8,4 @@ export * from "./queryHistory";
 export * from "./workbenchTabs";
 export * from "./client";
 export * from "./setup";
+export * from "./dialect";

@@ -1,4 +1,3 @@
-import {QueryFilter} from "@dataramen/sql-builder";
 import {TFilterParser} from "./types";
 
 type InValue = string | number;
@@ -12,7 +11,7 @@ type InValue = string | number;
  *  parseInExpression('IN("a", "b", "c")')     -> ["a", "b", "c"]
  *  parseInExpression("IN(1, 'a', 2, 'b')")    -> [1, "a", 2, "b"]
  */
-function parseInExpression(input: string): QueryFilter["value"] {
+function parseInExpression(input: string): ({ value: InValue })[] {
   if (input === "") return [];
 
   return tokenizeValues(input).map(parseLiteral);
@@ -113,8 +112,8 @@ export const InParser: TFilterParser = {
     if (!match) return;
     return parseInExpression(match[1]);
   },
-  stringify: (f) =>
-    `IN (${f.value
+  stringify: (values) =>
+    `IN (${values
       ?.map(v => `"${v.value}"`)
       .join(", ")})`,
 };
@@ -126,8 +125,8 @@ export const NotInParser: TFilterParser = {
     if (!match) return;
     return parseInExpression(match[1]);
   },
-  stringify: (f) =>
-    `NOT IN (${f.value
+  stringify: (values) =>
+    `NOT IN (${values
       ?.map(v => `"${v.value}"`)
       .join(", ")})`
 }

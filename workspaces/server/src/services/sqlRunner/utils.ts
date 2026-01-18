@@ -1,23 +1,15 @@
-import {
-  DatabaseDialect,
-  isAllowedFunction,
-  MySqlColumnFunctions,
-  OrderByClause,
-  PostgreSqlFunctions,
-  QueryFilter,
-  TQueryOperator
-} from "@dataramen/sql-builder";
-import {TInputColumn, TQueryFilter, TQueryOptions} from "@dataramen/types";
-import {FilterParser, inputColumnToAlias, isStringType} from "@dataramen/common";
+import {TInputColumn, TQueryFilter, TQueryOptions, TQueryOperator, TResultColumn} from "@dataramen/types";
+import {FilterParser, isStringType} from "@dataramen/common";
 import {HttpError} from "../../utils/httpError";
-import {escapeColumnName} from "./utils/escape";
+import {ISelectColumn, IWhere} from "./builders/types";
+import {TGetColumnType} from "./utils/schemaInfoHandler";
 
-const getDefaultOperator = (type: string): TQueryOperator => {
-  return isStringType(type) ? 'LIKE' : '=';
+export const getDefaultOperator = (type: string): TQueryOperator => {
+  return isStringType(type) ? 'CONTAINS' : '=';
 }
 
-export const parseClientFilters = (filters: TQueryFilter[], columnTypes: Record<string, string>): QueryFilter[] => {
-  const parsedFilters: QueryFilter[] = [];
+export const transformClientFilters = (filters: TQueryFilter[], getColumnType: TGetColumnType): IWhere[] => {
+  const parsedFilters: IWhere[] = [];
   for (const f of filters) {
     if (!f.column?.length || !f.value?.length || f.isEnabled === false) continue;
 
@@ -30,17 +22,15 @@ export const parseClientFilters = (filters: TQueryFilter[], columnTypes: Record<
       parsedFilters.push({
         value: parsed.value,
         column: f.column,
-        id: f.id,
-        operator: parsed.operator || getDefaultOperator(columnTypes[f.column]),
-        connector: "AND",
+        operator: parsed.operator || getDefaultOperator(getColumnType(f.column)),
+        fn: f.fn,
       });
     } else {
       parsedFilters.push({
         value: f.value ? [{ value: f.value }] : [],
         column: f.column,
-        id: f.id,
-        operator: getDefaultOperator(columnTypes[f.column]),
-        connector: "AND",
+        operator: getDefaultOperator(getColumnType(f.column)),
+        fn: f.fn,
       });
     }
   }
@@ -57,77 +47,37 @@ export const extractTables = (props: TQueryOptions): string[] => {
   return tables;
 };
 
-export const computeColumns = (cols: TInputColumn[], groupBy: TInputColumn[], agg: TInputColumn[]): TInputColumn[] => {
-  const result: TInputColumn[] = [];
+const convertInputColumnToColumn = (column: TInputColumn): ISelectColumn => {
+  return {
+    column: column.value,
+    fn: column.fn,
+    distinct: column.distinct,
+  };
+};
+
+export const computeColumns = (cols: TInputColumn[], groupBy: TInputColumn[], agg: TInputColumn[]): ISelectColumn[] => {
+  const result: ISelectColumn[] = [];
   if (groupBy.length > 0 || agg.length > 0) {
-    result.push(...groupBy, ...agg);
+    result.push(
+      ...groupBy.map(convertInputColumnToColumn),
+      ...agg.map(convertInputColumnToColumn),
+    );
   } else if (cols.length > 0) {
-    result.push(...cols);
+    result.push(...cols.map(convertInputColumnToColumn));
   }
 
   return result;
 };
 
-export const handleAlias = (value: string, dbType: DatabaseDialect) => {
-  if (dbType === "postgres") {
-    return `"${value}"`;
-  }
-
-  if (dbType === "mysql") {
-    return `\`${value}\``;
-  }
-
-  return value;
-};
-
-export const processInputGroupBy = (column: TInputColumn, dbType: string): string => {
-  if (column.fn) {
-    if (isAllowedFunction(column.fn)) {
-      return (dbType === "postgres" ? PostgreSqlFunctions : MySqlColumnFunctions)[column.fn](column);
-    }
-
-    throw new Error("Function not allowed: " + column.fn);
-  }
-
-  return column.value;
-};
-
-export const getAllowedOrderBy = (columns: TInputColumn[], orderBy: OrderByClause[], dbType: DatabaseDialect): OrderByClause[] => {
-  if (columns && columns.length > 0) {
-    const allowedColumnsMap = columns.reduce((acc, val) => {
-      acc.set(inputColumnToAlias(val), {
-        isFn: !!(val.fn || val.distinct),
-      });
-
-      return acc;
-    }, new Map<string, { isFn: boolean }>());
-
-    // only order by columns in group by
-    orderBy = orderBy
-      .filter((o) => allowedColumnsMap.has(o.column))
-      .map((o) => {
-        if (allowedColumnsMap.get(o.column)?.isFn) {
-          return {
-            ...o,
-            column: handleAlias(o.column, dbType),
-          }
-        }
-        return o;
-      });
-  }
-
-  return orderBy;
-};
-
-export const processInputColumn = (column: TInputColumn, dbType: DatabaseDialect): string => {
-  if (column.fn) {
-    if (isAllowedFunction(column.fn)) {
-      const colString = (dbType === "postgres" ? PostgreSqlFunctions : MySqlColumnFunctions)[column.fn](column);
-      return `${colString} as "${inputColumnToAlias(column)}"`;
-    }
-
-    throw new Error("Function not allowed: " + column.fn);
-  }
-
-  return escapeColumnName(column.value, dbType);
+export const computeResultColumns = (
+  selectedColumns: ISelectColumn[],
+  resultColumns: TResultColumn[],
+  getType: (column: string) => string,
+): TResultColumn[] => {
+  return resultColumns.map((c, i) => ({
+    ...c,
+    full: selectedColumns[i].fn ? selectedColumns[i].column : c.full,
+    type: getType(c.full),
+    fn: selectedColumns[i].fn,
+  }));
 };

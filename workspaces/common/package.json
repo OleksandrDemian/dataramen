@@ -4,7 +4,6 @@
   "main": "src/index.ts",
   "license": "ISC",
   "devDependencies": {
-    "@dataramen/sql-builder": "0.0.0",
     "@dataramen/types": "0.0.0"
   },
   "files": [

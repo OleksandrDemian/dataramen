@@ -1,6 +1,8 @@
+import { TDatabaseDialect } from "@dataramen/types";
+
 export type TCreateDataSource = {
   name: string;
-  dbType: string;
+  dbType: TDatabaseDialect;
   dbUser: string;
   dbUrl: string;
   dbPassword?: string;

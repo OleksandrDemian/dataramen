@@ -1,8 +1,8 @@
 import {useCallback, useContext} from "react";
-import {JoinClause} from "@dataramen/sql-builder";
+import {TJoinClause} from "@dataramen/types";
 import {TableOptionsContext} from "../context/TableContext.ts";
 
-const differentJoin = (j1: JoinClause, j2: JoinClause) => {
+const differentJoin = (j1: TJoinClause, j2: TJoinClause) => {
   return (
     j1.type !== j2.type ||
     j1.on !== j2.on ||
@@ -10,7 +10,7 @@ const differentJoin = (j1: JoinClause, j2: JoinClause) => {
   );
 };
 
-const sameJoin = (j1: JoinClause, j2: JoinClause) => {
+const sameJoin = (j1: TJoinClause, j2: TJoinClause) => {
   return (
     j1.type === j2.type &&
     j1.on === j2.on &&
@@ -21,7 +21,7 @@ const sameJoin = (j1: JoinClause, j2: JoinClause) => {
 export const useJoinStatements = () => {
   const { state, setState } = useContext(TableOptionsContext);
 
-  const toggle = useCallback((join: JoinClause) => {
+  const toggle = useCallback((join: TJoinClause) => {
     setState((state) => {
       const joins = state.joins;
       const exists = joins.some((j) => sameJoin(j, join));

@@ -20,8 +20,8 @@ export type TTableContext = {
   dataSourceId: string;
   entities: string[];
   getValue: (row: TRunQueryResult['rows'][0], column: TInputColumn) => TDbValue;
-  getEntityKey: (entity: string, row: TRunQueryResult['rows'][0]) => [string, TDbValue][];
-  getEntityKeyByRowIndex: (entity: string, row: number) => [string, TDbValue][];
+  getEntityKey: (entity: string, row: TRunQueryResult['rows'][0]) => [string, string][];
+  getEntityKeyByRowIndex: (entity: string, row: number) => [string, string][];
   getColumnType: (fullColumn: string) => string | undefined;
 };
 

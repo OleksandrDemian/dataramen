@@ -1,10 +1,16 @@
 import {IDatabaseInspectionSchema, TExecuteQueryResult} from "@dataramen/types";
-import {QueryType} from "@dataramen/sql-builder";
 
 export type TIntrospectionResult = Omit<IDatabaseInspectionSchema, 'id' | 'datasource'>;
 
+export enum EQueryType {
+  SELECT = 'SELECT',
+  INSERT = 'INSERT',
+  UPDATE = 'UPDATE',
+  DELETE = 'DELETE',
+}
+
 export type TQueryOptions = {
-  type: QueryType;
+  type: EQueryType;
   allowBulkUpdate?: boolean;
   sql: string;
   params?: any;

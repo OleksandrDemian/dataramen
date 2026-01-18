@@ -14,7 +14,7 @@ import st from "./index.module.css";
 import {Alert} from "../../widgets/Alert";
 import {useParseError} from "../../hooks/useParseError.ts";
 import {TDatabaseInspectionColumn} from "../../data/types/dataSources.ts";
-import {EUserTeamRole, TQueryMutationValue} from "@dataramen/types";
+import {EUserTeamRole, TQueryFilter, TQueryMutationValue} from "@dataramen/types";
 import {useRequireRole} from "../../hooks/useRequireRole.ts";
 import {genSimpleId} from "../../utils/id.ts";
 import {useWorkbenchTabId} from "../../hooks/useWorkbenchTabId.ts";
@@ -83,13 +83,9 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
       table: data.tableName,
       filters: data.entityId.map((key) => ({
         id: genSimpleId(),
-        value: [{
-          value: key[1],
-        }],
+        value: key[1],
         column: key[0],
-        connector: "AND",
-        operator: "=",
-      })),
+      } satisfies TQueryFilter)),
       values,
     }).then(() => {
       closeEntityEditorModal();

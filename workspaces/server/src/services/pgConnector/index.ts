@@ -1,4 +1,5 @@
 import {
+  EQueryType,
   TDynamicConnection,
   TDynamicConnectionConfig,
   TDynamicConnectionCreator,
@@ -252,7 +253,7 @@ export const PGSqlConnector: TDynamicConnectionCreator = async (dataSource: TDyn
     inspectSchema: () => inspectSchema(dataSource, client),
     executeQuery: (opts) => withPathSet(
       () => { // todo: refactor this, make it better
-        if (opts.type === "SELECT") {
+        if (opts.type === EQueryType.SELECT) {
           return withReadOnlyTransaction(
             client,
             () => executeQuery(opts.sql, opts.params, client, opts)

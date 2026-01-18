@@ -1,6 +1,7 @@
 import mysql, {ResultSetHeader} from 'mysql2/promise';
 
 import {
+  EQueryType,
   TDynamicConnection,
   TDynamicConnectionConfig,
   TDynamicConnectionCreator,
@@ -206,7 +207,7 @@ export const MySqlConnector: TDynamicConnectionCreator = async (dataSource: TDyn
     dataSource,
     inspectSchema: () => inspectSchema(dataSource, connection),
     executeQuery: (opts) => {
-      if (opts.type === "SELECT") {
+      if (opts.type === EQueryType.SELECT) {
         return withReadOnlyTransaction(
           connection,
           () => executeQuery(opts.sql, opts.params, connection, opts)
