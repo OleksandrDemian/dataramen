@@ -73,6 +73,7 @@ export function createTypeormSelectBuilder (table: string, dataSource: IDataSour
     addWhere(filter) {
       const [filterString, value] = buildQueryFilterCondition({
         ...filter,
+        operator: filter.operator || "=",
         column: parser(filter),
       }, ++paramIndex, dataSource.dbType);
       queryBuilder.andWhere(filterString, value);
@@ -80,6 +81,7 @@ export function createTypeormSelectBuilder (table: string, dataSource: IDataSour
     addHaving(having) {
       const [filterString, value] = buildQueryFilterCondition({
         ...having,
+        operator: having.operator || "=",
         column: parser(having),
       }, ++paramIndex, dataSource.dbType);
       queryBuilder.andHaving(filterString, value);

@@ -10,12 +10,21 @@ on:
         options:
           - prod
           - beta
+      npm_version:
+        description: 'NPM version to publish (e.g. 1.2.3 or 1.2.3-beta.1)'
+        required: true
+        type: string
+
   push:
     tags:
       - 'v*'
+
   workflow_call:
     inputs:
       tag:
+        required: true
+        type: string
+      npm_version:
         required: true
         type: string
 
@@ -43,21 +52,27 @@ jobs:
       - name: Build CLI
         run: yarn package:cli
 
-      - name: Determine tag
-        id: determine-tag
+      - name: Determine tag and set NPM version
+        id: release-meta
+        working-directory: cli-dist
         run: |
           if [ "${{ github.event_name }}" = "push" ]; then
-            echo "tag=prod" >> $GITHUB_OUTPUT
+            TAG="prod"
+            echo "Push event detected, skipping npm version set"
           else
-            echo "tag=${{ inputs.tag }}" >> $GITHUB_OUTPUT
+            TAG="${{ inputs.tag }}"
+            echo "Setting npm version to ${{ inputs.npm_version }}"
+            npm version "${{ inputs.npm_version }}" --no-git-tag-version
           fi
+          
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
 
       - name: Publish to npm
-        working-directory: workspaces/cli
+        working-directory: cli-dist
         env:
           NPM_CONFIG_PROVENANCE: true
         run: |
-          if [ "${{ steps.determine-tag.outputs.tag }}" = "beta" ]; then
+          if [ "${{ steps.release-meta.outputs.tag }}" = "beta" ]; then
             npm publish --tag beta --access public
           else
             npm publish --access public

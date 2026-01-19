@@ -52,3 +52,12 @@
 .home-card-grid-content {
   @apply grid lg:grid-cols-3 gap-2 mt-4;
 }
+
+.useful-links {
+  @apply flex gap-2 justify-center;
+
+  a {
+    border: 1px solid var(--bg-quat);
+    @apply flex gap-1 items-center hover:bg-(--bg-sec) px-3 py-1 rounded-full text-sm;
+  }
+}

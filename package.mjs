@@ -17,7 +17,7 @@ const webPath = join(__dirname, "workspaces", "web");
 const cliPath = join(__dirname, "workspaces", "cli");
 const distPath = (() => {
   switch (target) {
-    case "cli": return join(__dirname, "workspaces", "cli", "dist");
+    case "cli": return join(__dirname, "cli-dist", "dist");
     case 'docker': return join(__dirname, "docker-dist");
     default: return join(__dirname, "dist");
   }
@@ -93,8 +93,11 @@ function copyResources () {
   fs.copySync(join(webPath, "dist"), join(distPath, "code", "web"));
 
   if (target === "cli") {
+    const distRoot = join(__dirname, "cli-dist");
     fs.copySync(join(cliPath, "bin", "app.js"), join(distPath, "code", "cli.js"));
-    fs.copySync(join(cliPath, "README.md"), join(distPath, "README.md"));
+    fs.copySync(join(cliPath, "README.md"), join(distRoot, "README.md"));
+    fs.copySync(join(cliPath, "bin"), join(distRoot, "bin"));
+    fs.copySync(join(cliPath, "package.json"), join(distRoot, "package.json"));
   }
 
   if (target === "docker") {

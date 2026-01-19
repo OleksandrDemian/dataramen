@@ -12,8 +12,8 @@ import {
   TRunSqlResult
 } from "@dataramen/types";
 import {mapDataSourceToDbConnection} from "../../utils/dataSourceUtils";
-import {computeColumns, computeResultColumns, extractTables, transformClientFilters} from "./utils";
-import {createSelectBuilder, createUpdateBuilder} from "./builders";
+import {computeColumns, computeResultColumns, extractTables, transformClientFilters} from "./utils/clientUtils";
+import {createInsertBuilder, createSelectBuilder, createUpdateBuilder} from "./builders";
 import {createSchemaInfoHandler} from "./utils/schemaInfoHandler";
 import {ISelectColumn} from "./builders/types";
 import {DatasourceDriver} from "./utils/base";
@@ -211,7 +211,6 @@ export const runSelectOne = async (req: FastifyRequest, props: TExecuteGetEntity
     queryBuilder.addWhere({
       value: [{ value }],
       column: key,
-      operator: "=",
     });
   }
 
@@ -253,18 +252,8 @@ export const runUpdate = async (req: FastifyRequest, props: TExecuteUpdate): Pro
   }
 
   const queryBuilder = createUpdateBuilder(props.table, dataSource);
+  queryBuilder.setParams(props.values);
 
-  const inputParams: Record<string, any> = {};
-  for (const { column, value } of props.values) {
-    const strValue = `${value}`;
-    if (strValue.startsWith("=")) {
-      inputParams[column] = strValue.substring(1);
-    } else {
-      inputParams[column] = strValue;
-    }
-  }
-
-  queryBuilder.setParams(inputParams);
   transformClientFilters(
     props.filters,
     // fake getColumnType, always return equals operator "="
@@ -299,17 +288,17 @@ export const runInsert = async (req: FastifyRequest, props: TExecuteInsert): Pro
     throw new HttpError(403, "This datasource does not allow insert operations");
   }
 
-  // todo: create builder
-  // const { keys, values } = queryMutationValuesToString(props.values);
-  // const query = `INSERT INTO ${props.table} (${keys}) VALUES (${values})`;
-  //
-  // const dbConnectionManager = await getDynamicConnection(mapDataSourceToDbConnection(dataSource, true), dataSource.dbType, req);
-  // return dbConnectionManager.executeQuery({
-  //   sql: query,
-  //   type: "INSERT",
-  //   allowBulkUpdate: false,
-  // });
-  throw new HttpError(403, "This datasource does not allow insert operations");
+  const queryBuilder = createInsertBuilder(props.table, dataSource);
+  queryBuilder.setValues(props.values);
+
+  const { sql, params } = queryBuilder.build();
+  const dbConnectionManager = await getDynamicConnection(mapDataSourceToDbConnection(dataSource, true), dataSource.dbType, req);
+  return dbConnectionManager.executeQuery({
+    sql,
+    type: EQueryType.INSERT,
+    params,
+    allowBulkUpdate: false,
+  });
 };
 
 /**

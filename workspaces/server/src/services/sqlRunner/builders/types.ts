@@ -3,7 +3,7 @@ import {TOrderByClause, TQueryOperator, TJoinClause, TQueryValue} from "@dataram
 export interface IWhere {
   column: string;
   fn?: string;
-  operator: TQueryOperator;
+  operator?: TQueryOperator;
   value: TQueryValue[];
 }
 
@@ -31,5 +31,10 @@ export interface ISelectQueryBuilder {
 export interface IUpdateQueryBuilder {
   setParams (params: any): void;
   addWhere (where: IWhere): void;
+  build (): { sql: string; params: any };
+}
+
+export interface IInsertQueryBuilder {
+  setValues (params: any): void;
   build (): { sql: string; params: any };
 }

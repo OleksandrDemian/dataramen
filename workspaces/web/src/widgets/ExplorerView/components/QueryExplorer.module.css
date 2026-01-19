@@ -76,7 +76,7 @@
   }
 
   &:hover {
-    @apply ring-4 ring-inset ring-blue-200 z-1 bg-white;
+    @apply ring-4 ring-inset ring-blue-200 bg-white;
   }
 
   .value {

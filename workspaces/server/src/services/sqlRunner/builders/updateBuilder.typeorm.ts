@@ -14,6 +14,15 @@ export const createTypeormUpdateBuilder = (table: string, dataSource: IDataSourc
       queryBuilder.andWhere(filterString, value);
     },
     setParams(params) {
+      const inputParams: Record<string, any> = {};
+      for (const { column, value } of params) {
+        const strValue = `${value}`;
+        if (strValue.startsWith("=")) {
+          inputParams[column] = () => strValue.substring(1);
+        } else {
+          inputParams[column] = strValue;
+        }
+      }
       queryBuilder.set(params);
     },
     build() {

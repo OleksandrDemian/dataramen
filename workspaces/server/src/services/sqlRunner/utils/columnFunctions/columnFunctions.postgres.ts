@@ -2,10 +2,9 @@ import {TColumnFunctionsHandler} from "./index";
 
 const defaultPostgreSqlFunction = (column: string, fn: string, distinct: boolean = false) => {
   if (distinct) {
-    return `${fn}(${column})`;
+    return `${fn}(distinct ${column})`;
   }
-
-  return `${fn}(distinct ${column})`;
+  return `${fn}(${column})`;
 };
 
 export const PostgreSqlFunctions: TColumnFunctionsHandler = {

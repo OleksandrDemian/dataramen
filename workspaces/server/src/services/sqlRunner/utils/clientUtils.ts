@@ -1,8 +1,8 @@
-import {TInputColumn, TQueryFilter, TQueryOptions, TQueryOperator, TResultColumn} from "@dataramen/types";
 import {FilterParser, isStringType} from "@dataramen/common";
-import {HttpError} from "../../utils/httpError";
-import {ISelectColumn, IWhere} from "./builders/types";
-import {TGetColumnType} from "./utils/schemaInfoHandler";
+import {TInputColumn, TQueryFilter, TQueryOperator, TQueryOptions, TResultColumn} from "@dataramen/types";
+import {HttpError} from "../../../utils/httpError";
+import {ISelectColumn, IWhere} from "../builders/types";
+import {TGetColumnType} from "./schemaInfoHandler";
 
 export const getDefaultOperator = (type: string): TQueryOperator => {
   return isStringType(type) ? 'CONTAINS' : '=';

@@ -3,4 +3,5 @@
 /node_modules
 /dist
 /docker-dist
+/cli-dist
 .env
