@@ -47,6 +47,7 @@ export const ExpandRow = ({ onClose, rowIndex, className }: TExpandRowProps) => 
   return (
     <div className={className}>
       <input
+        autoFocus
         className={inputClass}
         placeholder="Filter"
         value={filter}

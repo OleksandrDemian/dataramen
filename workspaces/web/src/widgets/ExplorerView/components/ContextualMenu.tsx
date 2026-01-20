@@ -1,8 +1,9 @@
-import {ReactNode, useEffect, useMemo, useRef} from "react";
+import {ReactNode, useMemo, useRef} from "react";
 import st from "./ContextualMenu.module.css";
 import {ContextualMenuInternals, TContextMenuHandler} from "./ContextualMenu.handler.ts";
 import {isLaptop} from "../../../utils/screen.ts";
 import clsx from "clsx";
+import {useModalStack} from "../../../hooks/useModalStack.ts";
 
 type TPos = {
   top?: number;
@@ -47,18 +48,10 @@ export const ContextualMenu = ({ children, handler }: { children: ReactNode, han
     return position;
   }, [handler.position]);
 
-  useEffect(() => {
-    const onClose = (e: KeyboardEvent) => {
-      if (e.code === "Escape") {
-        closeRef.current();
-      }
-    }
-
-    window.addEventListener("keyup", onClose);
-    return () => {
-      window.removeEventListener("keyup", onClose);
-    };
-  }, []);
+  useModalStack({
+    enabled: !!posStyle,
+    onClose: handler.close,
+  });
 
   if (!posStyle) {
     return null;

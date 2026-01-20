@@ -1,13 +1,17 @@
 @import "tailwindcss";
 
+.search-container {
+  @apply flex gap-2 items-center p-1 rounded border border-(--bg-quat) mt-1;
+}
+
 .search {
-  @apply w-full p-2 rounded-lg outline-0 bg-gray-50 border border-gray-200;
+  @apply w-full outline-0 text-sm;
 }
 
 .entry {
   display: grid;
   grid-template-columns: 1fr 120px;
-  @apply px-2 py-1 rounded-lg cursor-pointer w-full text-left items-center gap-2;
+  @apply px-2 py-1 rounded-lg cursor-pointer w-full text-left text-sm text-(--text-color-primary) items-center gap-2;
 
   &[data-is-active="true"], &:focus, &:hover {
     @apply bg-blue-50;
@@ -19,23 +23,22 @@
   }
 
   .ds {
-    @apply text-xs text-blue-600 truncate;
+    @apply text-xs text-blue-500 truncate;
   }
 }
 
 .ds-container {
-  min-height: 42px;
+  min-height: 30px;
   @apply flex overflow-x-auto mb-2 gap-2;
 }
 
 .ds-entry {
   min-width: 160px;
   max-width: 160px;
-  min-height: 42px;
   opacity: 0.5;
   display: grid;
   grid-template-columns: 24px 1fr;
-  @apply py-2 px-3 border border-gray-200 rounded-md items-center gap-1 cursor-pointer;
+  @apply py-1 px-2 text-sm text-(--text-color-primary) border border-gray-200 rounded-md items-center gap-1 cursor-pointer;
 
   span {
     @apply truncate;

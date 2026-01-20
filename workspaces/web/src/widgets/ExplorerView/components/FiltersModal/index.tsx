@@ -229,7 +229,7 @@ export const FiltersModal = () => {
   });
 
   return (
-    <Modal isVisible={showModal} onClose={handleOnClose} portal onClosed={() => setFilters([])} noPadding>
+    <Modal isVisible={showModal} onClose={handleOnClose} portal onClosed={() => setFilters([])} noPadding backdropClose>
       <ModalClose onClick={handleOnClose} />
       <h2 className="text-lg font-semibold m-2">Filters</h2>
 

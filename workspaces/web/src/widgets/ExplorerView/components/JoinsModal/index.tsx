@@ -38,7 +38,7 @@ export const JoinsModal = () => {
   });
 
   return (
-    <Modal isVisible={showModal} onClose={onClose} portal>
+    <Modal isVisible={showModal} onClose={onClose} portal backdropClose>
       <ModalClose onClick={onClose} />
       <div className={st.joinModal}>
         <h2 className="text-lg font-semibold mb-4">Join table</h2>

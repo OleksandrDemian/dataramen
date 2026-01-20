@@ -3,6 +3,7 @@ import st from "./styles.module.css";
 import clsx from "clsx";
 import CloseIcon from "../../assets/close-outline.svg?react";
 import {createPortal} from "react-dom";
+import {useModalStack} from "../../hooks/useModalStack.ts";
 
 export type TModalProps = {
   children: ReactNode;
@@ -20,7 +21,8 @@ export const Modal = ({children, backdropClose, isVisible, onClose, onClosed, no
     if (backdropClose) {
       onClose();
     }
-  }
+  };
+
   const onTransitionEnd: TransitionEventHandler<HTMLDivElement> = (e) => {
     if (!isVisible) {
       const style = getComputedStyle(e.currentTarget);
@@ -39,6 +41,11 @@ export const Modal = ({children, backdropClose, isVisible, onClose, onClosed, no
     }
   }, [isVisible]);
 
+  useModalStack({
+    onClose: _onClose,
+    enabled: isVisible && backdropClose === true,
+  });
+
   const r = (
     <div onTransitionEnd={onTransitionEnd} className={clsx(st.modal, isVisible ? st.modalVisible : st.modalInvisible)}>
       <div onClick={_onClose} className={st.backdrop}></div>
@@ -54,19 +61,6 @@ export const Modal = ({children, backdropClose, isVisible, onClose, onClosed, no
 export const ModalClose = ({ onClick }: { onClick: VoidFunction }) => {
   const closeRef = useRef(onClick);
   closeRef.current = onClick;
-
-  useEffect(() => {
-    const listener = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        closeRef.current?.();
-      }
-    };
-
-    window.addEventListener("keyup", listener);
-    return () => {
-      window.removeEventListener("keyup", listener);
-    }
-  }, []);
 
   return (
     <button className={st.closeButton} onClick={onClick}>

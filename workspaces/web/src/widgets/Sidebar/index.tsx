@@ -1,6 +1,7 @@
 import {ReactNode, TransitionEventHandler, useEffect, useRef, useState} from "react";
 import st from "./styles.module.css";
 import clsx from "clsx";
+import {useModalStack} from "../../hooks/useModalStack.ts";
 
 export type TSidebarProps = {
   children: ReactNode;
@@ -39,18 +40,10 @@ export const Sidebar = ({children, backdropClose, isVisible, onClose, onClosed, 
     }
   }, [isVisible]);
 
-  useEffect(() => {
-    const listener = (e: KeyboardEvent) => {
-      if (isVisible && e.key === "Escape") {
-        closeRef.current();
-      }
-    }
-
-    window.addEventListener("keydown", listener);
-    return () => {
-      window.removeEventListener("keydown", listener);
-    };
-  }, [isVisible]);
+  useModalStack({
+    onClose: _onClose,
+    enabled: isVisible && backdropClose === true,
+  });
 
   return (
     <div onTransitionEnd={onTransitionEnd} className={clsx(st.sidebar, isVisible ? st.sidebarVisible : st.sidebarInvisible)}>
