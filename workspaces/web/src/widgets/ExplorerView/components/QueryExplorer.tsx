@@ -79,8 +79,8 @@ const TableHeaders = () => {
         {columns.map(column => (
           <td className={st.headerCell} key={column.full}>
             <div className="overflow-hidden">
-              {showTableName && <p className="text-xs truncate italic">{column.table || '-'}</p>}
-              <p className="text-sm font-semibold truncate">{column.column}</p>
+              {showTableName && <p className="text-xs truncate italic text-(--text-color-primary)">{column.table || '-'}</p>}
+              <p className="text-sm font-semibold truncate text-(--text-color-primary)">{column.column}</p>
             </div>
 
             <div className={st.headerActions}>
