@@ -14,7 +14,7 @@ import st from "./index.module.css";
 import {Alert} from "../../widgets/Alert";
 import {useParseError} from "../../hooks/useParseError.ts";
 import {TDatabaseInspectionColumn} from "../../data/types/dataSources.ts";
-import {EUserTeamRole, TQueryFilter, TQueryMutationValue} from "@dataramen/types";
+import {EUserTeamRole, TQueryFilter} from "@dataramen/types";
 import {useRequireRole} from "../../hooks/useRequireRole.ts";
 import {genSimpleId} from "../../utils/id.ts";
 import {useWorkbenchTabId} from "../../hooks/useWorkbenchTabId.ts";
@@ -70,12 +70,9 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
   }, [queryResult, set, reset]);
 
   const onRun = () => {
-    const values: TQueryMutationValue[] = [];
+    const values: Record<string, unknown> = {};
     for (const column of touched) {
-      values.push({
-        value: form[column],
-        column: column,
-      });
+      values[column] = form[column];
     }
 
     execute({

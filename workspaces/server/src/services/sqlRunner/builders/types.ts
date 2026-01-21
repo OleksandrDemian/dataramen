@@ -29,12 +29,12 @@ export interface ISelectQueryBuilder {
 }
 
 export interface IUpdateQueryBuilder {
-  setParams (params: any): void;
+  setParams (params: Record<string, unknown>): void;
   addWhere (where: IWhere): void;
   build (): { sql: string; params: any };
 }
 
 export interface IInsertQueryBuilder {
-  setValues (params: any): void;
+  setValues (params: Record<string, unknown>): void;
   build (): { sql: string; params: any };
 }

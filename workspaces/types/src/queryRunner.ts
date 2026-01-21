@@ -21,19 +21,17 @@ export type TExecuteGetEntityProps = {
   props: Record<string, string>;
 };
 
-export type TQueryMutationValue = { column: string; value: TDbValue; };
-
 export type TExecuteUpdate = {
   datasourceId: string;
   table: string;
   filters: TQueryFilter[];
-  values: TQueryMutationValue[];
+  values: Record<string, unknown>;
 };
 
 export type TExecuteInsert = {
   datasourceId: string;
   table: string;
-  values: TQueryMutationValue[];
+  values: Record<string, unknown>;
 };
 
 export type TResultColumn = {

@@ -10,8 +10,8 @@ export const createTypeormInsertBuilder = (table: string, dataSource: IDataSourc
 
   return {
     setValues(values) {
-      const inputValues: Record<string, any> = {};
-      for (const { column, value } of values) {
+      const inputValues: Record<string, unknown> = {};
+      for (const [column, value] of Object.entries(values)) {
         const strValue = `${value}`;
         if (strValue.startsWith("=")) {
           inputValues[column] = () => strValue.substring(1);

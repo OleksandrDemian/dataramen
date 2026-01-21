@@ -15,7 +15,7 @@ export const createTypeormUpdateBuilder = (table: string, dataSource: IDataSourc
     },
     setParams(params) {
       const inputParams: Record<string, any> = {};
-      for (const { column, value } of params) {
+      for (const [column, value] of Object.entries(params)) {
         const strValue = `${value}`;
         if (strValue.startsWith("=")) {
           inputParams[column] = () => strValue.substring(1);
