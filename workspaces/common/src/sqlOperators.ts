@@ -1,7 +1,7 @@
-import {QueryFilter} from "@dataramen/sql-builder";
+import {TQueryOperator} from "@dataramen/types";
 
 export type TOperator = {
-  value: QueryFilter["operator"];
+  value: TQueryOperator;
   label: string;
 };
 
@@ -12,8 +12,10 @@ export const OPERATORS: TOperator[] = [
   { value: ">=", label: "greater than or equal" },
   { value: "<", label: "less than" },
   { value: "<=", label: "less than or equal" },
-  { value: "LIKE", label: "contains" },
-  { value: "NOT LIKE", label: "not contains" },
+  { value: "LIKE", label: "like" },
+  { value: "NOT LIKE", label: "not like" },
+  { value: "CONTAINS", label: "contains" },
+  { value: "NOT CONTAINS", label: "not contains" },
   { value: "IN", label: "in list" },
   { value: "NOT IN", label: "not in list" },
   { value: "IS NULL", label: "is null" },
@@ -24,17 +26,17 @@ export const OPERATORS: TOperator[] = [
   // { value: "NOT EXISTS", label: "not exists" },
 ];
 
-export const OPERATOR_LABEL: Record<QueryFilter["operator"], string> = OPERATORS.reduce((reducer, operator) => {
+export const OPERATOR_LABEL: Record<TQueryOperator, string> = OPERATORS.reduce((reducer, operator) => {
   reducer[operator.value] = operator.label;
   return reducer;
-}, {} as Record<QueryFilter["operator"], string>);
+}, {} as Record<TQueryOperator, string>);
 
-export const OPERATOR_VALUE: Record<string, QueryFilter["operator"]> = OPERATORS.reduce((reducer, operator) => {
+export const OPERATOR_VALUE: Record<string, TQueryOperator> = OPERATORS.reduce((reducer, operator) => {
   reducer[operator.label] = operator.value;
   return reducer;
-}, {} as Record<string, QueryFilter["operator"]>);
+}, {} as Record<string, TQueryOperator>);
 
-const generateOperators = (operators: QueryFilter["operator"][]): TOperator[] => {
+const generateOperators = (operators: TQueryOperator[]): TOperator[] => {
   return operators.map((value) => {
     return {
       label: OPERATOR_LABEL[value],
@@ -55,7 +57,7 @@ export const NUMBER_OPERATORS = generateOperators([
   // "BETWEEN",
   // "NOT BETWEEN",
   "IS NULL",
-  "IS NOT NULL"
+  "IS NOT NULL",
 ]);
 
 export const STRING_OPERATORS = generateOperators([
@@ -66,7 +68,9 @@ export const STRING_OPERATORS = generateOperators([
   "IN",
   "NOT IN",
   "IS NULL",
-  "IS NOT NULL"
+  "IS NOT NULL",
+  "CONTAINS",
+  "NOT CONTAINS",
 ]);
 
 export const BOOLEAN_OPERATORS = generateOperators([
@@ -103,25 +107,6 @@ export const ARRAY_OPERATORS = generateOperators([
 //   "EXISTS",
 //   "NOT EXISTS"
 // ]);
-
-export const allowsInput = (operator?: QueryFilter["operator"])=> {
-  return operator !== "IS NULL" && operator !== "IS NOT NULL";
-};
-
-export const processInputVale = (operator: QueryFilter["operator"], value: string): QueryFilter["value"] => {
-  if (!allowsInput(operator)) {
-    return [];
-  }
-
-  if (operator === "IN" || operator === "NOT IN") {
-    return value.split(",").map(v => ({
-      value: v.trim(),
-      isColumn: false,
-    }));
-  }
-
-  return [{ value, isColumn: false }];
-};
 
 export const STRING_TYPES: string[] = [
   // MySQL

@@ -1,10 +1,44 @@
-import {JoinClause, OrderByClause} from "@dataramen/sql-builder";
 import {TInputColumn} from "./queryRunner";
+
+export type TOrderByClause = {
+  column: string;
+  direction: 'ASC' | 'DESC';
+};
+
+export type TJoinClause = {
+  type: 'INNER' | 'LEFT' | 'RIGHT' | 'FULL';
+  table: string;
+  alias?: string;
+  on: string;
+};
+
+export type TQueryOperator =
+  | '='
+  | '!='
+  | '<>'
+  | '<'
+  | '>'
+  | '<='
+  | '>='
+  | 'LIKE'
+  | 'NOT LIKE'
+  | 'IN'
+  | 'NOT IN'
+  | 'IS NULL'
+  | 'IS NOT NULL'
+  | 'CONTAINS'
+  | 'NOT CONTAINS'
+  // | 'BETWEEN'
+  // | 'NOT BETWEEN'
+  // | 'EXISTS'
+  // | 'NOT EXISTS'
+;
 
 export type TQueryFilter = {
   id: string;
   column: string;
   value: string;
+  fn?: string;
   isEnabled?: boolean;
   isAdvanced?: boolean;
 };
@@ -12,8 +46,8 @@ export type TQueryFilter = {
 export type TQueryOptions = {
   table: string;
   filters: TQueryFilter[];
-  joins: JoinClause[];
-  orderBy: OrderByClause[];
+  joins: TJoinClause[];
+  orderBy: TOrderByClause[];
   columns: TInputColumn[];
   groupBy: TInputColumn[];
   searchAll?: string;
@@ -46,3 +80,6 @@ export type TQuery = {
     id: string;
   };
 };
+
+export type TQueryValue = { value: any; isColumn?: boolean; };
+

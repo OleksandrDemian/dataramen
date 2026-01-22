@@ -26,6 +26,7 @@ import {CellActions} from "./CellActions";
 type TNewFilter = {
   value: string;
   column: string;
+  fn?: string;
 };
 
 const orderIconClass = {
@@ -33,7 +34,7 @@ const orderIconClass = {
   ASC: "rotate-180",
 };
 
-const updateFilters = (filters: TQueryFilter[], { column, value }: TNewFilter): TQueryFilter[] => {
+const updateFilters = (filters: TQueryFilter[], { column, value, fn }: TNewFilter): TQueryFilter[] => {
   const newFilters: TQueryFilter[] = filters.map((f) => ({
     ...f,
     // disable other filters for the same column
@@ -45,6 +46,7 @@ const updateFilters = (filters: TQueryFilter[], { column, value }: TNewFilter): 
     column,
     isEnabled: true,
     value,
+    fn,
     isAdvanced: false,
   });
 
@@ -60,13 +62,13 @@ const TableHeaders = () => {
   const orderBy = orderByList[0];
   const showTableName = gt(data?.result.tables.length, 1);
 
-  const onFilter = (column: string) => {
+  const onFilter = (column: string, fn?: string) => {
     prompt("Filter value", "").then((value) => {
       if (!value) {
         return;
       }
 
-      setFilters(updateFilters(filters, { column, value }));
+      setFilters(updateFilters(filters, { column, value, fn }));
     });
   };
 
@@ -77,23 +79,22 @@ const TableHeaders = () => {
         {columns.map(column => (
           <td className={st.headerCell} key={column.full}>
             <div className="overflow-hidden">
-              {showTableName && <p className="text-xs truncate italic">{column.table || '-'}</p>}
-              <p className="text-sm font-semibold truncate">{column.column}</p>
+              {showTableName && <p className="text-xs truncate italic text-(--text-color-primary)">{column.table || '-'}</p>}
+              <p className="text-sm font-semibold truncate text-(--text-color-primary)">{column.column}</p>
             </div>
 
             <div className={st.headerActions}>
-              <button onClick={() => updateOrderBy(column.full)}>
-                {orderBy?.column === column.full ?
+              {/* order by on alias, because group by runs after select */}
+              <button onClick={() => updateOrderBy(column.alias)}>
+                {orderBy?.column === column.alias ?
                   <ArrowUpIcon className={orderIconClass[orderBy.direction]} width={16} height={16} /> :
                   <SwapIcon width={16} height={16} />
                 }
               </button>
-              {/* check if it has table, otherwise it is aggregated or smth, not supported for now */}
-              {column.table && (
-                <button onClick={() => onFilter(column.full)}>
-                  <SearchIcon width={16} height={16} />
-                </button>
-              )}
+              {/* filter on full column + fn to generate proper filter string */}
+              <button onClick={() => onFilter(column.full, column.fn)}>
+                <SearchIcon width={16} height={16} />
+              </button>
             </div>
           </td>
         ))}

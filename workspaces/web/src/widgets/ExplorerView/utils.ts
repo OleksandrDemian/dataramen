@@ -1,6 +1,6 @@
 import {TTableContext, TTableOptionsContext, TTableOptionsUpdater} from "./context/TableContext.ts";
 import {THook} from "../../data/types/hooks.ts";
-import {TDbValue, TExecuteQueryResult, TRunWorkbenchQuery, TWorkbenchOptions} from "@dataramen/types";
+import {TExecuteQueryResult, TRunWorkbenchQuery, TWorkbenchOptions} from "@dataramen/types";
 import {useHooks} from "../../data/queries/hooks.ts";
 import {useMemo} from "react";
 import {TDatabaseInspection} from "../../data/types/dataSources.ts";
@@ -103,26 +103,32 @@ export function useCreateTableContext (
         return undefined;
       },
       getEntityKey: (entity, row) => {
-        return entities[entity].reduce<[string, TDbValue][]>((acc, col) => {
+        return entities[entity].reduce<[string, string][]>((acc, col) => {
           const index = result?.result.columns?.findIndex((column) => {
             return column.column === col && column.table === entity;
           });
 
           if (index != undefined && index > -1) {
-            acc.push([col, row[index]]);
+            const rowValue = row[index]?.toString();
+            if (rowValue) {
+              acc.push([col, rowValue]);
+            }
           }
 
           return acc;
         }, []);
       },
       getEntityKeyByRowIndex: (entity, row) => {
-        return entities[entity].reduce<[string, TDbValue][]>((acc, col) => {
+        return entities[entity].reduce<[string, string][]>((acc, col) => {
           const index = result?.result.columns?.findIndex((column) => {
             return column.column === col && column.table === entity;
           });
 
           if (index != undefined && index > -1) {
-            acc.push([col, result?.result.rows[row][index]]);
+            const value = result?.result.rows[row][index]?.toString();
+            if (value) {
+              acc.push([col, value]);
+            }
           }
 
           return acc;

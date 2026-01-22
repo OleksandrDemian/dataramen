@@ -26,7 +26,9 @@ export const HomePage = () => {
     <div className="page-container h-screen max-h-screen overflow-y-auto no-scrollbar">
       <div className="page-content">
         <div className="py-10 text-center w-full sticky top-0 z-0">
-          <h1 className="comfortaa text-3xl font-semibold text-(--text-color-primary)">DataRamen</h1>
+          <h1 className="comfortaa text-3xl font-semibold text-(--text-color-primary) mb-4">DataRamen</h1>
+
+          <UsefulLinks />
         </div>
 
         <div className="flex flex-col gap-8 mt-8 bg-(--bg) z-1">
@@ -56,7 +58,6 @@ export const HomePage = () => {
           )}
 
           <RecentTabs />
-          <UsefulLinks />
         </div>
       </div>
     </div>

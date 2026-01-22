@@ -9,6 +9,7 @@ import {useDataSources} from "../../data/queries/dataSources.ts";
 import {toggleSelectedDataSource, useSelectedDataSources} from "../../data/selectedDataSourcesStore.ts";
 import {reduceArrayToMap} from "../../utils/reducers.ts";
 import {DataSourceIcon} from "../Icons";
+import SearchIcon from "../../assets/search-outline.svg?react";
 import clsx from "clsx";
 import {Alert} from "../Alert";
 
@@ -103,8 +104,8 @@ export const SearchQuery = ({ onTable, onQuery, onWorkbenchTab, autoFocus }: TSe
       {gt(dataSources?.length, 0) ? (
         <div className={st.dsContainer + " " + "no-scrollbar"}>
           {dataSources.map(ds => (
-            <button key={ds.id} className={clsx(st.dsEntry, enabled[ds.id] && st.enabled)} onClick={() => toggleSelectedDataSource(ds.id)}>
-              <DataSourceIcon size={24} type={ds.dbType} />
+            <button key={ds.id} className={clsx(st.dsEntry, enabled[ds.id] && st.enabled)} onClick={() => toggleSelectedDataSource(ds.id)} data-tooltip-id="default" data-tooltip-content={ds.name}>
+              <DataSourceIcon size={18} type={ds.dbType} />
               <span>{ds.name}</span>
             </button>
           ))}
@@ -113,20 +114,24 @@ export const SearchQuery = ({ onTable, onQuery, onWorkbenchTab, autoFocus }: TSe
         <Alert variant="warning" className="mb-4">Connect at least one data source to start using DataRamen</Alert>
       )}
 
-      <input
-        className={st.search}
-        placeholder="Search table or saved query to start from"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        onKeyDown={handleKeyDown}
-        autoFocus={autoFocus}
-      />
+      <div className={st.searchContainer}>
+        <SearchIcon className="text-(--text-color-secondary)" width={18} height={18} />
+
+        <input
+          className={st.search}
+          placeholder="Search table or saved query to start from"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          onKeyDown={handleKeyDown}
+          autoFocus={autoFocus}
+        />
+      </div>
 
       {gt(tables?.length, 0) && (
         <div className="overflow-y-auto max-h-full mt-2">
           {tables.map((table, i) => (
             <button key={table.id} className={st.entry} data-is-active={activeIndex === i} data-table-id={table.id} onClick={onClick}>
-              <p className="font-semibold truncate">{EMOJI[table.type]} {table.name}</p>
+              <p className="truncate">{EMOJI[table.type]} {table.name}</p>
               <p className={st.ds}>📦 {table.dataSourceName}</p>
             </button>
           ))}

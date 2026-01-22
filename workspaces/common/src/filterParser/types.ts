@@ -1,7 +1,7 @@
-import {QueryFilter, TQueryOperator} from "@dataramen/sql-builder";
+import {TQueryOperator, TQueryValue} from "@dataramen/types";
 
 export type TFilterParser = {
   operator: TQueryOperator;
-  parse: (input: string) => QueryFilter["value"] | undefined;
-  stringify: (filter: QueryFilter, colType: string) => string;
+  parse: (input: string) => ({ value: any })[] | undefined;
+  stringify: (value: TQueryValue[], colType: string) => string;
 };

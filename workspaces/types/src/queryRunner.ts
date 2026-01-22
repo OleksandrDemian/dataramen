@@ -1,5 +1,4 @@
-import {QueryFilter} from "@dataramen/sql-builder";
-import {TQueryOptions} from "./queries";
+import {TQueryFilter, TQueryOptions} from "./queries";
 
 export type TDbValue = (string | number | boolean | undefined | null);
 export type TInputColumn = {
@@ -22,19 +21,17 @@ export type TExecuteGetEntityProps = {
   props: Record<string, string>;
 };
 
-export type TQueryMutationValue = { column: string; value: TDbValue; };
-
 export type TExecuteUpdate = {
   datasourceId: string;
   table: string;
-  filters: QueryFilter[];
-  values: TQueryMutationValue[];
+  filters: TQueryFilter[];
+  values: Record<string, unknown>;
 };
 
 export type TExecuteInsert = {
   datasourceId: string;
   table: string;
-  values: TQueryMutationValue[];
+  values: Record<string, unknown>;
 };
 
 export type TResultColumn = {
@@ -43,6 +40,7 @@ export type TResultColumn = {
   alias: string;
   full: string;
   type?: string;
+  fn?: string;
 };
 
 export type TExecuteQueryResult = {

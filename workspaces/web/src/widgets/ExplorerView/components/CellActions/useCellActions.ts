@@ -57,17 +57,13 @@ export const useCellActions = ({ ref }: TUseCellActionsProps) => {
     const { value, column } = getValueAndColumn(result?.result, row, col);
     const actualValue = column?.full || "";
 
-    if (column?.table === "") {
-      toast.error("Filtering on aggregated column is not supported yet");
-      return;
-    }
-
     if (actualValue) {
       let filter: TQueryFilter;
       if (value === undefined || value === null) {
         filter = {
           id: genSimpleId(),
           isEnabled: true,
+          isAdvanced: true,
           column: actualValue,
           value: "IS NULL"
         };
@@ -81,6 +77,7 @@ export const useCellActions = ({ ref }: TUseCellActionsProps) => {
           isEnabled: true,
           column: actualValue,
           value: sanitized,
+          fn: column?.fn,
         };
       }
 

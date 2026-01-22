@@ -1,208 +1,226 @@
 import {HttpError} from "../../utils/httpError";
 import {getDynamicConnection} from "../connectorManager";
 import {FastifyRequest} from "fastify";
-import {
-  DatabaseInspectionRepository,
-  DataSourceRepository,
-  QueriesRepository,
-} from "../../repository/db";
+import {DataSourceRepository, QueriesRepository,} from "../../repository/db";
 import {
   TExecuteGetEntityProps,
+  TExecuteGetEntityResponse,
   TExecuteInsert,
   TExecuteQuery,
   TExecuteQueryResult,
   TExecuteUpdate,
-  TInputColumn,
-  TQueryMutationValue, TExecuteGetEntityResponse,
   TRunSqlResult
 } from "@dataramen/types";
-import {
-  buildQueryFilterCondition,
-  DatabaseDialect,
-  SelectQueryBuilder,
-  isAllowedFunction,
-  isAggregationFunction,
-  PostgreSqlFunctions,
-  MySqlColumnFunctions,
-  OrderByClause
-} from "@dataramen/sql-builder";
-import {In} from "typeorm";
-import {inputColumnToAlias, STRING_TYPES} from "@dataramen/common";
 import {mapDataSourceToDbConnection} from "../../utils/dataSourceUtils";
-import {parseClientFilters} from "./utils";
+import {computeColumns, computeResultColumns, extractTables, transformClientFilters} from "./utils/clientUtils";
+import {createInsertBuilder, createSelectBuilder, createUpdateBuilder} from "./builders";
+import {createSchemaInfoHandler} from "./utils/schemaInfoHandler";
+import {ISelectColumn} from "./builders/types";
+import {DatasourceDriver} from "./utils/base";
+import {EQueryType} from "../connectorManager/types";
+import {isAggregationFunction} from "./utils/columnFunctions";
 
+async function saveHistoryEntry (userId: string, teamId: string, props: TExecuteQuery) {
+  return QueriesRepository.save(
+    QueriesRepository.create({
+      user: { id: userId },
+      team: { id: teamId },
+      dataSource: { id: props.datasourceId },
+      name: props.name,
+      opts: props.opts,
+    }),
+  );
+}
+
+/**
+ * **************
+ * SELECT
+ * **************
+ */
 export const runSelect = async (
   req: FastifyRequest,
   props: TExecuteQuery
 ): Promise<TRunSqlResult> => {
-  const { datasourceId, size = 20, page, name } = props;
-  const { table, joins, groupBy, searchAll, orderBy } = props.opts;
+  const { datasourceId, size = 20, page } = props;
+  const { table, joins, groupBy, orderBy } = props.opts;
+  const dataSource = await getDataSource(datasourceId);
+
+  if (!dataSource) {
+    throw new HttpError(404, "Datasource not found");
+  }
+
   const columns = computeColumns(
     props.opts.columns,
     props.opts.groupBy,
     props.opts.aggregations,
   );
+  const tables = extractTables(props.opts);
 
-  const dataSource = await getDataSource(datasourceId);
-  const tables: string[] = [table];
-  const allColumns: TRunSqlResult["allColumns"] = [];
+  const schemaInfoHandler = await createSchemaInfoHandler(datasourceId, tables);
+  const allColumns = schemaInfoHandler.getAllColumns();
 
-  if (!dataSource) {
-    throw new HttpError(404, "Data source not found");
-  }
-
-  const historyPromise = await QueriesRepository.save(
-    QueriesRepository.create({
-      user: {
-        id: req.user.id,
-      },
-      team: {
-        id: req.user.currentTeamId,
-      },
-      dataSource: {
-        id: datasourceId,
-      },
-      name,
-      opts: props.opts,
-    }),
-  );
-
-  const queryBuilder = new SelectQueryBuilder(dataSource.dbType as DatabaseDialect);
-  queryBuilder.setTable(table);
-  queryBuilder.setLimit(size + 1); // add 1 to see if there are more results
-  queryBuilder.setOffset(size * page);
-
-  if (joins) {
-    queryBuilder.addJoin(...joins);
-    joins.forEach((join) => {
-      tables.push(join.table);
-    });
-  }
-
-  const allowedOrderBy = getAllowedOrderBy(columns, orderBy, dataSource.dbType as DatabaseDialect);
-  if (allowedOrderBy.length > 0) {
-    queryBuilder.addOrderBy(...allowedOrderBy);
-  }
-
-  if (groupBy && groupBy.length > 0) {
-    groupBy.forEach((g) => queryBuilder.addGroupBy(
-      processInputGroupBy(g, dataSource.dbType)),
-    );
-  }
-
-  const info = await DatabaseInspectionRepository.find({
-    where: {
-      tableName: In(tables),
-      datasource: {
-        id: datasourceId,
-      },
-    },
-  });
-
-  for (const table of info) {
-    if (!table.columns) continue;
-
-    for (const column of table.columns) {
-      allColumns.push({
-        column: column.name,
-        table: table.tableName || '',
-        full: `${table.tableName}.${column.name}`,
-        type: column.type,
-      });
-    }
-  }
-
-  const columnTypes = allColumns.reduce((acc, cur) => {
-    acc[cur.full] = cur.type;
-    return acc;
-  }, {} as Record<string, string>);
-
-  const filters = parseClientFilters(props.opts.filters, columnTypes);
-  filters?.forEach((w) => {
-    if (w.fn && isAggregationFunction(w.fn)) {
-      queryBuilder.addHaving(w);
-    } else {
-      queryBuilder.addWhere(w);
-    }
-  });
-
-  let selectedColumns: string[];
+  let selectedColumns: ISelectColumn[];
   if (columns && columns.length > 0) {
-    selectedColumns = columns.map((c) => processInputColumn(c, dataSource.dbType));
+    selectedColumns = columns;
   } else {
-    selectedColumns = allColumns.map((c) => `${c.full} as "${c.full}"`);
+    // do not validate columns already stored in DB
+    selectedColumns = allColumns.map((c) => ({
+      column: c.full,
+    }));
   }
 
-  queryBuilder.selectColumns(selectedColumns);
-
-  if (searchAll) {
-    const stringFields = allColumns.filter((col) => {
-      return STRING_TYPES.includes(col.type) && selectedColumns.some((sel) => sel.startsWith(col.full));
-    });
-    if (stringFields.length > 0) {
-      const rawFilter = stringFields.map((prop) => `LOWER(${prop.full}) LIKE '%${searchAll.toLowerCase()}%'`);
-      queryBuilder.addWhereRaw(`(${rawFilter.join(" OR ")})`, 'AND');
+  selectedColumns.forEach((col) => {
+    if (!schemaInfoHandler.hasColumn(col.column)) {
+      throw new HttpError(400, `Invalid column ${col.column}`);
     }
-  }
+  });
 
-  const dbConnectionManager = await getDynamicConnection(mapDataSourceToDbConnection(dataSource, true), dataSource.dbType, req);
-  const result = await dbConnectionManager.executeQuery(
-    queryBuilder.toSQL(),
-    {
-      type: "SELECT",
-      allowBulkUpdate: false,
-    }
+  const historyPromise = saveHistoryEntry(
+    req.user.id,
+    req.user.currentTeamId,
+    props,
   );
 
+  const builder = createSelectBuilder(table, dataSource);
+  builder.setLimit(size + 1);
+  builder.setOffset(size * page);
+  builder.setColumns(selectedColumns);
+
+  /**
+   * **************
+   * JOIN
+   * **************
+   */
+  if (joins) {
+    joins.forEach(builder.addJoin);
+  }
+
+  /**
+   * **************
+   * ORDER BY
+   * **************
+   */
+  if (orderBy.length > 0) {
+    orderBy.forEach(({column, direction}) => {
+      if (builder.hasAlias(column)) {
+        builder.addOrderBy(
+          DatasourceDriver[dataSource.dbType].escape(column),
+          direction,
+        );
+      }
+    });
+  }
+
+  /**
+   * **************
+   * GROUP BY
+   * **************
+   */
+  if (groupBy && groupBy.length > 0) {
+    groupBy.forEach((g) => {
+      if (schemaInfoHandler.hasColumn(g.value)) {
+        builder.addGroupBy({
+          column: g.value,
+          fn: g.fn,
+          distinct: g.distinct,
+        });
+      }
+    });
+  }
+
+  /**
+   * **************
+   * WHERE
+   * **************
+   */
+  const filters = transformClientFilters(props.opts.filters, schemaInfoHandler.getColumnType);
+  filters.forEach((filter) => {
+    if (filter.fn && isAggregationFunction(filter.fn)) {
+      builder.addHaving(filter);
+    } else {
+      builder.addWhere(filter);
+    }
+  });
+
+  const { sql, params } = builder.build();
+  const dbConnectionManager = await getDynamicConnection(
+    mapDataSourceToDbConnection(dataSource, true),
+    dataSource.dbType,
+    req,
+  );
+
+  /**
+   * **************
+   * EXECUTE
+   * **************
+   */
+  const result = await dbConnectionManager.executeQuery({
+    sql,
+    params,
+    type: EQueryType.SELECT,
+    allowBulkUpdate: false,
+  });
+
+  /**
+   * **************
+   * POST EXECUTE
+   * **************
+   */
   const hasMore = result.rows.length > size;
   if (hasMore) {
     // remove extra row
     result.rows.pop();
   }
 
+  const { id: queryHistoryId } = await historyPromise;
+
   return {
     ...result,
-    queryHistoryId: historyPromise.id,
+    queryHistoryId,
     tables,
     allColumns,
-    columns: result.columns.map((c) => ({
-      ...c,
-      type: columnTypes[c.full],
-    })),
+    columns: computeResultColumns(
+      selectedColumns,
+      result.columns,
+      schemaInfoHandler.getColumnType,
+    ),
     hasMore,
   };
 };
 
-export const getEntity = async (req: FastifyRequest, props: TExecuteGetEntityProps): Promise<TExecuteGetEntityResponse> => {
+/**
+ * **************
+ * SELECT ONE
+ * **************
+ */
+export const runSelectOne = async (req: FastifyRequest, props: TExecuteGetEntityProps): Promise<TExecuteGetEntityResponse> => {
   const dataSource = await getDataSource(props.dataSourceId);
 
   if (!dataSource) {
     throw new HttpError(400, "Invalid datasource");
   }
 
-  const dbConnectionManager = await getDynamicConnection(mapDataSourceToDbConnection(dataSource, true), dataSource.dbType, req);
-  const queryBuilder = new SelectQueryBuilder(dataSource.dbType as DatabaseDialect);
-  queryBuilder.setTable(props.table);
+  const dbConnectionManager = await getDynamicConnection(
+    mapDataSourceToDbConnection(dataSource, true),
+    dataSource.dbType,
+    req,
+  );
+  const queryBuilder = createSelectBuilder(props.table, dataSource);
   queryBuilder.setLimit(2);
   for (const [key, value] of Object.entries(props.props)) {
     queryBuilder.addWhere({
       value: [{ value }],
       column: key,
-      connector: "AND",
-      isEnabled: true,
-      operator: "=",
-      id: "dummy", // todo: id here makes no sense
     });
   }
 
-  const sql = queryBuilder.toSQL();
-  const result = await dbConnectionManager.executeQuery(
+  const { sql, params } = queryBuilder.build();
+  const result = await dbConnectionManager.executeQuery({
     sql,
-    {
-      type: "SELECT",
-      allowBulkUpdate: false,
-    }
-  );
+    params,
+    type: EQueryType.SELECT,
+    allowBulkUpdate: false,
+  });
 
   if (result.rows.length > 1) {
     throw new HttpError(400, "Found multiple rows for given query");
@@ -217,6 +235,11 @@ export const getEntity = async (req: FastifyRequest, props: TExecuteGetEntityPro
   }
 };
 
+/**
+ * **************
+ * UPDATE
+ * **************
+ */
 export const runUpdate = async (req: FastifyRequest, props: TExecuteUpdate): Promise<TExecuteQueryResult> => {
   const dataSource = await getDataSource(props.datasourceId);
 
@@ -228,33 +251,32 @@ export const runUpdate = async (req: FastifyRequest, props: TExecuteUpdate): Pro
     throw new HttpError(403, "This datasource does not allow update operations");
   }
 
-  const setStatements = props.values.map(({ value, column }) => {
-    if (typeof value === "string") {
-      // ex: =NULL or =NOW()
-      if (value && value.startsWith("=")) {
-        return `${column}=${value.substring(1)}`;
-      } else {
-        return `${column}='${value}'`;
-      }
-    } else {
-      return `${column}='${value}'`;
-    }
-  }).join(", ");
-  const whereStatements = props.filters.map(
-    (column) => buildQueryFilterCondition(column, dataSource.dbType as DatabaseDialect)
-  ).join(" AND ");
-  const query = `UPDATE ${props.table} SET ${setStatements} WHERE ${whereStatements}`;
+  const queryBuilder = createUpdateBuilder(props.table, dataSource);
+  queryBuilder.setParams(props.values);
 
+  transformClientFilters(
+    props.filters,
+    // fake getColumnType, always return equals operator "="
+    () => "="
+  ).forEach((filter) => {
+    queryBuilder.addWhere(filter);
+  });
+
+  const { sql, params } = queryBuilder.build();
   const dbConnectionManager = await getDynamicConnection(mapDataSourceToDbConnection(dataSource, true), dataSource.dbType, req);
-  return dbConnectionManager.executeQuery(
-    query,
-    {
-      type: "UPDATE",
-      allowBulkUpdate: false,
-    }
-  );
+  return dbConnectionManager.executeQuery({
+    sql,
+    params,
+    type: EQueryType.UPDATE,
+    allowBulkUpdate: false,
+  });
 };
 
+/**
+ * **************
+ * INSERT
+ * **************
+ */
 export const runInsert = async (req: FastifyRequest, props: TExecuteInsert): Promise<TExecuteQueryResult> => {
   const dataSource = await getDataSource(props.datasourceId);
 
@@ -266,125 +288,24 @@ export const runInsert = async (req: FastifyRequest, props: TExecuteInsert): Pro
     throw new HttpError(403, "This datasource does not allow insert operations");
   }
 
-  // todo: create builder
-  const { keys, values } = queryMutationValuesToString(props.values);
-  const query = `INSERT INTO ${props.table} (${keys}) VALUES (${values})`;
+  const queryBuilder = createInsertBuilder(props.table, dataSource);
+  queryBuilder.setValues(props.values);
 
+  const { sql, params } = queryBuilder.build();
   const dbConnectionManager = await getDynamicConnection(mapDataSourceToDbConnection(dataSource, true), dataSource.dbType, req);
-  return dbConnectionManager.executeQuery(
-    query,
-    {
-      type: "INSERT",
-      allowBulkUpdate: false,
-    }
-  );
+  return dbConnectionManager.executeQuery({
+    sql,
+    type: EQueryType.INSERT,
+    params,
+    allowBulkUpdate: false,
+  });
 };
 
-// todo: move to query builder everything below this comment
-const queryMutationValuesToString = (mutValues: TQueryMutationValue[]): { keys: string; values: string; } => {
-  const keys = mutValues.map(({ column }) => column).join(", ");
-  const values = mutValues.map(({ value }) => {
-    if (typeof value === "string") {
-      // ex: =NULL or =NOW()
-      if (value && value.startsWith("=")) {
-        return value.substring(1);
-      } else {
-        return `'${value}'`;
-      }
-    } else {
-      return value;
-    }
-  }).join(", ");
-
-  return {
-    keys,
-    values,
-  };
-};
-
-const processInputColumn = (column: TInputColumn, dbType: string): string => {
-  if (column.fn) {
-    if (isAllowedFunction(column.fn)) {
-      const colString = (dbType === "postgres" ? PostgreSqlFunctions : MySqlColumnFunctions)[column.fn](column);
-      return `${colString} as "${inputColumnToAlias(column)}"`;
-    }
-
-    throw new Error("Function not allowed: " + column.fn);
-  }
-
-  return `${column.value} as "${column.value}"`;
-};
-
-const processInputGroupBy = (column: TInputColumn, dbType: string): string => {
-  if (column.fn) {
-    if (isAllowedFunction(column.fn)) {
-      return (dbType === "postgres" ? PostgreSqlFunctions : MySqlColumnFunctions)[column.fn]({
-        ...column,
-        value: sanitizeFullColumn(column.value, dbType as DatabaseDialect),
-      });
-    }
-
-    throw new Error("Function not allowed: " + column.fn);
-  }
-
-  return sanitizeFullColumn(column.value, dbType as DatabaseDialect);
-};
-
-const handleAlias = (value: string, dbType: DatabaseDialect) => {
-  if (dbType === "postgres") {
-    return `"${value}"`;
-  }
-
-  if (dbType === "mysql") {
-    return `\`${value}\``;
-  }
-
-  return value;
-};
-
-const sanitizeFullColumn = (value: string, dbType: DatabaseDialect): string => {
-  const [table, column] = value.split(".");
-  return handleAlias(table, dbType) + "." + handleAlias(column, dbType);
-};
-
-const getAllowedOrderBy = (columns: TInputColumn[], orderBy: OrderByClause[], dbType: DatabaseDialect): OrderByClause[] => {
-  if (columns && columns.length > 0) {
-    const allowedColumnsMap = columns.reduce((acc, val) => {
-      acc.set(inputColumnToAlias(val), {
-        isFn: !!(val.fn || val.distinct),
-      });
-
-      return acc;
-    }, new Map<string, { isFn: boolean }>());
-
-    // only order by columns in group by
-    orderBy = orderBy
-      .filter((o) => allowedColumnsMap.has(o.column))
-      .map((o) => {
-        if (allowedColumnsMap.get(o.column)?.isFn) {
-          return {
-            ...o,
-            column: handleAlias(o.column, dbType),
-          }
-        }
-        return o;
-      });
-  }
-
-  return orderBy;
-};
-
-const computeColumns = (cols: TInputColumn[], groupBy: TInputColumn[], agg: TInputColumn[]): TInputColumn[] => {
-  const result: TInputColumn[] = [];
-  if (groupBy.length > 0 || agg.length > 0) {
-    result.push(...groupBy, ...agg);
-  } else if (cols.length > 0) {
-    result.push(...cols);
-  }
-
-  return result;
-};
-
+/**
+ * **************
+ * UTILS
+ * **************
+ */
 async function getDataSource (dsId: string) {
   return DataSourceRepository.findOne({
     where: {

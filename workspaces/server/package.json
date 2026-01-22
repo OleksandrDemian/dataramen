@@ -1,6 +1,6 @@
 {
   "name": "@dataramen/server",
-  "version": "0.0.94",
+  "version": "0.0.95",
   "license": "MIT",
   "main": "dist/server.js",
   "scripts": {
@@ -31,7 +31,6 @@
     "@dataramen/common": "0.0.0",
     "@dataramen/types": "0.0.0",
     "esbuild": "^0.25.5",
-    "@dataramen/sql-builder": "0.0.0",
     "typescript": "^5.8.3"
   },
   "files": [

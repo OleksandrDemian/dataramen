@@ -7,7 +7,7 @@
 
   td {
     border-color: var(--bg-quat);
-    @apply border-b border-r;
+    @apply border-b border-r text-(--text-color-primary);
 
     &:first-child {
       @apply py-1 px-1 text-center align-middle text-xs w-8 text-blue-500 lg:sticky z-2 lg:left-0 bg-(--bg-sec);
@@ -65,7 +65,7 @@
   padding: 8px 12px;
   max-width: 250px;
   min-width: 100px;
-  @apply relative text-gray-800 text-sm;
+  @apply relative text-sm;
 
   .cell-actions {
     display: none;
@@ -76,11 +76,11 @@
   }
 
   &:hover {
-    @apply ring-4 ring-inset ring-blue-200 z-1 bg-white;
+    @apply ring-4 ring-inset ring-blue-200 bg-white;
   }
 
   .value {
-    @apply truncate block pointer-events-none;
+    @apply truncate block pointer-events-none text-(--text-color-primary);
   }
 }
 

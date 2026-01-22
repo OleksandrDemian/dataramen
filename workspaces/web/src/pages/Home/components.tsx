@@ -13,8 +13,10 @@ import {useCurrentUser} from "../../data/queries/users.ts";
 import {useDataSources} from "../../data/queries/dataSources.ts";
 import {setDataSourceModal} from "../../data/dataSourceModalStore.ts";
 import {useWorkbenchTabs} from "../../data/queries/workbenchTabs.ts";
-import {updateShowTabsHistory} from "../../data/showTabsHistorySidebarStore.ts";
 import {useRecentTabs} from "../../data/queries/project.ts";
+import GithubIcon from "../../assets/logo-github.svg?react";
+import NpmIcon from "../../assets/logo-npm.svg?react";
+import DocumentationIcon from "../../assets/document-text-outline.svg?react";
 
 export const StartQuery = () => {
   const searchAndOpen = useSearchTable("Home");
@@ -133,30 +135,24 @@ export const ListDataSources = () => {
   );
 };
 
+const UsefulLinkIconSize = 24;
 export const UsefulLinks = () => {
   return (
-    <div className={st.homeGrayCard}>
-      <h2 className={st.homeCardTitle}>Useful links</h2>
+    <div className={st.usefulLinks}>
+      <a href="https://dataramen.xyz/" target="_blank">
+        <DocumentationIcon width={UsefulLinkIconSize} height={UsefulLinkIconSize} />
+        <span>Docs</span>
+      </a>
 
-      <div className={st.homeCardGridContent}>
-        <a className={st.homeActionButton} href="https://dataramen.xyz/" target="_blank">
-          <h2 className={st.actionTitle}>↗️ Documentation</h2>
-          <p className={st.actionSubtext}>Learn how to use DataRamen</p>
-        </a>
+      <a href="https://github.com/OleksandrDemian/dataramen" target="_blank">
+        <GithubIcon width={UsefulLinkIconSize} height={UsefulLinkIconSize} />
+        <span>GitHub</span>
+      </a>
 
-        <a className={st.homeActionButton} href="https://github.com/OleksandrDemian/dataramen" target="_blank">
-          <h2 className={st.actionTitle}>↗️ Github</h2>
-          <p className={st.actionSubtext}>Codebase is open source</p>
-        </a>
-
-        <a className={st.homeActionButton} href="#" onClick={() => updateShowTabsHistory({ show: true })}>
-          <h2 className={st.actionTitle}>
-            <span>⌛ Recent tabs</span>
-            <span className="hotkey">H</span>
-          </h2>
-          <p className={st.actionSubtext}>Manage recent tabs</p>
-        </a>
-      </div>
+      <a href="https://www.npmjs.com/package/@dataramen/cli" target="_blank">
+        <NpmIcon width={UsefulLinkIconSize} height={UsefulLinkIconSize} />
+        <span>NPM</span>
+      </a>
     </div>
   );
 };

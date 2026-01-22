@@ -1,6 +1,7 @@
 import mysql, {ResultSetHeader} from 'mysql2/promise';
 
 import {
+  EQueryType,
   TDynamicConnection,
   TDynamicConnectionConfig,
   TDynamicConnectionCreator,
@@ -19,7 +20,7 @@ const getConnection = ({ database, password, user, url }: TDynamicConnectionConf
     user: user,
     database: database,
     password: password,
-    // TODO: timeout?
+    dateStrings: true,
   });
 };
 
@@ -118,12 +119,15 @@ const inspectSchema = async (dataSource: TDynamicConnectionConfig, connection: m
   return Promise.all(rows);
 };
 
-const executeQuery = async (query: string, connection: mysql.Connection, opts: TQueryOptions): Promise<TExecuteQueryResult> => {
+const executeQuery = async (query: string, params: any, connection: mysql.Connection, opts: TQueryOptions): Promise<TExecuteQueryResult> => {
   try {
     console.log(`[MYSQL CONN] Query: ${query}`);
+    console.log(`[MYSQL CONN] Params: ${JSON.stringify(params)}`);
     const [result, columns] = await connection.query({
       sql: query,
       rowsAsArray: true,
+      values: params,
+      timeout: 10_000,
     });
 
     const responseType = result?.constructor?.name;
@@ -202,17 +206,17 @@ export const MySqlConnector: TDynamicConnectionCreator = async (dataSource: TDyn
     dbType: 'mysql',
     dataSource,
     inspectSchema: () => inspectSchema(dataSource, connection),
-    executeQuery: (query, opts) => {
-      if (opts.type === "SELECT") {
+    executeQuery: (opts) => {
+      if (opts.type === EQueryType.SELECT) {
         return withReadOnlyTransaction(
           connection,
-          () => executeQuery(query, connection, opts)
+          () => executeQuery(opts.sql, opts.params, connection, opts)
         );
       }
 
       return withTransaction(
         connection,
-        () => executeQuery(query, connection, opts)
+        () => executeQuery(opts.sql, opts.params, connection, opts)
       );
     },
     checkConnection: async () => connection.ping(),

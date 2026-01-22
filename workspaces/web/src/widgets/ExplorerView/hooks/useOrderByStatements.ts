@@ -1,8 +1,8 @@
 import {useCallback, useContext} from "react";
-import {OrderByClause} from "@dataramen/sql-builder";
+import {TOrderByClause} from "@dataramen/types";
 import {TableOptionsContext} from "../context/TableContext.ts";
 
-const getNextDirection = (direction: OrderByClause["direction"]): OrderByClause["direction"] | undefined => {
+const getNextDirection = (direction: TOrderByClause["direction"]): TOrderByClause["direction"] | undefined => {
   if (direction === "ASC") {
     return "DESC";
   }

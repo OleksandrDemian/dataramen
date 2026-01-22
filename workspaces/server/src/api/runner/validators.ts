@@ -1,19 +1,18 @@
-import {TExecuteInsert, TExecuteQuery, TExecuteUpdate, TQueryMutationValue} from "@dataramen/types";
+import {TExecuteInsert, TExecuteQuery, TExecuteUpdate} from "@dataramen/types";
 import {HttpError} from "../../utils/httpError";
-import {isString} from "@dataramen/sql-builder";
 
 export const validateExecuteQueryBody = (body: TExecuteQuery) => {
   // todo validate payload
 };
 
 const FORBIDDEN_STRINGS: string[] = ["--", ";", "DROP", "drop"];
-const checkInputValue = (value: TQueryMutationValue) => {
-  if(isString(value.value) && value.value.startsWith("=")) {
-    let strValue: string = value.value;
+const checkInputValue = ([column, value]: [string, unknown]) => {
+  if(typeof value === 'string' && value.startsWith("=")) {
+    let strValue: string = value;
     // raw value, check for weirdness
     FORBIDDEN_STRINGS.forEach(str => {
       if (strValue.includes(str)) {
-        throw new HttpError(400, "Invalid input value for " + value.column);
+        throw new HttpError(400, "Invalid input value for " + column);
       }
     });
   }
@@ -24,7 +23,7 @@ export const validateInsertQueryBody = (body: TExecuteInsert) => {
     throw new HttpError(400, "Table is required");
   }
 
-  body.values.forEach(checkInputValue);
+  Object.entries(body.values).forEach(checkInputValue);
 };
 
 export const validateUpdateQueryBody = (body: TExecuteUpdate) => {
@@ -32,5 +31,5 @@ export const validateUpdateQueryBody = (body: TExecuteUpdate) => {
     throw new HttpError(400, "Table is required");
   }
 
-  body.values.forEach(checkInputValue);
+  Object.entries(body.values).forEach(checkInputValue);
 };

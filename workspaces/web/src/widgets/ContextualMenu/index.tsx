@@ -3,6 +3,7 @@ import st from "./index.module.css";
 import {isLaptop} from "../../utils/screen.ts";
 import clsx from "clsx";
 import {createPortal} from "react-dom";
+import {useModalStack} from "../../hooks/useModalStack.ts";
 
 export type TContextMenuRef = {
   open: (e: MouseEvent, propagate?: boolean) => void;
@@ -61,6 +62,13 @@ export const ContextualMenu = ({ children, ref, onClosed }: TContextualMenuProps
       setState("out");
     },
   }), []);
+
+  useModalStack({
+    enabled: state === "in" || state === "visible",
+    onClose: () => {
+      setState("out");
+    },
+  });
 
   if (!position) {
     return null;

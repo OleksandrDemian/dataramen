@@ -10,7 +10,7 @@ export const EqParser: TFilterParser = {
       return [{ value: removeQuotes(match[1]) }];
     }
   },
-  stringify: (filter, type) => isNumericType(type) ? `${filter.value?.[0].value}` : `= ${filter.value?.[0].value}`,
+  stringify: (values, type) => isNumericType(type) ? `${values[0]?.value}` : `= ${values[0]?.value}`,
 };
 
 export const NotEqParser: TFilterParser = {
@@ -21,7 +21,7 @@ export const NotEqParser: TFilterParser = {
       return [{ value: removeQuotes(match[1]) }];
     }
   },
-  stringify: (filter) => `!= ${filter.value?.[0].value}`,
+  stringify: (values) => `!= ${values[0]?.value}`,
 };
 
 export const NotEqBParser: TFilterParser = {
@@ -32,7 +32,7 @@ export const NotEqBParser: TFilterParser = {
       return [{ value: removeQuotes(match[1]) }];
     }
   },
-  stringify: (filter) => `<> ${filter.value?.[0].value}`,
+  stringify: (values) => `<> ${values[0]?.value}`,
 };
 
 export const GtParser: TFilterParser = {
@@ -43,7 +43,7 @@ export const GtParser: TFilterParser = {
       return [{ value: removeQuotes(match[1]) }];
     }
   },
-  stringify: (filter) => `> ${filter.value?.[0].value}`,
+  stringify: (values) => `> ${values[0]?.value}`,
 };
 
 export const GteParser: TFilterParser = {
@@ -54,7 +54,7 @@ export const GteParser: TFilterParser = {
       return [{ value: removeQuotes(match[1]) }];
     }
   },
-  stringify: (filter) => `>= ${filter.value?.[0].value}`,
+  stringify: (values) => `>= ${values[0]?.value}`,
 };
 
 export const LtParser: TFilterParser = {
@@ -65,7 +65,7 @@ export const LtParser: TFilterParser = {
       return [{ value: removeQuotes(match[1]) }];
     }
   },
-  stringify: (filter) => `< ${filter.value?.[0].value}`,
+  stringify: (values) => `< ${values[0]?.value}`,
 };
 
 export const LteParser: TFilterParser = {
@@ -76,5 +76,5 @@ export const LteParser: TFilterParser = {
       return [{ value: removeQuotes(match[1]) }];
     }
   },
-  stringify: (filter) => `<= ${filter.value?.[0].value}`,
+  stringify: (values) => `<= ${values[0]?.value}`,
 };

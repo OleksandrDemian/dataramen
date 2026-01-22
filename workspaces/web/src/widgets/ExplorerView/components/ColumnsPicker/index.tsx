@@ -216,7 +216,7 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
   };
 
   return (
-    <Modal isVisible={showModal} onClose={onCancel} portal onClosed={onClosed}>
+    <Modal isVisible={showModal} onClose={onCancel} portal onClosed={onClosed} backdropClose>
       <ModalClose onClick={onCancel}/>
       <div className={st.container}>
         <h2 className="text-lg font-semibold">

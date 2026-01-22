@@ -120,6 +120,7 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
   return (
     <div className={className}>
       <input
+        autoFocus
         className={inputClass}
         placeholder="Filter"
         value={filter}

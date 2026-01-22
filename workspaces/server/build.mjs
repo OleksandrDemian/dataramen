@@ -59,7 +59,7 @@ async function build () {
  * @returns {esbuild.BuildOptions}
  */
 function getOptions () {
-  const INCLUDE = ["@dataramen/sql-builder", "@dataramen/common"];
+  const INCLUDE = ["@dataramen/common"];
   const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
 
   const external = Object.keys(packageJson.dependencies).filter((pkg) => {

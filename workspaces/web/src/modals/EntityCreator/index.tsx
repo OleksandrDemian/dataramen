@@ -13,7 +13,6 @@ import st from "./index.module.css";
 import {useInsert} from "../../data/queries/queryRunner.ts";
 import {Alert} from "../../widgets/Alert";
 import {useParseError} from "../../hooks/useParseError.ts";
-import {TQueryMutationValue} from "@dataramen/types";
 import {TDatabaseInspectionColumn} from "../../data/types/dataSources.ts";
 import {invalidateTabData} from "../../data/queries/workbenchTabs.ts";
 import {useWorkbenchTabId} from "../../hooks/useWorkbenchTabId.ts";
@@ -55,12 +54,9 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
   }, [filter, inspection]);
 
   const onRun = () => {
-    const values: TQueryMutationValue[] = [];
+    const values: Record<string, unknown> = {};
     for (const column of touched) {
-      values.push({
-        value: form[column],
-        column: column,
-      });
+      values[column] = form[column];
     }
 
     execute({

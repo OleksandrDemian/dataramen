@@ -1,6 +1,6 @@
 import {createRouter} from "../../utils/createRouter";
 import {getRequestParams, getRequestPayload, getRequestQuery} from "../../utils/request";
-import {getEntity, runInsert, runSelect, runUpdate} from "../../services/sqlRunner";
+import {runSelectOne, runInsert, runSelect, runUpdate} from "../../services/sqlRunner";
 import {TExecuteInsert, TExecuteQuery, TExecuteUpdate, EUserTeamRole} from "@dataramen/types";
 import {validateExecuteQueryBody, validateInsertQueryBody, validateUpdateQueryBody} from "./validators";
 import {atLeast} from "../../hooks/role";
@@ -27,7 +27,7 @@ export default createRouter((instance) => {
     handler: async (request) => {
       const { dsId, table } = getRequestParams<{ dsId: string; table: string; }>(request);
       const query = getRequestQuery<Record<string, string>>(request);
-      const result = await getEntity(request, {
+      const result = await runSelectOne(request, {
         table,
         dataSourceId: dsId,
         props: query,
