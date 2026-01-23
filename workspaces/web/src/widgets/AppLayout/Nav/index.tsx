@@ -11,10 +11,13 @@ import ChevronIcon from "../../../assets/chevron-forward-outline.svg?react";
 import DockerIcon from "../../../assets/logo-docker.svg?react";
 import TerminalIcon from "../../../assets/terminal-outline.svg?react";
 import CubeIcon from "../../../assets/cube-outline.svg?react";
+import LogOutIcon from "../../../assets/log-out-outline.svg?react";
 import {useState} from "react";
 import clsx from "clsx";
 import {gt} from "../../../utils/numbers.ts";
 import {useWorkbenchTabs} from "../../../data/queries/workbenchTabs.ts";
+import {AccessTokenHandler} from "../../../services/accessTokenHandler.ts";
+import {confirm} from "../../../data/confirmModalStore.ts";
 
 const enableAuth = !__CLIENT_CONFIG__.skipAuth;
 const runtimeName = (() => {
@@ -63,6 +66,16 @@ export const Nav = () => {
     if (!PAGES.savedQueries.check(pathname)) {
       navigate(PAGES.savedQueries.build());
     }
+  };
+
+  const onLogout = () => {
+    confirm("Are you sure you want to logout?")
+      .then((result) => {
+        if (result) {
+          navigate("/");
+          AccessTokenHandler.logout();
+        }
+      });
   };
 
   const onShowRecentTabs = () => updateShowTabsHistory({ show: true });
@@ -137,6 +150,7 @@ export const Nav = () => {
                 <span className={st.icon}>🪪</span>
                 <span className="truncate">{currentUser.username}</span>
               </button>
+
               <button
                 onClick={openPeopleSettings}
                 className={st.navItem}
@@ -155,15 +169,36 @@ export const Nav = () => {
         <ProjectStructure />
       </div>
 
-      <button onClick={() => setShowSidebarMenu(!showSidebarMenu)} className={`${st.navItem} mx-2`}>
+      <button
+        onClick={() => setShowSidebarMenu(!showSidebarMenu)}
+        data-tooltip-id="default"
+        data-tooltip-content="Expand sidebar"
+        data-tooltip-hidden={showSidebarMenu}
+        data-tooltip-place="right"
+        className={`${st.navItem} mx-2`}
+      >
         <span className={clsx(st.icon, st.expand, showSidebarMenu ? st.show : st.hide)}>
           <ChevronIcon className="text-(--text-color-secondary)" width={20} height={20} />
         </span>
         <span className="truncate text-sm text-(--text-color-secondary)">Collapse menu</span>
       </button>
 
+      {enableAuth && (
+        <button
+          onClick={onLogout}
+          data-tooltip-id={tooltipId}
+          data-tooltip-content="Logout"
+          className={`${st.navItem} mx-2`}
+        >
+        <span className={st.icon}>
+          <LogOutIcon className="text-(--text-color-secondary)" width={20} height={20} />
+        </span>
+          <span className="truncate text-sm text-(--text-color-secondary)">Logout</span>
+        </button>
+      )}
+
       <div
-        className={`${st.navItem} mx-2 mb-2`}
+        className={`${st.navItem} mx-2 cursor-auto!`}
         data-tooltip-id={tooltipId}
         data-tooltip-content={runtimeName}
       >

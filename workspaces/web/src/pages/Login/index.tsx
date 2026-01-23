@@ -3,12 +3,13 @@ import {AxiosError} from "axios";
 import {AccessTokenHandler} from "../../services/accessTokenHandler.ts";
 import {Alert} from "../../widgets/Alert";
 import {useNavigate} from "react-router-dom";
+import {UsefulLinks} from "../Home/components.tsx";
+import st from "./index.module.css";
 
 export const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<AxiosError | undefined>();
-  const [firstLogin, setFirstLogin] = useState(false);
   const navigate = useNavigate();
 
   const onSubmit: FormEventHandler = (e) => {
@@ -29,31 +30,24 @@ export const LoginPage = () => {
   return (
     <div className="page-container bg-(--bg) h-screen">
       <div className="page-content items-center">
-        <form className="flex flex-col gap-2 w-full lg:w-lg" onSubmit={onSubmit}>
-          <p className="font-semibold text-xl min-w-md">Login</p>
+        <div className="py-10 text-center w-full sticky top-0 z-0">
+          <h1 className="comfortaa text-3xl font-semibold text-(--text-color-primary) mb-4">Welcome to DataRamen!</h1>
+
+          <UsefulLinks />
+        </div>
+
+        <form className={st.grayCard} onSubmit={onSubmit}>
+          <h2 className={st.loginLabel}>Login</h2>
 
           {error && (
-            <Alert variant="danger">Failed to login. Please verify your credentials</Alert>
+            <Alert className="border border-red-600" variant="danger">Failed to login. Please verify your credentials</Alert>
           )}
 
-          <input value={username} onChange={(e) => setUsername(e.currentTarget.value)} className="input" placeholder="User name" />
-          <input value={password} onChange={(e) => setPassword(e.currentTarget.value)} className="input" type="password" placeholder="Password" />
-          <button type="submit" className="button primary">Login</button>
-
-          {firstLogin ? (
-            <Alert className="w-full border border-blue-500">
-              <p>If this is your first login, the default credentials are:</p>
-              <ul className="mt-2">
-                <li>Username: <strong>admin</strong></li>
-                <li>Password: <strong>admin</strong></li>
-              </ul>
-              <p className="mt-2">Please make sure to change the default password to a secure one.</p>
-            </Alert>
-          ) : (
-            <button className="button tertiary" onClick={() => setFirstLogin(true)}>
-              First login?
-            </button>
-          )}
+          <input value={username} onChange={(e) => setUsername(e.currentTarget.value)} className="input secondary" placeholder="User name" />
+          <input value={password} onChange={(e) => setPassword(e.currentTarget.value)} className="input secondary" type="password" placeholder="Password" />
+          <div className="flex justify-end">
+            <button type="submit" className="button primary">Login</button>
+          </div>
         </form>
       </div>
     </div>

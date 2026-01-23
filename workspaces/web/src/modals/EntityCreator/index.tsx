@@ -16,6 +16,8 @@ import {useParseError} from "../../hooks/useParseError.ts";
 import {TDatabaseInspectionColumn} from "../../data/types/dataSources.ts";
 import {invalidateTabData} from "../../data/queries/workbenchTabs.ts";
 import {useWorkbenchTabId} from "../../hooks/useWorkbenchTabId.ts";
+import InfoIcon from "../../assets/information-circle-outline.svg?react";
+import {SearchInput} from "../../widgets/SearchInput";
 
 export const Component = ({ data }: { data: TEntityCreatorStore }) => {
   const [form, { change, touched }] = useForm<Record<string, string>>({});
@@ -81,10 +83,14 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
             <p>{errorMessage}</p>
           </Alert>
         )}
-      </div>
 
-      <div className="bg-gray-50 py-1 px-4 border-y border-gray-200">
-        <p className="text-xs text-gray-800">Tip: use = to write raw SQL. Ex: =NULL or =NOW()</p>
+        <SearchInput
+          containerClassName="mt-2"
+          className="text-sm"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder="Filter columns"
+        />
       </div>
 
       <div className={st.container}>
@@ -107,15 +113,9 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
       </div>
 
       <div className={st.actions}>
-        <label>
-          <span className="mr-2">🔎</span>
-          <input
-            className="input bg-white!"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            placeholder="Filter columns"
-          />
-        </label>
+        <span data-tooltip-id="default" data-tooltip-content="Tip: use = to write raw SQL. Ex: =NULL or =NOW()">
+          <InfoIcon className="text-(--text-color-secondary)" width={22} height={22} />
+        </span>
 
         <span className="flex-1" />
 

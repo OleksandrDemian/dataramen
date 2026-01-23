@@ -17,6 +17,7 @@ import {useRecentTabs} from "../../data/queries/project.ts";
 import GithubIcon from "../../assets/logo-github.svg?react";
 import NpmIcon from "../../assets/logo-npm.svg?react";
 import DocumentationIcon from "../../assets/document-text-outline.svg?react";
+import LockIcon from "../../assets/lock-closed-outline.svg?react";
 
 export const StartQuery = () => {
   const searchAndOpen = useSearchTable("Home");
@@ -123,10 +124,20 @@ export const ListDataSources = () => {
       <div className={st.homeCardGridContent}>
         {dataSources?.map((d) => (
           <div key={d.id} className={st.dataSourceEntry} onClick={() => onOpen(d.id)} tabIndex={0}>
+            {!d.allowInsert && (
+              <LockIcon
+                data-tooltip-id="default"
+                data-tooltip-content="This datasource is read-only"
+                width={18}
+                height={18}
+                className="absolute top-2 right-2"
+              />
+            )}
+
             <DataSourceIcon size={32} type={d.dbType} />
             <div className="overflow-hidden">
-              <p className={st.actionTitle}>{d.name}</p>
-              {d.allowInsert ? <span className={st.devTag}>dev</span> : <span className={st.prodTag}>prod</span>}
+              <p className="text-(--text-color-primary) font-semibold truncate">{d.name}</p>
+              <p className="text-sm text-(--text-color-secondary) truncate">{d.dbUrl}:{d.dbPort}</p>
             </div>
           </div>
         ))}

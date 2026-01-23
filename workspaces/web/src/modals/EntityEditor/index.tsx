@@ -19,6 +19,8 @@ import {useRequireRole} from "../../hooks/useRequireRole.ts";
 import {genSimpleId} from "../../utils/id.ts";
 import {useWorkbenchTabId} from "../../hooks/useWorkbenchTabId.ts";
 import {invalidateTabData} from "../../data/queries/workbenchTabs.ts";
+import InfoIcon from "../../assets/information-circle-outline.svg?react";
+import {SearchInput} from "../../widgets/SearchInput";
 
 const Component = ({ data }: { data: TEntityEditorStore }) => {
   const [form, { change, set, reset, touched }] = useForm<{ [key: string]: string }>({});
@@ -106,13 +108,15 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
             <p>{errorMessage}</p>
           </Alert>
         )}
-      </div>
 
-      {!disableEdit && (
-        <div className="bg-gray-50 py-1 px-4 border-y border-gray-200">
-          <p className="text-xs text-gray-800">Tip: use = to write raw SQL. Ex: =NULL or =NOW()</p>
-        </div>
-      )}
+        <SearchInput
+          containerClassName="mt-2"
+          className="text-sm"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          placeholder="Filter columns"
+        />
+      </div>
 
       <div className={st.container}>
         <div className={st.fieldsContainer}>
@@ -124,7 +128,7 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
               </div>
               <input
                 disabled={col.isPrimary || isLoadingResult || disableEdit}
-                className="input w-full"
+                className="input w-full secondary"
                 value={sanitizeCellValue(form[col.name])}
                 onChange={change(col.name)}
                 placeholder={col.name}
@@ -135,15 +139,11 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
       </div>
 
       <div className={st.actions}>
-        <label>
-          <span className="mr-2">🔎</span>
-          <input
-            className="input bg-white!"
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            placeholder="Filter columns"
-          />
-        </label>
+        {!disableEdit && (
+          <span data-tooltip-id="default" data-tooltip-content="Tip: use = to write raw SQL. Ex: =NULL or =NOW()">
+            <InfoIcon className="text-(--text-color-secondary)" width={22} height={22} />
+          </span>
+        )}
 
         <span className="flex-1" />
 

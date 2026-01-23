@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+.gray-card {
+  border: 1px solid var(--bg-quat);
+  @apply bg-(--bg-sec) p-4 rounded flex flex-col gap-2 w-full lg:w-lg;
+}
+
+.login-label {
+  @apply font-semibold text-(--text-color-secondary);
+}
