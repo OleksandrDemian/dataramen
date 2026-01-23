@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 .actions {
-  @apply flex items-center justify-between m-2;
+  @apply flex items-center justify-between m-2 mt-4;
 }
 
 .filter-actions {
@@ -16,8 +16,11 @@
   }
 }
 
-.advanced-filter-icon {
-  @apply m-1 p-1 text-xs rounded-md bg-gray-50 border border-gray-200;
+.filter-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  @apply text-xs font-semibold text-blue-600;
 }
 
 .filters-container {
@@ -25,6 +28,16 @@
 }
 
 .filter-container {
-  @apply grid items-center gap-1;
+  @apply grid items-center;
   grid-template-columns: 24px 200px 1fr 30px;
+}
+
+.filter-value {
+  border: 1px solid var(--bg-quat);
+  border-left: 0;
+  @apply flex items-center gap-2 rounded-r-md p-1;
+
+  &:focus-within {
+    @apply ring-2 ring-blue-400 ring-inset;
+  }
 }

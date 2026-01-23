@@ -14,7 +14,7 @@
 }
 
 .nav {
-  --nav-icon-size: 32px;
+  --nav-icon-size: 36px;
   position: relative;
   max-height: 100vh;
   overflow: hidden;
@@ -27,7 +27,7 @@
   }
 
   &.hidden {
-    max-width: calc(var(--nav-icon-size) + 16px);
+    max-width: calc(var(--nav-icon-size) + 8px);
   }
 }
 
@@ -46,7 +46,7 @@
 
 .nav-sub-path {
   border-radius: 4px;
-  @apply px-2 py-1 hover:bg-gray-100;
+  @apply px-1 py-1 hover:bg-gray-100;
 }
 
 .main {
@@ -56,12 +56,11 @@
 }
 
 .link {
-  @apply hover:bg-gray-100 px-2 py-0.5 cursor-pointer;
+  @apply hover:bg-gray-100 px-1 py-0.5 cursor-pointer;
 }
 
 .header {
-  padding: 8px;
-  @apply flex flex-col;
+  @apply flex flex-col p-1;
 }
 
 .logout {
@@ -114,16 +113,6 @@
 }
 
 .project-wrapper {
-  transition: opacity ease-in-out 250ms;
   flex: 1;
-  overflow-y: auto;
-
-  &.hide {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  &.show {
-    opacity: 1;
-  }
+  @apply p-1 overflow-y-auto;
 }

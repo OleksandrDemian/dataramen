@@ -76,7 +76,7 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
   return (
     <>
       <div className={st.header}>
-        <p className="text-lg font-semibold">Insert new row in <span className="underline">{data.table}</span></p>
+        <p className="text-lg font-semibold">Insert new record in <span className="underline">{data.table}</span></p>
 
         {errorMessage && (
           <Alert variant="danger">
@@ -97,7 +97,7 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
         <div className={st.fieldsContainer}>
           {fields.map((col) => (
             <label key={col.name} className={st.fieldLabel}>
-              <div className="flex justify-between">
+              <div className="flex justify-between mb-0.5">
                 <p>{col.isPrimary ? '🔐' : '🏷️'} {col.label}</p>
                 <p className="text-blue-800 text-sm">[{col.name}: {col.type}]</p>
               </div>
@@ -105,7 +105,6 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
                 className="input w-full"
                 value={sanitizeCellValue(form[col.name])}
                 onChange={change(col.name)}
-                placeholder={col.name}
               />
             </label>
           ))}

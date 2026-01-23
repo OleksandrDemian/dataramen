@@ -28,6 +28,7 @@ export type TQueryOperator =
   | 'IS NOT NULL'
   | 'CONTAINS'
   | 'NOT CONTAINS'
+  | 'RAW'
   // | 'BETWEEN'
   // | 'NOT BETWEEN'
   // | 'EXISTS'
@@ -41,6 +42,7 @@ export type TQueryFilter = {
   fn?: string;
   isEnabled?: boolean;
   isAdvanced?: boolean;
+  isRaw?: boolean;
 };
 
 export type TQueryOptions = {

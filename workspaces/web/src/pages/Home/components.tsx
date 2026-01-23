@@ -18,16 +18,20 @@ import GithubIcon from "../../assets/logo-github.svg?react";
 import NpmIcon from "../../assets/logo-npm.svg?react";
 import DocumentationIcon from "../../assets/document-text-outline.svg?react";
 import LockIcon from "../../assets/lock-closed-outline.svg?react";
+import SearchIcon from "../../assets/search-outline.svg?react";
+import SavedQueriesIcon from "../../assets/hourglass-outline.svg?react";
+import WorkbenchIcon from "../../assets/construct-outline.svg?react";
+
+const iconSize = 20;
+const iconClass = "text-(--text-color-primary)";
 
 export const StartQuery = () => {
   const searchAndOpen = useSearchTable("Home");
 
   return (
     <div className={st.homeActionButton} onClick={searchAndOpen}>
-      <h2 className={st.actionTitle}>
-        <span className="truncate">🔎 Start new query</span>
-        <span className="hotkey">N</span>
-      </h2>
+      <SearchIcon width={iconSize} height={iconSize} className={iconClass} />
+      <h2 className={st.actionTitle}>Start new query</h2>
     </div>
   );
 };
@@ -37,9 +41,8 @@ export const SavedQueriesAction = () => {
 
   return (
     <div className={st.homeActionButton} onClick={() => navigate(PAGES.savedQueries.build())}>
-      <h2 className={st.actionTitle}>
-        <span className="truncate">💾 Saved queries</span>
-      </h2>
+      <SavedQueriesIcon width={20} height={20} className={iconClass} />
+      <h2 className={st.actionTitle}>Saved queries</h2>
     </div>
   );
 };
@@ -94,10 +97,8 @@ export const WorkbenchTabs = () => {
 
   return (
     <div className={st.homeActionButton} onClick={onOpenWorkbench}>
-      <h2 className={st.actionTitle}>
-        <span>🛠️ Workbench</span>
-        <span className="hotkey">W</span>
-      </h2>
+      <WorkbenchIcon width={20} height={20} className={iconClass} />
+      <h2 className={st.actionTitle}>Workbench</h2>
     </div>
   );
 };

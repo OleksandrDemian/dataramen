@@ -7,7 +7,7 @@
 }
 
 .action-title {
-  @apply font-semibold flex justify-between items-center text-(--text-color-primary);
+  @apply font-semibold text-(--text-color-primary);
 }
 
 .action-subtext {
@@ -29,7 +29,7 @@
 
 .home-action-button {
   border: 1px solid var(--bg-quat);
-  @apply bg-white p-4 rounded-lg hover:bg-gray-50! cursor-pointer;
+  @apply bg-white p-4 rounded-lg hover:bg-gray-50! cursor-pointer flex gap-2 items-center;
 }
 
 .home-gray-card {

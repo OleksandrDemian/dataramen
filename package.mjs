@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import { fileURLToPath } from 'url';
 import { join, dirname } from "node:path";
 import fs from "fs-extra";
+import { randomBytes } from "node:crypto";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,6 +23,12 @@ const distPath = (() => {
     default: return join(__dirname, "dist");
   }
 })();
+
+function assignPackageBuildToken (path) {
+  const packageJson = fs.readJsonSync(path);
+  packageJson.buildToken = randomBytes(10).toString("hex");
+  fs.writeJsonSync(path, packageJson);
+}
 
 preparePackage().then(() => {
   if (target === "cli") {
@@ -98,6 +105,9 @@ function copyResources () {
     fs.copySync(join(cliPath, "README.md"), join(distRoot, "README.md"));
     fs.copySync(join(cliPath, "bin"), join(distRoot, "bin"));
     fs.copySync(join(cliPath, "package.json"), join(distRoot, "package.json"));
+
+    // this token is checked to see if new versions has been installed
+    assignPackageBuildToken(join(distPath, "package.json"));
   }
 
   if (target === "docker") {

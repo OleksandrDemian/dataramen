@@ -9,9 +9,37 @@ import st from "./index.module.css";
 import {hideExplorerModal, toggleExplorerModal, useExplorerModals} from "../../hooks/useExplorerModals.ts";
 import CloseIcon from "./../../../../assets/close-outline.svg?react";
 import AddIcon from "./../../../../assets/add-outline.svg?react";
-import FilterIcon from "./../../../../assets/filter-outline.svg?react";
+import FlashIcon from "./../../../../assets/flash-outline.svg?react";
 import {useHotkeys} from "react-hotkeys-hook";
 import toast from "react-hot-toast";
+
+const FilterModeIndicator = ({ isAdvanced }: { isAdvanced?: boolean; }) => {
+  // if (isRaw) {
+  //   return (
+  //     <span
+  //       data-tooltip-id="default"
+  //       data-tooltip-content="Raw mode: input will be used as is"
+  //       className={st.filterBadge}
+  //     >
+  //       <CodeIcon width={20} height={20} />
+  //     </span>
+  //   );
+  // }
+
+  if (isAdvanced) {
+    return (
+      <span
+        data-tooltip-id="default"
+        data-tooltip-content="Advanced mode: parameters and operator will be extracted from the input"
+        className={st.filterBadge}
+      >
+        <FlashIcon width={20} height={20} />
+      </span>
+    );
+  }
+
+  return null;
+}
 
 const FilterEntry = ({
   filter,
@@ -60,22 +88,18 @@ const FilterEntry = ({
 
   return (
     <div className={st.filterContainer}>
-      <input type="checkbox" checked={filter.isEnabled !== false} onClick={() => triggerIsEnabled(filter.id)} />
+      <input className="mr-1" type="checkbox" checked={filter.isEnabled !== false} onClick={() => triggerIsEnabled(filter.id)} />
       <DataSourceColumnsAutocomplete
         dataSourceId={dataSourceId}
         onChange={(value) => onChangeColumn(filter.id, value)}
         value={filter.column}
         allowTables={allowedTables}
         focusId="column"
-        inputClassName="input w-full"
+        inputClassName="input w-full rounded-r-none!"
         autoFocus={autoFocus}
       />
-      <div className="flex items-center">
-        {filter.isAdvanced && (
-          <span className={st.advancedFilterIcon}>
-            <FilterIcon width={14} height={14} />
-          </span>
-        )}
+      <div className={st.filterValue}>
+        <FilterModeIndicator isAdvanced={filter.isAdvanced} />
 
         <input
           key={filter.id}
@@ -84,7 +108,7 @@ const FilterEntry = ({
           onChange={onChange}
           onKeyDown={onKeyDown}
           data-focus="value"
-          className="input flex-1"
+          className="flex-1 outline-none"
         />
       </div>
 
@@ -93,7 +117,7 @@ const FilterEntry = ({
           tabIndex={-1}
           data-tooltip-id="default"
           data-tooltip-content="Remove filter"
-          className="p-0.5 text-sm cursor-pointer rounded-md"
+          className="p-0.5 text-sm cursor-pointer rounded-md ml-1"
           onClick={() => onRemoveFilter(filter.id)}
         >
           <CloseIcon width={20} height={20} className="text-red-600" />
@@ -183,7 +207,7 @@ export const FiltersModal = () => {
       }));
       setTimeout(refetch, 1);
       handleOnClose();
-    } catch (e: any) {
+    } catch (e: unknown) {
       if (e instanceof Error) {
         toast.error(e.message);
       } else {
