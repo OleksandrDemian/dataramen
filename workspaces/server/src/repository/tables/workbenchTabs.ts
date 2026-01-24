@@ -16,12 +16,11 @@ export const WorkbenchTab = new EntitySchema<IWorkbenchTabSchema>({
     },
     createdAt: {
       type: TIMESTAMP_COLUMN_TYPE,
-      default: () => "CURRENT_TIMESTAMP",
+      createDate: true,
     },
     updatedAt: {
       type: TIMESTAMP_COLUMN_TYPE,
-      default: () => "CURRENT_TIMESTAMP",
-      onUpdate: "CURRENT_TIMESTAMP",
+      updateDate: true,
     },
     opts: {
       type: "json",

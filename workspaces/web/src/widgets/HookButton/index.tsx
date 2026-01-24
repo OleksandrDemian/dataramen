@@ -12,7 +12,6 @@ export const HookButton = ({ hook, onClick }: THookButtonProps) => {
       className={st.root}
       onClick={onClick}
     >
-      <span>📄</span>
       <div className={st.content}>
         <span className={st.tableName}>{hook.on.toTable}</span>
         <span className={st.sub}>{hook.on.toColumn} = {hook.on.fromTable}.{hook.on.fromColumn}</span>

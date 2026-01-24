@@ -1,4 +1,4 @@
-import {setDataSourceModal, useDataSourceModal} from "../../data/dataSourceModalStore.ts";
+import {setDataSourceModal, useDataSourceModal} from "../../data/sidebarDispatchersStore.ts";
 import {
   useDatabaseInspections,
   useDataSource,
@@ -254,7 +254,7 @@ function Component ({ id }: { id: string }) {
   );
 }
 
-export const DataSourceModal = () => {
+export const DataSourceSidebar = () => {
   const shownDataSource = useDataSourceModal();
   const [dataSourceId, setDataSourceId] = useState<string | undefined>(undefined);
 

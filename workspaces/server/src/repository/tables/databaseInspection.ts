@@ -22,11 +22,11 @@ export const DatabaseInspection = new EntitySchema<IDatabaseInspectionSchema>({
     },
     createdAt: {
       type: TIMESTAMP_COLUMN_TYPE,
-      default: () => "CURRENT_TIMESTAMP",
+      createDate: true,
     },
     updatedAt: {
       type: TIMESTAMP_COLUMN_TYPE,
-      default: () => "CURRENT_TIMESTAMP",
+      updateDate: true,
     },
   },
   relations: {

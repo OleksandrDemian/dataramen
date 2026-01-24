@@ -4,6 +4,7 @@ import {ContextualMenuInternals, TContextMenuHandler} from "./ContextualMenu.han
 import {isLaptop} from "../../../utils/screen.ts";
 import clsx from "clsx";
 import {useModalStack} from "../../../hooks/useModalStack.ts";
+import {createPortal} from "react-dom";
 
 type TPos = {
   top?: number;
@@ -57,7 +58,7 @@ export const ContextualMenu = ({ children, handler }: { children: ReactNode, han
     return null;
   }
 
-  return (
+  const render = (
     <div className={clsx(st.container, handler.state === "out" && st.animateHide, handler.state === "in" && st.animateShow)} onAnimationEnd={handler[ContextualMenuInternals.ON_ANIMATION_END]}>
       <div
         className={st.backdrop}
@@ -76,4 +77,6 @@ export const ContextualMenu = ({ children, handler }: { children: ReactNode, han
       </div>
     </div>
   );
+
+  return createPortal(render, document.body);
 };

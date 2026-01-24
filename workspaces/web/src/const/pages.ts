@@ -55,7 +55,6 @@ const home = createSimpleRoute("Home", "/");
 const workbench = createSimpleRoute("Workbench", "/workbench");
 const share = createSimpleRoute("Share query", "/share");
 const login = createSimpleRoute("Login", "/login");
-const savedQueries = createSimpleRoute("Saved queries", "/saved-queries");
 
 /* COMPLEX ROUTES */
 const workbenchTab = createRoute<{ id: string }>(
@@ -68,6 +67,5 @@ export const PAGES = {
   workbench,
   share,
   login,
-  savedQueries,
   workbenchTab,
 };

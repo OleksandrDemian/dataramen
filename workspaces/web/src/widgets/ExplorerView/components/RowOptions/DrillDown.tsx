@@ -9,10 +9,8 @@ import {PAGES} from "../../../../const/pages.ts";
 import st from "./index.module.css";
 import {gt} from "../../../../utils/numbers.ts";
 import {HookButton} from "../../../HookButton";
-import clsx from "clsx";
 import {TDbValue, TQueryFilter} from "@dataramen/types";
-
-const inputClass = clsx("input", st.filterInput);
+import {SearchInput} from "../../../SearchInput";
 
 function createRelatedDataTabData (hook: THook, dataSourceId: string, value: TDbValue) {
   return {
@@ -119,9 +117,9 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
 
   return (
     <div className={className}>
-      <input
+      <SearchInput
         autoFocus
-        className={inputClass}
+        className={st.filterInput}
         placeholder="Filter"
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
@@ -129,7 +127,7 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
 
       <div className={st.list}>
         {hasNestedData && (
-          <button onClick={showNestedData} className={st.optionItem}>🎯 Underlying rows</button>
+          <button onClick={showNestedData} className={st.optionItem}>Underlying rows</button>
         )}
 
         {hasFilteredHooks && filteredHooks.map((hook) => (

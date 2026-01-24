@@ -1,11 +1,9 @@
-import clsx from "clsx";
 import st from "./index.module.css";
 import {useContext, useMemo, useState} from "react";
 import {QueryResultContext, TableContext} from "../../context/TableContext.ts";
 import {updateEntityEditor} from "../../../../data/entityEditorStore.ts";
 import {gt} from "../../../../utils/numbers.ts";
-
-const inputClass = clsx("input", st.filterInput);
+import {SearchInput} from "../../../SearchInput";
 
 export type TExpandRowProps = {
   onClose?: VoidFunction;
@@ -46,9 +44,9 @@ export const ExpandRow = ({ onClose, rowIndex, className }: TExpandRowProps) => 
 
   return (
     <div className={className}>
-      <input
+      <SearchInput
         autoFocus
-        className={inputClass}
+        className={st.filterInput}
         placeholder="Filter"
         value={filter}
         onChange={(e) => setFilter(e.target.value)}

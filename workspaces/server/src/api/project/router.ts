@@ -6,9 +6,9 @@ import {
   SavedQueriesRepository,
   WorkbenchTabsRepository,
 } from "../../repository/db";
-import {FindOptionsWhere, In, Like, Raw} from "typeorm";
+import {FindOptions, FindOptionsWhere, In, Like, Raw} from "typeorm";
 import {
-  IDataSourceSchema,
+  IDataSourceSchema, IWorkbenchTab, IWorkbenchTabSchema,
   TFindQuery,
   TProjectDataSource,
   TProjectQuery,
@@ -286,18 +286,27 @@ export default createRouter((instance) => {
     url: "/team/:teamId/tabs-history",
     handler: async (request) => {
       const { teamId, } = getRequestParams<{ teamId: string }>(request);
-      const query = getRequestQuery<{ page: number; size: number; archived?: string }>(request);
+      const query = getRequestQuery<{ nameFilter: string; page: number; size: number; archived?: string }>(request);
 
       const page = Number(query.page);
       const size = Number(query.size);
       const userId = request.user.id;
 
+      const where: FindOptionsWhere<IWorkbenchTabSchema> = {
+        team: { id: teamId },
+        user: { id: userId },
+      };
+
+      if (query.nameFilter?.length) {
+        where.name = Like(`%${query.nameFilter}%`);
+      }
+
+      if (query.archived) {
+        where.archived = query.archived === "true";
+      }
+
       const workbenchTabs = await WorkbenchTabsRepository.find({
-        where: {
-          team: { id: teamId },
-          user: { id: userId },
-          archived: query.archived ? query.archived === "true" : undefined,
-        },
+        where,
         relations: {
           dataSource: true,
         },

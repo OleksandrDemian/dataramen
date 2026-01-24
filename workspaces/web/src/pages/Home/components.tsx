@@ -11,7 +11,7 @@ import {useNavigate} from "react-router-dom";
 import {PAGES} from "../../const/pages.ts";
 import {useCurrentUser} from "../../data/queries/users.ts";
 import {useDataSources} from "../../data/queries/dataSources.ts";
-import {setDataSourceModal} from "../../data/dataSourceModalStore.ts";
+import {setDataSourceModal, updateShowSavedQueries} from "../../data/sidebarDispatchersStore.ts";
 import {useWorkbenchTabs} from "../../data/queries/workbenchTabs.ts";
 import {useRecentTabs} from "../../data/queries/project.ts";
 import GithubIcon from "../../assets/logo-github.svg?react";
@@ -37,10 +37,8 @@ export const StartQuery = () => {
 };
 
 export const SavedQueriesAction = () => {
-  const navigate = useNavigate();
-
   return (
-    <div className={st.homeActionButton} onClick={() => navigate(PAGES.savedQueries.build())}>
+    <div className={st.homeActionButton} onClick={() => updateShowSavedQueries({ show: true })}>
       <SavedQueriesIcon width={20} height={20} className={iconClass} />
       <h2 className={st.actionTitle}>Saved queries</h2>
     </div>

@@ -5,7 +5,7 @@ import {openPeopleSettings} from "../../../data/peopleSettingsModalStore.ts";
 import {PAGES} from "../../../const/pages.ts";
 import {useLocation, useNavigate} from "react-router-dom";
 import {useSearchTable} from "../../../data/tableSearchModalStore.ts";
-import {updateShowTabsHistory} from "../../../data/showTabsHistorySidebarStore.ts";
+import {updateShowSavedQueries, updateShowTabsHistory} from "../../../data/sidebarDispatchersStore.ts";
 import ChevronIcon from "../../../assets/chevron-forward-outline.svg?react";
 import DockerIcon from "../../../assets/logo-docker.svg?react";
 import TerminalIcon from "../../../assets/terminal-outline.svg?react";
@@ -25,7 +25,7 @@ import {useWorkbenchTabs} from "../../../data/queries/workbenchTabs.ts";
 import {AccessTokenHandler} from "../../../services/accessTokenHandler.ts";
 import {confirm} from "../../../data/confirmModalStore.ts";
 import stNav from "./index.module.css";
-import {setDataSourceModal} from "../../../data/dataSourceModalStore.ts";
+import {setDataSourceModal} from "../../../data/sidebarDispatchersStore.ts";
 import {DataSourceIcon} from "../../Icons";
 import { TProjectDataSource } from "@dataramen/types";
 import {useTeamDataSources} from "../../../data/queries/project.ts";
@@ -94,9 +94,7 @@ export const Nav = () => {
   };
 
   const onSavedQueries = () => {
-    if (!PAGES.savedQueries.check(pathname)) {
-      navigate(PAGES.savedQueries.build());
-    }
+    updateShowSavedQueries({ show: true });
   };
 
   const onLogout = () => {
@@ -221,20 +219,6 @@ export const Nav = () => {
         )}
       </div>
 
-      <button
-        onClick={() => setShowSidebarMenu(!showSidebarMenu)}
-        data-tooltip-id="default"
-        data-tooltip-content="Expand sidebar"
-        data-tooltip-hidden={showSidebarMenu}
-        data-tooltip-place="right"
-        className={`${st.navItem} mx-1`}
-      >
-        <span className={clsx(st.icon, st.expand, showSidebarMenu ? st.show : st.hide)}>
-          <ChevronIcon className={navIconStyle} width={20} height={20} />
-        </span>
-        <span className="truncate text-sm text-(--text-color-primary)">Collapse menu</span>
-      </button>
-
       {enableAuth && (
         <button
           onClick={onLogout}
@@ -259,6 +243,20 @@ export const Nav = () => {
         </span>
         <span className="truncate text-sm text-(--text-color-primary)">{runtimeName}</span>
       </div>
+
+      <button
+        onClick={() => setShowSidebarMenu(!showSidebarMenu)}
+        data-tooltip-id="default"
+        data-tooltip-content="Expand sidebar"
+        data-tooltip-hidden={showSidebarMenu}
+        data-tooltip-place="right"
+        className={`${st.navItem} mx-1`}
+      >
+        <span className={clsx(st.icon, st.expand, showSidebarMenu ? st.show : st.hide)}>
+          <ChevronIcon className={navIconStyle} width={20} height={20} />
+        </span>
+        <span className="truncate text-sm text-(--text-color-primary)">Collapse menu</span>
+      </button>
     </nav>
   );
 };
