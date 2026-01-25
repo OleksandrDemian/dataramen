@@ -64,12 +64,19 @@ export const useSearchQueries = (search: string, props: {
   });
 };
 
-export const useInfiniteTabHistory = (teamId?: string, resultsPerPage: number = 30, archived?: boolean) => {
+export const useInfiniteTabHistory = (teamId?: string, filter: string = "", size: number = 30, archived?: boolean) => {
   return useInfiniteQuery({
-    queryKey: ['project', "tabs-history", teamId, resultsPerPage, archived],
+    queryKey: ['project', "tabs-history", teamId, size, archived, filter],
     queryFn: async ({ pageParam }) => {
-      const filterValue = archived !== undefined ? `&archived=${archived}` : '';
-      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[]; hasMore: boolean; }>(`/project/team/${teamId}/tabs-history?page=${pageParam}&size=${resultsPerPage}${filterValue}`);
+      const queryParams = new URLSearchParams();
+      queryParams.set("nameFilter", filter);
+      queryParams.set("size", size.toString());
+      queryParams.set("page", pageParam.toString());
+      if (archived !== undefined) {
+        queryParams.set("archived", archived.toString());
+      }
+
+      const { data } = await apiClient.get<{ data: TProjectTabsHistoryEntry[]; hasMore: boolean; }>(`/project/team/${teamId}/tabs-history?${queryParams.toString()}`);
       return data;
     },
     select: ({ pages }) => {

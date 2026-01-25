@@ -3,23 +3,15 @@
 .data-source-entry {
   display: grid;
   grid-template-columns: 32px 1fr;
-  @apply gap-2 items-center cursor-pointer hover:bg-gray-50 p-4 bg-white rounded-lg border border-gray-200;
+  @apply gap-2 items-center cursor-pointer hover:bg-gray-50 p-4 bg-white rounded-md border border-gray-200 relative;
 }
 
 .action-title {
-  @apply font-semibold flex justify-between items-center text-(--text-color-primary);
+  @apply font-semibold text-(--text-color-primary);
 }
 
 .action-subtext {
   @apply text-sm text-gray-700 mt-2 truncate;
-}
-
-.dev-tag {
-  @apply border border-red-200 bg-red-100 text-sm text-red-700 px-2 rounded-md;
-}
-
-.prod-tag {
-  @apply border border-blue-200 bg-blue-100 text-sm text-blue-700 px-2 rounded-md;
 }
 
 .recent-tabs-container {
@@ -37,7 +29,7 @@
 
 .home-action-button {
   border: 1px solid var(--bg-quat);
-  @apply bg-white p-4 rounded-lg hover:bg-gray-50! cursor-pointer;
+  @apply bg-white p-4 rounded-lg hover:bg-gray-50! cursor-pointer flex gap-2 items-center;
 }
 
 .home-gray-card {

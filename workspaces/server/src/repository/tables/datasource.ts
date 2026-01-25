@@ -41,11 +41,11 @@ export const DataSource = new EntitySchema<IDataSourceSchema>({
     },
     createdAt: {
       type: TIMESTAMP_COLUMN_TYPE,
-      default: () => "CURRENT_TIMESTAMP",
+      createDate: true,
     },
     updatedAt: {
       type: TIMESTAMP_COLUMN_TYPE,
-      default: () => "CURRENT_TIMESTAMP",
+      updateDate: true,
     },
     name: {
       type: String,

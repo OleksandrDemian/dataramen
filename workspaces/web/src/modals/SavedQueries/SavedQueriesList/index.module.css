@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+.queries-container {
+  @apply flex flex-col;
+}
+
+.query-entry {
+  @apply p-2 flex items-center justify-between gap-2;
+
+  &:hover {
+    @apply bg-(--bg-sec) cursor-pointer;
+  }
+}

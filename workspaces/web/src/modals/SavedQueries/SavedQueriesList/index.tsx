@@ -5,19 +5,16 @@ import {ContextualMenu} from "../../../widgets/ExplorerView/components/Contextua
 import {useContextMenuHandler} from "../../../widgets/ExplorerView/components/ContextualMenu.handler.ts";
 import {PAGES} from "../../../const/pages.ts";
 import {prompt} from "../../../data/promptModalStore.ts";
-import {useTeamSavedQueries} from "../../../data/queries/project.ts";
-import {useRef, useState} from "react";
+import {useRef} from "react";
 import {useNavigate} from "react-router-dom";
 import {useDeleteSavedQuery, useUpdateSavedQuery} from "../../../data/queries/queries.ts";
 import {useCreateWorkbenchTab} from "../../../data/queries/workbenchTabs.ts";
-import {useDebouncedValue} from "../../../hooks/useDebouncedValue.ts";
-import {useCurrentUser} from "../../../data/queries/users.ts";
+import { TProjectQuery } from "@dataramen/types";
+import {updateShowSavedQueries} from "../../../data/sidebarDispatchersStore.ts";
 
-export const SavedQueriesList = () => {
-  const { data: user } = useCurrentUser();
-  const [nameFilter, setNameFilter] = useState<string>("");
-  const debouncedValue = useDebouncedValue(nameFilter);
-  const { data: projectQueries, isLoading, fetchNextPage, hasNextPage } = useTeamSavedQueries(user?.teamId, debouncedValue);
+const dateFormatter = new Intl.DateTimeFormat();
+
+export const SavedQueriesList = ({ projectQueries, isLoading }: { isLoading: boolean; projectQueries: TProjectQuery[] }) => {
   const contextQueryId = useRef<string | undefined>(undefined);
 
   const navigate = useNavigate();
@@ -30,6 +27,7 @@ export const SavedQueriesList = () => {
     createWorkbenchTab.mutateAsync({
       queryId,
     }).then((result) => {
+      updateShowSavedQueries({ show: false });
       navigate(PAGES.workbenchTab.build({ id: result.id }));
     });
   };
@@ -60,16 +58,7 @@ export const SavedQueriesList = () => {
   };
 
   return (
-    <div className={st.queriesContainer}>
-      <div className="sticky top-0 p-4 bg-(--bg)">
-        <input
-          className="input w-full"
-          placeholder="Filter"
-          value={nameFilter}
-          onChange={(e) => setNameFilter(e.target.value)}
-        />
-      </div>
-
+    <div className="flex flex-col px-2">
       {gt(projectQueries?.length, 0) && projectQueries.map((file) => (
         <button
           key={file.savedQueryId}
@@ -80,25 +69,20 @@ export const SavedQueriesList = () => {
             contextHandler.open(e);
           }}
         >
-          <p className="text-left">📖 {file.name}</p>
+          <div>
+            <p className="text-left text-sm font-semibold text-(--text-color-primary)">{file.name}</p>
+            <p className="text-left text-xs text-(--text-color-secondary) italic">{dateFormatter.format(new Date(file.updatedAt))}</p>
+          </div>
+
           <p className="flex gap-2 items-center">
-            <DataSourceIcon size={20} type={file.datasourceType} />
-            <span className="truncate text-sm text-(--text-color-secondary)">{file.datasourceName}</span>
+            <DataSourceIcon size={16} type={file.datasourceType} />
+            <span className="truncate text-xs text-(--text-color-secondary)">{file.datasourceName}</span>
           </p>
         </button>
       ))}
 
-      {hasNextPage && (
-        <button
-          className="button primary mx-auto mt-4"
-          onClick={() => fetchNextPage()}
-        >
-          Load more
-        </button>
-      )}
-
       {!isLoading && lt(projectQueries?.length, 1) && (
-        <p className="text-center text-sm text-(--text-color-secondary)">Empty</p>
+        <p className="text-center text-sm text-(--text-color-secondary) mt-2">Empty</p>
       )}
 
       <ContextualMenu handler={contextHandler}>

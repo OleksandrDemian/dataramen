@@ -1,4 +1,4 @@
-import {updateShowTabsHistory, useShowTabsHistory} from "../../data/showTabsHistorySidebarStore.ts";
+import {updateShowTabsHistory, useShowTabsHistory} from "../../data/sidebarDispatchersStore.ts";
 import {Sidebar} from "../../widgets/Sidebar";
 import {useInfiniteTabHistory} from "../../data/queries/project.ts";
 import {useCurrentUser} from "../../data/queries/users.ts";
@@ -6,17 +6,19 @@ import {DataSourceIcon} from "../../widgets/Icons";
 import {useNavigate} from "react-router-dom";
 import {PAGES} from "../../const/pages.ts";
 import {useDeleteWorkbenchTab, useRestoreArchivedTab} from "../../data/queries/workbenchTabs.ts";
-import {Alert} from "../../widgets/Alert";
-import CloseIcon from "../../assets/close-outline.svg?react";
 import st from "./index.module.css";
-import {useRef} from "react";
+import {useRef, useState} from "react";
 import {ContextualMenu, TContextMenuRef} from "../../widgets/ContextualMenu";
+import {SidebarListContainer} from "../../widgets/SidebarListContainer";
+import {useDebouncedValue} from "../../hooks/useDebouncedValue.ts";
 
 const dateFormatter = new Intl.DateTimeFormat();
 
 const Component = () => {
+  const [filter, setFilter] = useState<string>("");
+  const debouncedValue = useDebouncedValue(filter);
   const { data: user } = useCurrentUser();
-  const { data: tabs, fetchNextPage, hasNextPage, isFetching } = useInfiniteTabHistory(user?.teamId, 25);
+  const { data: tabs, fetchNextPage, hasNextPage } = useInfiniteTabHistory(user?.teamId, debouncedValue, 25);
   const navigate = useNavigate();
   const restoreTab = useRestoreArchivedTab();
   const deleteTab = useDeleteWorkbenchTab();
@@ -35,21 +37,14 @@ const Component = () => {
     deleteTab.mutate(contextItemRef.current!);
   };
 
-  const hasTabs = tabs && tabs?.length > 0;
-
   return (
-    <div className={st.container}>
-      <div className={st.header}>
-        <h3 className="text-lg">Recent tabs</h3>
-        <button className={st.closeButton} onClick={() => updateShowTabsHistory({ show: false })}>
-          <CloseIcon width={24} height={24} />
-        </button>
-      </div>
-
-      {!hasTabs && (
-        <Alert variant="warning">History is empty.</Alert>
-      )}
-
+    <SidebarListContainer
+      hasMore={hasNextPage}
+      onLoadMore={fetchNextPage}
+      onClose={() => updateShowTabsHistory({ show: false })}
+      searchValue={filter}
+      onSearchValue={setFilter}
+    >
       {tabs?.map((tab) => (
         <div
           className={st.tabContainer}
@@ -83,13 +78,7 @@ const Component = () => {
           🗑 Delete
         </button>
       </ContextualMenu>
-
-      {hasNextPage && !isFetching && (
-        <div className="flex justify-center my-2">
-          <button className={st.loadMoreBtn} onClick={() => fetchNextPage()}>Load more</button>
-        </div>
-      )}
-    </div>
+    </SidebarListContainer>
   );
 };
 

@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+.container {
+  border: 1px solid var(--bg-quat);
+
+  @apply rounded-md flex gap-2 items-center p-1;
+}

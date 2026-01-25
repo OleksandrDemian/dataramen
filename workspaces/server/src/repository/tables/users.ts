@@ -13,11 +13,11 @@ export const User = new EntitySchema<IUserSchema>({
     },
     createdAt: {
       type: TIMESTAMP_COLUMN_TYPE,
-      default: () => "CURRENT_TIMESTAMP",
+      createDate: true,
     },
     updatedAt: {
       type: TIMESTAMP_COLUMN_TYPE,
-      default: () => "CURRENT_TIMESTAMP",
+      updateDate: true,
     },
     username: {
       type: String,

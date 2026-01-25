@@ -7,7 +7,7 @@ import {ConfirmModal} from "../modals/ConfirmModal";
 import {PromptModal} from "../modals/PromptModal";
 import {ValueDisplayModal} from "../modals/ValueDisplayModal";
 import {WorkbenchTabPage} from "./WorkbenchTab";
-import {DataSourceModal} from "../modals/DataSourceModal";
+import {DataSourceSidebar} from "../modals/DataSourceModal";
 import {SearchTableModal} from "../modals/SearchTableModal";
 import {useSetupGlobalListeners} from "../hooks/useGlobalHotkey.ts";
 import {useAnalyticsPageview} from "../hooks/useAnalyticsPageview.ts";
@@ -17,8 +17,8 @@ import {LoginPage} from "./Login";
 import {useLoginGuard} from "../hooks/useLoginGuard.ts";
 import {SharedQuery} from "./SharedQuery";
 import {TabsHistorySidebar} from "../modals/TabsHistorySidebar";
-import {SavedQueriesPage} from "./SavedQueries";
 import {WorkbenchPage} from "./Workbench";
+import {SavedQueriesSidebar} from "../modals/SavedQueries";
 
 function Router() {
   useSetupGlobalListeners();
@@ -33,17 +33,17 @@ function Router() {
         <Route path={PAGES.workbenchTab.path} element={<WorkbenchTabPage />} />
         <Route path={PAGES.login.path} element={<LoginPage />} />
         <Route path={PAGES.share.path} element={<SharedQuery />} />
-        <Route path={PAGES.savedQueries.path} element={<SavedQueriesPage />} />
       </Routes>
 
       <EntityCreator />
       <EntityEditor />
       <ValueDisplayModal />
-      <DataSourceModal />
+      <DataSourceSidebar />
       <SearchTableModal />
       <AccountSettingsModal />
       <PeopleSettingsModal />
       <TabsHistorySidebar />
+      <SavedQueriesSidebar />
 
       <PromptModal />
       <ConfirmModal />

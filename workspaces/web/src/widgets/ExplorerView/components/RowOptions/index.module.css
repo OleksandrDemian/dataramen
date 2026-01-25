@@ -6,7 +6,7 @@
 }
 
 .filter-input {
-  @apply text-sm mb-2 w-full;
+  @apply text-sm;
 }
 
 .option-item {
@@ -19,7 +19,7 @@
 
 .list {
   max-height: 30vh;
-  @apply flex flex-col overflow-y-auto;
+  @apply flex flex-col overflow-y-auto mt-2;
 }
 
 .empty-text {

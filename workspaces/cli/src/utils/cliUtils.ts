@@ -17,7 +17,7 @@ export function shouldInstall () {
     }
 
     const thisProxyPkgJson = fs.readJsonSync(join(__dirname, '..', 'dist', "package.json"));
-    return installedProxyPkjJson.version !== thisProxyPkgJson.version; // version are different, install new code
+    return installedProxyPkjJson.buildToken !== thisProxyPkgJson.buildToken; // buildTokens are different, install new code
   } catch (e) {
     return true;
   }

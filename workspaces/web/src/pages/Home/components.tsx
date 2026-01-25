@@ -11,34 +11,36 @@ import {useNavigate} from "react-router-dom";
 import {PAGES} from "../../const/pages.ts";
 import {useCurrentUser} from "../../data/queries/users.ts";
 import {useDataSources} from "../../data/queries/dataSources.ts";
-import {setDataSourceModal} from "../../data/dataSourceModalStore.ts";
+import {setDataSourceModal, updateShowSavedQueries} from "../../data/sidebarDispatchersStore.ts";
 import {useWorkbenchTabs} from "../../data/queries/workbenchTabs.ts";
 import {useRecentTabs} from "../../data/queries/project.ts";
 import GithubIcon from "../../assets/logo-github.svg?react";
 import NpmIcon from "../../assets/logo-npm.svg?react";
 import DocumentationIcon from "../../assets/document-text-outline.svg?react";
+import LockIcon from "../../assets/lock-closed-outline.svg?react";
+import SearchIcon from "../../assets/search-outline.svg?react";
+import SavedQueriesIcon from "../../assets/hourglass-outline.svg?react";
+import WorkbenchIcon from "../../assets/construct-outline.svg?react";
+
+const iconSize = 20;
+const iconClass = "text-(--text-color-primary)";
 
 export const StartQuery = () => {
   const searchAndOpen = useSearchTable("Home");
 
   return (
     <div className={st.homeActionButton} onClick={searchAndOpen}>
-      <h2 className={st.actionTitle}>
-        <span className="truncate">🔎 Start new query</span>
-        <span className="hotkey">N</span>
-      </h2>
+      <SearchIcon width={iconSize} height={iconSize} className={iconClass} />
+      <h2 className={st.actionTitle}>Start new query</h2>
     </div>
   );
 };
 
 export const SavedQueriesAction = () => {
-  const navigate = useNavigate();
-
   return (
-    <div className={st.homeActionButton} onClick={() => navigate(PAGES.savedQueries.build())}>
-      <h2 className={st.actionTitle}>
-        <span className="truncate">💾 Saved queries</span>
-      </h2>
+    <div className={st.homeActionButton} onClick={() => updateShowSavedQueries({ show: true })}>
+      <SavedQueriesIcon width={20} height={20} className={iconClass} />
+      <h2 className={st.actionTitle}>Saved queries</h2>
     </div>
   );
 };
@@ -93,10 +95,8 @@ export const WorkbenchTabs = () => {
 
   return (
     <div className={st.homeActionButton} onClick={onOpenWorkbench}>
-      <h2 className={st.actionTitle}>
-        <span>🛠️ Workbench</span>
-        <span className="hotkey">W</span>
-      </h2>
+      <WorkbenchIcon width={20} height={20} className={iconClass} />
+      <h2 className={st.actionTitle}>Workbench</h2>
     </div>
   );
 };
@@ -123,10 +123,20 @@ export const ListDataSources = () => {
       <div className={st.homeCardGridContent}>
         {dataSources?.map((d) => (
           <div key={d.id} className={st.dataSourceEntry} onClick={() => onOpen(d.id)} tabIndex={0}>
+            {!d.allowInsert && (
+              <LockIcon
+                data-tooltip-id="default"
+                data-tooltip-content="This datasource is read-only"
+                width={18}
+                height={18}
+                className="absolute top-2 right-2"
+              />
+            )}
+
             <DataSourceIcon size={32} type={d.dbType} />
             <div className="overflow-hidden">
-              <p className={st.actionTitle}>{d.name}</p>
-              {d.allowInsert ? <span className={st.devTag}>dev</span> : <span className={st.prodTag}>prod</span>}
+              <p className="text-(--text-color-primary) font-semibold truncate">{d.name}</p>
+              <p className="text-sm text-(--text-color-secondary) truncate">{d.dbUrl}:{d.dbPort}</p>
             </div>
           </div>
         ))}

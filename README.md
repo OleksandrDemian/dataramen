@@ -17,17 +17,18 @@ Your cozy corner for exploring and working with SQL databases - no query writing
   Click to expand related records.
 
 - ✏️ **Insert & Update Visually**  
-  Add or modify rows with a visual editor - no SQL errors.
+  Add or modify rows with a visual editor.
 
 - 💾 **Save Queries**  
   Save your favorite queries for quick access later.
 
 ## Installation
 
-DataRamen can be installed in 2 ways:
+DataRamen can be installed in multiple ways:
 
 * as a local CLI tool: [installation guide](https://dataramen.xyz/get-started/install-dataramen-cli/)
 * as a self-hosted service: [installation guide](https://dataramen.xyz/get-started/self-hosted/)
+* as docker image: [Github repo](https://github.com/OleksandrDemian/dataramen/pkgs/container/dataramen)
 
 ## 🧾 License
 

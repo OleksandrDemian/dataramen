@@ -10,6 +10,7 @@
 .header {
   width: 600px;
   max-width: 100%;
+  border-bottom: 1px solid var(--bg-quat);
   @apply py-2 px-4 rounded-t-lg;
 }
 
@@ -27,6 +28,7 @@
 .field-label {
   display: block;
   margin-top: 8px;
+  @apply text-sm;
 }
 
 .actions {

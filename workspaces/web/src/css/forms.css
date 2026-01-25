@@ -1,6 +1,10 @@
 .input {
   border: 1px solid var(--bg-quat);
-  @apply bg-(--bg-sec) rounded-lg p-1  focus:border-blue-400 outline-0;
+  @apply rounded p-1 outline-0 bg-white;
+
+  &:focus {
+    @apply ring-2 ring-blue-400 ring-inset;
+  }
 
   &:disabled {
     @apply cursor-not-allowed bg-(--bg-ter);
@@ -20,9 +24,7 @@
 }
 
 .button {
-  @apply font-semibold py-0.5 px-2 cursor-pointer;
-
-  border-radius: 8px;
+  @apply font-semibold py-0.5 px-2 cursor-pointer rounded-md;
 
   &:disabled {
     opacity: 0.6;
@@ -47,20 +49,6 @@
 
     &:hover {
       @apply bg-(--bg-sec);
-    }
-  }
-
-  &.floating {
-    --animation-speed: 100ms;
-    --animation-fn: ease-in-out;
-
-    @apply border border-white;
-
-    outline: none;
-    transition: border var(--animation-speed) var(--animation-fn), box-shadow var(--animation-speed) var(--animation-fn);
-
-    &:hover:not(:disabled) {
-      @apply border border-blue-500 shadow-md;
     }
   }
 

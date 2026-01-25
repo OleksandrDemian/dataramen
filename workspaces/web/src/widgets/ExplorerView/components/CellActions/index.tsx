@@ -76,7 +76,7 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
             {entities?.length > 0 && (
               <button className={st.item} onClick={onExpand}>
                 <ExpandIcon width={14} height={14} />
-                Edit row
+                Show record
               </button>
             )}
           </>

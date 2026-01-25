@@ -20,12 +20,11 @@ export const Query = new EntitySchema<IQuerySchema>({
     },
     createdAt: {
       type: TIMESTAMP_COLUMN_TYPE,
-      default: () => "CURRENT_TIMESTAMP",
+      createDate: true,
     },
     updatedAt: {
       type: TIMESTAMP_COLUMN_TYPE,
-      default: () => "CURRENT_TIMESTAMP",
-      onUpdate: "CURRENT_TIMESTAMP",
+      updateDate: true,
     },
   },
   relations: {
