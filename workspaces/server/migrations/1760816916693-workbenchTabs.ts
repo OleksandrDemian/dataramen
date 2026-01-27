@@ -1,5 +1,5 @@
 import {MigrationInterface, QueryRunner, Table, TableForeignKey} from "typeorm";
-import {Tables, TIMESTAMP_COLUMN_TYPE} from "./utils/migrationUtils";
+import {UUIDColumn, Tables, TIMESTAMP_COLUMN_TYPE, UUIDColumnRef} from "./utils/migrationUtils";
 
 export class WorkbenchTabs1760816916693 implements MigrationInterface {
   name = "WorkbenchTabs1760816916693";
@@ -9,15 +9,15 @@ export class WorkbenchTabs1760816916693 implements MigrationInterface {
       new Table({
         name: Tables.WorkbenchTabs,
         columns: [
-          { name: "id",         type: "uuid", isPrimary: true, isGenerated: true, generationStrategy: "uuid" },
+          UUIDColumn(),
           { name: "createdAt",  type: TIMESTAMP_COLUMN_TYPE, default: "CURRENT_TIMESTAMP" },
           { name: "updatedAt",  type: TIMESTAMP_COLUMN_TYPE, default: "CURRENT_TIMESTAMP" },
           { name: "name",       type: "varchar" },
           { name: "archived",   type: "boolean", isNullable: false, default: false },
-          { name: "teamId",     type: "uuid", isNullable: false },
-          { name: "queryId",    type: "uuid", isNullable: true },
-          { name: "userId",     type: "uuid", isNullable: false },
-          { name: "opts",       type: "json", default: "'{}'" },
+          { name: "opts",       type: "json", isNullable: false },
+          UUIDColumnRef("teamId", { isNullable: false }),
+          UUIDColumnRef("queryId", { isNullable: true }),
+          UUIDColumnRef("userId", { isNullable: false }),
         ],
       }),
     );

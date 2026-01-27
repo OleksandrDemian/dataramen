@@ -119,7 +119,7 @@ export default createRouter((instance) => {
       const newWorkbenchTab = await WorkbenchTabsRepository.save(
         WorkbenchTabsRepository.create({
           name: finalName || new Date().toISOString(), // fallback to date
-          opts: baseOptions,
+          opts: baseOptions || {},
           dataSource: {
             id: dataSourceId,
           },
@@ -165,7 +165,7 @@ export default createRouter((instance) => {
       if (newOptions) {
         // do not await
         WorkbenchTabsRepository.update(id, {
-          opts: newOptions,
+          opts: newOptions || {},
           searchString: generateSearchString(newOptions, workbenchTab.name),
           updatedAt: new Date(),
         });

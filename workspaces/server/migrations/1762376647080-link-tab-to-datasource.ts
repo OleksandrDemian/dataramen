@@ -1,5 +1,5 @@
 import {MigrationInterface, QueryRunner, TableColumn, TableForeignKey} from "typeorm";
-import {Tables} from "./utils/migrationUtils";
+import {Tables, UUIDColumnRef} from "./utils/migrationUtils";
 
 const dataSourceFk = new TableForeignKey({
   columnNames: ["dataSourceId"],
@@ -7,11 +7,7 @@ const dataSourceFk = new TableForeignKey({
   referencedColumnNames: ["id"],
 });
 
-const dataSourceColumn = new TableColumn({
-  name: "dataSourceId",
-  type: "uuid",
-  isNullable: true,
-});
+const dataSourceColumn = new TableColumn(UUIDColumnRef("dataSourceId", { isNullable: true }),);
 
 const searchColumn = new TableColumn({
   name: "searchString",
