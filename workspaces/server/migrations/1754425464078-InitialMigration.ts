@@ -4,7 +4,7 @@ import {
   Table,
   TableForeignKey,
 } from "typeorm";
-import {TIMESTAMP_COLUMN_TYPE} from "./utils/migrationUtils";
+import {UUIDColumn, TIMESTAMP_COLUMN_TYPE, UUIDColumnRef} from "./utils/migrationUtils";
 
 export class InitialMigration1754425464078 implements MigrationInterface {
   name = "InitialMigration1754425464078";
@@ -15,13 +15,7 @@ export class InitialMigration1754425464078 implements MigrationInterface {
       new Table({
         name: "teams",
         columns: [
-          {
-            name: "id",
-            type: "uuid",
-            isPrimary: true,
-            isGenerated: true,
-            generationStrategy: "uuid",
-          },
+          UUIDColumn(),
           { name: "name", type: "varchar", isNullable: false },
           {
             name: "createdAt",
@@ -42,13 +36,7 @@ export class InitialMigration1754425464078 implements MigrationInterface {
       new Table({
         name: "users",
         columns: [
-          {
-            name: "id",
-            type: "uuid",
-            isPrimary: true,
-            isGenerated: true,
-            generationStrategy: "uuid",
-          },
+          UUIDColumn(),
           {
             name: "createdAt",
             type: TIMESTAMP_COLUMN_TYPE,
@@ -59,11 +47,7 @@ export class InitialMigration1754425464078 implements MigrationInterface {
             type: TIMESTAMP_COLUMN_TYPE,
             default: "CURRENT_TIMESTAMP",
           },
-          {
-            name: "currentTeamId",
-            type: "uuid",
-            isNullable: true,
-          },
+          UUIDColumnRef("currentTeamId", { isNullable: true }),
         ],
       }),
     );
@@ -73,21 +57,15 @@ export class InitialMigration1754425464078 implements MigrationInterface {
       new Table({
         name: "users_to_teams",
         columns: [
-          {
-            name: "id",
-            type: "uuid",
-            isPrimary: true,
-            isGenerated: true,
-            generationStrategy: "uuid",
-          },
+          UUIDColumn(),
           {
             name: "role",
             type: "varchar",
             isNullable: false,
             default: "'admin'",
           },
-          { name: "teamId", type: "uuid", isNullable: true },
-          { name: "userId", type: "uuid", isNullable: true },
+          UUIDColumnRef("teamId", { isNullable: true }),
+          UUIDColumnRef("userId", { isNullable: true }),
         ],
       }),
     );
@@ -97,13 +75,7 @@ export class InitialMigration1754425464078 implements MigrationInterface {
       new Table({
         name: "user_settings",
         columns: [
-          {
-            name: "id",
-            type: "uuid",
-            isPrimary: true,
-            isGenerated: true,
-            generationStrategy: "uuid",
-          },
+          UUIDColumn(),
           {
             name: "createdAt",
             type: TIMESTAMP_COLUMN_TYPE,
@@ -114,7 +86,7 @@ export class InitialMigration1754425464078 implements MigrationInterface {
             type: TIMESTAMP_COLUMN_TYPE,
             default: "CURRENT_TIMESTAMP",
           },
-          { name: "userId", type: "uuid", isUnique: true },
+          UUIDColumnRef("userId", { isUnique: true }),
         ],
       }),
     );
@@ -124,7 +96,7 @@ export class InitialMigration1754425464078 implements MigrationInterface {
       new Table({
         name: "data_sources",
         columns: [
-          { name: "id", type: "uuid", isPrimary: true, isGenerated: true, generationStrategy: "uuid" },
+          UUIDColumn(),
           { name: "dbUrl", type: "varchar" },
           { name: "dbPort", type: "int", isNullable: true },
           { name: "dbUser", type: "varchar" },
@@ -142,8 +114,8 @@ export class InitialMigration1754425464078 implements MigrationInterface {
           { name: "allowUpdate", type: "boolean", default: false },
           { name: "lastInspected", type: TIMESTAMP_COLUMN_TYPE, isNullable: true },
           { name: "status", type: "varchar", isNullable: true },
-          { name: "teamId", type: "uuid", isNullable: true },
-          { name: "ownerId", type: "uuid", isNullable: true },
+          UUIDColumnRef("teamId", { isNullable: true }),
+          UUIDColumnRef("ownerId", { isNullable: true }),
         ],
       }),
     );
@@ -153,14 +125,14 @@ export class InitialMigration1754425464078 implements MigrationInterface {
       new Table({
         name: "query",
         columns: [
-          { name: "id", type: "uuid", isPrimary: true, isGenerated: true, generationStrategy: "uuid" },
+          UUIDColumn(),
           { name: "name", type: "varchar" },
-          { name: "opts", type: "json", default: "'{}'" },
+          { name: "opts", type: "json", isNullable: false },
           { name: "isTrash", type: "boolean", isNullable: true, default: false },
           { name: "createdAt", type: TIMESTAMP_COLUMN_TYPE, default: "CURRENT_TIMESTAMP" },
           { name: "updatedAt", type: TIMESTAMP_COLUMN_TYPE, default: "CURRENT_TIMESTAMP" },
-          { name: "teamId", type: "uuid", isNullable: true },
-          { name: "dataSourceId", type: "uuid", isNullable: true },
+          UUIDColumnRef("teamId", { isNullable: true }),
+          UUIDColumnRef("dataSourceId", { isNullable: true }),
         ],
       }),
     );
@@ -170,12 +142,12 @@ export class InitialMigration1754425464078 implements MigrationInterface {
       new Table({
         name: "db_inspection",
         columns: [
-          { name: "id", type: "uuid", isPrimary: true, isGenerated: true, generationStrategy: "uuid" },
+          UUIDColumn(),
           { name: "tableName", type: "varchar", isNullable: true },
           { name: "columns", type: "json", isNullable: true },
           { name: "createdAt", type: TIMESTAMP_COLUMN_TYPE, default: "CURRENT_TIMESTAMP" },
           { name: "updatedAt", type: TIMESTAMP_COLUMN_TYPE, default: "CURRENT_TIMESTAMP" },
-          { name: "datasourceId", type: "uuid", isNullable: true },
+          UUIDColumnRef("dataSourceId", { isNullable: true }),
         ],
       }),
     );

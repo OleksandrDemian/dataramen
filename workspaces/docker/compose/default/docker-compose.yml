@@ -1,0 +1,16 @@
+version: "3.9"
+
+name: "dataramen"
+services:
+  dataramen:
+    image: ghcr.io/oleksandrdemian/dataramen:latest
+    container_name: app
+    ports:
+      - "4466:3000"
+    volumes:
+      - dataramen_data:/data
+    restart: no
+
+volumes:
+  dataramen_data:
+    name: dataramen_data

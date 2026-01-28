@@ -1,0 +1,46 @@
+version: "3.9"
+
+name: "dataramen"
+services:
+  dataramen:
+    image: ghcr.io/oleksandrdemian/dataramen:latest
+    container_name: app
+    ports:
+      - "4466:3000"
+    environment:
+      APP_DB_TYPE: "mysql"
+      APP_DB_HOST: "mysql"
+      APP_DB_PORT: "3306"
+      APP_DB_DATABASE: "dataramen"
+      APP_DB_USERNAME: "dataramen_user"
+      APP_DB_PASSWORD: "dataramen_pass"
+      # APP_DB_LOGGING: "false"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - dataramen_data:/data
+    restart: no
+
+  mysql:
+    image: mysql:8.0
+    container_name: dataramen_mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "root_pass"
+      MYSQL_DATABASE: "dataramen"
+      MYSQL_USER: "dataramen_user"
+      MYSQL_PASSWORD: "dataramen_pass"
+    volumes:
+      - dataramen_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: no
+
+volumes:
+  dataramen_data:
+    name: dataramen_data
+  dataramen_mysql_data:
+    name: dataramen_mysql_data

@@ -1,0 +1,45 @@
+version: "3.9"
+
+name: "dataramen"
+services:
+  dataramen:
+    image: ghcr.io/oleksandrdemian/dataramen:latest
+    container_name: app
+    ports:
+      - "4466:3000"
+    environment:
+      APP_DB_TYPE: "postgres"
+      APP_DB_HOST: "postgres"
+      APP_DB_PORT: "5432"
+      APP_DB_DATABASE: "dataramen"
+      APP_DB_USERNAME: "dataramen_user"
+      APP_DB_PASSWORD: "dataramen_pass"
+      # APP_DB_LOGGING: "false"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - dataramen_data:/data
+    restart: no
+
+  postgres:
+    image: postgres:15
+    container_name: dataramen_postgres_db
+    environment:
+      POSTGRES_DB: "dataramen"
+      POSTGRES_USER: "dataramen_user"
+      POSTGRES_PASSWORD: "dataramen_pass"
+    volumes:
+      - dataramen_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dataramen_user -d dataramen"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: no
+
+volumes:
+  dataramen_data:
+    name: dataramen_data
+  dataramen_postgres_data:
+    name: dataramen_postgres_data

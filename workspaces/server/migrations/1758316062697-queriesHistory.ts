@@ -1,5 +1,5 @@
 import {MigrationInterface, QueryRunner, Table, TableColumn, TableForeignKey} from "typeorm";
-import {Tables, TIMESTAMP_COLUMN_TYPE} from "./utils/migrationUtils";
+import {UUIDColumn, Tables, TIMESTAMP_COLUMN_TYPE, UUIDColumnRef} from "./utils/migrationUtils";
 
 export class QueriesHistory1758316062697 implements MigrationInterface {
   name = "QueriesHistory1758316062697";
@@ -10,13 +10,13 @@ export class QueriesHistory1758316062697 implements MigrationInterface {
       new Table({
         name: Tables.SavedQueries,
         columns: [
-          { name: "id", type: "uuid", isPrimary: true, isGenerated: true, generationStrategy: "uuid" },
+          UUIDColumn(),
           { name: "isPersonal", type: "boolean" },
           { name: "createdAt", type: TIMESTAMP_COLUMN_TYPE, default: "CURRENT_TIMESTAMP" },
           { name: "updatedAt", type: TIMESTAMP_COLUMN_TYPE, default: "CURRENT_TIMESTAMP" },
-          { name: "teamId", type: "uuid", isNullable: true },
-          { name: "queryId", type: "uuid", isNullable: false },
-          { name: "userId", type: "uuid", isNullable: false },
+          UUIDColumnRef("teamId", { isNullable: true }),
+          UUIDColumnRef("queryId", { isNullable: false }),
+          UUIDColumnRef("userId", { isNullable: false }),
         ],
       }),
     );
@@ -42,11 +42,7 @@ export class QueriesHistory1758316062697 implements MigrationInterface {
 
     // update query table with new userId property
     await queryRunner.addColumns(Tables.Query, [
-      new TableColumn({
-        name: "userId",
-        type: "uuid",
-        isNullable: true,
-      }),
+      new TableColumn(UUIDColumnRef("userId", { isNullable: true }),),
     ]);
 
     await queryRunner.createForeignKeys(Tables.Query, [
