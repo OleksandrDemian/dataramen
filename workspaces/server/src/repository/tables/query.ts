@@ -16,7 +16,7 @@ export const Query = new EntitySchema<IQuerySchema>({
     },
     opts: {
       type: "json",
-      default: "{}",
+      nullable: false,
     },
     createdAt: {
       type: TIMESTAMP_COLUMN_TYPE,

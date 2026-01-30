@@ -24,7 +24,7 @@ export const WorkbenchTab = new EntitySchema<IWorkbenchTabSchema>({
     },
     opts: {
       type: "json",
-      default: "{}",
+      nullable: false,
     },
     archived: {
       type: Boolean,
