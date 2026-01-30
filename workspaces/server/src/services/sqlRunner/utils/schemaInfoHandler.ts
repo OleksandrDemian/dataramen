@@ -1,6 +1,6 @@
 import {DatabaseInspectionRepository} from "../../../repository/db";
 import {In} from "typeorm";
-import { TRunSqlResult } from "@dataramen/types";
+import {IInspectionColumnRef, TRunSqlResult} from "@dataramen/types";
 import {ISelectColumn} from "../builders/types";
 
 export type TGetColumnType = (col: string) => string;
@@ -36,6 +36,22 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
     return columnTypes[column];
   };
 
+  const getColumnRef = (table: string, column: string): IInspectionColumnRef | undefined => {
+    for (const inspection of info) {
+      if (inspection.tableName !== table) {
+        continue;
+      }
+
+      for (const temp of inspection.columns!) {
+        if (temp.name === column && temp.ref) {
+          return temp.ref;
+        }
+      }
+    }
+
+    return undefined;
+  };
+
   return {
     getAllColumns (): TRunSqlResult["allColumns"] {
       return allColumns;
@@ -43,6 +59,7 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
     getColumnType,
     hasColumn(column: string): boolean {
       return !!columnTypes[column] || column === "*";
-    }
+    },
+    getColumnRef,
   };
 };

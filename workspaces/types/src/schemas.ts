@@ -18,14 +18,16 @@ export interface IUserSchema extends IUser {
   queries: IQuerySchema;
 }
 
+export interface IInspectionColumnRef {
+  table: string;
+  field: string;
+}
+
 export interface InspectionColumn {
   name: string;
   type: string;
   isPrimary?: boolean;
-  ref?: {
-    table: string;
-    field: string;
-  };
+  ref?: IInspectionColumnRef;
 }
 
 export interface IDatabaseInspection {

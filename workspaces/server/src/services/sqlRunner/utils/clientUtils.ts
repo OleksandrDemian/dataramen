@@ -1,5 +1,12 @@
 import {FilterParser, isStringType} from "@dataramen/common";
-import {TInputColumn, TQueryFilter, TQueryOperator, TQueryOptions, TResultColumn} from "@dataramen/types";
+import {
+  IInspectionColumnRef,
+  TInputColumn,
+  TQueryFilter,
+  TQueryOperator,
+  TQueryOptions,
+  TResultColumn
+} from "@dataramen/types";
 import {HttpError} from "../../../utils/httpError";
 import {ISelectColumn, IWhere} from "../builders/types";
 import {TGetColumnType} from "./schemaInfoHandler";
@@ -73,11 +80,13 @@ export const computeResultColumns = (
   selectedColumns: ISelectColumn[],
   resultColumns: TResultColumn[],
   getType: (column: string) => string,
+  getColRef: (table: string, column: string) => IInspectionColumnRef | undefined,
 ): TResultColumn[] => {
   return resultColumns.map((c, i) => ({
     ...c,
     full: selectedColumns[i].fn ? selectedColumns[i].column : c.full,
     type: getType(c.full),
     fn: selectedColumns[i].fn,
+    ref: c.table ? getColRef(c.table, c.column) : undefined,
   }));
 };

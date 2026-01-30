@@ -1,4 +1,5 @@
 import {TQueryFilter, TQueryOptions} from "./queries";
+import {IInspectionColumnRef} from "./schemas";
 
 export type TDbValue = (string | number | boolean | undefined | null);
 export type TInputColumn = {
@@ -41,6 +42,7 @@ export type TResultColumn = {
   full: string;
   type?: string;
   fn?: string;
+  ref?: IInspectionColumnRef;
 };
 
 export type TExecuteQueryResult = {

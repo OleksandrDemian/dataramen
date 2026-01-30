@@ -113,6 +113,7 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Filter columns"
+          autoFocus
         />
       </div>
 

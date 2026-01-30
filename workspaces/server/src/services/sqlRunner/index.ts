@@ -183,6 +183,7 @@ export const runSelect = async (
       selectedColumns,
       result.columns,
       schemaInfoHandler.getColumnType,
+      schemaInfoHandler.getColumnRef,
     ),
     hasMore,
   };

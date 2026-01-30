@@ -1,14 +1,14 @@
-import {memo, MouseEventHandler, useContext, useRef, useState} from "react";
+import {memo, MouseEventHandler, useContext, useMemo, useRef, useState} from "react";
 import clsx from "clsx";
 import {useParseError} from "../../../hooks/useParseError.ts";
 import {Alert} from "../../Alert";
 import {sanitizeCellValue} from "../../../utils/sql.ts";
 import st from "./QueryExplorer.module.css";
 import {
-  QueryResultContext,
+  QueryResultContext, TableContext,
   TableOptionsContext,
 } from "../context/TableContext.ts";
-import {TDbValue, TQueryFilter} from "@dataramen/types";
+import {IInspectionColumnRef, TDbValue, TQueryFilter} from "@dataramen/types";
 import {useContextMenuHandler} from "./ContextualMenu.handler.ts";
 import {useOrderByStatements} from "../hooks/useOrderByStatements.ts";
 import {RowOptions} from "./RowOptions";
@@ -17,11 +17,12 @@ import {prompt} from "../../../data/promptModalStore.ts";
 import {useWhereStatements} from "../hooks/useWhereStatements.ts";
 import {genSimpleId} from "../../../utils/id.ts";
 import ArrowUpIcon from "../../../assets/arrow-up-outline.svg?react";
-import ChevronIcon from "../../../assets/chevron-forward-outline.svg?react";
 import SwapIcon from "../../../assets/swap-vertical-outline.svg?react";
 import SearchIcon from "../../../assets/search-outline.svg?react";
 import {TContextMenuRef} from "../../ContextualMenu";
 import {CellActions} from "./CellActions";
+import CaretUpIcon from "../../../assets/caret-up-outline.svg?react";
+import {updateEntityEditor} from "../../../data/entityEditorStore.ts";
 
 type TNewFilter = {
   value: string;
@@ -103,7 +104,7 @@ const TableHeaders = () => {
   );
 };
 
-function CellValue ({ value }: { value: TDbValue; }) {
+function CellValue ({ value, refTable, refCol }: { value: TDbValue; refCol?: string; refTable?: string; }) {
   if (value === "") {
     return <span className="pointer-events-none text-black/30 truncate">{`<EMPTY STRING>`}</span>;
   }
@@ -113,6 +114,17 @@ function CellValue ({ value }: { value: TDbValue; }) {
   }
 
   const sanitized = sanitizeCellValue(value);
+
+  if (refTable && refCol) {
+    return (
+      <div className="flex gap-1 items-center justify-between">
+        <span className={st.value}>{sanitized}</span>
+        <span className="hover:bg-gray-100 rounded p-0.5 cursor-pointer" data-cell-action="ref">
+          <CaretUpIcon className="text-blue-600 pointer-events-none" width={16} height={16} />
+        </span>
+      </div>
+    );
+  }
 
   return (
     <span className={st.value}>{sanitized}</span>
@@ -124,32 +136,51 @@ const TableRow = memo(({
   isLastRow,
   index,
   offset,
+  indexedRefs,
 }: {
   row: TDbValue[];
   isLastRow: boolean;
   index: number;
   offset: number;
+  indexedRefs: Map<number, IInspectionColumnRef>;
 }) => {
   return (
     <tr className={clsx(st.tableRowCells, isLastRow && "rounded-b-lg")}>
       <td>
         <button data-row-action={index} className={st.rowIndexBtn}>
-          <ChevronIcon className="pointer-events-none" width={16} height={16} />
+          <CaretUpIcon className="rotate-180 pointer-events-none" width={16} height={16} />
           {index + 1 + offset}
         </button>
       </td>
 
       {row.map((value, i) => (
         <td className={st.cell} key={i} data-row={index} data-col={i}>
-          <CellValue value={value} />
+          <CellValue value={value} refCol={indexedRefs.get(i)?.field} refTable={indexedRefs.get(i)?.table} />
         </td>
       ))}
     </tr>
   );
 });
 
+const getCellParent = (e: HTMLElement): HTMLElement | undefined => {
+  let parent = e.parentElement;
+  let maxAttempts = 5;
+
+  while (parent && maxAttempts >= 0) {
+    if (parent.tagName === "TD") {
+      return parent;
+    }
+
+    parent = parent.parentElement;
+    maxAttempts --;
+  }
+
+  return undefined;
+};
+
 export const QueryExplorer = () => {
   const { data: result, error: queryError, isLoading, isFetching } = useContext(QueryResultContext);
+  const { dataSourceId } = useContext(TableContext);
   const { state: { page, size } } = useContext(TableOptionsContext);
   const cellActionsRef = useRef<TContextMenuRef>(null);
 
@@ -166,6 +197,25 @@ export const QueryExplorer = () => {
     if (row != undefined) {
       setRow(parseInt(row));
       contextMenuHandler.open(e);
+    }
+
+    const cellAction = dataset?.cellAction;
+    if (cellAction === "ref") {
+      const parentCell = getCellParent(e.target as HTMLElement);
+      if (parentCell) {
+        const row = parentCell.dataset.row!;
+        const col = parentCell.dataset.col!;
+        const value = result?.result.rows[parseInt(row, 10)]?.[parseInt(col, 10)];
+        const colInfo = result?.result.columns[parseInt(col, 10)];
+
+        if (row && col) {
+          updateEntityEditor({
+            tableName: colInfo!.ref!.table,
+            dataSourceId,
+            entityId: [[colInfo!.ref!.field, value as unknown as any]],
+          });
+        }
+      }
     }
   };
 
@@ -185,6 +235,17 @@ export const QueryExplorer = () => {
   };
 
   const offset = page * size;
+  const indexedRefs = useMemo(() => {
+    const temp = new Map<number, IInspectionColumnRef>();
+    if (result) {
+      result.result.columns.forEach((col, index) => {
+        if (col.ref) {
+          temp.set(index, col.ref);
+        }
+      });
+    }
+    return temp;
+  }, [result]);
 
   return (
     <>
@@ -235,6 +296,7 @@ export const QueryExplorer = () => {
                 index={i}
                 offset={offset}
                 row={row}
+                indexedRefs={indexedRefs}
                 isLastRow={i === result.result.rows.length - 1}
               />
             ))}
