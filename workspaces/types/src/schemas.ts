@@ -42,6 +42,37 @@ export interface IDatabaseInspectionSchema extends IDatabaseInspection {
   datasource: IDataSourceSchema;
 }
 
+export interface IDatabaseTable {
+  id: string;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IDatabaseTableSchema extends IDatabaseTable {
+  datasource: IDataSourceSchema;
+  columns: IDatabaseColumnSchema[];
+}
+
+export interface IDatabaseColumnMeta {
+  refs?: IInspectionColumnRef;
+  referencedBy?: IInspectionColumnRef[];
+}
+
+export interface IDatabaseColumn {
+  id: string;
+  name: string;
+  type: string;
+  isPrimary?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  meta?: IDatabaseColumnMeta;
+}
+
+export interface IDatabaseColumnSchema extends IDatabaseColumn {
+  table: IDatabaseTableSchema;
+}
+
 export interface IDataSource {
   id: string;
   dbUrl: string;
@@ -65,7 +96,6 @@ export interface IDataSource {
 
 export interface IDataSourceSchema extends IDataSource {
   team: ITeamSchema;
-  inspections: IDatabaseInspectionSchema[];
   queries: IQuery[];
   owner: IUserSchema;
 }

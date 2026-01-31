@@ -1,10 +1,10 @@
 import {EntitySchema} from "typeorm";
 import {TIMESTAMP_COLUMN_TYPE} from "../../utils/dbUtils";
-import {IDatabaseInspectionSchema} from "@dataramen/types";
+import { IDatabaseColumnSchema } from "@dataramen/types";
 
-export const DatabaseInspection = new EntitySchema<IDatabaseInspectionSchema>({
-  name: "DatabaseInspection",
-  tableName: "db_inspection",
+export const DatabaseColumn = new EntitySchema<IDatabaseColumnSchema>({
+  name: "DatabaseColumn",
+  tableName: "database_columns",
   columns: {
     id: {
       type: String,
@@ -12,13 +12,15 @@ export const DatabaseInspection = new EntitySchema<IDatabaseInspectionSchema>({
       primary: true,
       generated: "uuid",
     },
-    tableName: {
+    name: {
       nullable: true,
       type: String,
     },
-    columns: {
-      type: "json",
-      nullable: true,
+    type: {
+      type: String,
+    },
+    isPrimary: {
+      type: Boolean,
     },
     createdAt: {
       type: TIMESTAMP_COLUMN_TYPE,
@@ -28,13 +30,16 @@ export const DatabaseInspection = new EntitySchema<IDatabaseInspectionSchema>({
       type: TIMESTAMP_COLUMN_TYPE,
       updateDate: true,
     },
+    meta: {
+      type: "json",
+      nullable: true,
+    },
   },
   relations: {
-    datasource: {
-      target: () => "DataSource",
+    table: {
+      target: () => "DatabaseTable",
       type: "many-to-one",
-      joinTable: false,
-      cascade: true,
+      inverseSide: "columns",
     },
   },
 });

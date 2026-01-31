@@ -5,15 +5,38 @@ import {HttpError} from "../../utils/httpError";
 import {getDynamicConnection} from "../../services/connectorManager";
 import {
   AppDataSource,
-  DatabaseInspectionRepository,
+  DatabaseColumnRepository,
+  DatabaseTableRepository,
   DataSourceRepository,
   QueriesRepository
 } from "../../repository/db";
 import {TCreateDataSource} from "./types";
 import {mapDataSourceToDbConnection} from "../../utils/dataSourceUtils";
 import {SymmEncryptionUtils} from "../../utils/symmEncryptionUtils";
-import {EUserTeamRole} from "@dataramen/types";
+import {EUserTeamRole, IDatabaseColumnSchema, IDatabaseInspection, IInspectionColumnRef} from "@dataramen/types";
 import {atLeast} from "../../hooks/role";
+import {TIntrospectionResult} from "../../services/connectorManager/types";
+import {cleanupDatasourceInfo} from "../../services/datasource/cleanupDatasourceInfo";
+
+function computeReferencedBy (introspection: TIntrospectionResult[]) {
+  const refs = new Map<string, IInspectionColumnRef[]>();
+
+  for (const table of introspection) {
+    table.columns?.forEach((col) => {
+      if (col.ref) {
+        const key = `${col.ref.table}.${col.ref.field}`;
+        const existing = refs.get(key) || [];
+        existing.push({
+          table: table.tableName,
+          field: col.name,
+        });
+        refs.set(key, existing);
+      }
+    });
+  }
+
+  return refs;
+}
 
 export default createRouter((instance) => {
   // get datasource by id
@@ -134,15 +157,13 @@ export default createRouter((instance) => {
     config: {
       requireRole: atLeast(EUserTeamRole.ADMIN),
     },
-    handler: async (request, reply) => {
+    handler: async (request) => {
       return AppDataSource.transaction(async () => {
+        // todo: fix transaction
         const {id} = getRequestParams<{ id: string }>(request);
+
         await Promise.all([
-          DatabaseInspectionRepository.delete({
-            datasource: {
-              id,
-            }
-          }),
+          cleanupDatasourceInfo(id),
           QueriesRepository.delete({
             dataSource: {
               id,
@@ -177,25 +198,42 @@ export default createRouter((instance) => {
       dataSource.status = "INSPECTING";
       await DataSourceRepository.save(dataSource);
 
+      // todo: transaction
       const connection = await getDynamicConnection(mapDataSourceToDbConnection(dataSource, true), dataSource.dbType, request);
       // inspect dataSource
       const inspection = await connection.inspectSchema();
-      // destroy previous inspections
-      await DatabaseInspectionRepository.delete({
-        datasource: {
-          id,
-        }
-      });
 
-      await DatabaseInspectionRepository.insert(
-        inspection.sort().map((i) => DatabaseInspectionRepository.create({
-          tableName: i.tableName,
-          columns: i.columns,
+      await cleanupDatasourceInfo(dataSource.id);
+
+      const referencedBy = computeReferencedBy(inspection);
+      for (const insp of inspection) {
+        const table = await DatabaseTableRepository.save({
           datasource: {
             id,
           },
-        })),
-      );
+          name: insp.tableName,
+        });
+
+        if (insp.columns) {
+          const columns: IDatabaseColumnSchema[] = [];
+          for (const col of insp.columns) {
+            columns.push(DatabaseColumnRepository.create({
+              table: {
+                id: table.id,
+              },
+              name: col.name,
+              isPrimary: col.isPrimary,
+              type: col.type,
+              meta: {
+                refs: col.ref,
+                referencedBy: referencedBy.get(`${table.name}.${col.name}`),
+              }
+            }));
+          }
+
+          await DatabaseColumnRepository.save(columns);
+        }
+      }
 
       // update datasource last inspected
       dataSource.status = "READY";
@@ -209,15 +247,40 @@ export default createRouter((instance) => {
     url: "/:id/inspections",
     handler: async (request) => {
       const { id } = getRequestParams<{ id: string }>(request);
-      const inspections = await DatabaseInspectionRepository.find({
+      const tables = await DatabaseTableRepository.find({
         where: {
           datasource: {
             id,
           }
         },
+        relations: { columns: true },
+        order: {
+          name: "ASC",
+          columns: {
+            isPrimary: "DESC",
+            name: "ASC"
+          }
+        },
       });
+
+      // todo: retro-compatibility with current UI, will be refactored into Tables and Columns
+      const data: IDatabaseInspection[] = tables.map((t) => {
+        return {
+          tableName: t.name,
+          id: t.id,
+          updatedAt: t.updatedAt,
+          createdAt: t.createdAt,
+          columns: t.columns.map((c) => ({
+            name: c.name,
+            type: c.type,
+            isPrimary: c.isPrimary,
+            ref: c.meta?.refs,
+          })),
+        }
+      });
+
       return {
-        data: inspections,
+        data,
       };
     },
   })

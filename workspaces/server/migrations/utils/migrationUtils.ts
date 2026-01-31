@@ -9,8 +9,9 @@ export const Tables = {
   UserSettings: "user_settings",
   DataSources: "data_sources",
   Query: "query",
-  DbInspection: "db_inspection",
   SavedQueries: "saved_queries",
+  DatabaseColumn: "database_columns",
+  DatabaseTable: "database_tables",
 };
 export const UUIDColumn = (opts: Partial<TableColumnOptions> = {}): TableColumnOptions => {
   const isMysql = process.env.APP_DB_TYPE === "mysql";
