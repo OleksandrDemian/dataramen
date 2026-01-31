@@ -1,14 +1,15 @@
 import {createRouter} from "../../utils/createRouter";
 import {getRequestParams, getRequestQuery} from "../../utils/request";
 import {
-  DatabaseInspectionRepository,
+  DatabaseTableRepository,
   DataSourceRepository,
   SavedQueriesRepository,
   WorkbenchTabsRepository,
 } from "../../repository/db";
-import {FindOptions, FindOptionsWhere, In, Like, Raw} from "typeorm";
+import {FindOptionsWhere, In, Like, Raw} from "typeorm";
 import {
-  IDataSourceSchema, IWorkbenchTab, IWorkbenchTabSchema,
+  IDataSourceSchema,
+  IWorkbenchTabSchema,
   TFindQuery,
   TProjectDataSource,
   TProjectQuery,
@@ -169,9 +170,9 @@ export default createRouter((instance) => {
 
       // todo: optimize this API
       const [tables, tabs, queries] = await Promise.all([
-        DatabaseInspectionRepository.find({
+        DatabaseTableRepository.find({
           where: {
-            tableName: Raw((alias) => `LOWER(${alias}) LIKE :search`, { search: `%${search.toLowerCase()}%` }),
+            name: Raw((alias) => `LOWER(${alias}) LIKE :search`, { search: `%${search.toLowerCase()}%` }),
             datasource: dsFilter,
           },
           relations: {
@@ -179,14 +180,14 @@ export default createRouter((instance) => {
           },
           select: {
             id: true,
-            tableName: true,
+            name: true,
             datasource: {
               name: true,
               id: true,
             },
           },
           order: {
-            tableName: 'ASC',
+            name: 'ASC',
           },
           take: perResultSize,
         }),
@@ -247,7 +248,7 @@ export default createRouter((instance) => {
 
       tables.forEach((t) => {
         result.push({
-          name: t.tableName,
+          name: t.name,
           id: t.id,
           dataSourceName: t.datasource?.name || '--',
           dataSourceId: t.datasource?.id || '--',

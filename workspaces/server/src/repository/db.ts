@@ -1,5 +1,4 @@
 import { DataSource as TypeOrm } from "typeorm"
-import { DatabaseInspection } from "./tables/databaseInspection";
 import { Team } from "./tables/teams";
 import { User } from "./tables/users";
 import { UserSettings } from "./tables/userSettings";
@@ -11,6 +10,8 @@ import {Env} from "../services/env";
 import {UsersToTeams} from "./tables/usersToTeams";
 import {SavedQuery} from "./tables/savedQuery";
 import {WorkbenchTab} from "./tables/workbenchTabs";
+import {DatabaseColumn} from "./tables/databaseColumn";
+import {DatabaseTable} from "./tables/databaseTable";
 
 function getDatabaseValue (): string {
   let value = Env.str("APP_DB_DATABASE");
@@ -36,7 +37,6 @@ export const AppDataSource = new TypeOrm({
   migrationsRun: true, // for now run migration by default
   migrations: [posix.join(__dirname, "migrations", "*.js")],
   entities: [
-    DatabaseInspection,
     DataSource,
     Team,
     User,
@@ -45,6 +45,8 @@ export const AppDataSource = new TypeOrm({
     Query,
     SavedQuery,
     WorkbenchTab,
+    DatabaseTable,
+    DatabaseColumn,
   ],
 });
 
@@ -56,7 +58,6 @@ export const initDatabase = async () => {
   throw new Error("Already initialized");
 };
 
-export const DatabaseInspectionRepository = AppDataSource.getRepository(DatabaseInspection);
 export const DataSourceRepository = AppDataSource.getRepository(DataSource);
 export const TeamRepository = AppDataSource.getRepository(Team);
 export const UserRepository = AppDataSource.getRepository(User);
@@ -65,3 +66,5 @@ export const UserSettingsRepository = AppDataSource.getRepository(UserSettings);
 export const QueriesRepository = AppDataSource.getRepository(Query);
 export const SavedQueriesRepository = AppDataSource.getRepository(SavedQuery);
 export const WorkbenchTabsRepository = AppDataSource.getRepository(WorkbenchTab);
+export const DatabaseColumnRepository = AppDataSource.getRepository(DatabaseColumn);
+export const DatabaseTableRepository = AppDataSource.getRepository(DatabaseTable);

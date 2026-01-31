@@ -1,15 +1,21 @@
-import {DatabaseInspectionRepository} from "../../../repository/db";
+import {DatabaseTableRepository} from "../../../repository/db";
 import {In} from "typeorm";
 import {IInspectionColumnRef, TRunSqlResult} from "@dataramen/types";
-import {ISelectColumn} from "../builders/types";
 
 export type TGetColumnType = (col: string) => string;
 
 export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
-  const info = await DatabaseInspectionRepository.find({
+  const info = await DatabaseTableRepository.find({
     where: {
-      tableName: In(tables),
+      name: In(tables),
       datasource: { id },
+    },
+    relations: { columns: true },
+    order: {
+      name: "ASC",
+      columns: {
+        name: "ASC",
+      },
     },
   });
 
@@ -20,8 +26,8 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
     for (const column of table.columns) {
       allColumns.push({
         column: column.name,
-        table: table.tableName || '',
-        full: `${table.tableName}.${column.name}`,
+        table: table.name || '',
+        full: `${table.name}.${column.name}`,
         type: column.type,
       });
     }
@@ -38,13 +44,13 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
 
   const getColumnRef = (table: string, column: string): IInspectionColumnRef | undefined => {
     for (const inspection of info) {
-      if (inspection.tableName !== table) {
+      if (inspection.name !== table) {
         continue;
       }
 
       for (const temp of inspection.columns!) {
-        if (temp.name === column && temp.ref) {
-          return temp.ref;
+        if (temp.name === column && temp.meta?.refs) {
+          return temp.meta?.refs;
         }
       }
     }
