@@ -6,13 +6,15 @@ import {DrillDown} from "./DrillDown.tsx";
 export type TRowOptionsProps = {
   handler: TContextMenuHandler;
   rowIndex: number;
+  colIndex: number;
 };
-export const RowOptions = ({ handler, rowIndex }: TRowOptionsProps) => {
+export const CellDrillDown = ({ handler, rowIndex, colIndex }: TRowOptionsProps) => {
   return (
     <ContextualMenu handler={handler}>
       <div className={st.optionsContainer}>
         <DrillDown
           rowIndex={rowIndex}
+          colIndex={colIndex}
           className="p-2"
           onClose={() => {
             handler.close();

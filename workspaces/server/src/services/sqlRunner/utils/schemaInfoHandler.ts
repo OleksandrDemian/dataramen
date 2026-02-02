@@ -14,6 +14,7 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
     order: {
       name: "ASC",
       columns: {
+        isPrimary: "DESC",
         name: "ASC",
       },
     },
@@ -49,8 +50,24 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
       }
 
       for (const temp of inspection.columns!) {
-        if (temp.name === column && temp.meta?.refs) {
+        if (temp.name === column) {
           return temp.meta?.refs;
+        }
+      }
+    }
+
+    return undefined;
+  };
+
+  const getColumnReferencedBy = (table: string, column: string): IInspectionColumnRef[] | undefined => {
+    for (const inspection of info) {
+      if (inspection.name !== table) {
+        continue;
+      }
+
+      for (const temp of inspection.columns!) {
+        if (temp.name === column) {
+          return temp.meta?.referencedBy;
         }
       }
     }
@@ -67,5 +84,6 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
       return !!columnTypes[column] || column === "*";
     },
     getColumnRef,
+    getColumnReferencedBy,
   };
 };

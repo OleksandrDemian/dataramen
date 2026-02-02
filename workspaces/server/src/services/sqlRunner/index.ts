@@ -184,6 +184,7 @@ export const runSelect = async (
       result.columns,
       schemaInfoHandler.getColumnType,
       schemaInfoHandler.getColumnRef,
+      schemaInfoHandler.getColumnReferencedBy,
     ),
     hasMore,
   };

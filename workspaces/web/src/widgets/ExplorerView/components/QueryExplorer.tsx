@@ -8,10 +8,10 @@ import {
   QueryResultContext, TableContext,
   TableOptionsContext,
 } from "../context/TableContext.ts";
-import {IInspectionColumnRef, TDbValue, TQueryFilter} from "@dataramen/types";
+import {TDbValue, TQueryFilter} from "@dataramen/types";
 import {useContextMenuHandler} from "./ContextualMenu.handler.ts";
 import {useOrderByStatements} from "../hooks/useOrderByStatements.ts";
-import {RowOptions} from "./RowOptions";
+import {CellDrillDown} from "./RowOptions";
 import {gt} from "../../../utils/numbers.ts";
 import {prompt} from "../../../data/promptModalStore.ts";
 import {useWhereStatements} from "../hooks/useWhereStatements.ts";
@@ -28,6 +28,11 @@ type TNewFilter = {
   value: string;
   column: string;
   fn?: string;
+};
+
+type TCellActions = {
+  hasDrill?: boolean;
+  hasRecord?: boolean;
 };
 
 const orderIconClass = {
@@ -104,7 +109,7 @@ const TableHeaders = () => {
   );
 };
 
-function CellValue ({ value, refTable, refCol }: { value: TDbValue; refCol?: string; refTable?: string; }) {
+function CellValue ({ value, actions }: { value: TDbValue; actions?: TCellActions; }) {
   if (value === "") {
     return <span className="pointer-events-none text-black/30 truncate">{`<EMPTY STRING>`}</span>;
   }
@@ -115,13 +120,22 @@ function CellValue ({ value, refTable, refCol }: { value: TDbValue; refCol?: str
 
   const sanitized = sanitizeCellValue(value);
 
-  if (refTable && refCol) {
+  if (actions?.hasRecord || actions?.hasDrill) {
     return (
-      <div className="flex gap-1 items-center justify-between">
+      <div className="flex gap-1 items-center justify-between pointer-events-none">
         <span className={st.value}>{sanitized}</span>
-        <span className="hover:bg-gray-100 rounded p-0.5 cursor-pointer" data-cell-action="ref">
-          <CaretUpIcon className="text-blue-600 pointer-events-none" width={16} height={16} />
-        </span>
+
+        {actions.hasDrill && (
+          <span className="hover:bg-gray-100 rounded p-0.5 cursor-pointer pointer-events-auto" data-cell-action="drill">
+            <CaretUpIcon className="text-green-600 pointer-events-none rotate-180" width={16} height={16} />
+          </span>
+        )}
+
+        {actions.hasRecord && (
+          <span className="hover:bg-gray-100 rounded p-0.5 cursor-pointer pointer-events-auto" data-cell-action="ref">
+            <CaretUpIcon className="text-blue-600 pointer-events-none" width={16} height={16} />
+          </span>
+        )}
       </div>
     );
   }
@@ -136,26 +150,21 @@ const TableRow = memo(({
   isLastRow,
   index,
   offset,
-  indexedRefs,
+  colMeta,
 }: {
   row: TDbValue[];
   isLastRow: boolean;
   index: number;
   offset: number;
-  indexedRefs: Map<number, IInspectionColumnRef>;
+  colMeta: Map<number, TCellActions>;
 }) => {
   return (
     <tr className={clsx(st.tableRowCells, isLastRow && "rounded-b-lg")}>
-      <td>
-        <button data-row-action={index} className={st.rowIndexBtn}>
-          <CaretUpIcon className="rotate-180 pointer-events-none" width={16} height={16} />
-          {index + 1 + offset}
-        </button>
-      </td>
+      <td>{index + 1 + offset}</td>
 
       {row.map((value, i) => (
         <td className={st.cell} key={i} data-row={index} data-col={i}>
-          <CellValue value={value} refCol={indexedRefs.get(i)?.field} refTable={indexedRefs.get(i)?.table} />
+          <CellValue value={value} actions={colMeta.get(i)} />
         </td>
       ))}
     </tr>
@@ -180,13 +189,13 @@ const getCellParent = (e: HTMLElement): HTMLElement | undefined => {
 
 export const QueryExplorer = () => {
   const { data: result, error: queryError, isLoading, isFetching } = useContext(QueryResultContext);
-  const { dataSourceId } = useContext(TableContext);
+  const { dataSourceId, getColumnByIndex, getValueByIndex } = useContext(TableContext);
   const { state: { page, size } } = useContext(TableOptionsContext);
   const cellActionsRef = useRef<TContextMenuRef>(null);
 
   const parsedError = useParseError(queryError);
 
-  const contextMenuHandler = useContextMenuHandler();
+  const cellDrillDownHandler = useContextMenuHandler();
   const [row, setRow] = useState<number | undefined>(undefined);
   const [col, setCol] = useState<number | undefined>(undefined);
 
@@ -196,25 +205,35 @@ export const QueryExplorer = () => {
 
     if (row != undefined) {
       setRow(parseInt(row));
-      contextMenuHandler.open(e);
+      cellDrillDownHandler.open(e);
     }
 
     const cellAction = dataset?.cellAction;
     if (cellAction === "ref") {
       const parentCell = getCellParent(e.target as HTMLElement);
       if (parentCell) {
-        const row = parentCell.dataset.row!;
-        const col = parentCell.dataset.col!;
-        const value = result?.result.rows[parseInt(row, 10)]?.[parseInt(col, 10)];
-        const colInfo = result?.result.columns[parseInt(col, 10)];
+        const row = parseInt(parentCell.dataset.row!, 10);
+        const col = parseInt(parentCell.dataset.col!, 10);
+        const value = getValueByIndex(row, col);
+        const colInfo = getColumnByIndex(col);
 
-        if (row && col) {
+        if (colInfo) {
           updateEntityEditor({
             tableName: colInfo!.ref!.table,
             dataSourceId,
             entityId: [[colInfo!.ref!.field, value as unknown as any]],
           });
         }
+      }
+    } else if (cellAction === "drill") {
+      const parentCell = getCellParent(e.target as HTMLElement);
+      if (parentCell) {
+        const row = parseInt(parentCell.dataset.row!, 10);
+        const col = parseInt(parentCell.dataset.col!, 10);
+
+        setRow(row);
+        setCol(col);
+        cellDrillDownHandler.open(e);
       }
     }
   };
@@ -235,13 +254,14 @@ export const QueryExplorer = () => {
   };
 
   const offset = page * size;
-  const indexedRefs = useMemo(() => {
-    const temp = new Map<number, IInspectionColumnRef>();
+  const colMeta = useMemo(() => {
+    const temp = new Map<number, TCellActions>();
     if (result) {
       result.result.columns.forEach((col, index) => {
-        if (col.ref) {
-          temp.set(index, col.ref);
-        }
+        temp.set(index, {
+          hasRecord: !!col.ref,
+          hasDrill: !!col.referencedBy,
+        });
       });
     }
     return temp;
@@ -249,10 +269,11 @@ export const QueryExplorer = () => {
 
   return (
     <>
-      {row != undefined && contextMenuHandler.show && (
-        <RowOptions
-          handler={contextMenuHandler}
+      {row != undefined && col !== undefined && cellDrillDownHandler.show && (
+        <CellDrillDown
+          handler={cellDrillDownHandler}
           rowIndex={row}
+          colIndex={col}
         />
       )}
 
@@ -296,7 +317,7 @@ export const QueryExplorer = () => {
                 index={i}
                 offset={offset}
                 row={row}
-                indexedRefs={indexedRefs}
+                colMeta={colMeta}
                 isLastRow={i === result.result.rows.length - 1}
               />
             ))}

@@ -24,10 +24,6 @@
   }
 }
 
-.row-index-btn {
-  @apply flex gap-1 items-center hover:bg-white hover:ring-2 ring-blue-200 ring-offset-1 rounded-md px-1 cursor-pointer;
-}
-
 .semi-transparent {
   @apply opacity-60;
 }

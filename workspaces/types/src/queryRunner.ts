@@ -43,6 +43,7 @@ export type TResultColumn = {
   type?: string;
   fn?: string;
   ref?: IInspectionColumnRef;
+  referencedBy?: IInspectionColumnRef[];
 };
 
 export type TExecuteQueryResult = {

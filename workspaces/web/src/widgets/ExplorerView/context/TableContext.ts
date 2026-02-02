@@ -2,7 +2,7 @@ import {createContext} from "react";
 import {TRunQueryResult} from "../../../data/types/queryRunner.ts";
 import {
   TDbValue,
-  TInputColumn,
+  TInputColumn, TResultColumn,
   TRunSqlResult,
   TRunWorkbenchQuery,
   TWorkbenchOptions,
@@ -20,8 +20,8 @@ export type TTableContext = {
   dataSourceId: string;
   entities: string[];
   getValue: (row: TRunQueryResult['rows'][0], column: TInputColumn) => TDbValue;
-  getEntityKey: (entity: string, row: TRunQueryResult['rows'][0]) => [string, string][];
-  getEntityKeyByRowIndex: (entity: string, row: number) => [string, string][];
+  getColumnByIndex: (index: number) => TResultColumn | undefined;
+  getValueByIndex: (row: number, col: number) => any;
   getColumnType: (fullColumn: string) => string | undefined;
 };
 
@@ -33,9 +33,9 @@ export const TableContext = createContext<TTableContext>({
   dataSourceId: '',
   entities: [],
   getValue: () => undefined,
+  getValueByIndex: () => undefined,
+  getColumnByIndex: () => undefined,
   getColumnType: () => undefined,
-  getEntityKey: () => [],
-  getEntityKeyByRowIndex: () => [],
 });
 
 export type TTableOptionsUpdater = (fn: (opts: TWorkbenchOptions) => TWorkbenchOptions) => void;

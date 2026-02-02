@@ -1,5 +1,5 @@
 import {ContextualMenu, TContextMenuRef} from "../../../ContextualMenu";
-import {RefObject, useContext, useState} from "react";
+import {RefObject, useContext, useMemo, useState} from "react";
 import {useCellActions} from "./useCellActions.ts";
 import SearchIcon from "../../../../assets/search-outline.svg?react";
 import CopyIcon from "../../../../assets/copy-outline.svg?react";
@@ -8,7 +8,6 @@ import st from "./index.module.css";
 import {DrillDown} from "../RowOptions/DrillDown.tsx";
 import ChevronIcon from "../../../../assets/chevron-forward-outline.svg?react";
 import ExpandIcon from "../../../../assets/pencil-outline.svg?react";
-import {ExpandRow} from "../RowOptions/ExpandRow.tsx";
 import {TableContext} from "../../context/TableContext.ts";
 import {updateEntityEditor} from "../../../../data/entityEditorStore.ts";
 
@@ -20,28 +19,30 @@ export type TCellActionsProps = {
 };
 export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
   const clickHandler = useCellActions({ ref });
-  const [tab, setTab] = useState<"cell" | "drill" | "expand">("cell");
+  const [tab, setTab] = useState<"cell" | "drill">("cell");
   const {
-    entities,
     dataSourceId,
-    getEntityKeyByRowIndex,
+    getColumnByIndex,
+    getValueByIndex,
   } = useContext(TableContext);
+
+  const header = useMemo(() => {
+    return getColumnByIndex(col!);
+  }, [col, getColumnByIndex]);
 
   const onCopyValue = () => clickHandler.copyValue(row!, col!);
   const onShowValue = () => clickHandler.showValue(row!, col!);
   const onFilterValue = () => clickHandler.filterValue(row!, col!);
 
   const onExpand = () => {
-    if (entities.length === 1) {
-      const key = getEntityKeyByRowIndex(entities[0], row!);
+    const headerRef = header?.ref;
+    if (headerRef) {
       updateEntityEditor({
-        tableName: entities[0],
+        tableName: headerRef.table,
         dataSourceId,
-        entityId: key,
+        entityId: [[headerRef.field, getValueByIndex(row!, col!)]],
       });
       ref.current?.close();
-    } else {
-      setTab("expand");
     }
   };
 
@@ -55,7 +56,6 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
       <div className="w-full lg:w-sm">
         {tab === "cell" && (
           <>
-            <p className={st.sectionName}>Cell actions</p>
             <button className={st.item} onClick={onCopyValue}>
               <CopyIcon width={14} height={14} />
               Copy
@@ -68,12 +68,15 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
               <SearchIcon width={14} height={14} />
               Filter
             </button>
-            <p className={st.sectionName}>Row actions</p>
-            <button className={st.item} onClick={() => setTab("drill")}>
-              <ChevronIcon width={14} height={14} />
-              Drill down
-            </button>
-            {entities?.length > 0 && (
+
+            {header?.referencedBy && (
+              <button className={st.item} onClick={() => setTab("drill")}>
+                <ChevronIcon width={14} height={14} />
+                Drill down
+              </button>
+            )}
+
+            {header?.ref && (
               <button className={st.item} onClick={onExpand}>
                 <ExpandIcon width={14} height={14} />
                 Show record
@@ -91,20 +94,7 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
               <ChevronIcon className="rotate-180" width={16} height={16} />
               Drill down
             </button>
-            <DrillDown rowIndex={row!} onClose={() => ref.current?.close()} />
-          </>
-        )}
-
-        {tab === "expand" && (
-          <>
-            <button
-              className="flex gap-1 items-center cursor-pointer px-2 py-1 text-sm rounded-lg bg-gray-50 hover:bg-gray-100 mb-2"
-              onClick={() => setTab("cell")}
-            >
-              <ChevronIcon className="rotate-180" width={16} height={16} />
-              Select entity
-            </button>
-            <ExpandRow rowIndex={row!} onClose={() => ref.current?.close()} />
+            <DrillDown rowIndex={row!} colIndex={col!} onClose={() => ref.current?.close()} />
           </>
         )}
       </div>

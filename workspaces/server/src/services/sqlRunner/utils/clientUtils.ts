@@ -81,6 +81,7 @@ export const computeResultColumns = (
   resultColumns: TResultColumn[],
   getType: (column: string) => string,
   getColRef: (table: string, column: string) => IInspectionColumnRef | undefined,
+  getColumnReferencedBy: (table: string, column: string) => IInspectionColumnRef[] | undefined,
 ): TResultColumn[] => {
   return resultColumns.map((c, i) => ({
     ...c,
@@ -88,5 +89,6 @@ export const computeResultColumns = (
     type: getType(c.full),
     fn: selectedColumns[i].fn,
     ref: c.table ? getColRef(c.table, c.column) : undefined,
+    referencedBy: c.table ? getColumnReferencedBy(c.table, c.column) : undefined,
   }));
 };

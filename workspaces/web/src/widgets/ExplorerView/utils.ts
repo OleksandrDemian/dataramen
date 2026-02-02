@@ -102,37 +102,11 @@ export function useCreateTableContext (
 
         return undefined;
       },
-      getEntityKey: (entity, row) => {
-        return entities[entity].reduce<[string, string][]>((acc, col) => {
-          const index = result?.result.columns?.findIndex((column) => {
-            return column.column === col && column.table === entity;
-          });
-
-          if (index != undefined && index > -1) {
-            const rowValue = row[index]?.toString();
-            if (rowValue) {
-              acc.push([col, rowValue]);
-            }
-          }
-
-          return acc;
-        }, []);
+      getColumnByIndex: (index: number) => {
+        return result?.result?.columns?.[index];
       },
-      getEntityKeyByRowIndex: (entity, row) => {
-        return entities[entity].reduce<[string, string][]>((acc, col) => {
-          const index = result?.result.columns?.findIndex((column) => {
-            return column.column === col && column.table === entity;
-          });
-
-          if (index != undefined && index > -1) {
-            const value = result?.result.rows[row][index]?.toString();
-            if (value) {
-              acc.push([col, value]);
-            }
-          }
-
-          return acc;
-        }, []);
+      getValueByIndex: (row, col) => {
+        return result?.result?.rows[row]?.[col];
       },
       getColumnType: (fullColumn: string) => {
         const meta = result?.result.allColumns.find((c) => c.full === fullColumn);

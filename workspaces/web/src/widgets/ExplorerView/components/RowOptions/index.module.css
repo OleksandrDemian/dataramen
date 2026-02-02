@@ -19,7 +19,7 @@
 
 .list {
   max-height: 30vh;
-  @apply flex flex-col overflow-y-auto mt-2;
+  @apply flex flex-col overflow-y-auto my-2 gap-1;
 }
 
 .empty-text {
