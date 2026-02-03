@@ -133,7 +133,7 @@ export const runSelect = async (
    * WHERE
    * **************
    */
-  const filters = transformClientFilters(props.opts.filters, schemaInfoHandler.getColumnType);
+  const filters = transformClientFilters(props.opts.filters, schemaInfoHandler.getColumnByName);
   filters.forEach((filter) => {
     if (filter.fn && isAggregationFunction(filter.fn)) {
       builder.addHaving(filter);
@@ -182,9 +182,7 @@ export const runSelect = async (
     columns: computeResultColumns(
       selectedColumns,
       result.columns,
-      schemaInfoHandler.getColumnType,
-      schemaInfoHandler.getColumnRef,
-      schemaInfoHandler.getColumnReferencedBy,
+      schemaInfoHandler.getColumnByName,
     ),
     hasMore,
   };
@@ -259,7 +257,7 @@ export const runUpdate = async (req: FastifyRequest, props: TExecuteUpdate): Pro
   transformClientFilters(
     props.filters,
     // fake getColumnType, always return equals operator "="
-    () => "="
+    () => undefined,
   ).forEach((filter) => {
     queryBuilder.addWhere(filter);
   });

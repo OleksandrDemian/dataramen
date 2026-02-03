@@ -125,17 +125,19 @@ function CellValue ({ value, actions }: { value: TDbValue; actions?: TCellAction
       <div className="flex gap-1 items-center justify-between pointer-events-none">
         <span className={st.value}>{sanitized}</span>
 
-        {actions.hasDrill && (
-          <span className="hover:bg-gray-100 rounded p-0.5 cursor-pointer pointer-events-auto" data-cell-action="drill">
-            <CaretUpIcon className="text-green-600 pointer-events-none rotate-180" width={16} height={16} />
-          </span>
-        )}
+        <div className="flex">
+          {actions.hasDrill && (
+            <span className="text-gray-300 hover:text-blue-600 hover:bg-gray-100 rounded p-0.5 cursor-pointer pointer-events-auto" data-cell-action="drill" data-tooltip-id="default-xs" data-tooltip-content="Show related rows">
+              <CaretUpIcon className="pointer-events-none rotate-180" width={16} height={16} />
+            </span>
+          )}
 
-        {actions.hasRecord && (
-          <span className="hover:bg-gray-100 rounded p-0.5 cursor-pointer pointer-events-auto" data-cell-action="ref">
-            <CaretUpIcon className="text-blue-600 pointer-events-none" width={16} height={16} />
-          </span>
-        )}
+          {actions.hasRecord && (
+            <span className="text-gray-300 hover:text-green-600 hover:bg-gray-100 rounded p-0.5 cursor-pointer pointer-events-auto" data-cell-action="ref" data-tooltip-id="default-xs" data-tooltip-content="Show record">
+              <CaretUpIcon className="pointer-events-none" width={16} height={16} />
+            </span>
+          )}
+        </div>
       </div>
     );
   }

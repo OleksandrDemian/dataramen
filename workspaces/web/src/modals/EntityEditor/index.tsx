@@ -105,8 +105,9 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
       table: data.tableName,
       filters: data.entityId.map((key) => ({
         id: genSimpleId(),
-        value: key[1],
+        value: "" + key[1],
         column: key[0],
+        isEnabled: true,
       } satisfies TQueryFilter)),
       values,
     }).then(() => {

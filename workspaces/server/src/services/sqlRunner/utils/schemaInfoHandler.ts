@@ -1,37 +1,36 @@
-import {DatabaseTableRepository} from "../../../repository/db";
+import {DatabaseColumnRepository, DatabaseTableRepository} from "../../../repository/db";
 import {In} from "typeorm";
-import {IInspectionColumnRef, TRunSqlResult} from "@dataramen/types";
+import {IDatabaseColumnSchema, IInspectionColumnRef, TRunSqlResult} from "@dataramen/types";
 
 export type TGetColumnType = (col: string) => string;
+export type TGetColumnByName = (table: string, column: string) => IDatabaseColumnSchema | undefined;
 
 export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
-  const info = await DatabaseTableRepository.find({
+  const info = await DatabaseColumnRepository.find({
     where: {
-      name: In(tables),
-      datasource: { id },
+      table: {
+        name: In(tables),
+        datasource: { id },
+      },
     },
-    relations: { columns: true },
+    relations: { table: true },
     order: {
-      name: "ASC",
-      columns: {
-        isPrimary: "DESC",
+      table: {
         name: "ASC",
       },
+      isPrimary: "DESC",
+      name: "ASC",
     },
   });
 
   const allColumns: TRunSqlResult["allColumns"] = [];
-  for (const table of info) {
-    if (!table.columns) continue;
-
-    for (const column of table.columns) {
-      allColumns.push({
-        column: column.name,
-        table: table.name || '',
-        full: `${table.name}.${column.name}`,
-        type: column.type,
-      });
-    }
+  for (const column of info) {
+    allColumns.push({
+      column: column.name,
+      table: column.table.name || '',
+      full: `${column.table.name}.${column.name}`,
+      type: column.type,
+    });
   }
 
   const columnTypes = allColumns.reduce((acc, cur) => {
@@ -39,36 +38,10 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
     return acc;
   }, {} as Record<string, string>);
 
-  const getColumnType: TGetColumnType = (column: string) => {
-    return columnTypes[column];
-  };
-
-  const getColumnRef = (table: string, column: string): IInspectionColumnRef | undefined => {
-    for (const inspection of info) {
-      if (inspection.name !== table) {
-        continue;
-      }
-
-      for (const temp of inspection.columns!) {
-        if (temp.name === column) {
-          return temp.meta?.refs;
-        }
-      }
-    }
-
-    return undefined;
-  };
-
-  const getColumnReferencedBy = (table: string, column: string): IInspectionColumnRef[] | undefined => {
-    for (const inspection of info) {
-      if (inspection.name !== table) {
-        continue;
-      }
-
-      for (const temp of inspection.columns!) {
-        if (temp.name === column) {
-          return temp.meta?.referencedBy;
-        }
+  const getColumnByName: TGetColumnByName = (table: string, column: string) => {
+    for (const temp of info) {
+      if (temp.name === column && temp.table.name === table) {
+        return temp;
       }
     }
 
@@ -79,11 +52,9 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
     getAllColumns (): TRunSqlResult["allColumns"] {
       return allColumns;
     },
-    getColumnType,
     hasColumn(column: string): boolean {
       return !!columnTypes[column] || column === "*";
     },
-    getColumnRef,
-    getColumnReferencedBy,
+    getColumnByName,
   };
 };
