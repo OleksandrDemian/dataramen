@@ -9,6 +9,9 @@
   "devDependencies": {
     "fs-extra": "^11.3.0"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "package:cli": "node package.mjs cli",
     "package:app": "node package.mjs app",

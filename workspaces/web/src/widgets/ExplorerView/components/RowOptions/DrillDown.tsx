@@ -1,5 +1,5 @@
 import {useContext, useMemo, useState} from "react";
-import {QueryResultContext, TableContext} from "../../context/TableContext.ts";
+import {TableContext} from "../../context/TableContext.ts";
 import {useCreateWorkbenchTab} from "../../../../data/queries/workbenchTabs.ts";
 import {useNavigate} from "react-router-dom";
 import {createTableOptions} from "../../utils.ts";
@@ -7,19 +7,20 @@ import {genSimpleId} from "../../../../utils/id.ts";
 import {PAGES} from "../../../../const/pages.ts";
 import st from "./index.module.css";
 import {gt} from "../../../../utils/numbers.ts";
-import {IInspectionColumnRef, TDbValue, TResultColumn} from "@dataramen/types";
+import {IHook, TDbValue} from "@dataramen/types";
 import {SearchInput} from "../../../SearchInput";
+import {HookButton} from "../../../HookButton";
 
-function createRelatedDataTabData (ref: IInspectionColumnRef, dataSourceId: string, value: TDbValue) {
+function createRelatedDataTabData (hook: IHook, dataSourceId: string, value: TDbValue) {
   return {
-    name: `${ref.table} ${ref.field} equals ${value}`,
+    name: `${hook.fromTable} ${hook.fromColumn} equals ${value}`,
     opts: createTableOptions({
       // todo: do I need to inherit joins? Probably not
-      table: ref.table,
+      table: hook.fromTable,
       dataSourceId: dataSourceId,
       filters: [{
         id: genSimpleId(),
-        column: `${ref.table}.${ref.field}`,
+        column: `${hook.fromTable}.${hook.fromColumn}`,
         value: value == null ? "IS NULL" : `${value}`,
         isEnabled: true,
       }],
@@ -29,7 +30,7 @@ function createRelatedDataTabData (ref: IInspectionColumnRef, dataSourceId: stri
 
 export type TDrillDownProps = {
   rowIndex: number;
-  colIndex: number;
+  colIndex?: number;
   onClose?: VoidFunction;
   className?: string;
 };
@@ -37,41 +38,40 @@ export const DrillDown = ({ rowIndex, colIndex, onClose, className }: TDrillDown
   const [filter, setFilter] = useState("");
   const {
     dataSourceId,
+    hooks,
+    getColumnByIndex,
     getValue,
   } = useContext(TableContext);
-  const { data: result } = useContext(QueryResultContext);
 
-  const header = useMemo(() => {
-    return result?.result?.columns[colIndex];
-  }, [colIndex, result]);
+  const availableHooks = useMemo<IHook[]>(() => {
+    if (colIndex === undefined) {
+      return hooks;
+    }
 
-  const row = useMemo(() => result?.result.rows[rowIndex], [result, rowIndex]);
+    const header = getColumnByIndex(colIndex);
+    if (header) {
+      return hooks.filter((h) =>
+        h.toColumn === header.column && h.toTable === header.table
+      );
+    }
+
+    return [];
+  }, [colIndex, hooks, getColumnByIndex]);
+
   const createWorkbenchTab = useCreateWorkbenchTab();
   const navigate = useNavigate();
 
   const filteredHooks = useMemo(() => {
-    if (!header || !header.referencedBy) return [];
-
     const lowercaseFilter = filter.toLowerCase();
-    return header.referencedBy.filter(h => {
+    return availableHooks.filter(h => {
       // check if name matches
-      return h.table.toLowerCase().includes(lowercaseFilter);
+      return h.fromTable.toLowerCase().includes(lowercaseFilter);
     });
-  }, [filter, header]);
+  }, [filter, availableHooks]);
 
-  const showRelatedData = (col: TResultColumn, ref: IInspectionColumnRef) => {
-    if (!row) {
-      return;
-    }
-
+  const showRelatedData = (hook: IHook) => {
     createWorkbenchTab.mutateAsync(
-      createRelatedDataTabData(
-        ref,
-        dataSourceId,
-        getValue(row, {
-          value: col.alias,
-        }),
-      ),
+      createRelatedDataTabData(hook, dataSourceId, getValue(rowIndex, hook.toTable, hook.toColumn)),
     ).then((result) => {
       navigate(PAGES.workbenchTab.build({ id: result.id }));
       onClose?.();
@@ -91,11 +91,8 @@ export const DrillDown = ({ rowIndex, colIndex, onClose, className }: TDrillDown
       />
 
       <div className={st.list}>
-        {hasFilteredHooks && filteredHooks.map((ref) => (
-          <div onClick={() => showRelatedData(header!, ref)} className="p-1 hover:bg-(--bg-sec) rounded-md cursor-pointer" tabIndex={0}>
-            <p className="text-sm text-(--text-color-primary) font-semibold">{ref.table}</p>
-            <p className="text-xs text-(--text-color-secondary)">{header?.full} = {ref.field}</p>
-          </div>
+        {hasFilteredHooks && filteredHooks.map((hook) => (
+          <HookButton key={hook.id} hook={hook} onClick={() => showRelatedData(hook)} />
         ))}
 
         {!hasFilteredHooks && (

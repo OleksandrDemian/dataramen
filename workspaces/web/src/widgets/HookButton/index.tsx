@@ -1,20 +1,35 @@
-import {THook} from "../../data/types/hooks.ts";
 import st from "./index.module.css";
+import { IHook } from "@dataramen/types";
 
 export type THookButtonProps = {
-  hook: THook;
+  hook: IHook;
   onClick: VoidFunction;
 };
 export const HookButton = ({ hook, onClick }: THookButtonProps) => {
+  if (hook.direction === "out") {
+    return (
+      <button
+        key={hook.id}
+        className={st.root}
+        onClick={onClick}
+      >
+        <div className={st.content}>
+          <p className={st.tableName}>{hook.toTable}</p>
+          <p className={st.sub}>{hook.toColumn} = {hook.fromTable}.{hook.fromColumn}</p>
+        </div>
+      </button>
+    );
+  }
+
   return (
     <button
-      key={hook.where}
+      key={hook.id}
       className={st.root}
       onClick={onClick}
     >
       <div className={st.content}>
-        <span className={st.tableName}>{hook.on.toTable}</span>
-        <span className={st.sub}>{hook.on.toColumn} = {hook.on.fromTable}.{hook.on.fromColumn}</span>
+        <p className={st.tableName}>{hook.fromTable}</p>
+        <p className={st.sub}>{hook.fromColumn} = {hook.toTable}.{hook.toColumn}</p>
       </div>
     </button>
   );

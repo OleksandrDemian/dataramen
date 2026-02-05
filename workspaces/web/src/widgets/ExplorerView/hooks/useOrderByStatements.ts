@@ -4,14 +4,14 @@ import {TableOptionsContext} from "../context/TableContext.ts";
 
 const getNextDirection = (direction: TOrderByClause["direction"]): TOrderByClause["direction"] | undefined => {
   if (direction === "ASC") {
-    return "DESC";
-  }
-
-  if (direction === "DESC") {
     return undefined;
   }
 
-  return "ASC";
+  if (direction === "DESC") {
+    return "ASC";
+  }
+
+  return "DESC";
 };
 
 export const useOrderByStatements = () => {
@@ -37,7 +37,7 @@ export const useOrderByStatements = () => {
 
       return {
         ...state,
-        orderBy: [{ column, direction: "ASC" }],
+        orderBy: [{ column, direction: "DESC" }],
       };
     });
   }, [setState]);

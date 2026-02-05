@@ -7,12 +7,13 @@ import {
   useExplorerModals,
 } from "../../hooks/useExplorerModals.ts";
 import {useContext, useMemo, useState} from "react";
-import {THook} from "../../../../data/types/hooks.ts";
 import {QueryResultContext, TableContext} from "../../context/TableContext.ts";
 import {useJoinStatements} from "../../hooks/useJoinStatements.ts";
 import toast from "react-hot-toast";
 import {Alert} from "../../../Alert";
 import {useHotkeys} from "react-hotkeys-hook";
+import { IHook } from "@dataramen/types";
+import { createOnStatement } from "@dataramen/common";
 
 export const JoinsModal = () => {
   const { isFetching } = useContext(QueryResultContext);
@@ -22,9 +23,9 @@ export const JoinsModal = () => {
 
   const [filter, setFilter] = useState("");
 
-  const filteredHooks = useMemo<THook[]>(() => {
+  const filteredHooks = useMemo<IHook[]>(() => {
     const lower = filter.toLowerCase();
-    return availableJoins.filter((h) => h.on.toTable.toLowerCase().includes(lower));
+    return availableJoins.filter((h) => h.toTable.toLowerCase().includes(lower));
   }, [availableJoins, filter]);
 
   const onClose = () => hideExplorerModal("joins");
@@ -61,7 +62,7 @@ export const JoinsModal = () => {
         <div className={`flex flex-col mt-2 overflow-y-auto ${isFetching ? "opacity-40" : ""}`}>
           {filteredHooks.map((hook) => (
             <HookButton
-              key={hook.where}
+              key={hook.id}
               hook={hook}
               onClick={() => {
                 if (isFetching) {
@@ -69,9 +70,9 @@ export const JoinsModal = () => {
                 }
 
                 toggle({
-                  table: hook.on.toTable,
+                  table: hook.direction === 'in' ? hook.fromTable : hook.toTable,
                   type: 'LEFT',
-                  on: hook.where
+                  on: createOnStatement(hook),
                 });
                 setFilter("");
                 onClose();

@@ -1,6 +1,6 @@
 import {FilterParser, isStringType} from "@dataramen/common";
 import {
-  IDatabaseColumnSchema,
+  IDatabaseColumnSchema, IHook,
   IInspectionColumnRef,
   TInputColumn,
   TQueryFilter,
@@ -114,4 +114,35 @@ export const computeResultColumns = (
       referencedBy,
     };
   });
+};
+
+export const computeAvailableHooksAndEntities = (columns: TResultColumn[]): { hooks: IHook[]; entities: IHook[] } => {
+  const hooks: IHook[] = [];
+  const entities: IHook[] = [];
+
+  for (const column of columns) {
+    column.referencedBy?.forEach((ref) => {
+      hooks.push({
+        id: [ref.table, ref.field, column.column, column.table].join("."),
+        fromColumn: ref.field,
+        fromTable: ref.table,
+        toColumn: column.column,
+        toTable: column.table!,
+        direction: 'in',
+      });
+    });
+
+    if (column.ref) {
+      entities.push({
+        id: [column.column, column.table, column.ref.table, column.ref.field].join("."),
+        fromColumn: column.column,
+        fromTable: column.table!,
+        toColumn: column.ref.field,
+        toTable: column.ref.table,
+        direction: 'out',
+      });
+    }
+  }
+
+  return { hooks, entities };
 };

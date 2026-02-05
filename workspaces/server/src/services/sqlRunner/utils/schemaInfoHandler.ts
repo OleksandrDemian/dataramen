@@ -1,8 +1,7 @@
-import {DatabaseColumnRepository, DatabaseTableRepository} from "../../../repository/db";
+import {DatabaseColumnRepository} from "../../../repository/db";
 import {In} from "typeorm";
-import {IDatabaseColumnSchema, IInspectionColumnRef, TRunSqlResult} from "@dataramen/types";
+import {IDatabaseColumnSchema, IHook, TRunSqlResult} from "@dataramen/types";
 
-export type TGetColumnType = (col: string) => string;
 export type TGetColumnByName = (table: string, column: string) => IDatabaseColumnSchema | undefined;
 
 export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
@@ -48,6 +47,42 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
     return undefined;
   };
 
+  const getAvailableJoins = (): IHook[] => {
+    const hooks: IHook[] = [];
+    const excludeTables = new Set<string>(tables);
+
+    for (const column of info) {
+      column.meta?.referencedBy?.forEach((ref) => {
+        if (!excludeTables.has(ref.table)) {
+          hooks.push({
+            id: [ref.table, ref.field, column.name, column.table.name].join("."),
+            fromColumn: ref.field,
+            fromTable: ref.table,
+            toColumn: column.name,
+            toTable: column.table.name,
+            direction: 'in',
+          });
+        }
+      });
+
+      if (column.meta?.refs) {
+        const ref = column.meta.refs;
+        if (!excludeTables.has(ref.table)) {
+          hooks.push({
+            id: [column.name, column.table.name, ref.table, ref.field].join("."),
+            fromColumn: column.name,
+            fromTable: column.table.name,
+            toColumn: ref.field,
+            toTable: ref.table,
+            direction: 'out',
+          });
+        }
+      }
+    }
+
+    return hooks;
+  };
+
   return {
     getAllColumns (): TRunSqlResult["allColumns"] {
       return allColumns;
@@ -55,6 +90,7 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
     hasColumn(column: string): boolean {
       return !!columnTypes[column] || column === "*";
     },
-    getColumnByName,
+    getAvailableJoins: getAvailableJoins,
+    getColumnByName: getColumnByName,
   };
 };

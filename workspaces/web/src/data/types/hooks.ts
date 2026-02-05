@@ -7,5 +7,4 @@ export type THook = {
   };
   name: string;
   id: string;
-  where: string;
 };

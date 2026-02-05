@@ -12,7 +12,13 @@ import {
   TRunSqlResult
 } from "@dataramen/types";
 import {mapDataSourceToDbConnection} from "../../utils/dataSourceUtils";
-import {computeColumns, computeResultColumns, extractTables, transformClientFilters} from "./utils/clientUtils";
+import {
+  computeAvailableHooksAndEntities,
+  computeColumns,
+  computeResultColumns,
+  extractTables,
+  transformClientFilters
+} from "./utils/clientUtils";
 import {createInsertBuilder, createSelectBuilder, createUpdateBuilder} from "./builders";
 import {createSchemaInfoHandler} from "./utils/schemaInfoHandler";
 import {ISelectColumn} from "./builders/types";
@@ -173,17 +179,22 @@ export const runSelect = async (
   }
 
   const { id: queryHistoryId } = await historyPromise;
+  const computedColumns = computeResultColumns(
+    selectedColumns,
+    result.columns,
+    schemaInfoHandler.getColumnByName,
+  );
+  const { hooks, entities } = computeAvailableHooksAndEntities(computedColumns);
 
   return {
     ...result,
     queryHistoryId,
     tables,
     allColumns,
-    columns: computeResultColumns(
-      selectedColumns,
-      result.columns,
-      schemaInfoHandler.getColumnByName,
-    ),
+    availableHooks: hooks,
+    availableEntities: entities,
+    availableJoins: schemaInfoHandler.getAvailableJoins(),
+    columns: computedColumns,
     hasMore,
   };
 };

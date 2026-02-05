@@ -1,5 +1,6 @@
 import {TQueryFilter, TQueryOptions} from "./queries";
 import {IInspectionColumnRef} from "./schemas";
+import {IHook} from "./hooks";
 
 export type TDbValue = (string | number | boolean | undefined | null);
 export type TInputColumn = {
@@ -62,6 +63,9 @@ export type TRunSqlResult = TExecuteQueryResult & {
   tables: string[];
   queryHistoryId: string;
   hasMore: boolean;
+  availableJoins: IHook[];
+  availableHooks: IHook[];
+  availableEntities: IHook[];
   allColumns: {
     table: string;
     column: string;

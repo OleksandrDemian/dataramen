@@ -1,48 +1,9 @@
 import {TTableContext, TTableOptionsContext, TTableOptionsUpdater} from "./context/TableContext.ts";
-import {THook} from "../../data/types/hooks.ts";
-import {TExecuteQueryResult, TRunWorkbenchQuery, TWorkbenchOptions} from "@dataramen/types";
-import {useHooks} from "../../data/queries/hooks.ts";
+import {
+  TRunWorkbenchQuery,
+  TWorkbenchOptions
+} from "@dataramen/types";
 import {useMemo} from "react";
-import {TDatabaseInspection} from "../../data/types/dataSources.ts";
-import {useDatabaseInspections} from "../../data/queries/dataSources.ts";
-import { inputColumnToAlias } from "@dataramen/common";
-
-function getEntities (inspections?: TDatabaseInspection[], resultColumns?: TExecuteQueryResult["columns"]): Record<string, string[]> {
-  // todo improve this shit
-  if (!inspections || !resultColumns) {
-    return {};
-  }
-
-  const entities = new Set<string>();
-  for (const col of resultColumns) {
-    if (col.table) {
-      entities.add(col.table);
-    }
-  }
-
-  const result: Record<string, string[]> = {};
-
-  for (const ent of entities) {
-    const insp = inspections.find((ins) => ins.tableName === ent);
-    if (insp) {
-      result[ent] = [];
-      const fields = insp.columns.filter((col) => col.isPrimary);
-      for (const field of fields) {
-        const isPresent = resultColumns.find(
-          (col) => col.table === ent && col.column === field.name
-        );
-        if (!isPresent) {
-          delete result[ent];
-          break;
-        } else {
-          result[ent].push(field.name);
-        }
-      }
-    }
-  }
-
-  return result;
-}
 
 export function useCreateTableContext (
   result: TRunWorkbenchQuery | undefined,
@@ -50,54 +11,22 @@ export function useCreateTableContext (
   name: string,
   tabId?: string,
 ): TTableContext {
-  const { data: hooks } = useHooks(dataSourceId);
-  const { data: inspections } = useDatabaseInspections(dataSourceId);
-
   return useMemo<TTableContext>(() => {
-    const entities = getEntities(inspections, result?.result.columns);
-
     return {
       name,
       tabId,
-      hooks: (() => {
-        const filtered: THook[] = [];
-        if (!hooks || !result || !result.result.columns) {
-          return filtered;
-        }
-
-        for (const hook of hooks) {
-          if (result.result.tables.includes(hook.on.toTable) || result.result.tables.includes(hook.on.fromTable)) {
-            filtered.push(hook);
-          }
-        }
-
-        return filtered;
-      })(),
-      availableJoins: (() => {
-        const filtered: THook[] = [];
-        if (!hooks || !result || !result.result.columns) {
-          return filtered;
-        }
-
-        for (const hook of hooks) {
-          if (!result.result.tables.includes(hook.on.toTable) && result.result.tables.includes(hook.on.fromTable)) {
-            filtered.push(hook);
-          }
-        }
-
-        return filtered;
-      })(),
+      hooks: result?.result.availableHooks || [],
+      availableJoins: result?.result?.availableJoins || [],
       allColumns: result?.result.allColumns || [],
       dataSourceId: dataSourceId,
-      entities: Object.keys(entities),
-      getValue: (row, col) => {
-        const alias = inputColumnToAlias(col);
-        const index = result?.result.columns?.findIndex((column) => {
-          return column.full === alias;
+      entities: result?.result.availableEntities || [],
+      getValue: (row, table: string, column: string) => {
+        const index = result?.result.columns?.findIndex((col) => {
+          return col.table === table && col.column === column;
         });
 
         if (index != undefined && index > -1) {
-          return row[index];
+          return result?.result?.rows[row][index];
         }
 
         return undefined;
@@ -118,7 +47,7 @@ export function useCreateTableContext (
         return undefined;
       }
     };
-  }, [result, dataSourceId, hooks, inspections, name]);
+  }, [result, dataSourceId, name, tabId]);
 }
 
 export function useCreateTableOptionsContext (

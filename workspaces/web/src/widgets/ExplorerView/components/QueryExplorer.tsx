@@ -162,7 +162,7 @@ const TableRow = memo(({
 }) => {
   return (
     <tr className={clsx(st.tableRowCells, isLastRow && "rounded-b-lg")}>
-      <td>{index + 1 + offset}</td>
+      <td data-row={index} data-action="drill-all">{index + 1 + offset}</td>
 
       {row.map((value, i) => (
         <td className={st.cell} key={i} data-row={index} data-col={i}>
@@ -237,6 +237,11 @@ export const QueryExplorer = () => {
         setCol(col);
         cellDrillDownHandler.open(e);
       }
+    } else if (cellAction === "drill-all") {
+      const row = parseInt(dataset.row!, 10);
+      setRow(row);
+      setCol(undefined);
+      cellDrillDownHandler.open(e);
     }
   };
 
