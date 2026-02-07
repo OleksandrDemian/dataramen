@@ -19,14 +19,16 @@
   max-height: 100vh;
   overflow: hidden;
   border-right: 1px solid var(--bg-quat);
-  @apply flex flex-col w-full bg-(--bg-sec) pb-2;
-  transition: max-width ease-in-out 250ms;
+  @apply flex flex-col w-full pb-2;
+  transition: max-width ease-in-out 250ms, background-color ease-in-out 250ms;
 
   &.shown {
     max-width: 250px;
+    @apply bg-(--bg-sec);
   }
 
   &.hidden {
+    background-color: white;
     max-width: calc(var(--nav-icon-size) + 8px);
   }
 }
@@ -100,15 +102,11 @@
   grid-template-columns: var(--nav-icon-size) 1fr var(--nav-icon-size);
   height: var(--nav-icon-size);
 
-  @apply text-(--text-color-primary) items-center;
+  @apply text-(--text-color-primary) items-center text-sm;
   @apply overflow-hidden text-left cursor-pointer rounded-lg gap-1;
 
   &:hover:enabled {
     @apply bg-(--bg-quat);
-  }
-
-  &:disabled {
-    @apply cursor-not-allowed opacity-40;
   }
 }
 

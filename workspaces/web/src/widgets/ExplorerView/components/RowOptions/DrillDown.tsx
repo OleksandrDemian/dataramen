@@ -1,27 +1,26 @@
 import {useContext, useMemo, useState} from "react";
-import {QueryResultContext, TableContext, TableOptionsContext} from "../../context/TableContext.ts";
+import {TableContext} from "../../context/TableContext.ts";
 import {useCreateWorkbenchTab} from "../../../../data/queries/workbenchTabs.ts";
 import {useNavigate} from "react-router-dom";
-import {THook} from "../../../../data/types/hooks.ts";
 import {createTableOptions} from "../../utils.ts";
 import {genSimpleId} from "../../../../utils/id.ts";
 import {PAGES} from "../../../../const/pages.ts";
 import st from "./index.module.css";
 import {gt} from "../../../../utils/numbers.ts";
-import {HookButton} from "../../../HookButton";
-import {TDbValue, TQueryFilter} from "@dataramen/types";
+import {IHook, TDbValue} from "@dataramen/types";
 import {SearchInput} from "../../../SearchInput";
+import {HookButton} from "../../../HookButton";
 
-function createRelatedDataTabData (hook: THook, dataSourceId: string, value: TDbValue) {
+function createRelatedDataTabData (hook: IHook, dataSourceId: string, value: TDbValue) {
   return {
-    name: `${hook.on.toTable} ${hook.on.toColumn} equals ${value}`,
+    name: `${hook.fromTable} ${hook.fromColumn} equals ${value}`,
     opts: createTableOptions({
       // todo: do I need to inherit joins? Probably not
-      table: hook.on.toTable,
+      table: hook.fromTable,
       dataSourceId: dataSourceId,
       filters: [{
         id: genSimpleId(),
-        column: `${hook.on.toTable}.${hook.on.toColumn}`,
+        column: `${hook.fromTable}.${hook.fromColumn}`,
         value: value == null ? "IS NULL" : `${value}`,
         isEnabled: true,
       }],
@@ -31,88 +30,54 @@ function createRelatedDataTabData (hook: THook, dataSourceId: string, value: TDb
 
 export type TDrillDownProps = {
   rowIndex: number;
+  colIndex?: number;
   onClose?: VoidFunction;
   className?: string;
 };
-export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => {
+export const DrillDown = ({ rowIndex, colIndex, onClose, className }: TDrillDownProps) => {
   const [filter, setFilter] = useState("");
   const {
-    hooks,
     dataSourceId,
+    hooks,
+    getColumnByIndex,
     getValue,
   } = useContext(TableContext);
-  const { state } = useContext(TableOptionsContext);
-  const { data: result } = useContext(QueryResultContext);
-  const row = useMemo(() => result?.result.rows[rowIndex], [result, rowIndex]);
+
+  const availableHooks = useMemo<IHook[]>(() => {
+    if (colIndex === undefined) {
+      return hooks;
+    }
+
+    const header = getColumnByIndex(colIndex);
+    if (header) {
+      return hooks.filter((h) =>
+        h.toColumn === header.column && h.toTable === header.table
+      );
+    }
+
+    return [];
+  }, [colIndex, hooks, getColumnByIndex]);
+
   const createWorkbenchTab = useCreateWorkbenchTab();
   const navigate = useNavigate();
 
   const filteredHooks = useMemo(() => {
-    if (!result) return [];
-
     const lowercaseFilter = filter.toLowerCase();
-    return hooks.filter(h => {
-      // check if available for hooking
-      const hasColumn = result.result.columns.some((c) => {
-        return c.column === h.on.fromColumn && c.table === h.on.fromTable;
-      });
-
-      if (!hasColumn) {
-        return false;
-      }
-
+    return availableHooks.filter(h => {
       // check if name matches
-      return h.on.toTable.toLowerCase().includes(lowercaseFilter);
+      return h.fromTable.toLowerCase().includes(lowercaseFilter);
     });
-  }, [filter, hooks, result]);
+  }, [filter, availableHooks]);
 
-  const showRelatedData = (hook: THook) => {
-    if (!row) {
-      return;
-    }
-
+  const showRelatedData = (hook: IHook) => {
     createWorkbenchTab.mutateAsync(
-      createRelatedDataTabData(
-        hook,
-        dataSourceId,
-        getValue(row, {
-          value: `${hook.on.fromTable}.${hook.on.fromColumn}`,
-        }),
-      ),
+      createRelatedDataTabData(hook, dataSourceId, getValue(rowIndex, hook.toTable, hook.toColumn)),
     ).then((result) => {
       navigate(PAGES.workbenchTab.build({ id: result.id }));
       onClose?.();
     });
   };
 
-  const showNestedData = () => {
-    if (!row || !state) {
-      return;
-    }
-
-    createWorkbenchTab.mutateAsync({
-      name: `${state.table} > [${state.joins.map(j => j.table).join()}]`,
-      opts: createTableOptions({
-        joins: state.joins,
-        table: state.table,
-        dataSourceId: state.dataSourceId,
-        filters: [
-          ...state.filters.filter((f) => f.isEnabled),
-          ...state.groupBy.map((g) => ({
-            id: genSimpleId(),
-            column: g.value,
-            value: `${getValue(row, g)}`,
-            isEnabled: true,
-          } satisfies TQueryFilter))
-        ]
-      }),
-    }).then((result) => {
-      navigate(PAGES.workbenchTab.build({ id: result.id }));
-      onClose?.();
-    });
-  };
-
-  const hasNestedData = state.groupBy.length > 0;
   const hasFilteredHooks = gt(filteredHooks.length, 0);
 
   return (
@@ -126,19 +91,11 @@ export const DrillDown = ({ rowIndex, onClose, className }: TDrillDownProps) => 
       />
 
       <div className={st.list}>
-        {hasNestedData && (
-          <button onClick={showNestedData} className={st.optionItem}>Underlying rows</button>
-        )}
-
         {hasFilteredHooks && filteredHooks.map((hook) => (
-          <HookButton
-            hook={hook}
-            onClick={() => showRelatedData(hook)}
-            key={hook.where}
-          />
+          <HookButton key={hook.id} hook={hook} onClick={() => showRelatedData(hook)} />
         ))}
 
-        {!hasNestedData && !hasFilteredHooks && (
+        {!hasFilteredHooks && (
           <p className={st.emptyText}>Empty</p>
         )}
       </div>

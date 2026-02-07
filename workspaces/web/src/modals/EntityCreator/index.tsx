@@ -90,6 +90,7 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Filter columns"
+          autoFocus
         />
       </div>
 

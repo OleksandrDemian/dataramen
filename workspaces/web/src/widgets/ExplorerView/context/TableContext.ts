@@ -1,27 +1,26 @@
 import {createContext} from "react";
-import {TRunQueryResult} from "../../../data/types/queryRunner.ts";
 import {
+  IHook,
   TDbValue,
-  TInputColumn,
+  TResultColumn,
   TRunSqlResult,
   TRunWorkbenchQuery,
   TWorkbenchOptions,
 } from "@dataramen/types";
-import {THook} from "../../../data/types/hooks.ts";
 import {UseQueryResult} from "@tanstack/react-query";
 import {createTableOptions} from "../utils.ts";
 
 export type TTableContext = {
   name: string;
   tabId?: string;
-  hooks: THook[];
-  availableJoins: THook[];
+  hooks: IHook[];
+  availableJoins: IHook[];
   allColumns: TRunSqlResult["allColumns"];
   dataSourceId: string;
-  entities: string[];
-  getValue: (row: TRunQueryResult['rows'][0], column: TInputColumn) => TDbValue;
-  getEntityKey: (entity: string, row: TRunQueryResult['rows'][0]) => [string, string][];
-  getEntityKeyByRowIndex: (entity: string, row: number) => [string, string][];
+  entities: IHook[];
+  getValue: (rowIndex: number, table: string, column: string) => TDbValue;
+  getColumnByIndex: (index: number) => TResultColumn | undefined;
+  getValueByIndex: (row: number, col: number) => any;
   getColumnType: (fullColumn: string) => string | undefined;
 };
 
@@ -33,9 +32,9 @@ export const TableContext = createContext<TTableContext>({
   dataSourceId: '',
   entities: [],
   getValue: () => undefined,
+  getValueByIndex: () => undefined,
+  getColumnByIndex: () => undefined,
   getColumnType: () => undefined,
-  getEntityKey: () => [],
-  getEntityKeyByRowIndex: () => [],
 });
 
 export type TTableOptionsUpdater = (fn: (opts: TWorkbenchOptions) => TWorkbenchOptions) => void;

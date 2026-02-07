@@ -9,3 +9,4 @@ export * from "./workbenchTabs";
 export * from "./client";
 export * from "./setup";
 export * from "./dialect";
+export * from "./hooks";

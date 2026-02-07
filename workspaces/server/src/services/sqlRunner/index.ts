@@ -12,7 +12,13 @@ import {
   TRunSqlResult
 } from "@dataramen/types";
 import {mapDataSourceToDbConnection} from "../../utils/dataSourceUtils";
-import {computeColumns, computeResultColumns, extractTables, transformClientFilters} from "./utils/clientUtils";
+import {
+  computeAvailableHooksAndEntities,
+  computeColumns,
+  computeResultColumns,
+  extractTables,
+  transformClientFilters
+} from "./utils/clientUtils";
 import {createInsertBuilder, createSelectBuilder, createUpdateBuilder} from "./builders";
 import {createSchemaInfoHandler} from "./utils/schemaInfoHandler";
 import {ISelectColumn} from "./builders/types";
@@ -133,7 +139,7 @@ export const runSelect = async (
    * WHERE
    * **************
    */
-  const filters = transformClientFilters(props.opts.filters, schemaInfoHandler.getColumnType);
+  const filters = transformClientFilters(props.opts.filters, schemaInfoHandler.getColumnByName);
   filters.forEach((filter) => {
     if (filter.fn && isAggregationFunction(filter.fn)) {
       builder.addHaving(filter);
@@ -173,17 +179,22 @@ export const runSelect = async (
   }
 
   const { id: queryHistoryId } = await historyPromise;
+  const computedColumns = computeResultColumns(
+    selectedColumns,
+    result.columns,
+    schemaInfoHandler.getColumnByName,
+  );
+  const { hooks, entities } = computeAvailableHooksAndEntities(computedColumns);
 
   return {
     ...result,
     queryHistoryId,
     tables,
     allColumns,
-    columns: computeResultColumns(
-      selectedColumns,
-      result.columns,
-      schemaInfoHandler.getColumnType,
-    ),
+    availableHooks: hooks,
+    availableEntities: entities,
+    availableJoins: schemaInfoHandler.getAvailableJoins(),
+    columns: computedColumns,
     hasMore,
   };
 };
@@ -257,7 +268,7 @@ export const runUpdate = async (req: FastifyRequest, props: TExecuteUpdate): Pro
   transformClientFilters(
     props.filters,
     // fake getColumnType, always return equals operator "="
-    () => "="
+    () => undefined,
   ).forEach((filter) => {
     queryBuilder.addWhere(filter);
   });

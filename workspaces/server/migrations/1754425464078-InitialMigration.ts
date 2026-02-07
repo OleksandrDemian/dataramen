@@ -137,21 +137,6 @@ export class InitialMigration1754425464078 implements MigrationInterface {
       }),
     );
 
-    // Create "db_inspection"
-    await queryRunner.createTable(
-      new Table({
-        name: "db_inspection",
-        columns: [
-          UUIDColumn(),
-          { name: "tableName", type: "varchar", isNullable: true },
-          { name: "columns", type: "json", isNullable: true },
-          { name: "createdAt", type: TIMESTAMP_COLUMN_TYPE, default: "CURRENT_TIMESTAMP" },
-          { name: "updatedAt", type: TIMESTAMP_COLUMN_TYPE, default: "CURRENT_TIMESTAMP" },
-          UUIDColumnRef("dataSourceId", { isNullable: true }),
-        ],
-      }),
-    );
-
     // Foreign Keys
     await queryRunner.createForeignKey(
       "users",
@@ -209,19 +194,9 @@ export class InitialMigration1754425464078 implements MigrationInterface {
         referencedColumnNames: ["id"],
       }),
     ]);
-
-    await queryRunner.createForeignKey(
-      "db_inspection",
-      new TableForeignKey({
-        columnNames: ["datasourceId"],
-        referencedTableName: "data_sources",
-        referencedColumnNames: ["id"],
-      }),
-    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable("db_inspection", true);
     await queryRunner.dropTable("query", true);
     await queryRunner.dropTable("data_sources", true);
     await queryRunner.dropTable("user_settings", true);

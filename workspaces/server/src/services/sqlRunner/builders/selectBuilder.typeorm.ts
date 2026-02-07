@@ -62,7 +62,7 @@ export function createTypeormSelectBuilder (table: string, dataSource: IDataSour
       hasLimit = true;
     },
     setOffset(offset) {
-      queryBuilder.skip(offset);
+      queryBuilder.offset(offset);
     },
     addOrderBy(col, orderBy) {
       queryBuilder.addOrderBy(col, orderBy);

@@ -102,14 +102,7 @@ const inspectSchema = async (dataSource: TDynamicConnectionConfig, connection: m
             table: ref[column.COLUMN_NAME].refTable,
             field: ref[column.COLUMN_NAME].refField,
           } : undefined,
-        }))
-        .sort((col1, col2) => {
-          if (col1.isPrimary && col2.isPrimary) {
-            return col1.name.localeCompare(col2.name);
-          }
-
-          return col1.isPrimary ? -1 : 1;
-        }),
+        })),
       createdAt: new Date(),
       tableName: tableName,
       updatedAt: new Date(),

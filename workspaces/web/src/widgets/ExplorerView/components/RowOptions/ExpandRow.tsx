@@ -1,9 +1,12 @@
 import st from "./index.module.css";
 import {useContext, useMemo, useState} from "react";
-import {QueryResultContext, TableContext} from "../../context/TableContext.ts";
+import {TableContext} from "../../context/TableContext.ts";
 import {updateEntityEditor} from "../../../../data/entityEditorStore.ts";
 import {gt} from "../../../../utils/numbers.ts";
 import {SearchInput} from "../../../SearchInput";
+import { IHook } from "@dataramen/types";
+import {HookButton} from "../../../HookButton";
+import toast from "react-hot-toast";
 
 export type TExpandRowProps = {
   onClose?: VoidFunction;
@@ -15,30 +18,30 @@ export const ExpandRow = ({ onClose, rowIndex, className }: TExpandRowProps) => 
   const {
     entities,
     dataSourceId,
-    getEntityKey,
+    getValue,
   } = useContext(TableContext);
-  const { data: result } = useContext(QueryResultContext);
-  const row = useMemo(() => result?.result.rows[rowIndex], [result, rowIndex]);
 
-  const filteredEntities = useMemo<string[]>(() => {
+  const filteredEntities = useMemo<IHook[]>(() => {
     if (!filter) {
       return entities;
     }
 
-    return entities.filter((ent) => ent.includes(filter));
+    const lowerEnt = filter.toLowerCase();
+    return entities.filter((ent) => ent.toTable.toLowerCase().includes(lowerEnt));
   }, [entities, filter]);
 
-  const showEntity = (ent: string) => {
-    if (!row) {
-      return;
+  const showEntity = (hook: IHook) => {
+    const value = getValue(rowIndex, hook.fromTable, hook.fromColumn);
+    if (value) {
+      updateEntityEditor({
+        tableName: hook.toTable,
+        dataSourceId,
+        entityId: [[hook.toColumn, "" + value]],
+      });
+    } else {
+      toast.error(`Cannot open ${hook.toTable} record. ${hook.fromTable}.${hook.fromColumn} is NULL`);
     }
 
-    const key = getEntityKey(ent, row);
-    updateEntityEditor({
-      tableName: ent,
-      dataSourceId,
-      entityId: key,
-    });
     onClose?.();
   };
 
@@ -53,14 +56,8 @@ export const ExpandRow = ({ onClose, rowIndex, className }: TExpandRowProps) => 
       />
 
       <div className={st.list}>
-        {gt(filteredEntities.length, 0) ? filteredEntities.map((ent) => (
-          <button
-            key={ent}
-            className={st.optionItem}
-            onClick={() => showEntity(ent)}
-          >
-            <span>📄 {ent}</span>
-          </button>
+        {gt(filteredEntities.length, 0) ? filteredEntities.map((hook) => (
+          <HookButton key={hook.id} hook={hook} onClick={() => showEntity(hook)} />
         )) : (
           <p className={st.emptyText}>Empty</p>
         )}

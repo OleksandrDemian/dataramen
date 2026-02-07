@@ -86,11 +86,6 @@ export const DataSource = new EntitySchema<IDataSourceSchema>({
       inverseSide: "datasources",
       joinColumn: true,
     },
-    inspections: {
-      type: "one-to-many",
-      target: () => "DatabaseInspection",
-      inverseSide: "datasource",
-    },
     queries: {
       type: "one-to-many",
       target: () => "Query",

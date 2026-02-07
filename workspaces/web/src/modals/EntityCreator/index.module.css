@@ -1,17 +1,14 @@
 @import "tailwindcss";
 
 .container {
-  width: 600px;
-  max-width: 100%;
-
   @apply flex flex-col gap-1 overflow-y-hidden px-4 pb-4;
+  @apply w-full lg:w-xl;
 }
 
 .header {
-  width: 600px;
-  max-width: 100%;
   border-bottom: 1px solid var(--bg-quat);
   @apply py-2 px-4 rounded-t-lg;
+  @apply w-full lg:w-xl;
 }
 
 .entity-container {
@@ -38,4 +35,5 @@
   gap: 8px;
 
   @apply py-2 px-4 border-t border-gray-200 bg-gray-50 rounded-b-lg;
+  @apply w-full lg:w-xl;
 }

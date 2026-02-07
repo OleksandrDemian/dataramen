@@ -8,9 +8,9 @@ import st from "./index.module.css";
 import {DrillDown} from "../RowOptions/DrillDown.tsx";
 import ChevronIcon from "../../../../assets/chevron-forward-outline.svg?react";
 import ExpandIcon from "../../../../assets/pencil-outline.svg?react";
-import {ExpandRow} from "../RowOptions/ExpandRow.tsx";
 import {TableContext} from "../../context/TableContext.ts";
-import {updateEntityEditor} from "../../../../data/entityEditorStore.ts";
+import {gt} from "../../../../utils/numbers.ts";
+import {ExpandRow} from "../RowOptions/ExpandRow.tsx";
 
 export type TCellActionsProps = {
   ref: RefObject<TContextMenuRef | null>;
@@ -20,11 +20,10 @@ export type TCellActionsProps = {
 };
 export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
   const clickHandler = useCellActions({ ref });
-  const [tab, setTab] = useState<"cell" | "drill" | "expand">("cell");
+  const [tab, setTab] = useState<"cell" | "drill" | "show-record">("cell");
   const {
+    hooks,
     entities,
-    dataSourceId,
-    getEntityKeyByRowIndex,
   } = useContext(TableContext);
 
   const onCopyValue = () => clickHandler.copyValue(row!, col!);
@@ -32,23 +31,16 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
   const onFilterValue = () => clickHandler.filterValue(row!, col!);
 
   const onExpand = () => {
-    if (entities.length === 1) {
-      const key = getEntityKeyByRowIndex(entities[0], row!);
-      updateEntityEditor({
-        tableName: entities[0],
-        dataSourceId,
-        entityId: key,
-      });
-      ref.current?.close();
-    } else {
-      setTab("expand");
-    }
+    setTab("show-record");
   };
 
   const onMenuClosed = () => {
     onClosed?.();
     setTab("cell");
   };
+
+  const hasDrill = gt(hooks?.length, 0);
+  const hasRecords = gt(entities?.length, 0);
 
   return (
     <ContextualMenu ref={ref} onClosed={onMenuClosed}>
@@ -68,12 +60,19 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
               <SearchIcon width={14} height={14} />
               Filter
             </button>
-            <p className={st.sectionName}>Row actions</p>
-            <button className={st.item} onClick={() => setTab("drill")}>
-              <ChevronIcon width={14} height={14} />
-              Drill down
-            </button>
-            {entities?.length > 0 && (
+
+            {(hasRecords || hasDrill) && (
+              <p className={st.sectionName}>Row actions</p>
+            )}
+
+            {hasDrill && (
+              <button className={st.item} onClick={() => setTab("drill")}>
+                <ChevronIcon width={14} height={14} />
+                Drill down
+              </button>
+            )}
+
+            {hasRecords && (
               <button className={st.item} onClick={onExpand}>
                 <ExpandIcon width={14} height={14} />
                 Show record
@@ -95,14 +94,14 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
           </>
         )}
 
-        {tab === "expand" && (
+        {tab === "show-record" && (
           <>
             <button
               className="flex gap-1 items-center cursor-pointer px-2 py-1 text-sm rounded-lg bg-gray-50 hover:bg-gray-100 mb-2"
               onClick={() => setTab("cell")}
             >
               <ChevronIcon className="rotate-180" width={16} height={16} />
-              Select entity
+              Show record
             </button>
             <ExpandRow rowIndex={row!} onClose={() => ref.current?.close()} />
           </>
