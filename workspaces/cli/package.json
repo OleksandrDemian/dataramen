@@ -8,6 +8,9 @@
     "dataramen": "bin/app.js",
     "dtr": "bin/app.js"
   },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build": "node build.mjs"
   },
