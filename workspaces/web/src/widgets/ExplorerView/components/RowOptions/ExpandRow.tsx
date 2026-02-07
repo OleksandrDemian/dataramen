@@ -6,6 +6,7 @@ import {gt} from "../../../../utils/numbers.ts";
 import {SearchInput} from "../../../SearchInput";
 import { IHook } from "@dataramen/types";
 import {HookButton} from "../../../HookButton";
+import toast from "react-hot-toast";
 
 export type TExpandRowProps = {
   onClose?: VoidFunction;
@@ -31,11 +32,16 @@ export const ExpandRow = ({ onClose, rowIndex, className }: TExpandRowProps) => 
 
   const showEntity = (hook: IHook) => {
     const value = getValue(rowIndex, hook.fromTable, hook.fromColumn);
-    updateEntityEditor({
-      tableName: hook.toTable,
-      dataSourceId,
-      entityId: [[hook.toColumn, "" + value]],
-    });
+    if (value) {
+      updateEntityEditor({
+        tableName: hook.toTable,
+        dataSourceId,
+        entityId: [[hook.toColumn, "" + value]],
+      });
+    } else {
+      toast.error(`Cannot open ${hook.toTable} record. ${hook.fromTable}.${hook.fromColumn} is NULL`);
+    }
+
     onClose?.();
   };
 

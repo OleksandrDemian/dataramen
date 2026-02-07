@@ -25,7 +25,7 @@ export const JoinsModal = () => {
 
   const filteredHooks = useMemo<IHook[]>(() => {
     const lower = filter.toLowerCase();
-    return availableJoins.filter((h) => h.toTable.toLowerCase().includes(lower));
+    return availableJoins.filter((h) => h.fromTable.toLowerCase().includes(lower));
   }, [availableJoins, filter]);
 
   const onClose = () => hideExplorerModal("joins");

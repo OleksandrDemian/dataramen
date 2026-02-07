@@ -6,7 +6,7 @@ import {DrillDown} from "./DrillDown.tsx";
 export type TRowOptionsProps = {
   handler: TContextMenuHandler;
   rowIndex: number;
-  colIndex: number;
+  colIndex?: number;
 };
 export const CellDrillDown = ({ handler, rowIndex, colIndex }: TRowOptionsProps) => {
   return (

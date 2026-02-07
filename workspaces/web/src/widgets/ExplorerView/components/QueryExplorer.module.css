@@ -24,6 +24,23 @@
   }
 }
 
+.row-index-btn {
+  @apply w-8;
+  @apply flex justify-center px-1 cursor-pointer;
+
+  &:hover {
+    span {
+      display: none;
+    }
+  }
+
+  &:not(:hover) {
+    svg {
+      display: none;
+    }
+  }
+}
+
 .semi-transparent {
   @apply opacity-60;
 }

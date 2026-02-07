@@ -162,7 +162,12 @@ const TableRow = memo(({
 }) => {
   return (
     <tr className={clsx(st.tableRowCells, isLastRow && "rounded-b-lg")}>
-      <td data-row={index} data-action="drill-all">{index + 1 + offset}</td>
+      <td data-row={index}>
+        <button data-cell-action="drill-all" className={st.rowIndexBtn}>
+          <CaretUpIcon className="rotate-180 pointer-events-none" width={16} height={16} />
+          <span>{index + 1 + offset}</span>
+        </button>
+      </td>
 
       {row.map((value, i) => (
         <td className={st.cell} key={i} data-row={index} data-col={i}>
@@ -174,6 +179,10 @@ const TableRow = memo(({
 });
 
 const getCellParent = (e: HTMLElement): HTMLElement | undefined => {
+  if (e.tagName === "TD") {
+    return e;
+  }
+
   let parent = e.parentElement;
   let maxAttempts = 5;
 
@@ -189,6 +198,26 @@ const getCellParent = (e: HTMLElement): HTMLElement | undefined => {
   return undefined;
 };
 
+type TCellCoordinates = {
+  row: number;
+  col?: number;
+}
+
+const getCellCoordinates = (el: HTMLElement): TCellCoordinates | undefined => {
+  const parentCell = getCellParent(el);
+  if (!parentCell) {
+    return undefined;
+  }
+
+  const row = parseInt(parentCell.dataset.row!, 10);
+  const col = parseInt(parentCell.dataset.col!, 10);
+
+  return {
+    row,
+    col: Number.isNaN(col) ? undefined : col,
+  }
+};
+
 export const QueryExplorer = () => {
   const { data: result, error: queryError, isLoading, isFetching } = useContext(QueryResultContext);
   const { dataSourceId, getColumnByIndex, getValueByIndex } = useContext(TableContext);
@@ -198,61 +227,38 @@ export const QueryExplorer = () => {
   const parsedError = useParseError(queryError);
 
   const cellDrillDownHandler = useContextMenuHandler();
-  const [row, setRow] = useState<number | undefined>(undefined);
-  const [col, setCol] = useState<number | undefined>(undefined);
+  const [coordinates, setCoordinates] = useState<TCellCoordinates | undefined>();
 
   const onRowActionClick: MouseEventHandler<HTMLTableElement> = (e) => {
-    const dataset = (e.target as HTMLElement)?.dataset;
-    const row = dataset?.rowAction;
+    const el = e.target as HTMLElement;
+    const cellAction = el.dataset?.cellAction;
+    const coordinates = getCellCoordinates(el);
 
-    if (row != undefined) {
-      setRow(parseInt(row));
-      cellDrillDownHandler.open(e);
-    }
+    if (cellAction === "ref" && gt(coordinates?.col, -1)) {
+      const value = getValueByIndex(coordinates.row, coordinates.col);
+      const colInfo = getColumnByIndex(coordinates.col);
 
-    const cellAction = dataset?.cellAction;
-    if (cellAction === "ref") {
-      const parentCell = getCellParent(e.target as HTMLElement);
-      if (parentCell) {
-        const row = parseInt(parentCell.dataset.row!, 10);
-        const col = parseInt(parentCell.dataset.col!, 10);
-        const value = getValueByIndex(row, col);
-        const colInfo = getColumnByIndex(col);
-
-        if (colInfo) {
-          updateEntityEditor({
-            tableName: colInfo!.ref!.table,
-            dataSourceId,
-            entityId: [[colInfo!.ref!.field, value as unknown as any]],
-          });
-        }
+      if (colInfo) {
+        updateEntityEditor({
+          tableName: colInfo!.ref!.table,
+          dataSourceId,
+          entityId: [[colInfo!.ref!.field, value as unknown as any]],
+        });
       }
     } else if (cellAction === "drill") {
-      const parentCell = getCellParent(e.target as HTMLElement);
-      if (parentCell) {
-        const row = parseInt(parentCell.dataset.row!, 10);
-        const col = parseInt(parentCell.dataset.col!, 10);
-
-        setRow(row);
-        setCol(col);
-        cellDrillDownHandler.open(e);
-      }
+      setCoordinates(coordinates);
+      cellDrillDownHandler.open(e);
     } else if (cellAction === "drill-all") {
-      const row = parseInt(dataset.row!, 10);
-      setRow(row);
-      setCol(undefined);
+      setCoordinates(coordinates);
       cellDrillDownHandler.open(e);
     }
   };
 
   const onCellContext: MouseEventHandler<HTMLElement> = (e) => {
-    const dataset = (e.target as HTMLElement)?.dataset;
-    const row = dataset?.row;
-    const col = dataset?.col;
+    const coordinates = getCellCoordinates(e.target as HTMLElement);
 
-    if (row != undefined && col != undefined) {
-      setRow(parseInt(row));
-      setCol(parseInt(col));
+    if (coordinates) {
+      setCoordinates(coordinates);
 
       cellActionsRef.current?.open(e);
       e.preventDefault();
@@ -276,21 +282,20 @@ export const QueryExplorer = () => {
 
   return (
     <>
-      {row != undefined && col !== undefined && cellDrillDownHandler.show && (
+      {coordinates && cellDrillDownHandler.show && (
         <CellDrillDown
           handler={cellDrillDownHandler}
-          rowIndex={row}
-          colIndex={col}
+          rowIndex={coordinates.row}
+          colIndex={coordinates.col}
         />
       )}
 
       <CellActions
         ref={cellActionsRef}
-        col={col}
-        row={row}
+        col={coordinates?.col}
+        row={coordinates?.row}
         onClosed={() => {
-          setRow(undefined);
-          setCol(undefined);
+          setCoordinates(undefined);
         }}
       />
 
