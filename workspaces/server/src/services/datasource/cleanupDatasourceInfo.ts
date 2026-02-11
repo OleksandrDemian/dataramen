@@ -1,17 +1,25 @@
-import {DatabaseColumnRepository, DatabaseTableRepository} from "../../repository/db";
+import {EntityManager} from "typeorm";
+import {DatabaseTable} from "../../repository/tables/databaseTable";
+import {DatabaseColumn} from "../../repository/tables/databaseColumn";
 
-export const cleanupDatasourceInfo = async (dsId: string) => {
-  const columnsToDelete = await DatabaseColumnRepository.find({
+export const cleanupDatasourceInfo = async (entityManager: EntityManager,  dsId: string) => {
+  const tables = await entityManager.find(DatabaseTable, {
     where: {
-      table: {
-        datasource: { id: dsId }
+      datasource: {
+        id: dsId,
       },
     },
-    relations: { table: true }
+    select: ["id"],
   });
-  await DatabaseColumnRepository.remove(columnsToDelete);
 
-  await DatabaseTableRepository.delete({
-    datasource: { id: dsId, },
-  });
+  for (const table of tables) {
+    const columnsToDelete = await entityManager.find(DatabaseColumn, {
+      where: {
+        tableId: table.id,
+      },
+      select: ["id"],
+    });
+    await entityManager.remove(DatabaseColumn, columnsToDelete);
+    await entityManager.delete(DatabaseTable, table);
+  }
 };

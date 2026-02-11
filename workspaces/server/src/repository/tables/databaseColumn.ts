@@ -34,6 +34,9 @@ export const DatabaseColumn = new EntitySchema<IDatabaseColumnSchema>({
       type: "json",
       nullable: true,
     },
+    tableId: {
+      type: String,
+    },
   },
   relations: {
     table: {

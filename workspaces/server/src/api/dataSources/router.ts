@@ -17,6 +17,10 @@ import {EUserTeamRole, IDatabaseColumnSchema, IDatabaseInspection, IInspectionCo
 import {atLeast} from "../../hooks/role";
 import {TIntrospectionResult} from "../../services/connectorManager/types";
 import {cleanupDatasourceInfo} from "../../services/datasource/cleanupDatasourceInfo";
+import {DataSource} from "../../repository/tables/datasource";
+import {Query} from "../../repository/tables/query";
+import {DatabaseColumn} from "../../repository/tables/databaseColumn";
+import {DatabaseTable} from "../../repository/tables/databaseTable";
 
 function computeReferencedBy (introspection: TIntrospectionResult[]) {
   const refs = new Map<string, IInspectionColumnRef[]>();
@@ -158,20 +162,20 @@ export default createRouter((instance) => {
       requireRole: atLeast(EUserTeamRole.ADMIN),
     },
     handler: async (request) => {
-      return AppDataSource.transaction(async () => {
+      return AppDataSource.transaction(async (entityManager) => {
         // todo: fix transaction
         const {id} = getRequestParams<{ id: string }>(request);
 
         await Promise.all([
-          cleanupDatasourceInfo(id),
-          QueriesRepository.delete({
+          cleanupDatasourceInfo(entityManager, id),
+          entityManager.delete(Query, {
             dataSource: {
               id,
             },
           }),
         ]);
 
-        await DataSourceRepository.delete({
+        await entityManager.delete(DataSource, {
           id,
         });
       });
@@ -183,62 +187,63 @@ export default createRouter((instance) => {
     method: "post",
     url: "/:id/inspect",
     handler: async (request, reply) => {
-      const { id } = getRequestParams<{ id: string }>(request);
-      const dataSource = await DataSourceRepository.findOne({
-        where: {
-          id,
-        },
-        select: ["id", "dbType", "dbDatabase", "dbPassword", "dbPasswordTag", "dbPasswordIv", "dbPort", "dbUrl", "dbSchema", "dbUser"],
-      });
-
-      if (!dataSource) {
-        throw new Error("Data source not found");
-      }
-
-      dataSource.status = "INSPECTING";
-      await DataSourceRepository.save(dataSource);
-
-      // todo: transaction
-      const connection = await getDynamicConnection(mapDataSourceToDbConnection(dataSource, true), dataSource.dbType, request);
-      // inspect dataSource
-      const inspection = await connection.inspectSchema();
-
-      await cleanupDatasourceInfo(dataSource.id);
-
-      const referencedBy = computeReferencedBy(inspection);
-      for (const insp of inspection) {
-        const table = await DatabaseTableRepository.save({
-          datasource: {
+      return AppDataSource.transaction(async (entityManager) => {
+        const { id } = getRequestParams<{ id: string }>(request);
+        const dataSource = await entityManager.findOne(DataSource, {
+          where: {
             id,
           },
-          name: insp.tableName,
+          select: ["id", "dbType", "dbDatabase", "dbPassword", "dbPasswordTag", "dbPasswordIv", "dbPort", "dbUrl", "dbSchema", "dbUser"],
         });
 
-        if (insp.columns) {
-          const columns: IDatabaseColumnSchema[] = [];
-          for (const col of insp.columns) {
-            columns.push(DatabaseColumnRepository.create({
-              table: {
-                id: table.id,
-              },
-              name: col.name,
-              isPrimary: col.isPrimary,
-              type: col.type,
-              meta: {
-                refs: col.ref,
-                referencedBy: referencedBy.get(`${table.name}.${col.name}`),
-              }
-            }));
-          }
-
-          await DatabaseColumnRepository.save(columns);
+        if (!dataSource) {
+          throw new Error("Data source not found");
         }
-      }
 
-      // update datasource last inspected
-      dataSource.status = "READY";
-      dataSource.lastInspected = new Date();
-      await DataSourceRepository.save(dataSource);
+        dataSource.status = "INSPECTING";
+        await entityManager.save(DataSource, dataSource);
+
+        const connection = await getDynamicConnection(mapDataSourceToDbConnection(dataSource, true), dataSource.dbType, request);
+        // inspect dataSource
+        const inspection = await connection.inspectSchema();
+
+        await cleanupDatasourceInfo(entityManager, dataSource.id);
+
+        const referencedBy = computeReferencedBy(inspection);
+        for (const insp of inspection) {
+          const table = await entityManager.save(DatabaseTable, {
+            datasource: {
+              id,
+            },
+            name: insp.tableName,
+          });
+
+          if (insp.columns) {
+            const columns: IDatabaseColumnSchema[] = [];
+            for (const col of insp.columns) {
+              columns.push(DatabaseColumnRepository.create({
+                table: {
+                  id: table.id,
+                },
+                name: col.name,
+                isPrimary: !!col.isPrimary,
+                type: col.type,
+                meta: {
+                  refs: col.ref,
+                  referencedBy: referencedBy.get(`${table.name}.${col.name}`),
+                }
+              }));
+            }
+
+            await entityManager.save(DatabaseColumn, columns);
+          }
+        }
+
+        // update datasource last inspected
+        dataSource.status = "READY";
+        dataSource.lastInspected = new Date();
+        await entityManager.save(DataSource, dataSource);
+      });
     },
   });
 

@@ -67,6 +67,7 @@ export interface IDatabaseColumn {
   createdAt: Date;
   updatedAt: Date;
   meta?: IDatabaseColumnMeta;
+  tableId: string;
 }
 
 export interface IDatabaseColumnSchema extends IDatabaseColumn {
