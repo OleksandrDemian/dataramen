@@ -1,5 +1,5 @@
 import {useContext, useMemo, useState} from "react";
-import {TableContext} from "../../context/TableContext.ts";
+import {TableContext, TTableContextGetValue} from "../../context/TableContext.ts";
 import {useCreateWorkbenchTab} from "../../../../data/queries/workbenchTabs.ts";
 import {useNavigate} from "react-router-dom";
 import {createTableOptions} from "../../utils.ts";
@@ -7,11 +7,30 @@ import {genSimpleId} from "../../../../utils/id.ts";
 import {PAGES} from "../../../../const/pages.ts";
 import st from "./index.module.css";
 import {gt} from "../../../../utils/numbers.ts";
-import {IHook, TDbValue} from "@dataramen/types";
+import {IHook} from "@dataramen/types";
 import {SearchInput} from "../../../SearchInput";
 import {HookButton} from "../../../HookButton";
 
-function createRelatedDataTabData (hook: IHook, dataSourceId: string, value: TDbValue) {
+function createRelatedDataTabData (hook: IHook, dataSourceId: string, row: number, getValue: TTableContextGetValue) {
+  if (hook.direction === "out") {
+    const value = getValue(row, hook.fromTable, hook.fromColumn);
+    return {
+      name: `${hook.toTable} ${hook.toColumn} equals ${value}`,
+      opts: createTableOptions({
+        // todo: do I need to inherit joins? Probably not
+        table: hook.toTable,
+        dataSourceId: dataSourceId,
+        filters: [{
+          id: genSimpleId(),
+          column: `${hook.toTable}.${hook.toColumn}`,
+          value: value == null ? "IS NULL" : `${value}`,
+          isEnabled: true,
+        }],
+      }),
+    };
+  }
+
+  const value = getValue(row, hook.toTable, hook.toColumn);
   return {
     name: `${hook.fromTable} ${hook.fromColumn} equals ${value}`,
     opts: createTableOptions({
@@ -71,7 +90,7 @@ export const DrillDown = ({ rowIndex, colIndex, onClose, className }: TDrillDown
 
   const showRelatedData = (hook: IHook) => {
     createWorkbenchTab.mutateAsync(
-      createRelatedDataTabData(hook, dataSourceId, getValue(rowIndex, hook.toTable, hook.toColumn)),
+      createRelatedDataTabData(hook, dataSourceId, rowIndex, getValue),
     ).then((result) => {
       navigate(PAGES.workbenchTab.build({ id: result.id }));
       onClose?.();

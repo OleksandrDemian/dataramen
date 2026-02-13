@@ -10,6 +10,8 @@ import {
 import {UseQueryResult} from "@tanstack/react-query";
 import {createTableOptions} from "../utils.ts";
 
+export type TTableContextGetValue = (rowIndex: number, table: string, column: string) => TDbValue;
+
 export type TTableContext = {
   name: string;
   tabId?: string;
@@ -18,7 +20,7 @@ export type TTableContext = {
   allColumns: TRunSqlResult["allColumns"];
   dataSourceId: string;
   entities: IHook[];
-  getValue: (rowIndex: number, table: string, column: string) => TDbValue;
+  getValue: TTableContextGetValue;
   getColumnByIndex: (index: number) => TResultColumn | undefined;
   getValueByIndex: (row: number, col: number) => any;
   getColumnType: (fullColumn: string) => string | undefined;

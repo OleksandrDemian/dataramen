@@ -6,8 +6,7 @@ import CopyIcon from "../../../../assets/copy-outline.svg?react";
 import EyeIcon from "../../../../assets/eye-outline.svg?react";
 import st from "./index.module.css";
 import {DrillDown} from "../RowOptions/DrillDown.tsx";
-import ChevronIcon from "../../../../assets/chevron-forward-outline.svg?react";
-import ExpandIcon from "../../../../assets/pencil-outline.svg?react";
+import CaretUpIcon from "../../../../assets/caret-up-outline.svg?react";
 import {TableContext} from "../../context/TableContext.ts";
 import {gt} from "../../../../utils/numbers.ts";
 import {ExpandRow} from "../RowOptions/ExpandRow.tsx";
@@ -65,17 +64,17 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
               <p className={st.sectionName}>Row actions</p>
             )}
 
-            {hasDrill && (
-              <button className={st.item} onClick={() => setTab("drill")}>
-                <ChevronIcon width={14} height={14} />
-                Drill down
+            {hasRecords && (
+              <button className={st.item} onClick={onExpand}>
+                <CaretUpIcon className="text-green-600" width={14} height={14} />
+                Show record
               </button>
             )}
 
-            {hasRecords && (
-              <button className={st.item} onClick={onExpand}>
-                <ExpandIcon width={14} height={14} />
-                Show record
+            {hasDrill && (
+              <button className={st.item} onClick={() => setTab("drill")}>
+                <CaretUpIcon className="text-blue-600 rotate-180" width={14} height={14} />
+                Drill down
               </button>
             )}
           </>
@@ -87,7 +86,7 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
               className="flex gap-1 items-center cursor-pointer px-2 py-1 text-sm rounded-lg bg-gray-50 hover:bg-gray-100 mb-2"
               onClick={() => setTab("cell")}
             >
-              <ChevronIcon className="rotate-180" width={16} height={16} />
+              <CaretUpIcon className="text-(--text-color-secondary) rotate-270" width={16} height={16} />
               Drill down
             </button>
             <DrillDown rowIndex={row!} onClose={() => ref.current?.close()} />
@@ -100,7 +99,7 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
               className="flex gap-1 items-center cursor-pointer px-2 py-1 text-sm rounded-lg bg-gray-50 hover:bg-gray-100 mb-2"
               onClick={() => setTab("cell")}
             >
-              <ChevronIcon className="rotate-180" width={16} height={16} />
+              <CaretUpIcon className="text-(--text-color-secondary) rotate-270" width={16} height={16} />
               Show record
             </button>
             <ExpandRow rowIndex={row!} onClose={() => ref.current?.close()} />
@@ -108,5 +107,5 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
         )}
       </div>
     </ContextualMenu>
-  )
+  );
 };

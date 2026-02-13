@@ -21,26 +21,7 @@ import {DataSource} from "../../repository/tables/datasource";
 import {Query} from "../../repository/tables/query";
 import {DatabaseColumn} from "../../repository/tables/databaseColumn";
 import {DatabaseTable} from "../../repository/tables/databaseTable";
-
-function computeReferencedBy (introspection: TIntrospectionResult[]) {
-  const refs = new Map<string, IInspectionColumnRef[]>();
-
-  for (const table of introspection) {
-    table.columns?.forEach((col) => {
-      if (col.ref) {
-        const key = `${col.ref.table}.${col.ref.field}`;
-        const existing = refs.get(key) || [];
-        existing.push({
-          table: table.tableName,
-          field: col.name,
-        });
-        refs.set(key, existing);
-      }
-    });
-  }
-
-  return refs;
-}
+import {inspectDataSourceTask} from "./tasks";
 
 export default createRouter((instance) => {
   // get datasource by id
@@ -187,63 +168,14 @@ export default createRouter((instance) => {
     method: "post",
     url: "/:id/inspect",
     handler: async (request, reply) => {
-      return AppDataSource.transaction(async (entityManager) => {
-        const { id } = getRequestParams<{ id: string }>(request);
-        const dataSource = await entityManager.findOne(DataSource, {
-          where: {
-            id,
-          },
-          select: ["id", "dbType", "dbDatabase", "dbPassword", "dbPasswordTag", "dbPasswordIv", "dbPort", "dbUrl", "dbSchema", "dbUser"],
-        });
+      const { id } = getRequestParams<{ id: string }>(request);
+      const started = await inspectDataSourceTask(id);
 
-        if (!dataSource) {
-          throw new Error("Data source not found");
-        }
-
-        dataSource.status = "INSPECTING";
-        await entityManager.save(DataSource, dataSource);
-
-        const connection = await getDynamicConnection(mapDataSourceToDbConnection(dataSource, true), dataSource.dbType, request);
-        // inspect dataSource
-        const inspection = await connection.inspectSchema();
-
-        await cleanupDatasourceInfo(entityManager, dataSource.id);
-
-        const referencedBy = computeReferencedBy(inspection);
-        for (const insp of inspection) {
-          const table = await entityManager.save(DatabaseTable, {
-            datasource: {
-              id,
-            },
-            name: insp.tableName,
-          });
-
-          if (insp.columns) {
-            const columns: IDatabaseColumnSchema[] = [];
-            for (const col of insp.columns) {
-              columns.push(DatabaseColumnRepository.create({
-                table: {
-                  id: table.id,
-                },
-                name: col.name,
-                isPrimary: !!col.isPrimary,
-                type: col.type,
-                meta: {
-                  refs: col.ref,
-                  referencedBy: referencedBy.get(`${table.name}.${col.name}`),
-                }
-              }));
-            }
-
-            await entityManager.save(DatabaseColumn, columns);
-          }
-        }
-
-        // update datasource last inspected
-        dataSource.status = "READY";
-        dataSource.lastInspected = new Date();
-        await entityManager.save(DataSource, dataSource);
-      });
+      return {
+        data: {
+          started,
+        },
+      };
     },
   });
 

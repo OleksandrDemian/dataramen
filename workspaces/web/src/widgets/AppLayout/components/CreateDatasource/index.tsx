@@ -9,9 +9,9 @@ import {TCreateDataSource} from "../../../../data/types/dataSources.ts";
 import {Alert} from "../../../Alert";
 import {useCurrentUser} from "../../../../data/queries/users.ts";
 import {DatasourceForm, TFormShape} from "./DatasourceForm.tsx";
-import {Analytics} from "../../../../utils/analytics.ts";
+import { TDatabaseDialect } from "@dataramen/types";
 
-const DataSources = [
+const DataSources: { label: string; tag: TDatabaseDialect }[] = [
   {
     label: "PostgreSQL",
     tag: "postgres",
@@ -43,7 +43,7 @@ const PostgresSQLShape: TFormShape<TCreateDataSource> = {
   ],
 };
 
-export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { show: boolean; onClose: VoidFunction; dbType: string; }) => {
+export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { show: boolean; onClose: VoidFunction; dbType: TDatabaseDialect; }) => {
   const createDataSource = useCreateDataSource();
   const manualInspector = useManualInspectDataSource();
 
@@ -74,10 +74,6 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
 
     await manualInspector.mutateAsync(result.id);
     onClose();
-
-    Analytics.event("Create Datasource", {
-      dbType: form.dbType,
-    });
   };
 
   const onProductionMode = (value: boolean) => {
@@ -85,16 +81,11 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
     set("allowUpdate", !value);
   };
 
-  const close = () => {
-    onClose();
-    Analytics.event("Cancel Datasource");
-  };
-
   const disableUi = createDataSource.isPending || manualInspector.isPending;
   const isProdMode = !form.allowInsert && !form.allowUpdate;
 
   return (
-    <Modal isVisible={show} onClose={close} portal>
+    <Modal isVisible={show} onClose={onClose} portal>
       <div className="max-w-xl mx-auto overflow-y-auto">
         {createDataSource.isError && (
           <Alert variant="danger" className="mb-2">
@@ -158,7 +149,7 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
       </div>
 
       <div className="flex justify-end gap-1 mt-2">
-        <button onClick={close} className="button tertiary" disabled={disableUi}>
+        <button onClick={onClose} className="button tertiary" disabled={disableUi}>
           Cancel
         </button>
         <button onClick={onSubmit} className="button primary" disabled={disableUi}>

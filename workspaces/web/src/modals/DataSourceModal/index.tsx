@@ -15,7 +15,6 @@ import clsx from "clsx";
 import ChevronIcon from "../../assets/chevron-forward-outline.svg?react";
 import {PAGES} from "../../const/pages.ts";
 import {useNavigate} from "react-router-dom";
-import {Analytics} from "../../utils/analytics.ts";
 import {DataSourceIcon} from "../../widgets/Icons";
 import {EUserTeamRole} from "@dataramen/types";
 import {useRequireRole} from "../../hooks/useRequireRole.ts";
@@ -28,6 +27,8 @@ import EditIcon from "../../assets/pencil-outline.svg?react"
 import RefreshIcon from "../../assets/refresh-outline.svg?react"
 import TrashIcon from "../../assets/trash-bin-outline.svg?react"
 import {copyText} from "../../utils/copyText.ts";
+import {Spinner} from "../../widgets/Spinner";
+import {useRefetchInspectionGuard} from "./useRefetchInspectionGuard.ts";
 
 const formatter = new Intl.DateTimeFormat("en", {
   dateStyle: "full",
@@ -141,13 +142,10 @@ function Component ({ id }: { id: string }) {
       setDataSourceModal(undefined);
       navigate(PAGES.workbenchTab.build({ id: result.id }));
     });
-
-    Analytics.event("On open table [Datasource modal]");
   };
 
   const onInspect = () => {
     inspector.mutate(id);
-    Analytics.event("On inspect [Datasource modal]");
   };
 
   const onRename = async () => {
@@ -167,11 +165,12 @@ function Component ({ id }: { id: string }) {
     if (result) {
       deleter.mutate(id);
       setDataSourceModal(undefined);
-      Analytics.event("On delete [Datasource modal]");
     }
   };
 
+  useRefetchInspectionGuard(dataSource);
   const isColumn = searchType === "column";
+  const isInspecting = dataSource?.status === "INSPECTING";
 
   return (
     <div className={st.root}>
@@ -188,7 +187,7 @@ function Component ({ id }: { id: string }) {
             <p className="text-xs text-(--text-color-secondary) truncate">{lastInspected}</p>
             {isEditor && (
               <div className="flex justify-end">
-                <button disabled={inspector.isPending} onClick={onInspect} className={st.actionBlue} data-tooltip-id="default-xs" data-tooltip-content="Refresh schema">
+                <button disabled={inspector.isPending || isInspecting} onClick={onInspect} className={st.actionBlue} data-tooltip-id="default-xs" data-tooltip-content="Refresh schema">
                   <RefreshIcon width={16} height={16} />
                 </button>
 
@@ -223,7 +222,14 @@ function Component ({ id }: { id: string }) {
         </div>
       </div>
 
-      <div className="overflow-y-auto p-4">
+      {isInspecting && (
+        <div className="flex justify-center gap-2 items-center bg-blue-50 p-4 rounded">
+          <Spinner size={16} />
+          <p className="text-xs text-blue-800">Inspecting schema</p>
+        </div>
+      )}
+
+      <div className={clsx("overflow-y-auto p-4", isInspecting && "opacity-30")}>
         {filtered?.map((table) => (
           <div key={table.id}>
             <div className={st.tableNameContainer}>

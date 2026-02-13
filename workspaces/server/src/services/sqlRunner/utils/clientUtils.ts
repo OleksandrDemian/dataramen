@@ -141,6 +141,15 @@ export const computeAvailableHooksAndEntities = (columns: TResultColumn[]): { ho
         toTable: column.ref.table,
         direction: 'out',
       });
+
+      hooks.push({
+        id: [column.column, column.table, column.ref.table, column.ref.field].join("."),
+        fromColumn: column.column,
+        fromTable: column.table!,
+        toColumn: column.ref.field,
+        toTable: column.ref.table,
+        direction: 'out',
+      });
     }
   }
 
