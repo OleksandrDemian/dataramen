@@ -29,14 +29,22 @@
   @apply rounded-md;
 }
 
-.switch {
-  @apply grid grid-cols-2 gap-2 max-w-xl;
+.header {
+  @apply flex justify-center gap-2 items-center mb-4;
 }
 
 .mode-select {
-  @apply max-w-xl cursor-pointer block;
+  @apply max-w-xl cursor-pointer block px-3 py-4 rounded-md;
+
+  &.selected {
+    @apply ring-inset ring-3 ring-blue-500;
+  }
+
+  &:not(.selected) {
+    @apply ring-inset ring-3 ring-gray-100 opacity-50;
+  }
 
   & + & {
-    @apply mt-3;
+    @apply mt-2;
   }
 }

@@ -44,7 +44,12 @@ export const SavedQueriesAction = () => {
   );
 };
 
-export const ConnectDataSource = () => {
+const DB_LABELS: Record<TDatabaseDialect, string> = {
+  mysql: 'MySQL',
+  postgres: 'PostgreSQL',
+};
+
+export const ConnectDataSource = ({ dbType }: { dbType: TDatabaseDialect }) => {
   const [showNewDataSource, setShowNewDataSource] = useState<TDatabaseDialect | undefined>(undefined);
   const isEditor = useRequireRole(EUserTeamRole.EDITOR);
 
@@ -68,9 +73,22 @@ export const ConnectDataSource = () => {
 
       <div
         className={st.homeActionButton}
-        onClick={() => onCreateNewDataSource("postgres")}
+        onClick={() => onCreateNewDataSource(dbType)}
       >
-        <p className={st.actionTitle}>🧙‍♂️ Connection wizard</p>
+        <DataSourceIcon size={24} type={dbType} />
+        <p className={st.actionTitle}>{DB_LABELS[dbType]}</p>
+      </div>
+    </div>
+  );
+};
+
+export const NewDataSource = () => {
+  return (
+    <div className={st.homeGrayCard}>
+      <h2 className={st.homeCardTitle}>Connect new data source</h2>
+      <div className={st.homeCardGridContent}>
+        <ConnectDataSource dbType="mysql" />
+        <ConnectDataSource dbType="postgres" />
       </div>
     </div>
   );

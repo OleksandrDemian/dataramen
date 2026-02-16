@@ -3,12 +3,11 @@ import {useCurrentUser} from "../../data/queries/users.ts";
 import {Alert} from "../../widgets/Alert";
 import {
   StartQuery,
-  ConnectDataSource,
   WorkbenchTabs,
   ListDataSources,
   UsefulLinks,
   RecentTabs,
-  SavedQueriesAction
+  SavedQueriesAction, NewDataSource
 } from "./components.tsx";
 import st from "./index.module.css";
 
@@ -43,7 +42,6 @@ export const HomePage = () => {
 
             <div className={st.homeCardGridContent}>
               <StartQuery />
-              <ConnectDataSource />
 
               {hasUser && (
                 <WorkbenchTabs />
@@ -57,6 +55,7 @@ export const HomePage = () => {
             <ListDataSources />
           )}
 
+          <NewDataSource />
           <RecentTabs />
         </div>
       </div>

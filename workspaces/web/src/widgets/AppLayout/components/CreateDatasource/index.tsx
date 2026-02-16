@@ -10,17 +10,13 @@ import {Alert} from "../../../Alert";
 import {useCurrentUser} from "../../../../data/queries/users.ts";
 import {DatasourceForm, TFormShape} from "./DatasourceForm.tsx";
 import { TDatabaseDialect } from "@dataramen/types";
+import {DataSourceIcon} from "../../../Icons";
+import clsx from "clsx";
 
-const DataSources: { label: string; tag: TDatabaseDialect }[] = [
-  {
-    label: "PostgreSQL",
-    tag: "postgres",
-  },
-  {
-    label: "MySQL",
-    tag: "mysql",
-  },
-];
+const DB_LABELS: Record<TDatabaseDialect, string> = {
+  mysql: 'MySQL',
+  postgres: 'PostgreSQL',
+};
 
 const MySQLShape: TFormShape<TCreateDataSource> = {
   fields: [
@@ -87,6 +83,11 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
   return (
     <Modal isVisible={show} onClose={onClose} portal>
       <div className="max-w-xl mx-auto overflow-y-auto">
+        <div className={st.header}>
+          <DataSourceIcon size={24} type={dbType} />
+          <p className="text-(--text-color-primary) font-semibold">{DB_LABELS[dbType]}</p>
+        </div>
+
         {createDataSource.isError && (
           <Alert variant="danger" className="mb-2">
             <span>Failed to connect to the database. Please check if the data are correct and retry.</span>
@@ -101,49 +102,39 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
           <Alert className="mb-2" variant="info">Inspecting connection</Alert>
         )}
 
-        <div className={st.switch}>
-          <label className="button tertiary">
-            <input type="radio" name="bdType" className="mr-2" checked={form.dbType === DataSources[0].tag} onChange={() => set("dbType", DataSources[0].tag)} />
-            <span>{DataSources[0].label}</span>
-          </label>
-          <label className="button tertiary">
-            <input type="radio" name="bdType" className="mr-2" checked={form.dbType === DataSources[1].tag} onChange={() => set("dbType", DataSources[1].tag)} />
-            <span>{DataSources[1].label}</span>
-          </label>
-        </div>
-
         <div className="mt-2">
           <div className={st.content}>
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold" htmlFor="datasource-name">
+                Name
+              </label>
+              <input
+                value={form.name}
+                onChange={change("name")}
+                id="datasource-name"
+                className="input"
+                placeholder="Data source name"
+                disabled={disableUi}
+              />
+            </div>
+
             <DatasourceForm
               form={form}
               change={change}
               shape={form.dbType === 'mysql' ? MySQLShape : PostgresSQLShape}
             />
-
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold">
-                Name
-              </label>
-              <input value={form.name} onChange={change("name")} className="input"/>
-            </div>
           </div>
 
           <div className="mt-4">
-            <label className={st.modeSelect}>
-              <div>
-                <input type="radio" name="production-mode" className="mr-2" checked={isProdMode} onChange={() => onProductionMode(true)} />
-                <span className="text-sm font-semibold">Production mode</span>
-              </div>
-              <p className="text-xs mt-1 text-gray-600">Mutation operations (such as INSERT or UPDATE) are <strong>forbidden</strong>. You won't be able to insert new rows or edit existing data. Tables in this data source are read-only.</p>
-            </label>
+            <button  disabled={disableUi} onClick={() => onProductionMode(true)} className={clsx(st.modeSelect, isProdMode && st.selected)}>
+              <span className="text-sm font-semibold text-(--text-color-primary)">Read-only mode</span>
+              <p className="text-sm text-left mt-1 text-(--text-color-primary)">Mutation operations (such as INSERT or UPDATE) are <strong>forbidden</strong>. You won't be able to insert new rows or edit existing data. Tables in this data source are read-only.</p>
+            </button>
 
-            <label className={st.modeSelect}>
-              <div>
-                <input type="radio" name="production-mode" className="mr-2" checked={!isProdMode} onChange={() => onProductionMode(false)} />
-                <span className="text-sm font-semibold">Dev mode</span>
-              </div>
-              <p className="text-xs mt-1 text-gray-600">Mutation operations (such as INSERT or UPDATE) are <strong>allowed</strong>. You will be able to insert new rows and edit existing data.</p>
-            </label>
+            <button  disabled={disableUi} onClick={() => onProductionMode(false)} className={clsx(st.modeSelect, !isProdMode && st.selected)}>
+              <span className="text-sm font-semibold text-(--text-color-primary)">Read/Write mode</span>
+              <p className="text-sm text-left mt-1 text-(--text-color-primary)">Mutation operations (such as INSERT or UPDATE) are <strong>allowed</strong>. You will be able to insert new rows and edit existing data.</p>
+            </button>
           </div>
         </div>
       </div>

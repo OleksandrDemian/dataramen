@@ -268,20 +268,25 @@ function Component ({ id }: { id: string }) {
 
 export const DataSourceSidebar = () => {
   const shownDataSource = useDataSourceModal();
-  const [dataSourceId, setDataSourceId] = useState<string | undefined>(undefined);
+  const [temp, setTemp] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (shownDataSource) {
-      setDataSourceId(shownDataSource);
+      setTemp(shownDataSource);
     }
   }, [shownDataSource]);
 
   const onClose = () => setDataSourceModal(undefined);
 
   return (
-    <Sidebar isVisible={shownDataSource != null} onClose={onClose} onClosed={() => setDataSourceId(undefined)} backdropClose>
-      {dataSourceId && (
-        <Component id={dataSourceId} />
+    <Sidebar
+      isVisible={shownDataSource != null}
+      onClose={onClose}
+      onClosed={() => setTemp(undefined)}
+      backdropClose
+    >
+      {temp && (
+        <Component id={temp} />
       )}
     </Sidebar>
   );
