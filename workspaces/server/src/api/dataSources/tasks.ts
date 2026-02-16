@@ -82,14 +82,18 @@ export const inspectDataSourceTask = async (dataSourceId: string): Promise<boole
     }
 
     // update datasource last inspected
-    dataSource.status = "READY";
-    dataSource.lastInspected = new Date();
-    await entityManager.save(DataSource, dataSource);
+    await entityManager.save(DataSource, {
+      id: dataSourceId,
+      status: "READY",
+      lastInspected: new Date(),
+    });
   }).catch((err) => {
     // inspection failed, put status back to ready, the changes are rolled back
     console.error(err);
-    dataSource.status = "READY";
-    DataSourceRepository.save(dataSource);
+    DataSourceRepository.save({
+      id: dataSourceId,
+      status: "FAILED",
+    });
   });
 
   return true;

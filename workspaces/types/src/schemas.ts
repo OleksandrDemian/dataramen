@@ -92,7 +92,7 @@ export interface IDataSource {
   allowInsert: boolean;
   allowUpdate: boolean;
   lastInspected?: Date;
-  status: null | "READY" | "INSPECTING";
+  status: null | "READY" | "INSPECTING" | "FAILED";
 }
 
 export interface IDataSourceSchema extends IDataSource {

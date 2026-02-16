@@ -142,16 +142,6 @@ export const useFetchLastTab = (teamId?: string) => {
   });
 };
 
-export const useCountQueries = (teamId?: string) => {
-  return useQuery({
-    queryKey: ["project", "count-saved-queries", teamId],
-    queryFn: async () => {
-      const { data } = await apiClient.get<{ data: number }>(`/project/team/${teamId}/count-saved-queries`);
-      return data.data;
-    },
-  });
-};
-
 export const invalidateTabsHistory = () => {
   return Promise.all([
     queryClient.invalidateQueries({
@@ -161,10 +151,4 @@ export const invalidateTabsHistory = () => {
       queryKey: ['project', "recent-tabs"],
     }),
   ]);
-};
-
-export const invalidateCountSavedQueries = () => {
-  return queryClient.invalidateQueries({
-    queryKey: ["project", "count-saved-queries"],
-  })
 };

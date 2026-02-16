@@ -205,7 +205,7 @@ function Component ({ id }: { id: string }) {
 
         <div className="flex gap-2 items-center mt-2">
           <select
-            className="input"
+            className="input text-sm"
             value={searchType}
             onChange={(e) => setSearchType(e.currentTarget.value as any)}
           >
@@ -213,7 +213,7 @@ function Component ({ id }: { id: string }) {
             <option value="column">Column</option>
           </select>
           <input
-            className="input flex-1 bg-gray-50"
+            className="input flex-1 bg-gray-50 text-sm"
             placeholder={isColumn ? "Search column" : "Search table"}
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -226,6 +226,12 @@ function Component ({ id }: { id: string }) {
         <div className="flex justify-center gap-2 items-center bg-blue-50 p-4 rounded">
           <Spinner size={16} />
           <p className="text-xs text-blue-800">Inspecting schema</p>
+        </div>
+      )}
+
+      {dataSource?.status === "FAILED" && (
+        <div className="flex justify-center gap-2 items-center bg-red-50 p-4 rounded">
+          <p className="text-xs text-red-800">Latest inspection failed</p>
         </div>
       )}
 

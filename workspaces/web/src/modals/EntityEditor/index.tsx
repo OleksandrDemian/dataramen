@@ -29,6 +29,10 @@ import {PAGES} from "../../const/pages.ts";
 const getPlaceholder = (value: unknown): string | undefined => {
   if (value === null || value === undefined) return "<NULL>";
 
+  if (value === "") {
+    return "<EMPTY STRING>";
+  }
+
   return undefined;
 };
 

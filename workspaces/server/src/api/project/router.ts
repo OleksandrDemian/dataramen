@@ -126,36 +126,6 @@ export default createRouter((instance) => {
 
   instance.route({
     method: "get",
-    url: "/team/:teamId/count-saved-queries",
-    handler: async (request) => {
-      const params = getRequestParams<{ teamId?: string; }>(request);
-      const teamId = params.teamId || request.user.currentTeamId;
-
-      const queries = await SavedQueriesRepository.count({
-        where: [
-          {
-            isPersonal: false,
-            team: { id: teamId },
-          },
-          {
-            isPersonal: true,
-            team: { id: teamId },
-            user: { id: request.user.id },
-          },
-        ],
-        select: {
-          id: true,
-        },
-      });
-
-      return {
-        data: queries,
-      };
-    },
-  });
-
-  instance.route({
-    method: "get",
     url: "/team/:teamId/query",
     handler: async (request) => {
       const { teamId } = getRequestParams<{ teamId: string }>(request);
