@@ -52,7 +52,7 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
     dbPassword: "",
     dbDatabase: "",
     dbSchema: "",
-    dbPort: 5432,
+    dbPort: dbType === "mysql" ? 3306 : 5432,
     teamId: "",
     ownerId: "",
     description: "",
@@ -105,7 +105,7 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
         <div className="mt-2">
           <div className={st.content}>
             <div className="flex flex-col">
-              <label className="text-sm font-semibold" htmlFor="datasource-name">
+              <label className="text-sm font-semibold mb-2" htmlFor="datasource-name">
                 Name
               </label>
               <input
@@ -118,6 +118,10 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
               />
             </div>
 
+            <p className="text-sm font-semibold mt-2">
+              Configuration
+            </p>
+
             <DatasourceForm
               form={form}
               change={change}
@@ -125,16 +129,26 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
             />
           </div>
 
-          <div className="mt-4">
-            <button  disabled={disableUi} onClick={() => onProductionMode(true)} className={clsx(st.modeSelect, isProdMode && st.selected)}>
-              <span className="text-sm font-semibold text-(--text-color-primary)">Read-only mode</span>
-              <p className="text-sm text-left mt-1 text-(--text-color-primary)">Mutation operations (such as INSERT or UPDATE) are <strong>forbidden</strong>. You won't be able to insert new rows or edit existing data. Tables in this data source are read-only.</p>
-            </button>
+          <p className="text-sm font-semibold mt-4">
+            Connection mode
+          </p>
 
-            <button  disabled={disableUi} onClick={() => onProductionMode(false)} className={clsx(st.modeSelect, !isProdMode && st.selected)}>
-              <span className="text-sm font-semibold text-(--text-color-primary)">Read/Write mode</span>
-              <p className="text-sm text-left mt-1 text-(--text-color-primary)">Mutation operations (such as INSERT or UPDATE) are <strong>allowed</strong>. You will be able to insert new rows and edit existing data.</p>
-            </button>
+          <div className={st.modeContainer}>
+            <label onClick={() => onProductionMode(true)} className={clsx(st.modeSelect, isProdMode && st.selected)}>
+              <span className="text-sm font-semibold text-(--text-color-primary)">
+                <input type="radio" disabled={disableUi} checked={isProdMode} className="mr-2" />
+                Read-only mode
+              </span>
+              <p className="text-sm mt-1 text-(--text-color-primary)">Mutation operations (such as INSERT or UPDATE) are <strong>forbidden</strong>. You won't be able to insert new rows or edit existing data. Tables in this data source are read-only.</p>
+            </label>
+
+            <label onClick={() => onProductionMode(false)} className={clsx(st.modeSelect, !isProdMode && st.selected)}>
+              <span className="text-sm font-semibold text-(--text-color-primary)">
+                <input type="radio" disabled={disableUi} checked={!isProdMode} className="mr-2" />
+                Read/Write mode
+              </span>
+              <p className="text-sm mt-1 text-(--text-color-primary)">Mutation operations (such as INSERT or UPDATE) are <strong>allowed</strong>. You will be able to insert new rows and edit existing data.</p>
+            </label>
           </div>
         </div>
       </div>

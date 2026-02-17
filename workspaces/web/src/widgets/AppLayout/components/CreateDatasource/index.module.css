@@ -9,11 +9,15 @@
   }
 
   .label {
-    @apply text-sm font-semibold py-1 px-2 bg-(--bg-sec) flex items-center justify-end;
+    @apply text-sm font-semibold py-1 px-2 bg-(--bg-sec) flex items-center;
   }
 
   input {
-    @apply p-1;
+    @apply p-1 outline-none;
+
+    &:focus {
+      @apply ring-2 ring-blue-400 ring-inset;
+    }
   }
 }
 
@@ -34,17 +38,17 @@
 }
 
 .mode-select {
-  @apply max-w-xl cursor-pointer block px-3 py-4 rounded-md;
+  @apply max-w-xl cursor-pointer block p-2 rounded-md text-left;
 
   &.selected {
-    @apply ring-inset ring-3 ring-blue-500;
+    @apply ring-2 ring-blue-400 ring-inset;
   }
 
   &:not(.selected) {
-    @apply ring-inset ring-3 ring-gray-100 opacity-50;
+    @apply ring-2 ring-gray-100 ring-inset;
   }
+}
 
-  & + & {
-    @apply mt-2;
-  }
+.mode-container {
+  @apply grid grid-cols-1 gap-2 mt-2;
 }
