@@ -10,7 +10,6 @@ import {WorkbenchTabPage} from "./WorkbenchTab";
 import {DataSourceSidebar} from "../modals/DataSourceModal";
 import {SearchTableModal} from "../modals/SearchTableModal";
 import {useSetupGlobalListeners} from "../hooks/useGlobalHotkey.ts";
-import {useAnalyticsPageview} from "../hooks/useAnalyticsPageview.ts";
 import {AccountSettingsModal} from "../modals/AccountSettingsModal";
 import {PeopleSettingsModal} from "../modals/PeopleSettingsModal";
 import {LoginPage} from "./Login";
@@ -22,7 +21,6 @@ import {SavedQueriesSidebar} from "../modals/SavedQueries";
 
 function Router() {
   useSetupGlobalListeners();
-  useAnalyticsPageview();
   useLoginGuard();
 
   return (

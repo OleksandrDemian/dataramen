@@ -15,7 +15,6 @@ import clsx from "clsx";
 import ChevronIcon from "../../assets/chevron-forward-outline.svg?react";
 import {PAGES} from "../../const/pages.ts";
 import {useNavigate} from "react-router-dom";
-import {Analytics} from "../../utils/analytics.ts";
 import {DataSourceIcon} from "../../widgets/Icons";
 import {EUserTeamRole} from "@dataramen/types";
 import {useRequireRole} from "../../hooks/useRequireRole.ts";
@@ -28,6 +27,8 @@ import EditIcon from "../../assets/pencil-outline.svg?react"
 import RefreshIcon from "../../assets/refresh-outline.svg?react"
 import TrashIcon from "../../assets/trash-bin-outline.svg?react"
 import {copyText} from "../../utils/copyText.ts";
+import {Spinner} from "../../widgets/Spinner";
+import {useRefetchInspectionGuard} from "./useRefetchInspectionGuard.ts";
 
 const formatter = new Intl.DateTimeFormat("en", {
   dateStyle: "full",
@@ -141,13 +142,10 @@ function Component ({ id }: { id: string }) {
       setDataSourceModal(undefined);
       navigate(PAGES.workbenchTab.build({ id: result.id }));
     });
-
-    Analytics.event("On open table [Datasource modal]");
   };
 
   const onInspect = () => {
     inspector.mutate(id);
-    Analytics.event("On inspect [Datasource modal]");
   };
 
   const onRename = async () => {
@@ -167,11 +165,12 @@ function Component ({ id }: { id: string }) {
     if (result) {
       deleter.mutate(id);
       setDataSourceModal(undefined);
-      Analytics.event("On delete [Datasource modal]");
     }
   };
 
+  useRefetchInspectionGuard(dataSource);
   const isColumn = searchType === "column";
+  const isInspecting = dataSource?.status === "INSPECTING";
 
   return (
     <div className={st.root}>
@@ -188,7 +187,7 @@ function Component ({ id }: { id: string }) {
             <p className="text-xs text-(--text-color-secondary) truncate">{lastInspected}</p>
             {isEditor && (
               <div className="flex justify-end">
-                <button disabled={inspector.isPending} onClick={onInspect} className={st.actionBlue} data-tooltip-id="default-xs" data-tooltip-content="Refresh schema">
+                <button disabled={inspector.isPending || isInspecting} onClick={onInspect} className={st.actionBlue} data-tooltip-id="default-xs" data-tooltip-content="Refresh schema">
                   <RefreshIcon width={16} height={16} />
                 </button>
 
@@ -206,7 +205,7 @@ function Component ({ id }: { id: string }) {
 
         <div className="flex gap-2 items-center mt-2">
           <select
-            className="input"
+            className="input text-sm"
             value={searchType}
             onChange={(e) => setSearchType(e.currentTarget.value as any)}
           >
@@ -214,7 +213,7 @@ function Component ({ id }: { id: string }) {
             <option value="column">Column</option>
           </select>
           <input
-            className="input flex-1 bg-gray-50"
+            className="input flex-1 bg-gray-50 text-sm"
             placeholder={isColumn ? "Search column" : "Search table"}
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
@@ -223,7 +222,20 @@ function Component ({ id }: { id: string }) {
         </div>
       </div>
 
-      <div className="overflow-y-auto p-4">
+      {isInspecting && (
+        <div className="flex justify-center gap-2 items-center bg-blue-50 p-4 rounded">
+          <Spinner size={16} />
+          <p className="text-xs text-blue-800">Inspecting schema</p>
+        </div>
+      )}
+
+      {dataSource?.status === "FAILED" && (
+        <div className="flex justify-center gap-2 items-center bg-red-50 p-4 rounded">
+          <p className="text-xs text-red-800">Latest inspection failed</p>
+        </div>
+      )}
+
+      <div className={clsx("overflow-y-auto p-4", isInspecting && "opacity-30")}>
         {filtered?.map((table) => (
           <div key={table.id}>
             <div className={st.tableNameContainer}>
@@ -256,20 +268,25 @@ function Component ({ id }: { id: string }) {
 
 export const DataSourceSidebar = () => {
   const shownDataSource = useDataSourceModal();
-  const [dataSourceId, setDataSourceId] = useState<string | undefined>(undefined);
+  const [temp, setTemp] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (shownDataSource) {
-      setDataSourceId(shownDataSource);
+      setTemp(shownDataSource);
     }
   }, [shownDataSource]);
 
   const onClose = () => setDataSourceModal(undefined);
 
   return (
-    <Sidebar isVisible={shownDataSource != null} onClose={onClose} onClosed={() => setDataSourceId(undefined)} backdropClose>
-      {dataSourceId && (
-        <Component id={dataSourceId} />
+    <Sidebar
+      isVisible={shownDataSource != null}
+      onClose={onClose}
+      onClosed={() => setTemp(undefined)}
+      backdropClose
+    >
+      {temp && (
+        <Component id={temp} />
       )}
     </Sidebar>
   );

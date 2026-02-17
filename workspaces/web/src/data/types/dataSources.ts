@@ -1,28 +1,13 @@
+import {IDataSource} from "@dataramen/types";
+
 export type TDataSourceID = string;
 
-export type TColumnDescription = { name: string; type: string };
-
-export type TDataSource = {
-  id: TDataSourceID;
-  name: string;
-  description?: string;
-  dbType: string;
-  dbUser: string;
-  dbUrl: string;
-  dbPassword?: string;
-  ownerId: string;
-  dbDatabase: string;
-  dbSchema?: string;
-  dbPort: number;
-  lastInspected?: string;
+export type TCreateDataSource = Omit<IDataSource, 'id' | 'createdAt' | 'updatedAt' | 'status'> & {
   teamId: string;
-  allowInsert?: boolean;
-  allowUpdate?: boolean;
+  ownerId: string;
 };
 
-export type TCreateDataSource = Omit<TDataSource, 'id'>;
-
-export type TDataSourceWOwner = TDataSource & {
+export type TDataSourceWOwner = IDataSource & {
   owner?: {
     email: string;
   };

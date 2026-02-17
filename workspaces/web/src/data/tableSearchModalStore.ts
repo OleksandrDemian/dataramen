@@ -4,7 +4,6 @@ import {useNavigate} from "react-router-dom";
 import {createTableOptions} from "../widgets/ExplorerView/utils.ts";
 import {PAGES} from "../const/pages.ts";
 import {useCallback, useEffect} from "react";
-import {Analytics} from "../utils/analytics.ts";
 import {useCreateWorkbenchTab, useRestoreArchivedTab} from "./queries/workbenchTabs.ts";
 
 type PromiseResult = {
@@ -76,6 +75,5 @@ export const useSearchTable = (eventSource: string) => {
       }
     });
 
-    Analytics.event(`On open query search [${eventSource}]`);
   }, [navigate, eventSource]);
 };

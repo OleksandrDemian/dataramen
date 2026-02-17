@@ -3,23 +3,32 @@ import {apiClient} from "../clients.ts";
 import {
   TCreateDataSource,
   TDatabaseInspection,
-  TDataSource,
   TDataSourceID,
   TDataSourceWOwner,
 } from "../types/dataSources.ts";
 import {queryClient} from "../queryClient.ts";
 import {QUERY_DATASOURCE_KEY} from "../keysConst.ts";
 import {invalidateTeamProjectFiles} from "./project.ts";
-import {Analytics} from "../../utils/analytics.ts";
+import { IDataSource } from "@dataramen/types";
+
+const REFETCH_INTERVAL = 4_000;
 
 export const useDataSource = (id?: string) => {
   return useQuery({
     queryKey: [QUERY_DATASOURCE_KEY, id],
     queryFn: async () => {
-      const {data} = await apiClient.get<{ data: TDataSource }>("/data-sources/" + id);
+      const {data} = await apiClient.get<{ data: IDataSource }>("/data-sources/" + id);
       return data.data;
     },
     enabled: !!id,
+    refetchInterval: (query) => {
+      if (query.state?.data?.status === "INSPECTING") {
+        // if inspecting, refetch every 4s
+        return REFETCH_INTERVAL;
+      }
+
+      return false;
+    },
   });
 };
 
@@ -53,10 +62,16 @@ export const useDatabaseInspections = (dsId?: string) => {
   });
 };
 
+export const invalidateDatabaseInspections = (dsId: string) => {
+  return queryClient.invalidateQueries({
+    queryKey: [QUERY_DATASOURCE_KEY, dsId, "inspections"],
+  });
+};
+
 export const useCreateDataSource = () => {
   return useMutation({
     mutationFn: async (dataSource: TCreateDataSource) => {
-      const {data} = await apiClient.post<{ data: TDataSource }>("/data-sources", dataSource);
+      const {data} = await apiClient.post<{ data: IDataSource }>("/data-sources", dataSource);
       return data.data;
     },
     onSuccess: () => {
@@ -64,10 +79,6 @@ export const useCreateDataSource = () => {
         queryKey: [QUERY_DATASOURCE_KEY],
       });
       invalidateTeamProjectFiles();
-      Analytics.event("Datasource created");
-    },
-    onError: () => {
-      Analytics.event("Datasource creation failed");
     },
   });
 };
@@ -75,8 +86,8 @@ export const useCreateDataSource = () => {
 // patch
 export const useUpdateDataSource = () => {
   return useMutation({
-    mutationFn: async ({ dataSource, id }: { dataSource: Partial<TDataSource>, id: string }) => {
-      const {data} = await apiClient.put<{ data: TDataSource }>(`/data-sources/${id}`, dataSource);
+    mutationFn: async ({ dataSource, id }: { dataSource: Partial<IDataSource>, id: string }) => {
+      const {data} = await apiClient.put<{ data: IDataSource }>(`/data-sources/${id}`, dataSource);
       return data.data;
     },
     onSuccess: () => {
@@ -93,11 +104,10 @@ export const useManualInspectDataSource = () => {
     mutationFn: async (id: TDataSourceID) => {
       await apiClient.post(`/data-sources/${id}/inspect`);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({
-        queryKey: [QUERY_DATASOURCE_KEY],
+        queryKey: [QUERY_DATASOURCE_KEY, variables],
       });
-      Analytics.event("Datasource inspected");
     }
   });
 };
@@ -112,7 +122,6 @@ export const useDeleteDataSource = () => {
         queryKey: [QUERY_DATASOURCE_KEY],
       });
       invalidateTeamProjectFiles();
-      Analytics.event("Datasource deleted");
     },
   });
 }

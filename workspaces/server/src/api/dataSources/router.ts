@@ -17,26 +17,11 @@ import {EUserTeamRole, IDatabaseColumnSchema, IDatabaseInspection, IInspectionCo
 import {atLeast} from "../../hooks/role";
 import {TIntrospectionResult} from "../../services/connectorManager/types";
 import {cleanupDatasourceInfo} from "../../services/datasource/cleanupDatasourceInfo";
-
-function computeReferencedBy (introspection: TIntrospectionResult[]) {
-  const refs = new Map<string, IInspectionColumnRef[]>();
-
-  for (const table of introspection) {
-    table.columns?.forEach((col) => {
-      if (col.ref) {
-        const key = `${col.ref.table}.${col.ref.field}`;
-        const existing = refs.get(key) || [];
-        existing.push({
-          table: table.tableName,
-          field: col.name,
-        });
-        refs.set(key, existing);
-      }
-    });
-  }
-
-  return refs;
-}
+import {DataSource} from "../../repository/tables/datasource";
+import {Query} from "../../repository/tables/query";
+import {DatabaseColumn} from "../../repository/tables/databaseColumn";
+import {DatabaseTable} from "../../repository/tables/databaseTable";
+import {inspectDataSourceTask} from "./tasks";
 
 export default createRouter((instance) => {
   // get datasource by id
@@ -158,20 +143,20 @@ export default createRouter((instance) => {
       requireRole: atLeast(EUserTeamRole.ADMIN),
     },
     handler: async (request) => {
-      return AppDataSource.transaction(async () => {
+      return AppDataSource.transaction(async (entityManager) => {
         // todo: fix transaction
         const {id} = getRequestParams<{ id: string }>(request);
 
         await Promise.all([
-          cleanupDatasourceInfo(id),
-          QueriesRepository.delete({
+          cleanupDatasourceInfo(entityManager, id),
+          entityManager.delete(Query, {
             dataSource: {
               id,
             },
           }),
         ]);
 
-        await DataSourceRepository.delete({
+        await entityManager.delete(DataSource, {
           id,
         });
       });
@@ -184,61 +169,13 @@ export default createRouter((instance) => {
     url: "/:id/inspect",
     handler: async (request, reply) => {
       const { id } = getRequestParams<{ id: string }>(request);
-      const dataSource = await DataSourceRepository.findOne({
-        where: {
-          id,
+      const started = await inspectDataSourceTask(id);
+
+      return {
+        data: {
+          started,
         },
-        select: ["id", "dbType", "dbDatabase", "dbPassword", "dbPasswordTag", "dbPasswordIv", "dbPort", "dbUrl", "dbSchema", "dbUser"],
-      });
-
-      if (!dataSource) {
-        throw new Error("Data source not found");
-      }
-
-      dataSource.status = "INSPECTING";
-      await DataSourceRepository.save(dataSource);
-
-      // todo: transaction
-      const connection = await getDynamicConnection(mapDataSourceToDbConnection(dataSource, true), dataSource.dbType, request);
-      // inspect dataSource
-      const inspection = await connection.inspectSchema();
-
-      await cleanupDatasourceInfo(dataSource.id);
-
-      const referencedBy = computeReferencedBy(inspection);
-      for (const insp of inspection) {
-        const table = await DatabaseTableRepository.save({
-          datasource: {
-            id,
-          },
-          name: insp.tableName,
-        });
-
-        if (insp.columns) {
-          const columns: IDatabaseColumnSchema[] = [];
-          for (const col of insp.columns) {
-            columns.push(DatabaseColumnRepository.create({
-              table: {
-                id: table.id,
-              },
-              name: col.name,
-              isPrimary: col.isPrimary,
-              type: col.type,
-              meta: {
-                refs: col.ref,
-                referencedBy: referencedBy.get(`${table.name}.${col.name}`),
-              }
-            }));
-          }
-
-          await DatabaseColumnRepository.save(columns);
-        }
-      }
-
-      // update datasource last inspected
-      dataSource.status = "READY";
-      dataSource.lastInspected = new Date();
-      await DataSourceRepository.save(dataSource);
+      };
     },
   });
 

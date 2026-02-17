@@ -9,18 +9,14 @@ import {TCreateDataSource} from "../../../../data/types/dataSources.ts";
 import {Alert} from "../../../Alert";
 import {useCurrentUser} from "../../../../data/queries/users.ts";
 import {DatasourceForm, TFormShape} from "./DatasourceForm.tsx";
-import {Analytics} from "../../../../utils/analytics.ts";
+import { TDatabaseDialect } from "@dataramen/types";
+import {DataSourceIcon} from "../../../Icons";
+import clsx from "clsx";
 
-const DataSources = [
-  {
-    label: "PostgreSQL",
-    tag: "postgres",
-  },
-  {
-    label: "MySQL",
-    tag: "mysql",
-  },
-];
+const DB_LABELS: Record<TDatabaseDialect, string> = {
+  mysql: 'MySQL',
+  postgres: 'PostgreSQL',
+};
 
 const MySQLShape: TFormShape<TCreateDataSource> = {
   fields: [
@@ -43,7 +39,7 @@ const PostgresSQLShape: TFormShape<TCreateDataSource> = {
   ],
 };
 
-export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { show: boolean; onClose: VoidFunction; dbType: string; }) => {
+export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { show: boolean; onClose: VoidFunction; dbType: TDatabaseDialect; }) => {
   const createDataSource = useCreateDataSource();
   const manualInspector = useManualInspectDataSource();
 
@@ -56,7 +52,7 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
     dbPassword: "",
     dbDatabase: "",
     dbSchema: "",
-    dbPort: 5432,
+    dbPort: dbType === "mysql" ? 3306 : 5432,
     teamId: "",
     ownerId: "",
     description: "",
@@ -74,10 +70,6 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
 
     await manualInspector.mutateAsync(result.id);
     onClose();
-
-    Analytics.event("Create Datasource", {
-      dbType: form.dbType,
-    });
   };
 
   const onProductionMode = (value: boolean) => {
@@ -85,17 +77,17 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
     set("allowUpdate", !value);
   };
 
-  const close = () => {
-    onClose();
-    Analytics.event("Cancel Datasource");
-  };
-
   const disableUi = createDataSource.isPending || manualInspector.isPending;
   const isProdMode = !form.allowInsert && !form.allowUpdate;
 
   return (
-    <Modal isVisible={show} onClose={close} portal>
+    <Modal isVisible={show} onClose={onClose} portal>
       <div className="max-w-xl mx-auto overflow-y-auto">
+        <div className={st.header}>
+          <DataSourceIcon size={24} type={dbType} />
+          <p className="text-(--text-color-primary) font-semibold">{DB_LABELS[dbType]}</p>
+        </div>
+
         {createDataSource.isError && (
           <Alert variant="danger" className="mb-2">
             <span>Failed to connect to the database. Please check if the data are correct and retry.</span>
@@ -110,55 +102,59 @@ export const CreateDatasourceModal = ({ show, onClose, dbType = "postgres" }: { 
           <Alert className="mb-2" variant="info">Inspecting connection</Alert>
         )}
 
-        <div className={st.switch}>
-          <label className="button tertiary">
-            <input type="radio" name="bdType" className="mr-2" checked={form.dbType === DataSources[0].tag} onChange={() => set("dbType", DataSources[0].tag)} />
-            <span>{DataSources[0].label}</span>
-          </label>
-          <label className="button tertiary">
-            <input type="radio" name="bdType" className="mr-2" checked={form.dbType === DataSources[1].tag} onChange={() => set("dbType", DataSources[1].tag)} />
-            <span>{DataSources[1].label}</span>
-          </label>
-        </div>
-
         <div className="mt-2">
           <div className={st.content}>
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold mb-2" htmlFor="datasource-name">
+                Name
+              </label>
+              <input
+                value={form.name}
+                onChange={change("name")}
+                id="datasource-name"
+                className="input"
+                placeholder="Data source name"
+                disabled={disableUi}
+              />
+            </div>
+
+            <p className="text-sm font-semibold mt-2">
+              Configuration
+            </p>
+
             <DatasourceForm
               form={form}
               change={change}
               shape={form.dbType === 'mysql' ? MySQLShape : PostgresSQLShape}
             />
-
-            <div className="flex flex-col">
-              <label className="text-sm font-semibold">
-                Name
-              </label>
-              <input value={form.name} onChange={change("name")} className="input"/>
-            </div>
           </div>
 
-          <div className="mt-4">
-            <label className={st.modeSelect}>
-              <div>
-                <input type="radio" name="production-mode" className="mr-2" checked={isProdMode} onChange={() => onProductionMode(true)} />
-                <span className="text-sm font-semibold">Production mode</span>
-              </div>
-              <p className="text-xs mt-1 text-gray-600">Mutation operations (such as INSERT or UPDATE) are <strong>forbidden</strong>. You won't be able to insert new rows or edit existing data. Tables in this data source are read-only.</p>
+          <p className="text-sm font-semibold mt-4">
+            Connection mode
+          </p>
+
+          <div className={st.modeContainer}>
+            <label onClick={() => onProductionMode(true)} className={clsx(st.modeSelect, isProdMode && st.selected)}>
+              <span className="text-sm font-semibold text-(--text-color-primary)">
+                <input type="radio" disabled={disableUi} checked={isProdMode} className="mr-2" />
+                Read-only mode
+              </span>
+              <p className="text-sm mt-1 text-(--text-color-primary)">Mutation operations (such as INSERT or UPDATE) are <strong>forbidden</strong>. You won't be able to insert new rows or edit existing data. Tables in this data source are read-only.</p>
             </label>
 
-            <label className={st.modeSelect}>
-              <div>
-                <input type="radio" name="production-mode" className="mr-2" checked={!isProdMode} onChange={() => onProductionMode(false)} />
-                <span className="text-sm font-semibold">Dev mode</span>
-              </div>
-              <p className="text-xs mt-1 text-gray-600">Mutation operations (such as INSERT or UPDATE) are <strong>allowed</strong>. You will be able to insert new rows and edit existing data.</p>
+            <label onClick={() => onProductionMode(false)} className={clsx(st.modeSelect, !isProdMode && st.selected)}>
+              <span className="text-sm font-semibold text-(--text-color-primary)">
+                <input type="radio" disabled={disableUi} checked={!isProdMode} className="mr-2" />
+                Read/Write mode
+              </span>
+              <p className="text-sm mt-1 text-(--text-color-primary)">Mutation operations (such as INSERT or UPDATE) are <strong>allowed</strong>. You will be able to insert new rows and edit existing data.</p>
             </label>
           </div>
         </div>
       </div>
 
       <div className="flex justify-end gap-1 mt-2">
-        <button onClick={close} className="button tertiary" disabled={disableUi}>
+        <button onClick={onClose} className="button tertiary" disabled={disableUi}>
           Cancel
         </button>
         <button onClick={onSubmit} className="button primary" disabled={disableUi}>

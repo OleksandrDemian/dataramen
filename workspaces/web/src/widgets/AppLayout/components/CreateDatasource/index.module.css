@@ -9,11 +9,15 @@
   }
 
   .label {
-    @apply text-sm font-semibold py-1 px-2 bg-(--bg-sec) flex items-center justify-end;
+    @apply text-sm font-semibold py-1 px-2 bg-(--bg-sec) flex items-center;
   }
 
   input {
-    @apply p-1;
+    @apply p-1 outline-none;
+
+    &:focus {
+      @apply ring-2 ring-blue-400 ring-inset;
+    }
   }
 }
 
@@ -29,14 +33,22 @@
   @apply rounded-md;
 }
 
-.switch {
-  @apply grid grid-cols-2 gap-2 max-w-xl;
+.header {
+  @apply flex justify-center gap-2 items-center mb-4;
 }
 
 .mode-select {
-  @apply max-w-xl cursor-pointer block;
+  @apply max-w-xl cursor-pointer block p-2 rounded-md text-left;
 
-  & + & {
-    @apply mt-3;
+  &.selected {
+    @apply ring-2 ring-blue-400 ring-inset;
   }
+
+  &:not(.selected) {
+    @apply ring-2 ring-gray-100 ring-inset;
+  }
+}
+
+.mode-container {
+  @apply grid grid-cols-1 gap-2 mt-2;
 }

@@ -1,4 +1,4 @@
-import {ReactNode, TransitionEventHandler, useEffect, useRef, useState} from "react";
+import {ReactNode, TransitionEventHandler, useEffect, useState} from "react";
 import st from "./styles.module.css";
 import clsx from "clsx";
 import {useModalStack} from "../../hooks/useModalStack.ts";
@@ -13,8 +13,6 @@ export type TSidebarProps = {
 };
 export const Sidebar = ({children, backdropClose, isVisible, onClose, onClosed, contentClassName}: TSidebarProps) => {
   const [renderComponent, setRenderComponent] = useState(false);
-  const closeRef = useRef(onClose);
-  closeRef.current = onClose;
 
   const _onClose = () => {
     if (backdropClose) {

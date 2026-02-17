@@ -2,11 +2,10 @@ import {useSearchTable} from "../../data/tableSearchModalStore.ts";
 import {useState} from "react";
 import {useRequireRole} from "../../hooks/useRequireRole.ts";
 import toast from "react-hot-toast";
-import {Analytics} from "../../utils/analytics.ts";
 import {CreateDatasourceModal} from "../../widgets/AppLayout/components/CreateDatasource";
 import st from "./index.module.css";
 import {DataSourceIcon} from "../../widgets/Icons";
-import {EUserTeamRole} from "@dataramen/types";
+import {EUserTeamRole, TDatabaseDialect} from "@dataramen/types";
 import {useNavigate} from "react-router-dom";
 import {PAGES} from "../../const/pages.ts";
 import {useCurrentUser} from "../../data/queries/users.ts";
@@ -45,18 +44,21 @@ export const SavedQueriesAction = () => {
   );
 };
 
-export const ConnectDataSource = () => {
-  const [showNewDataSource, setShowNewDataSource] = useState<string | undefined>(undefined);
+const DB_LABELS: Record<TDatabaseDialect, string> = {
+  mysql: 'MySQL',
+  postgres: 'PostgreSQL',
+};
+
+export const ConnectDataSource = ({ dbType }: { dbType: TDatabaseDialect }) => {
+  const [showNewDataSource, setShowNewDataSource] = useState<TDatabaseDialect | undefined>(undefined);
   const isEditor = useRequireRole(EUserTeamRole.EDITOR);
 
-  const onCreateNewDataSource = (dbType: string) => {
+  const onCreateNewDataSource = (dbType: TDatabaseDialect) => {
     if (isEditor) {
       setShowNewDataSource(dbType);
     } else {
       toast.error("You don't have permission to connect new data sources in this team");
     }
-
-    Analytics.event(`On create new [${dbType}]`);
   };
 
   return (
@@ -71,9 +73,22 @@ export const ConnectDataSource = () => {
 
       <div
         className={st.homeActionButton}
-        onClick={() => onCreateNewDataSource("postgres")}
+        onClick={() => onCreateNewDataSource(dbType)}
       >
-        <p className={st.actionTitle}>🧙‍♂️ Connection wizard</p>
+        <DataSourceIcon size={24} type={dbType} />
+        <p className={st.actionTitle}>{DB_LABELS[dbType]}</p>
+      </div>
+    </div>
+  );
+};
+
+export const NewDataSource = () => {
+  return (
+    <div className={st.homeGrayCard}>
+      <h2 className={st.homeCardTitle}>Connect new data source</h2>
+      <div className={st.homeCardGridContent}>
+        <ConnectDataSource dbType="mysql" />
+        <ConnectDataSource dbType="postgres" />
       </div>
     </div>
   );
@@ -87,7 +102,6 @@ export const WorkbenchTabs = () => {
   const onOpenWorkbench = () => {
     if (tabs && tabs.length > 0) {
       navigate(PAGES.workbenchTab.build({ id: tabs[0].id }));
-      Analytics.event("On open workbench [Home]");
     } else {
       searchAndOpen();
     }
@@ -107,11 +121,6 @@ export const ListDataSources = () => {
     teamId: user?.teamId,
   });
 
-  const onOpen = (id: string) => {
-    setDataSourceModal(id);
-    Analytics.event("On open datasource [Home]");
-  };
-
   if (!dataSources || dataSources.length === 0) {
     return null;
   }
@@ -122,7 +131,7 @@ export const ListDataSources = () => {
 
       <div className={st.homeCardGridContent}>
         {dataSources?.map((d) => (
-          <div key={d.id} className={st.dataSourceEntry} onClick={() => onOpen(d.id)} tabIndex={0}>
+          <div key={d.id} className={st.dataSourceEntry} onClick={() => setDataSourceModal(d.id)} tabIndex={0}>
             {!d.allowInsert && (
               <LockIcon
                 data-tooltip-id="default"

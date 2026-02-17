@@ -1,7 +1,7 @@
 import {useMutation} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {queryClient} from "../queryClient.ts";
-import {invalidateCountSavedQueries, invalidateTeamProjectFiles, invalidateTeamTrash} from "./project.ts";
+import {invalidateTeamProjectFiles, invalidateTeamTrash} from "./project.ts";
 import { TCreateSavedQuery, TQuery, TUpdateQuery } from "@dataramen/types";
 
 export const useSaveQuery = () => {
@@ -15,7 +15,6 @@ export const useSaveQuery = () => {
         queryKey: ["queries"],
       });
       invalidateTeamProjectFiles();
-      invalidateCountSavedQueries();
     }
   });
 };
@@ -25,7 +24,6 @@ export const useDeleteSavedQuery = () => {
     mutationFn: async (savedQueryId: string) => apiClient.delete("/saved-queries/" + savedQueryId),
     onSuccess: () => {
       invalidateTeamProjectFiles();
-      invalidateCountSavedQueries();
     },
   });
 }
