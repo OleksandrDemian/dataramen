@@ -1,5 +1,10 @@
 // todo: migrate to scheduler
-import {AppDataSource, DatabaseColumnRepository, DataSourceRepository} from "../../repository/db";
+import {
+  AppDataSource,
+  DatabaseColumnRepository,
+  DatabaseTableRepository,
+  DataSourceRepository
+} from "../../repository/db";
 import {IDatabaseColumnSchema, IInspectionColumnRef} from "@dataramen/types";
 import {DataSource} from "../../repository/tables/datasource";
 import {getUnscopedDynamicConnection} from "../../services/connectorManager";
@@ -53,12 +58,12 @@ export const inspectDataSourceTask = async (dataSourceId: string): Promise<boole
 
     const referencedBy = computeReferencedBy(inspection);
     for (const insp of inspection) {
-      const table = await entityManager.save(DatabaseTable, {
+      const table = await entityManager.save(DatabaseTable, DatabaseTableRepository.create({
         datasource: {
           id: dataSourceId,
         },
         name: insp.tableName,
-      });
+      }));
 
       if (insp.columns) {
         const columns: IDatabaseColumnSchema[] = [];
