@@ -1,4 +1,4 @@
-import { DataSource as TypeOrm } from "typeorm"
+import {DataSource as TypeOrm} from "typeorm"
 import { Team } from "./tables/teams";
 import { User } from "./tables/users";
 import { UserSettings } from "./tables/userSettings";
@@ -12,6 +12,7 @@ import {SavedQuery} from "./tables/savedQuery";
 import {WorkbenchTab} from "./tables/workbenchTabs";
 import {DatabaseColumn} from "./tables/databaseColumn";
 import {DatabaseTable} from "./tables/databaseTable";
+import {setupListeners} from "./listeners/setup";
 
 function getDatabaseValue (): string {
   let value = Env.str("APP_DB_DATABASE");
@@ -52,7 +53,10 @@ export const AppDataSource = new TypeOrm({
 
 export const initDatabase = async () => {
   if (!AppDataSource.isInitialized) {
-    return AppDataSource.initialize();
+    return AppDataSource.initialize().then((dataSource) => {
+      setupListeners(dataSource);
+      return dataSource;
+    });
   }
 
   throw new Error("Already initialized");

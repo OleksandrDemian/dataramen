@@ -1,5 +1,10 @@
 // todo: migrate to scheduler
-import {AppDataSource, DatabaseColumnRepository, DataSourceRepository} from "../../repository/db";
+import {
+  AppDataSource,
+  DatabaseColumnRepository,
+  DatabaseTableRepository,
+  DataSourceRepository
+} from "../../repository/db";
 import {IDatabaseColumnSchema, IInspectionColumnRef} from "@dataramen/types";
 import {DataSource} from "../../repository/tables/datasource";
 import {getUnscopedDynamicConnection} from "../../services/connectorManager";

@@ -1,14 +1,13 @@
 import {EntitySchema} from "typeorm";
 import {TIMESTAMP_COLUMN_TYPE} from "../../utils/dbUtils";
-import {IDatabaseInspectionSchema, IDatabaseTableSchema} from "@dataramen/types";
+import {IDatabaseTableSchema} from "@dataramen/types";
 
 export const DatabaseTable = new EntitySchema<IDatabaseTableSchema>({
   name: "DatabaseTable",
   tableName: "database_tables",
   columns: {
     id: {
-      type: String,
-      unique: true,
+      type: "uuid",
       primary: true,
       generated: "uuid",
     },
@@ -29,6 +28,9 @@ export const DatabaseTable = new EntitySchema<IDatabaseTableSchema>({
     datasource: {
       target: () => "DataSource",
       type: "many-to-one",
+      joinColumn: {
+        name: "dataSourceId",
+      },
     },
     columns: {
       target: () => "DatabaseColumn",
