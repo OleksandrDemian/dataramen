@@ -23,7 +23,6 @@ function createUuidGeneratorListener (dataSource: DataSource): EntitySubscriberI
 
   return {
     beforeInsert(event: InsertEvent<unknown>): Promise<any> | void {
-      console.log("Saving entity " + event.metadata.name);
       if (uuidFields[event.metadata.name]) {
         for (const prop of uuidFields[event.metadata.name]) {
           // @ts-ignore

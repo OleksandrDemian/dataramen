@@ -58,12 +58,12 @@ export const inspectDataSourceTask = async (dataSourceId: string): Promise<boole
 
     const referencedBy = computeReferencedBy(inspection);
     for (const insp of inspection) {
-      const table = await entityManager.save(DatabaseTable, DatabaseTableRepository.create({
+      const table = await entityManager.save(DatabaseTable, {
         datasource: {
           id: dataSourceId,
         },
         name: insp.tableName,
-      }));
+      });
 
       if (insp.columns) {
         const columns: IDatabaseColumnSchema[] = [];
