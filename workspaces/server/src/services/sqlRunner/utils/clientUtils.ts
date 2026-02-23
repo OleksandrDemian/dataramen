@@ -123,7 +123,7 @@ export const computeAvailableHooksAndEntities = (columns: TResultColumn[]): { ho
   for (const column of columns) {
     column.referencedBy?.forEach((ref) => {
       hooks.push({
-        id: [ref.table, ref.field, column.column, column.table].join("."),
+        id: [ref.table, ref.field, column.table, column.column].join("."),
         fromColumn: ref.field,
         fromTable: ref.table,
         toColumn: column.column,
@@ -142,14 +142,16 @@ export const computeAvailableHooksAndEntities = (columns: TResultColumn[]): { ho
         direction: 'out',
       });
 
-      hooks.push({
-        id: [column.column, column.table, column.ref.table, column.ref.field].join("."),
-        fromColumn: column.column,
-        fromTable: column.table!,
-        toColumn: column.ref.field,
-        toTable: column.ref.table,
-        direction: 'out',
-      });
+      if (column.ref.table !== column.table) {
+        hooks.push({
+          id: [column.column, column.table, column.ref.table, column.ref.field].join("."),
+          fromColumn: column.column,
+          fromTable: column.table!,
+          toColumn: column.ref.field,
+          toTable: column.ref.table,
+          direction: 'out',
+        });
+      }
     }
   }
 

@@ -44,7 +44,7 @@ function RootInfo() {
   return (
     <div className={st.tableConfig}>
       {dataSource && (
-        <div className={clsx(st.tableAction, st.greenFixed)} data-tooltip-id="default" data-tooltip-content={table}>
+        <div className={clsx(st.tableAction, st.dataSource)} data-tooltip-id="default" data-tooltip-content={table}>
           <DataSourceIcon size={18} type={dataSource.dbType} />
           <p className="text-sm">{dataSource.name}</p>
           <Chevron width={12} height={12} />
