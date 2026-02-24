@@ -3,7 +3,7 @@
 .data-source-entry {
   display: grid;
   grid-template-columns: 32px 1fr;
-  @apply gap-2 items-center cursor-pointer hover:bg-gray-50 p-4 bg-white rounded-md border border-gray-200 relative;
+  @apply gap-2 items-center cursor-pointer hover:ring-2 ring-inset ring-blue-400 p-4 bg-white rounded-md border border-gray-200 relative;
 }
 
 .action-title {
@@ -29,7 +29,7 @@
 
 .home-action-button {
   border: 1px solid var(--bg-quat);
-  @apply bg-white p-4 rounded-lg hover:bg-gray-50! cursor-pointer flex gap-2 items-center;
+  @apply bg-white p-4 rounded-lg hover:ring-2 ring-inset ring-blue-400 cursor-pointer flex gap-2 items-center;
 }
 
 .home-gray-card {
@@ -50,6 +50,6 @@
 
   a {
     border: 1px solid var(--bg-quat);
-    @apply flex gap-1 items-center hover:bg-(--bg-sec) px-3 py-1 rounded-full text-sm;
+    @apply flex gap-1 items-center hover:ring-2 ring-inset ring-blue-400 px-3 py-1 rounded-full text-sm;
   }
 }

@@ -66,14 +66,14 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
 
             {hasRecords && (
               <button className={st.item} onClick={onExpand}>
-                <CaretUpIcon className="text-green-600" width={14} height={14} />
+                <CaretUpIcon className="text-(--text-color-tertiary)" width={14} height={14} />
                 Show record
               </button>
             )}
 
             {hasDrill && (
               <button className={st.item} onClick={() => setTab("drill")}>
-                <CaretUpIcon className="text-blue-600 rotate-180" width={14} height={14} />
+                <CaretUpIcon className="text-(--text-color-tertiary) rotate-180" width={14} height={14} />
                 Drill down
               </button>
             )}

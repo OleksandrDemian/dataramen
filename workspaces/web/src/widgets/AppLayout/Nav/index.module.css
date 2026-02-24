@@ -105,8 +105,8 @@
   @apply text-(--text-color-primary) items-center text-sm;
   @apply overflow-hidden text-left cursor-pointer rounded-lg gap-1;
 
-  &:hover:enabled {
-    @apply bg-(--bg-quat);
+  &:hover {
+    @apply hover:ring-2 ring-inset ring-blue-400 hover:bg-white;
   }
 }
 
