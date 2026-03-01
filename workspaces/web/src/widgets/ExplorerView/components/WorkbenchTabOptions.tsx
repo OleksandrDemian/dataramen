@@ -1,7 +1,7 @@
 import {useContext} from "react";
 import {QueryResultContext, TableContext, TableOptionsContext} from "../context/TableContext.ts";
 import {usePagination} from "../hooks/usePagination.ts";
-import {updateCreateEntity} from "../../../data/entityCreatorStore.ts";
+import {openEntityCreatorSidebar} from "../../../data/entityCreatorStore.ts";
 import st from "./QueryExplorer.module.css";
 import clsx from "clsx";
 import {useSaveQuery} from "../../../data/queries/queries.ts";
@@ -18,6 +18,7 @@ import Duplicate from "../../../assets/duplicate-outline.svg?react";
 import Share from "../../../assets/share-social-outline.svg?react";
 import FilterIcon from "../../../assets/filter-outline.svg?react";
 import AddIcon from "../../../assets/add-outline.svg?react";
+import LinkIcon from "../../../assets/link-outline.svg?react";
 import toast from "react-hot-toast";
 import {PAGES} from "../../../const/pages.ts";
 import {useCreateWorkbenchTab} from "../../../data/queries/workbenchTabs.ts";
@@ -142,9 +143,9 @@ function MoreOptions () {
   };
 
   const onInsert = () => {
-    if (data?.result.columns?.[0].table) {
-      updateCreateEntity({
-        table: data?.result.columns?.[0].table,
+    if (state.table) {
+      openEntityCreatorSidebar({
+        table: state.table,
         dataSourceId,
       });
     }
@@ -188,7 +189,7 @@ function MoreOptions () {
         onClick={() => showExplorerModal("joins")}
         role="button"
       >
-        <AddIcon width={16} height={16} />
+        <LinkIcon width={16} height={16} />
       </span>
 
       <span
@@ -222,6 +223,18 @@ function MoreOptions () {
       >
         <Duplicate width={16} height={16} />
       </span>
+
+      {dataSource?.allowInsert === true && (
+        <span
+          data-tooltip-content="Insert new record"
+          data-tooltip-id="default"
+          className={clsx(st.tableAction, st.gray)}
+          onClick={onInsert}
+          role="button"
+        >
+        <AddIcon width={16} height={16} />
+      </span>
+      )}
 
       <Tooltip id="rows-num" className="z-10 shadow-md flex gap-1" clickable variant="light" opacity={1}>
         {rows.map((num) => (
@@ -264,12 +277,6 @@ function MoreOptions () {
               <span>Save query</span>
               <span className="hotkey">S</span>
             </button>
-
-            {dataSource?.allowInsert === true && (
-              <button onClick={onInsert} className={clsx(st.tableAction, st.modal, st.gray)}>
-                Insert new row
-              </button>
-            )}
           </>
         )}
       </Tooltip>

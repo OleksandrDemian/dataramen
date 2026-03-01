@@ -1,14 +1,19 @@
 @import "tailwindcss";
 
+.root {
+  border-left: 1px solid var(--bg-quat);
+  @apply w-sm flex flex-col;
+}
+
 .container {
-  @apply flex flex-col gap-1 overflow-y-hidden px-4 pb-4;
-  @apply w-full lg:w-xl;
+  @apply flex-1 flex flex-col gap-1 overflow-y-hidden px-4 pb-4;
+  @apply w-full;
 }
 
 .header {
   border-bottom: 1px solid var(--bg-quat);
   @apply py-2 px-4 rounded-t-lg;
-  @apply w-full lg:w-xl;
+  @apply w-full;
 }
 
 .entity-container {
@@ -34,6 +39,6 @@
   align-items: center;
   gap: 8px;
 
-  @apply py-2 px-4 border-t border-gray-200 bg-gray-50 rounded-b-lg;
-  @apply w-full lg:w-xl;
+  @apply w-full;
+  @apply py-2 px-4 border-t border-gray-200 bg-gray-50;
 }

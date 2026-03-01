@@ -7,7 +7,11 @@
 
   td {
     border-color: var(--bg-quat);
-    @apply border-b border-r text-(--text-color-primary);
+    @apply border-b text-(--text-color-primary);
+
+    &:not(:last-child) {
+      @apply border-r;
+    }
 
     &:first-child {
       @apply py-1 px-1 text-center align-middle text-xs w-8 text-blue-500 lg:sticky z-2 lg:left-0 bg-(--bg-sec);

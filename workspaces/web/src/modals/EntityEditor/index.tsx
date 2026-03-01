@@ -1,14 +1,13 @@
 import {
   closeEntityEditorModal,
   TEntityEditorStore,
-  updateEntityEditor,
   useEntityEditor
 } from "../../data/entityEditorStore.ts";
 import {useDatabaseInspections, useDataSource} from "../../data/queries/dataSources.ts";
 import {useEffect, useMemo, useState} from "react";
 import {useForm} from "../../hooks/form/useForm.ts";
 import {useEntity, useUpdate} from "../../data/queries/queryRunner.ts";
-import {generateColumnLabel, sanitizeCellValue} from "../../utils/sql.ts";
+import {sanitizeCellValue} from "../../utils/sql.ts";
 import st from "./index.module.css";
 import {Alert} from "../../widgets/Alert";
 import {useParseError} from "../../hooks/useParseError.ts";
@@ -20,11 +19,14 @@ import {useWorkbenchTabId} from "../../hooks/useWorkbenchTabId.ts";
 import {invalidateTabData, useCreateWorkbenchTab} from "../../data/queries/workbenchTabs.ts";
 import InfoIcon from "../../assets/information-circle-outline.svg?react";
 import {SearchInput} from "../../widgets/SearchInput";
-import {Modal, ModalClose} from "../../widgets/Modal";
+import CloseIcon from "../../assets/close-outline.svg?react";
+import RefreshIcon from "../../assets/refresh-outline.svg?react";
 import OpenIcon from "../../assets/open-outline.svg?react";
 import {createTableOptions} from "../../widgets/ExplorerView/utils.ts";
 import {useNavigate} from "react-router-dom";
 import {PAGES} from "../../const/pages.ts";
+import toast from "react-hot-toast";
+import clsx from "clsx";
 
 const getPlaceholder = (value: unknown): string | undefined => {
   if (value === null || value === undefined) return "<NULL>";
@@ -37,12 +39,12 @@ const getPlaceholder = (value: unknown): string | undefined => {
 };
 
 const Component = ({ data }: { data: TEntityEditorStore }) => {
-  const [form, { change, set, reset, touched }] = useForm<{ [key: string]: string }>({});
+  const [form, { change, set, reset, touched, untouch }] = useForm<{ [key: string]: string }>({});
   const workbenchTabId = useWorkbenchTabId();
   const navigate = useNavigate();
 
   const [filter, setFilter] = useState<string>("");
-  const { data: queryResult, isLoading: isLoadingResult } = useEntity(data.dataSourceId, data.tableName, data.entityId);
+  const { data: queryResult, isLoading: isLoadingResult, refetch } = useEntity(data.dataSourceId, data.tableName, data.entityId);
   const { mutateAsync: execute, error } = useUpdate();
   const { mutateAsync: createTab } = useCreateWorkbenchTab();
   const errorMessage = useParseError(error);
@@ -54,25 +56,18 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
     return inspection?.find(i => i.tableName === data.tableName);
   }, [data.tableName, inspection]);
 
-  const fields = useMemo<(TDatabaseInspectionColumn & { label: string })[]>(() => {
+  const fields = useMemo<TDatabaseInspectionColumn[]>(() => {
     if (!currentTable) {
       return [];
     }
 
     if (!filter) {
-      return currentTable.columns.map(c => ({
-        ...c,
-        label: generateColumnLabel(c.name),
-      }));
+      return currentTable.columns;
     }
 
     const lowerFilter = filter.toLowerCase();
     return currentTable.columns
-      .filter((c) => c.name.toLowerCase().includes(lowerFilter))
-      .map(c => ({
-        ...c,
-        label: generateColumnLabel(c.name),
-      }));
+      .filter((c) => c.name.toLowerCase().includes(lowerFilter));
   }, [filter, currentTable]);
 
   const placeholders = useMemo(() => {
@@ -115,7 +110,8 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
       } satisfies TQueryFilter)),
       values,
     }).then(() => {
-      closeEntityEditorModal();
+      untouch();
+      toast.success("Record successfully updated.");
       if (workbenchTabId) {
         invalidateTabData(workbenchTabId);
       }
@@ -137,16 +133,28 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
       }),
     }).then(({ id }) => {
       navigate(PAGES.workbenchTab.build({ id }));
-      updateEntityEditor(undefined);
     });
   }
 
   const disableEdit = !dataSource?.allowUpdate || !isEditor;
 
   return (
-    <>
+    <div className={st.root}>
       <div className={st.header}>
-        <p className="text-lg font-semibold">{disableEdit ? 'View' : 'Edit'} row in <span className="underline">{data?.tableName}</span></p>
+        <div className="flex items-center">
+          <p className="text-lg font-semibold underline">{data?.tableName}</p>
+
+          <span className="flex-1" />
+          <button className="cursor-pointer mr-2" onClick={onOpen}>
+            <OpenIcon width={16} height={16} />
+          </button>
+          <button className="cursor-pointer mr-1" onClick={() => refetch()}>
+            <RefreshIcon width={16} height={16} />
+          </button>
+          <button className="cursor-pointer" onClick={closeEntityEditorModal}>
+            <CloseIcon width={20} height={20} />
+          </button>
+        </div>
 
         {errorMessage && (
           <Alert variant="danger">
@@ -169,12 +177,12 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
           {fields.map((col) => (
             <label key={col.name} className={st.fieldLabel}>
               <div className="flex justify-between mb-0.5">
-                <p>{col.isPrimary ? '🔐' : '🏷️'} {col.label}</p>
-                <p className="text-blue-800 text-sm">[{col.name}: {col.type}]</p>
+                <p>{col.isPrimary ? '🔐 ' : ''}{col.name}</p>
+                <p className="text-blue-800 text-xs">{col.type}</p>
               </div>
               <input
                 disabled={col.isPrimary || isLoadingResult || disableEdit}
-                className="input w-full secondary"
+                className={clsx("input w-full secondary", touched.includes(col.name) && "bg-green-100!")}
                 value={sanitizeCellValue(form[col.name])}
                 onChange={change(col.name)}
                 placeholder={placeholders[col.name]}
@@ -193,48 +201,28 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
 
         <span className="flex-1" />
 
-        <button className="button tertiary flex gap-2 items-center" onClick={onOpen}>
-          <OpenIcon width={16} height={16} />
-          <span>Open in new tab</span>
-        </button>
-
         {!disableEdit && (
           <button
             disabled={!touched.length}
             className="button primary"
             onClick={onRun}
           >
-            Update
+            Commit
           </button>
         )}
       </div>
-    </>
+    </div>
   );
 };
 
 export const EntityEditor = () => {
   const data = useEntityEditor();
-  const [temp, setTemp] = useState<TEntityEditorStore | undefined>(undefined);
 
-  useEffect(() => {
-    if (data) {
-      setTemp(data);
-    }
-  }, [data]);
-
-  const onClose = () => updateEntityEditor(undefined);
+  if (!data) {
+    return null;
+  }
 
   return (
-    <Modal
-      isVisible={data != undefined}
-      onClose={onClose}
-      onClosed={() => setTemp(undefined)}
-      noPadding
-    >
-      <ModalClose onClick={onClose} />
-      {temp && (
-        <Component data={temp} />
-      )}
-    </Modal>
+    <Component data={data} />
   );
 };

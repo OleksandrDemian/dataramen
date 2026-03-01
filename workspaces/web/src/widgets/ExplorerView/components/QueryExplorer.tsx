@@ -22,7 +22,7 @@ import SearchIcon from "../../../assets/search-outline.svg?react";
 import {TContextMenuRef} from "../../ContextualMenu";
 import {CellActions} from "./CellActions";
 import CaretUpIcon from "../../../assets/caret-up-outline.svg?react";
-import {updateEntityEditor} from "../../../data/entityEditorStore.ts";
+import {openEntityEditor} from "../../../data/entityEditorStore.ts";
 
 type TNewFilter = {
   value: string;
@@ -239,7 +239,7 @@ export const QueryExplorer = () => {
       const colInfo = getColumnByIndex(coordinates.col);
 
       if (colInfo) {
-        updateEntityEditor({
+        openEntityEditor({
           tableName: colInfo!.ref!.table,
           dataSourceId,
           entityId: [[colInfo!.ref!.field, value as unknown as any]],

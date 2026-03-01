@@ -3,7 +3,7 @@ import {ChangeEvent, useCallback, useRef, useState} from "react";
 export type SetArgFn<ArgsT> = <K extends keyof ArgsT>(key: K, value: ArgsT[K]) => void;
 export type ChangeFn<ArgsT> = (prop: keyof ArgsT) => (e: ChangeEvent<any>) => void;
 
-export const useForm = <ArgsT extends NonNullable<unknown>>(defaultArgs: ArgsT): [ArgsT, { touched: string[]; change: ChangeFn<ArgsT>; set: SetArgFn<ArgsT>; reset: VoidFunction }] => {
+export const useForm = <ArgsT extends NonNullable<unknown>>(defaultArgs: ArgsT): [ArgsT, { touched: string[]; change: ChangeFn<ArgsT>; set: SetArgFn<ArgsT>; reset: VoidFunction; untouch: VoidFunction; }] => {
   const [args, setArgs] = useState<ArgsT>(defaultArgs);
   const [touched, setTouched] = useState<string[]>([]);
 
@@ -40,10 +40,15 @@ export const useForm = <ArgsT extends NonNullable<unknown>>(defaultArgs: ArgsT):
     setTouched([]);
   }, []);
 
+  const untouch = useCallback(() => {
+    setTouched([]);
+  }, []);
+
   return [args, {
     set,
     change,
     reset,
     touched,
+    untouch,
   }];
 };
