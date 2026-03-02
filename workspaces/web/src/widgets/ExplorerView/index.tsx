@@ -42,9 +42,6 @@ export const ExplorerView = ({ options, updater, name, tabId }: TDataSourceExplo
               <QueryExplorer />
             </div>
 
-            <EntityEditor />
-            <EntityCreator />
-
             <FiltersModal />
             <JoinsModal />
             <ColumnsPicker mode="columns" />

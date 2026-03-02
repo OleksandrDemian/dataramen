@@ -7,6 +7,7 @@ import {SearchInput} from "../../../SearchInput";
 import { IHook } from "@dataramen/types";
 import {HookButton} from "../../../HookButton";
 import toast from "react-hot-toast";
+import {genSimpleId} from "../../../../utils/id.ts";
 
 export type TExpandRowProps = {
   onClose?: VoidFunction;
@@ -37,6 +38,7 @@ export const ExpandRow = ({ onClose, rowIndex, className }: TExpandRowProps) => 
         tableName: hook.toTable,
         dataSourceId,
         entityId: [[hook.toColumn, "" + value]],
+        key: genSimpleId(),
       });
     } else {
       toast.error(`Cannot open ${hook.toTable} record. ${hook.fromTable}.${hook.fromColumn} is NULL`);

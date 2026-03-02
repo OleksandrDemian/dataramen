@@ -243,6 +243,7 @@ export const QueryExplorer = () => {
           tableName: colInfo!.ref!.table,
           dataSourceId,
           entityId: [[colInfo!.ref!.field, value as unknown as any]],
+          key: genSimpleId(),
         });
       }
     } else if (cellAction === "drill") {

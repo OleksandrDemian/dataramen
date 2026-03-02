@@ -14,13 +14,26 @@ import {useParseError} from "../../hooks/useParseError.ts";
 import {TDatabaseInspectionColumn} from "../../data/types/dataSources.ts";
 import {invalidateTabData} from "../../data/queries/workbenchTabs.ts";
 import {useWorkbenchTabId} from "../../hooks/useWorkbenchTabId.ts";
-import InfoIcon from "../../assets/information-circle-outline.svg?react";
 import CloseIcon from "../../assets/close-outline.svg?react";
 import {SearchInput} from "../../widgets/SearchInput";
 import toast from "react-hot-toast";
+import { TQueryExpressionInput } from "@dataramen/types";
+import {QueryExpressionInput} from "../../widgets/QueryExpressionInput";
+
+const getLabel = (col: TDatabaseInspectionColumn) => {
+  if (col.isPrimary) {
+    return "🔐 " + col.name;
+  }
+
+  if (col.ref) {
+    return "🔑 " + col.name;
+  }
+
+  return col.name;
+};
 
 export const Component = ({ data }: { data: TEntityCreatorStore }) => {
-  const [form, { change, touched }] = useForm<Record<string, string>>({});
+  const [form, { set, touched }] = useForm<Record<string, TQueryExpressionInput>>({});
   const workbenchTabId = useWorkbenchTabId();
 
   const { mutateAsync: execute, error } = useInsert();
@@ -49,7 +62,7 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
   }, [filter, inspection]);
 
   const onRun = () => {
-    const values: Record<string, unknown> = {};
+    const values: Record<string, TQueryExpressionInput> = {};
     for (const column of touched) {
       values[column] = form[column];
     }
@@ -72,7 +85,7 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
       <div className={st.header}>
         <div className="flex justify-between items-center">
           <p className="text-lg font-semibold underline">New {data.table}</p>
-          <button className="cursor-pointer" onClick={closeEntityCreatorModal}>
+          <button className={st.close} onClick={closeEntityCreatorModal}>
             <CloseIcon width={20} height={20} />
           </button>
         </div>
@@ -89,7 +102,6 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Filter columns"
-          autoFocus
         />
       </div>
 
@@ -98,13 +110,13 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
           {fields.map((col) => (
             <label key={col.name} className={st.fieldLabel}>
               <div className="flex justify-between mb-0.5">
-                <p>{col.isPrimary ? '🔐 ' : ''}{col.name}</p>
+                <p>{getLabel(col)}</p>
                 <p className="text-blue-800 text-xs">{col.type}</p>
               </div>
-              <input
-                className="input w-full"
-                value={sanitizeCellValue(form[col.name])}
-                onChange={change(col.name)}
+              <QueryExpressionInput
+                mode={form[col.name]?.mode}
+                value={sanitizeCellValue(form[col.name]?.value)}
+                onExpressionChange={(props) => set(col.name, props, true)}
               />
             </label>
           ))}
@@ -112,10 +124,6 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
       </div>
 
       <div className={st.actions}>
-        <span data-tooltip-id="default" data-tooltip-content="Tip: use = to write raw SQL. Ex: =NULL or =NOW()">
-          <InfoIcon className="text-(--text-color-secondary)" width={22} height={22} />
-        </span>
-
         <span className="flex-1" />
 
         <button

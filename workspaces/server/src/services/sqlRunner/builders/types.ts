@@ -1,4 +1,4 @@
-import {TOrderByClause, TQueryOperator, TJoinClause, TQueryValue} from "@dataramen/types";
+import {TOrderByClause, TQueryOperator, TJoinClause, TQueryValue, TQueryExpressionInput} from "@dataramen/types";
 
 export interface IWhere {
   column: string;
@@ -29,12 +29,12 @@ export interface ISelectQueryBuilder {
 }
 
 export interface IUpdateQueryBuilder {
-  setParams (params: Record<string, unknown>): void;
+  setParams (params: Record<string, TQueryExpressionInput>): void;
   addWhere (where: IWhere): void;
   build (): { sql: string; params: any };
 }
 
 export interface IInsertQueryBuilder {
-  setValues (params: Record<string, unknown>): void;
+  setValues (params: Record<string, TQueryExpressionInput>): void;
   build (): { sql: string; params: any };
 }

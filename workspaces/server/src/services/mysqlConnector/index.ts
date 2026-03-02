@@ -21,6 +21,7 @@ const getConnection = ({ database, password, user, url }: TDynamicConnectionConf
     database: database,
     password: password,
     dateStrings: true,
+    multipleStatements: false,
   });
 };
 

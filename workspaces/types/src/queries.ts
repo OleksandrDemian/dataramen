@@ -83,5 +83,11 @@ export type TQuery = {
   };
 };
 
+export type TQueryExpressionMode = "default" | "raw" | "advanced";
+export type TQueryExpressionInput = {
+  value: string;
+  mode: TQueryExpressionMode;
+}
+
 export type TQueryValue = { value: any; isColumn?: boolean; };
 
