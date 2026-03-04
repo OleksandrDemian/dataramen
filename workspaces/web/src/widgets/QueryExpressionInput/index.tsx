@@ -6,37 +6,44 @@ import CodeIcon from "../../assets/code-working-outline.svg?react";
 import AutomaticIcon from "../../assets/cube-outline.svg?react";
 import {TQueryExpressionMode} from "@dataramen/types";
 
-const nextMode = (mode: TQueryExpressionMode): TQueryExpressionMode => {
-  switch (mode) {
-    case "default": return "raw";
-    // case "advanced": return "raw";
-    case "raw": return "default";
-    default: return "default";
+const nextMode = (mode: TQueryExpressionMode, modes: TQueryExpressionMode[]): TQueryExpressionMode => {
+  const currentModeIndex = modes.indexOf(mode);
+  if (currentModeIndex >= modes.length) {
+    return modes[0];
   }
+
+  return modes[currentModeIndex + 1];
 };
 
-const prevMode = (mode: TQueryExpressionMode): TQueryExpressionMode => {
-  switch (mode) {
-    case "default": return "raw";
-    // case "advanced": return "raw";
-    case "raw": return "default";
-    default: return "default";
+const prevMode = (mode: TQueryExpressionMode, modes: TQueryExpressionMode[]): TQueryExpressionMode => {
+  const currentModeIndex = modes.indexOf(mode);
+  if (currentModeIndex <= 0) {
+    return modes[modes.length - 1];
   }
+
+  return modes[currentModeIndex -1];
+};
+
+export type TQueryExpressionValue = {
+  mode: TQueryExpressionMode;
+  value: string;
 };
 
 export type TQueryExpressionInputProps = {
   inputClass?: string;
   mode?: TQueryExpressionMode;
   onChange?: never;
-  onExpressionChange: (props: { mode: TQueryExpressionMode; value: string; }) => void;
+  onExpressionChange: (props: TQueryExpressionValue) => void;
+  allowedModes: TQueryExpressionMode[];
+  prefix?: string;
 } & React.DetailedHTMLProps<React.InputHTMLAttributes<HTMLInputElement>, HTMLInputElement>;
 
-const Icon = ({ mode, onMode }: { mode: TQueryExpressionMode; onMode: (mode: TQueryExpressionMode) => void }) => {
+const Icon = ({ mode, onNextMode }: { mode: TQueryExpressionMode; onNextMode: VoidFunction }) => {
   return (
-    <button
+    <span
       tabIndex={-1}
       className="pr-2 cursor-pointer text-(--text-color-primary)"
-      onClick={() => onMode(nextMode(mode))}
+      onClick={onNextMode}
       data-mode={mode}
       data-tooltip-id="default"
       data-tooltip-content={`Current mode: ${mode}. Use up/down arrows to change input mode.`}
@@ -50,11 +57,11 @@ const Icon = ({ mode, onMode }: { mode: TQueryExpressionMode; onMode: (mode: TQu
       {mode === "default" && (
         <AutomaticIcon className="pointer-events-none" width={20} height={20} />
       )}
-    </button>
+    </span>
   )
 };
 
-export const QueryExpressionInput = ({ mode = "default", className, inputClass, onExpressionChange, ...props }: TQueryExpressionInputProps) => {
+export const QueryExpressionInput = ({ prefix, mode = "default", allowedModes, className, inputClass, onExpressionChange, ...props }: TQueryExpressionInputProps) => {
   const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     onExpressionChange({
       mode,
@@ -67,7 +74,7 @@ export const QueryExpressionInput = ({ mode = "default", className, inputClass, 
       e.preventDefault();
       e.stopPropagation();
       onExpressionChange({
-        mode: e.key === "ArrowUp" ? nextMode(mode) : prevMode(mode),
+        mode: e.key === "ArrowUp" ? nextMode(mode, allowedModes) : prevMode(mode, allowedModes),
         value: props.value as string,
       });
     } else {
@@ -76,8 +83,8 @@ export const QueryExpressionInput = ({ mode = "default", className, inputClass, 
   };
 
   return (
-    <div className={clsx(st.root, className)} data-input-mode={mode}>
-      {mode === "raw" && <span className="inline-block pl-1">=</span>}
+    <label className={clsx(st.root, className)} data-input-mode={mode}>
+      {mode === "raw" && !!prefix && <span className="inline-block pl-1">{prefix}</span>}
       <input
         {...props}
         onKeyDown={onKeyDown}
@@ -87,11 +94,11 @@ export const QueryExpressionInput = ({ mode = "default", className, inputClass, 
 
       <Icon
         mode={mode}
-        onMode={(newMode) => onExpressionChange({
-          mode: newMode,
+        onNextMode={() => onExpressionChange({
+          mode: nextMode(mode, allowedModes),
           value: props.value as string,
         })}
       />
-    </div>
+    </label>
   );
 };

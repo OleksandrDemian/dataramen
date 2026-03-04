@@ -26,6 +26,7 @@ import {useNavigate} from "react-router-dom";
 import {PAGES} from "../../const/pages.ts";
 import toast from "react-hot-toast";
 import {QueryExpressionInput} from "../../widgets/QueryExpressionInput";
+import {RawMode} from "../../widgets/QueryExpressionInput/const.ts";
 
 const getPlaceholder = (value: unknown): string | undefined => {
   if (value === null || value === undefined) return "<NULL>";
@@ -208,6 +209,8 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
               </div>
               <div className="flex items-center">
                 <QueryExpressionInput
+                  prefix="="
+                  allowedModes={RawMode}
                   disabled={col.isPrimary || isLoadingResult || disableEdit}
                   value={sanitizeCellValue(form[col.name]?.value)}
                   mode={form[col.name]?.mode}

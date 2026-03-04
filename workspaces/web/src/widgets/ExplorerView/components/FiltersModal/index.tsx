@@ -1,5 +1,5 @@
 import {Modal, ModalClose} from "../../../Modal";
-import {ChangeEventHandler, KeyboardEventHandler, useContext, useEffect, useMemo, useState} from "react";
+import {KeyboardEventHandler, useContext, useEffect, useMemo, useState} from "react";
 import {QueryResultContext, TableOptionsContext} from "../../context/TableContext.ts";
 import {DataSourceColumnsAutocomplete} from "../../../DataSourceColumnsAutocomplete";
 import {TQueryFilter} from "@dataramen/types";
@@ -9,37 +9,10 @@ import st from "./index.module.css";
 import {hideExplorerModal, toggleExplorerModal, useExplorerModals} from "../../hooks/useExplorerModals.ts";
 import CloseIcon from "./../../../../assets/close-outline.svg?react";
 import AddIcon from "./../../../../assets/add-outline.svg?react";
-import FlashIcon from "./../../../../assets/flash-outline.svg?react";
 import {useHotkeys} from "react-hotkeys-hook";
 import toast from "react-hot-toast";
-
-const FilterModeIndicator = ({ isAdvanced }: { isAdvanced?: boolean; }) => {
-  // if (isRaw) {
-  //   return (
-  //     <span
-  //       data-tooltip-id="default"
-  //       data-tooltip-content="Raw mode: input will be used as is"
-  //       className={st.filterBadge}
-  //     >
-  //       <CodeIcon width={20} height={20} />
-  //     </span>
-  //   );
-  // }
-
-  if (isAdvanced) {
-    return (
-      <span
-        data-tooltip-id="default"
-        data-tooltip-content="Advanced mode: parameters and operator will be extracted from the input"
-        className={st.filterBadge}
-      >
-        <FlashIcon width={20} height={20} />
-      </span>
-    );
-  }
-
-  return null;
-}
+import {QueryExpressionInput, TQueryExpressionValue} from "../../../QueryExpressionInput";
+import {RawMode} from "../../../QueryExpressionInput/const.ts";
 
 const FilterEntry = ({
   filter,
@@ -49,7 +22,6 @@ const FilterEntry = ({
   onChangeColumn,
   onChangeValue,
   onRemoveFilter,
-  onChangeAdvancedFilter,
   triggerIsEnabled,
   onSubmit,
 }: {
@@ -58,30 +30,13 @@ const FilterEntry = ({
   allowedTables: string[];
   autoFocus?: boolean;
   onChangeColumn: (id: string, column: string) => void;
-  onChangeValue: (id: string, value: string) => void;
+  onChangeValue: (id: string, value: TQueryExpressionValue) => void;
   onRemoveFilter: (id: string) => void;
-  onChangeAdvancedFilter: (id: string, value: boolean) => void;
   triggerIsEnabled: (id: string) => void;
   onSubmit: () => void;
 }) => {
-  const onChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const value = e.target.value;
-    if (value.charAt(0) === ":") {
-      onChangeAdvancedFilter(filter.id, true);
-    } else {
-      if (!filter.isAdvanced && ["=", "<", ">"].includes(value.charAt(0))) {
-        onChangeAdvancedFilter(filter.id, true);
-      }
-      onChangeValue(filter.id, e.currentTarget.value);
-    }
-  };
-
   const onKeyDown: KeyboardEventHandler<HTMLInputElement> = (e) => {
-    if (e.key === "Backspace") {
-      if (filter.value.length === 0 || e.currentTarget.selectionEnd === 0) {
-        onChangeAdvancedFilter(filter.id, false);
-      }
-    } else if (e.key === "Enter") {
+    if (e.key === "Enter") {
       onSubmit();
     }
   };
@@ -95,22 +50,20 @@ const FilterEntry = ({
         value={filter.column}
         allowTables={allowedTables}
         focusId="column"
-        inputClassName="input w-full rounded-r-none!"
+        inputClassName="input w-full"
         autoFocus={autoFocus}
       />
-      <div className={st.filterValue}>
-        <FilterModeIndicator isAdvanced={filter.isAdvanced} />
 
-        <input
-          key={filter.id}
-          placeholder="Filter value"
-          value={filter.value}
-          onChange={onChange}
-          onKeyDown={onKeyDown}
-          data-focus="value"
-          className="flex-1 outline-none"
-        />
-      </div>
+      <QueryExpressionInput
+        prefix="_"
+        allowedModes={RawMode}
+        onExpressionChange={(props) => onChangeValue(filter.id, props)}
+        onKeyDown={onKeyDown}
+        placeholder="Filter value"
+        value={filter.value}
+        mode={filter.mode}
+        className="h-8"
+      />
 
       <div className={st.filterActions}>
         <button
@@ -154,13 +107,14 @@ export const FiltersModal = () => {
     ]);
   };
 
-  const handleValueChange = (id: string, value: string) => {
+  const handleValueChange = (id: string, value: TQueryExpressionValue) => {
     setFilters((f) => [
       ...f.map((currentFilter) => {
         if (currentFilter.id === id) {
           return {
             ...currentFilter,
-            value,
+            value: value.value,
+            mode: value.mode,
           }
         }
 
@@ -177,6 +131,7 @@ export const FiltersModal = () => {
         value: "",
         column: "",
         isEnabled: true,
+        mode: "default",
       },
     ]);
   };
@@ -185,26 +140,11 @@ export const FiltersModal = () => {
     setFilters((store) => store.filter((f) => f.id !== id));
   };
 
-  const handleChangeAdvancedFilter = (id: string, isAdvanced: boolean) => {
-    setFilters((store) => store.map((f) => {
-      if (f.id === id) {
-        return {
-          ...f,
-          isAdvanced,
-        };
-      }
-
-      return f;
-    }));
-  };
-
   const handleOnClose = () => hideExplorerModal("filters");
 
   const handleApplyFilters = () => {
     try {
-      updateFilters(filters.filter(f => {
-        return f.value.length > 0 && f.column.length > 0;
-      }));
+      updateFilters(filters.filter(f => f.value.length > 0 && f.column.length > 0));
       setTimeout(refetch, 1);
       handleOnClose();
     } catch (e: unknown) {
@@ -241,6 +181,7 @@ export const FiltersModal = () => {
           value: "",
           column: "",
           isEnabled: true,
+          mode: "default",
         }];
         return filters;
       },
@@ -271,7 +212,6 @@ export const FiltersModal = () => {
             onChangeColumn={handleColumnChange}
             onChangeValue={handleValueChange}
             onRemoveFilter={handleRemoveFilter}
-            onChangeAdvancedFilter={handleChangeAdvancedFilter}
             triggerIsEnabled={triggerIsEnabled}
             onSubmit={handleApplyFilters}
             autoFocus={i === filters.length - 1}

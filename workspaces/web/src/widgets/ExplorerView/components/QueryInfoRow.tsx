@@ -1,4 +1,4 @@
-import {MouseEventHandler, useContext, useState} from "react";
+import {MouseEventHandler, useContext} from "react";
 import {TableOptionsContext} from "../context/TableContext";
 import st from "./QueryInfoRow.module.css";
 import {aggToString} from "../../../utils/sql";
@@ -6,9 +6,6 @@ import {showExplorerModal} from "../hooks/useExplorerModals";
 import clsx from "clsx";
 import CloseIcon from "../../../assets/close-outline.svg?react";
 import {useJoinStatements} from "../hooks/useJoinStatements";
-import {prompt} from "../../../data/promptModalStore";
-import {useHotkeys} from "react-hotkeys-hook";
-import {useDebouncedValue} from "../../../hooks/useDebouncedValue";
 import {useWhereStatements} from "../hooks/useWhereStatements";
 
 function calculateIsEnabled (current?: boolean) {
@@ -113,8 +110,6 @@ export const QueryInfoRow = () => {
             <p className="text-sm">Grouped columns</p>
           </button>
         )}
-
-        {false && <SearchAll />}
       </div>
     );
   }
@@ -122,42 +117,42 @@ export const QueryInfoRow = () => {
   return null;
 };
 
-function SearchAll () {
-  const { state, setState } = useContext(TableOptionsContext);
-  const [inp, setInp] = useState(() => state.searchAll);
-
-  const onSearchAll = () => {
-    prompt("Search all text values for", state.searchAll || "", {
-      type: "info",
-      message: "This will search all text values using LIKE operator (numbers, dates and other non string values are not searched)."
-    }).then((result) => {
-      if (result !== undefined) {
-        setState((s) => ({
-          ...s,
-          searchAll: result.length > 0 ? result : undefined,
-        }));
-        setInp(result.length > 0 ? result : undefined);
-      }
-    });
-  };
-
-  useHotkeys("k", onSearchAll);
-
-  useDebouncedValue(inp, 500, (value) => {
-    setState((s) => ({
-      ...s,
-      searchAll: value && value.length > 0 ? value : undefined,
-    }));
-  });
-
-  return (
-    <input
-      className="input text-sm"
-      data-tooltip-id="default"
-      data-tooltip-content="Search text in all columns. Can be slow when using a lot of columns."
-      placeholder="Search text in all columns"
-      value={inp || ''}
-      onChange={(e) => setInp(e.currentTarget.value)}
-    />
-  );
-}
+// function SearchAll () {
+//   const { state, setState } = useContext(TableOptionsContext);
+//   const [inp, setInp] = useState(() => state.searchAll);
+//
+//   const onSearchAll = () => {
+//     // prompt("Search all text values for", state.searchAll || "", {
+//     //   type: "info",
+//     //   message: "This will search all text values using LIKE operator (numbers, dates and other non string values are not searched)."
+//     // }).then((result) => {
+//     //   if (result !== undefined) {
+//     //     setState((s) => ({
+//     //       ...s,
+//     //       searchAll: result.length > 0 ? result : undefined,
+//     //     }));
+//     //     setInp(result.length > 0 ? result : undefined);
+//     //   }
+//     // });
+//   };
+//
+//   useHotkeys("k", onSearchAll);
+//
+//   useDebouncedValue(inp, 500, (value) => {
+//     setState((s) => ({
+//       ...s,
+//       searchAll: value && value.length > 0 ? value : undefined,
+//     }));
+//   });
+//
+//   return (
+//     <input
+//       className="input text-sm"
+//       data-tooltip-id="default"
+//       data-tooltip-content="Search text in all columns. Can be slow when using a lot of columns."
+//       placeholder="Search text in all columns"
+//       value={inp || ''}
+//       onChange={(e) => setInp(e.currentTarget.value)}
+//     />
+//   );
+// }

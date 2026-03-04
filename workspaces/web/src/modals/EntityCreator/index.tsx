@@ -19,6 +19,7 @@ import {SearchInput} from "../../widgets/SearchInput";
 import toast from "react-hot-toast";
 import { TQueryExpressionInput } from "@dataramen/types";
 import {QueryExpressionInput} from "../../widgets/QueryExpressionInput";
+import {RawMode} from "../../widgets/QueryExpressionInput/const.ts";
 
 const getLabel = (col: TDatabaseInspectionColumn) => {
   if (col.isPrimary) {
@@ -114,6 +115,8 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
                 <p className="text-blue-800 text-xs">{col.type}</p>
               </div>
               <QueryExpressionInput
+                prefix="="
+                allowedModes={RawMode}
                 mode={form[col.name]?.mode}
                 value={sanitizeCellValue(form[col.name]?.value)}
                 onExpressionChange={(props) => set(col.name, props, true)}
