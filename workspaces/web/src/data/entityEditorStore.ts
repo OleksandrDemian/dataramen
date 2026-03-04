@@ -10,9 +10,11 @@ export type TEntityEditorStore = {
   key: string;
 };
 export const [useEntityEditor, updateEntityEditor] = createStore<TEntityEditorStore | undefined>(undefined);
-export const [useEntityEditorHistory, updateEntityEditorHistory] = createPersistedStore<TEntityEditorStore[]>({
-  initialData: [],
-  localStorageKey: "useEntityEditorHistory",
+export const [useEntityEditorHistory, updateEntityEditorHistory] = createPersistedStore<{ history: TEntityEditorStore[] }>({
+  initialData: {
+    history: [],
+  },
+  localStorageKey: "useEntityEditorHistory_v1",
 });
 
 export const openEntityEditor = (data: Omit<TEntityEditorStore, 'key'>, push: boolean = true) => {
@@ -23,15 +25,19 @@ export const openEntityEditor = (data: Omit<TEntityEditorStore, 'key'>, push: bo
   updateCreateEntity(undefined);
   if (push) {
     updateEntityEditorHistory((store) => {
-      if (store.some((e) => e.key === completeEntity.key)) {
+      if (store.history.some((e) => e.key === completeEntity.key)) {
         // already exists
         return store;
       }
 
-      if (store.length < 20) {
-        return [...store, completeEntity];
+      if (store.history.length < 20) {
+        return {
+          history: [...store.history, completeEntity],
+        };
       } else {
-        return [...store.slice(1), completeEntity];
+        return {
+          history: [...store.history.slice(1), completeEntity],
+        };
       }
     });
   }

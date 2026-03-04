@@ -5,7 +5,8 @@ import {Alert} from "../../Alert";
 import {sanitizeCellValue} from "../../../utils/sql.ts";
 import st from "./QueryExplorer.module.css";
 import {
-  QueryResultContext, TableContext,
+  QueryResultContext,
+  TableContext,
   TableOptionsContext,
 } from "../context/TableContext.ts";
 import {TDbValue, TQueryFilter} from "@dataramen/types";
@@ -243,7 +244,6 @@ export const QueryExplorer = () => {
           tableName: colInfo!.ref!.table,
           dataSourceId,
           entityId: [[colInfo!.ref!.field, value as unknown as any]],
-          key: genSimpleId(),
         });
       }
     } else if (cellAction === "drill") {

@@ -1,5 +1,6 @@
 import {
-  closeEntityEditorModal, openEntityEditor,
+  closeEntityEditorModal,
+  openEntityEditor,
   TEntityEditorStore,
   useEntityEditor, useEntityEditorHistory
 } from "../../data/entityEditorStore.ts";
@@ -49,7 +50,7 @@ const getLabel = (col: TDatabaseInspectionColumn) => {
 };
 
 const Component = ({ data }: { data: TEntityEditorStore }) => {
-  const history = useEntityEditorHistory();
+  const history = useEntityEditorHistory((s) => s.history);
   const [form, { set, reset, touched, untouch }] = useForm<{ [key: string]: TQueryExpressionInput }>({});
   const workbenchTabId = useWorkbenchTabId();
   const navigate = useNavigate();

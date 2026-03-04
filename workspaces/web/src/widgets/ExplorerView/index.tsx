@@ -14,8 +14,6 @@ import {AggregateModal} from "./components/AggregateModal";
 import {TWorkbenchOptions} from "@dataramen/types";
 import {useRunWorkbenchTab} from "../../data/queries/workbenchTabs.ts";
 import {QueryInfoRow} from "./components/QueryInfoRow.tsx";
-import {EntityEditor} from "../../modals/EntityEditor";
-import {EntityCreator} from "../../modals/EntityCreator";
 
 export type TDataSourceExplorerTabProps = {
   options: TWorkbenchOptions;
