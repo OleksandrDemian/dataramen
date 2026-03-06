@@ -34,8 +34,8 @@ export default createRouter((instance) => {
 
       return {
         data: workbenchTabs.map((tab) => ({
-          name: tab.name,
           id: tab.id,
+          name: tab.name,
         })),
       } satisfies { data: TGetWorkbenchTabsEntry[] };
     },
