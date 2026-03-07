@@ -1,0 +1,29 @@
+@import "tailwindcss";
+
+.root {
+  border: 1px solid var(--bg-quat);
+  @apply flex items-center gap-1 rounded-md w-full overflow-hidden;
+
+  &:focus-within {
+    @apply ring-2 ring-blue-400 ring-inset;
+  }
+
+  &:not(:focus-within) [data-mode="default"] {
+    display: none;
+  }
+
+  &[data-input-mode="raw"] {
+    input {
+      font-family: monospace;
+      @apply text-blue-800;
+    }
+  }
+}
+
+.input {
+  @apply flex-1 outline-none p-1 text-(--text-color-primary);
+
+  &:disabled {
+    @apply cursor-not-allowed bg-(--bg-ter);
+  }
+}

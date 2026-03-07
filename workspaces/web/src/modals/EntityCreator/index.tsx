@@ -1,13 +1,11 @@
-import {Modal, ModalClose} from "../../widgets/Modal";
 import {
   closeEntityCreatorModal,
   TEntityCreatorStore,
-  updateCreateEntity,
   useCreateEntity
 } from "../../data/entityCreatorStore.ts";
 import {useDatabaseInspections} from "../../data/queries/dataSources.ts";
-import {useEffect, useMemo, useState} from "react";
-import {generateColumnLabel, sanitizeCellValue} from "../../utils/sql.ts";
+import {useMemo, useState} from "react";
+import {sanitizeCellValue} from "../../utils/sql.ts";
 import {useForm} from "../../hooks/form/useForm.ts";
 import st from "./index.module.css";
 import {useInsert} from "../../data/queries/queryRunner.ts";
@@ -16,11 +14,27 @@ import {useParseError} from "../../hooks/useParseError.ts";
 import {TDatabaseInspectionColumn} from "../../data/types/dataSources.ts";
 import {invalidateTabData} from "../../data/queries/workbenchTabs.ts";
 import {useWorkbenchTabId} from "../../hooks/useWorkbenchTabId.ts";
-import InfoIcon from "../../assets/information-circle-outline.svg?react";
+import CloseIcon from "../../assets/close-outline.svg?react";
 import {SearchInput} from "../../widgets/SearchInput";
+import toast from "react-hot-toast";
+import { TQueryExpressionInput } from "@dataramen/types";
+import {QueryExpressionInput} from "../../widgets/QueryExpressionInput";
+import {RawMode} from "../../widgets/QueryExpressionInput/const.ts";
+
+const getLabel = (col: TDatabaseInspectionColumn) => {
+  if (col.isPrimary) {
+    return "🔐 " + col.name;
+  }
+
+  if (col.ref) {
+    return "🔑 " + col.name;
+  }
+
+  return col.name;
+};
 
 export const Component = ({ data }: { data: TEntityCreatorStore }) => {
-  const [form, { change, touched }] = useForm<Record<string, string>>({});
+  const [form, { set, touched }] = useForm<Record<string, TQueryExpressionInput>>({});
   const workbenchTabId = useWorkbenchTabId();
 
   const { mutateAsync: execute, error } = useInsert();
@@ -34,29 +48,22 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
       ?.find((ins) => ins.tableName === data.table);
   }, [inspections, data.table]);
 
-  const fields = useMemo<(TDatabaseInspectionColumn & { label: string })[]>(() => {
+  const fields = useMemo<TDatabaseInspectionColumn[]>(() => {
     if (!inspection) {
       return [];
     }
 
     if (!filter) {
-      return inspection.columns.map(c => ({
-        ...c,
-        label: generateColumnLabel(c.name),
-      }));
+      return inspection.columns;
     }
 
     const lowerFilter = filter.toLowerCase();
     return inspection.columns
-      .filter((c) => c.name.toLowerCase().includes(lowerFilter))
-      .map(c => ({
-        ...c,
-        label: generateColumnLabel(c.name),
-      }));
+      .filter((c) => c.name.toLowerCase().includes(lowerFilter));
   }, [filter, inspection]);
 
   const onRun = () => {
-    const values: Record<string, unknown> = {};
+    const values: Record<string, TQueryExpressionInput> = {};
     for (const column of touched) {
       values[column] = form[column];
     }
@@ -66,7 +73,8 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
       table: data.table,
       values,
     }).then(() => {
-      closeEntityCreatorModal();
+      toast.success("Record successfully created.");
+
       if (workbenchTabId) {
         invalidateTabData(workbenchTabId);
       }
@@ -74,9 +82,14 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
   };
 
   return (
-    <>
+    <div className={st.root}>
       <div className={st.header}>
-        <p className="text-lg font-semibold">Insert new record in <span className="underline">{data.table}</span></p>
+        <div className="flex justify-between items-center">
+          <p className="text-lg font-semibold underline">New {data.table}</p>
+          <button className={st.close} onClick={closeEntityCreatorModal}>
+            <CloseIcon width={20} height={20} />
+          </button>
+        </div>
 
         {errorMessage && (
           <Alert variant="danger">
@@ -90,7 +103,6 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           placeholder="Filter columns"
-          autoFocus
         />
       </div>
 
@@ -99,13 +111,15 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
           {fields.map((col) => (
             <label key={col.name} className={st.fieldLabel}>
               <div className="flex justify-between mb-0.5">
-                <p>{col.isPrimary ? '🔐' : '🏷️'} {col.label}</p>
-                <p className="text-blue-800 text-sm">[{col.name}: {col.type}]</p>
+                <p>{getLabel(col)}</p>
+                <p className="text-blue-800 text-xs">{col.type}</p>
               </div>
-              <input
-                className="input w-full"
-                value={sanitizeCellValue(form[col.name])}
-                onChange={change(col.name)}
+              <QueryExpressionInput
+                prefix="="
+                allowedModes={RawMode}
+                mode={form[col.name]?.mode}
+                value={sanitizeCellValue(form[col.name]?.value)}
+                onExpressionChange={(props) => set(col.name, props, true)}
               />
             </label>
           ))}
@@ -113,10 +127,6 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
       </div>
 
       <div className={st.actions}>
-        <span data-tooltip-id="default" data-tooltip-content="Tip: use = to write raw SQL. Ex: =NULL or =NOW()">
-          <InfoIcon className="text-(--text-color-secondary)" width={22} height={22} />
-        </span>
-
         <span className="flex-1" />
 
         <button
@@ -124,36 +134,21 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
           className="button primary"
           onClick={onRun}
         >
-          Run insert
+          Insert
         </button>
       </div>
-    </>
+    </div>
   );
 };
 
 export const EntityCreator = () => {
   const data = useCreateEntity();
-  const [temp, setTemp] = useState<TEntityCreatorStore | undefined>(undefined);
 
-  useEffect(() => {
-    if (data) {
-      setTemp(data);
-    }
-  }, [data]);
-
-  const onClose = () => updateCreateEntity(undefined);
+  if (!data) {
+    return null;
+  }
 
   return (
-    <Modal
-      isVisible={data != undefined}
-      onClose={onClose}
-      onClosed={() => setTemp(undefined)}
-      noPadding
-    >
-      <ModalClose onClick={onClose} />
-      {temp && (
-        <Component data={temp} />
-      )}
-    </Modal>
+    <Component data={data} />
   );
 };

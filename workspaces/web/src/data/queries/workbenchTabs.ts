@@ -57,7 +57,7 @@ export const useCreateWorkbenchTab = () => {
     },
     onSuccess: async (payload) => {
       updateCachedWorkbenchTabs(
-        (state) => [...state, payload],
+        (state) => [...state, { id: payload.id, name: payload.name }],
       );
     }
   });

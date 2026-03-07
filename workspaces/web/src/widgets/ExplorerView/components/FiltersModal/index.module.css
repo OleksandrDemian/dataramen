@@ -28,16 +28,6 @@
 }
 
 .filter-container {
-  @apply grid items-center;
+  @apply grid items-center gap-1;
   grid-template-columns: 24px 200px 1fr 30px;
-}
-
-.filter-value {
-  border: 1px solid var(--bg-quat);
-  border-left: 0;
-  @apply flex items-center gap-2 rounded-r-md p-1;
-
-  &:focus-within {
-    @apply ring-2 ring-blue-400 ring-inset;
-  }
 }

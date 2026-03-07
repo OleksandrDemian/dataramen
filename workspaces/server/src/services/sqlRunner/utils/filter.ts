@@ -6,6 +6,9 @@ export const buildQueryFilterCondition = (condition: IWhere, index: number, dbTy
   const propName = "_" + index;
 
   switch (operator) {
+    case 'RAW':
+      const replaceColumnPlaceholder = " " + column + " ";
+      return [`(${column} ${value[0].value.replace(/\s_\s/g, replaceColumnPlaceholder)})`, {}];
     case 'IS NULL':
     case 'IS NOT NULL':
       return [`${column} ${operator}`, { value: undefined }];

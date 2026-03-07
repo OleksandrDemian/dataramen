@@ -5,7 +5,8 @@ import {Alert} from "../../Alert";
 import {sanitizeCellValue} from "../../../utils/sql.ts";
 import st from "./QueryExplorer.module.css";
 import {
-  QueryResultContext, TableContext,
+  QueryResultContext,
+  TableContext,
   TableOptionsContext,
 } from "../context/TableContext.ts";
 import {TDbValue, TQueryFilter} from "@dataramen/types";
@@ -13,7 +14,7 @@ import {useContextMenuHandler} from "./ContextualMenu.handler.ts";
 import {useOrderByStatements} from "../hooks/useOrderByStatements.ts";
 import {CellDrillDown} from "./RowOptions";
 import {gt} from "../../../utils/numbers.ts";
-import {prompt} from "../../../data/promptModalStore.ts";
+import {queryExpressionPrompt} from "../../../data/promptModalStore.ts";
 import {useWhereStatements} from "../hooks/useWhereStatements.ts";
 import {genSimpleId} from "../../../utils/id.ts";
 import ArrowUpIcon from "../../../assets/arrow-up-outline.svg?react";
@@ -22,13 +23,9 @@ import SearchIcon from "../../../assets/search-outline.svg?react";
 import {TContextMenuRef} from "../../ContextualMenu";
 import {CellActions} from "./CellActions";
 import CaretUpIcon from "../../../assets/caret-up-outline.svg?react";
-import {updateEntityEditor} from "../../../data/entityEditorStore.ts";
+import {openEntityEditor} from "../../../data/entityEditorStore.ts";
 
-type TNewFilter = {
-  value: string;
-  column: string;
-  fn?: string;
-};
+type TNewFilter = Pick<TQueryFilter, 'column' | 'value' | 'mode' | 'fn'>
 
 type TCellActions = {
   hasDrill?: boolean;
@@ -40,7 +37,7 @@ const orderIconClass = {
   ASC: "rotate-180",
 };
 
-const updateFilters = (filters: TQueryFilter[], { column, value, fn }: TNewFilter): TQueryFilter[] => {
+const updateFilters = (filters: TQueryFilter[], { column, value, fn, mode }: TNewFilter): TQueryFilter[] => {
   const newFilters: TQueryFilter[] = filters.map((f) => ({
     ...f,
     // disable other filters for the same column
@@ -53,7 +50,7 @@ const updateFilters = (filters: TQueryFilter[], { column, value, fn }: TNewFilte
     isEnabled: true,
     value,
     fn,
-    isAdvanced: false,
+    mode,
   });
 
   return newFilters;
@@ -69,12 +66,12 @@ const TableHeaders = () => {
   const showTableName = gt(data?.result.tables.length, 1);
 
   const onFilter = (column: string, fn?: string) => {
-    prompt("Filter value", "").then((value) => {
-      if (!value) {
+    queryExpressionPrompt("Filter value", "").then((exp) => {
+      if (!exp) {
         return;
       }
 
-      setFilters(updateFilters(filters, { column, value, fn }));
+      setFilters(updateFilters(filters, { column, value: exp.value, fn, mode: exp.mode }));
     });
   };
 
@@ -239,7 +236,7 @@ export const QueryExplorer = () => {
       const colInfo = getColumnByIndex(coordinates.col);
 
       if (colInfo) {
-        updateEntityEditor({
+        openEntityEditor({
           tableName: colInfo!.ref!.table,
           dataSourceId,
           entityId: [[colInfo!.ref!.field, value as unknown as any]],

@@ -1,14 +1,19 @@
 @import "tailwindcss";
 
+.root {
+  border-left: 1px solid var(--bg-quat);
+  @apply w-sm flex flex-col;
+}
+
 .container {
   @apply flex-1 overflow-y-auto flex flex-col gap-1 px-4 pb-4 bg-white;
-  @apply w-full lg:w-xl;
+  @apply w-full;
 }
 
 .header {
   border-bottom: 1px solid var(--bg-quat);
   @apply py-2 px-4 rounded-t-lg;
-  @apply w-full lg:w-xl;
+  @apply w-full;
 }
 
 .fields-container {
@@ -22,12 +27,24 @@
   @apply text-sm;
 }
 
+.changed-marker {
+  @apply w-2 h-2 mr-1 rounded-full bg-blue-600 inline-block;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;
   align-items: center;
   gap: 8px;
 
-  @apply w-full lg:w-xl;
-  @apply py-2 px-4 border-t border-gray-200 bg-gray-50 rounded-b-lg;
+  @apply w-full py-2 px-4;
+}
+
+.close {
+  min-width: 30px;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--bg-quat);
+  background-color: var(--bg-sec);
+  @apply cursor-pointer rounded-md border flex justify-center items-center;
 }

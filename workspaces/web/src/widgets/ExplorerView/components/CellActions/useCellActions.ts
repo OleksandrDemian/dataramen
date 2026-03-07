@@ -63,7 +63,7 @@ export const useCellActions = ({ ref }: TUseCellActionsProps) => {
         filter = {
           id: genSimpleId(),
           isEnabled: true,
-          isAdvanced: true,
+          mode: "raw",
           column: actualValue,
           value: "IS NULL"
         };
@@ -78,6 +78,7 @@ export const useCellActions = ({ ref }: TUseCellActionsProps) => {
           column: actualValue,
           value: sanitized,
           fn: column?.fn,
+          mode: "default"
         };
       }
 

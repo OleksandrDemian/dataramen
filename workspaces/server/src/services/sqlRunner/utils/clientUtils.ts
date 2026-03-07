@@ -24,7 +24,7 @@ export const transformClientFilters = (filters: TQueryFilter[], getColumnByName:
     const [table, column] = f.column.split('.');
     const schema = getColumnByName(table, column);
 
-    if (f.isAdvanced) {
+    if (f.mode === "advanced") {
       const parsed = FilterParser.parse(f.value);
       if (!parsed) {
         throw new HttpError(400, `Invalid value for '${f.column}': ${f.value}`);
@@ -34,6 +34,14 @@ export const transformClientFilters = (filters: TQueryFilter[], getColumnByName:
         value: parsed.value,
         column: f.column,
         operator: parsed.operator || getDefaultOperator(schema?.type),
+        fn: f.fn,
+      });
+    } else if (f.mode === "raw") {
+      // throw new HttpError(400, `Raw filters are not supported yet`);
+      parsedFilters.push({
+        value: f.value ? [{ value: f.value }] : [],
+        column: f.column,
+        operator: "RAW",
         fn: f.fn,
       });
     } else {

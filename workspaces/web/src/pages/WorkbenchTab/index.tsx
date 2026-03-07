@@ -9,94 +9,50 @@ import {ExplorerTab} from "./ExplorerTab";
 import {useArchiveTab, useWorkbenchTabs} from "../../data/queries/workbenchTabs.ts";
 import {PAGES} from "../../const/pages.ts";
 import {tryScrollIntoTab} from "../../utils/scrollIntoTab.ts";
+import { TGetWorkbenchTabsEntry } from "@dataramen/types";
 
-// const renderTooltip: ITooltip["render"] = ({
-//  content,
-//  activeAnchor,
-// }) => {
-//   if (!activeAnchor) return null;
-//
-//   // Access custom data attribute
-//   const tabId = activeAnchor.getAttribute("data-tab-id");
-//   const tab = OpenTabs.get().find((t) => t.id === tabId);
-//   const dataSource = getDataSource(tab?.options.dataSourceId);
-//
-//   if (!tab) {
-//     return content;
-//   }
-//
-//   const onRename = () => {
-//     prompt("New tab name", tab.label)
-//       .then((name) => {
-//         if (name) {
-//           renameTab(tab.id, name);
-//         }
-//       });
-//   };
-//
-//   return (
-//     <div>
-//       <button className={st.tooltipLabel} onClick={onRename}>
-//         <div className="overflow-hidden">
-//           <p className="text-xs">label</p>
-//           <p className="truncate font-semibold">{tab.label}</p>
-//         </div>
-//         <span>✏️</span>
-//       </button>
-//
-//       <div className={st.tooltipInfoEntry}>
-//         <p className="text-sm">table</p>
-//         <p className="truncate font-semibold">{tab.options.table}</p>
-//       </div>
-//
-//       {dataSource && (
-//         <div className={st.tooltipInfoEntry}>
-//           <p className="text-sm">data source [{dataSource.dbType}]</p>
-//           <p className="truncate font-semibold">{dataSource.name}</p>
-//         </div>
-//       )}
-//
-//       {tab.options.joins.length > 0 && (
-//         <div className={st.tooltipInfoEntry}>
-//           <p className="text-sm">joins</p>
-//           <p className="truncate font-semibold">{tab.options.joins.map((j) => j.table).join(", ")}</p>
-//         </div>
-//       )}
-//
-//       {tab.options.filters.length > 0 && (
-//         <div className={st.tooltipInfoEntry}>
-//           <p className="text-sm">filters</p>
-//           {tab.options.filters.map((f) => (
-//             <p className="truncate font-semibold">{filterToString((f))}</p>
-//           ))}
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
+function getNextTabId (currentId: string, tabs: TGetWorkbenchTabsEntry[]): string | undefined {
+  // if not tabs or this is last tab, exit
+  if (tabs.length < 2) {
+    return undefined;
+  }
+
+  const index = tabs.findIndex(
+    (t) => t.id === currentId
+  );
+
+  if (index >= tabs.length - 1) {
+    return tabs[index-1].id;
+  } else if (index <= tabs.length - 1) {
+    return tabs[index+1].id;
+  }
+
+  return undefined;
+}
 
 export const WorkbenchTabPage = () => {
   const { id } = useParams<{ id?: string }>();
   const navigate = useNavigate();
   const { data: workbenchTabs } = useWorkbenchTabs();
+  console.log(workbenchTabs);
   const archiveTab = useArchiveTab();
 
   const isDesktop = useMediaQuery(ScreenQuery.laptop);
 
   const fallbackTab = (tabId: string) => {
-    // todo: I hate this implementation, review it at some point
     if (tabId === id && workbenchTabs) {
-      if (workbenchTabs.length === 1) {
-        return navigate(PAGES.home.build());
+      const nextTab = getNextTabId(tabId, workbenchTabs);
+      if (nextTab) {
+        tryScrollIntoTab(nextTab);
+        return navigate(PAGES.workbenchTab.build({ id: nextTab }));
       }
-
-      if (workbenchTabs.length > 1) {
-        const differentTab = workbenchTabs.find(t => t.id !== tabId);
-        if (differentTab) {
-          return navigate(`/workbench/tab/${differentTab.id}`);
-        }
-      }
+      return navigate(PAGES.home.build());
     }
+  };
+
+  const archiveTabHandler = (tabId: string) => {
+    fallbackTab(tabId);
+    archiveTab.mutate(tabId);
   };
 
   const onCloseTab: MouseEventHandler<HTMLButtonElement> = (e) => {
@@ -105,14 +61,8 @@ export const WorkbenchTabPage = () => {
 
     const tabId = e.currentTarget.getAttribute("data-tab-id");
     if (tabId) {
-      archiveTab.mutate(tabId);
-      fallbackTab(tabId);
+      archiveTabHandler(tabId);
     }
-  };
-
-  const archiveTabHandler = (tabId: string) => {
-    archiveTab.mutate(tabId);
-    fallbackTab(tabId);
   };
 
   useEffect(() => {
@@ -142,7 +92,7 @@ export const WorkbenchTabPage = () => {
             data-tooltip-content={t.name}
             onAuxClick={() => archiveTabHandler(t.id)}
           >
-            <span className="truncate w-full">🛠️ {t.name}</span>
+            <span className="truncate w-full">{t.name}</span>
             <button data-tab-id={t.id} className={st.closeButton} onClick={onCloseTab}>
               <CloseIcon width={20} height={20} />
             </button>

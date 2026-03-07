@@ -41,8 +41,7 @@ export type TQueryFilter = {
   value: string;
   fn?: string;
   isEnabled?: boolean;
-  isAdvanced?: boolean;
-  isRaw?: boolean;
+  mode?: TQueryExpressionMode;
 };
 
 export type TQueryOptions = {
@@ -82,6 +81,12 @@ export type TQuery = {
     id: string;
   };
 };
+
+export type TQueryExpressionMode = "default" | "raw" | "advanced";
+export type TQueryExpressionInput = {
+  value: string;
+  mode: TQueryExpressionMode;
+}
 
 export type TQueryValue = { value: any; isColumn?: boolean; };
 

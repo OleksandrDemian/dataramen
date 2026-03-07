@@ -1,4 +1,4 @@
-import {TExecuteInsert, TExecuteQuery, TExecuteUpdate} from "@dataramen/types";
+import {TExecuteInsert, TExecuteQuery, TExecuteUpdate, TQueryExpressionInput} from "@dataramen/types";
 import {HttpError} from "../../utils/httpError";
 
 export const validateExecuteQueryBody = (body: TExecuteQuery) => {
@@ -6,12 +6,11 @@ export const validateExecuteQueryBody = (body: TExecuteQuery) => {
 };
 
 const FORBIDDEN_STRINGS: string[] = ["--", ";", "DROP", "drop"];
-const checkInputValue = ([column, value]: [string, unknown]) => {
-  if(typeof value === 'string' && value.startsWith("=")) {
-    let strValue: string = value;
+const checkInputValue = ([column, input]: [string, TQueryExpressionInput]) => {
+  if(input.mode !== "default") {
     // raw value, check for weirdness
     FORBIDDEN_STRINGS.forEach(str => {
-      if (strValue.includes(str)) {
+      if (input.value.includes(str)) {
         throw new HttpError(400, "Invalid input value for " + column);
       }
     });

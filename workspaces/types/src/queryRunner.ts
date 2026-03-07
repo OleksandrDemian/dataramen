@@ -1,4 +1,4 @@
-import {TQueryFilter, TQueryOptions} from "./queries";
+import {TQueryExpressionInput, TQueryFilter, TQueryOptions} from "./queries";
 import {IInspectionColumnRef} from "./schemas";
 import {IHook} from "./hooks";
 
@@ -27,13 +27,13 @@ export type TExecuteUpdate = {
   datasourceId: string;
   table: string;
   filters: TQueryFilter[];
-  values: Record<string, unknown>;
+  values: Record<string, TQueryExpressionInput>;
 };
 
 export type TExecuteInsert = {
   datasourceId: string;
   table: string;
-  values: Record<string, unknown>;
+  values: Record<string, TQueryExpressionInput>;
 };
 
 export type TResultColumn = {

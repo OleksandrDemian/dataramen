@@ -7,6 +7,8 @@ import {Tooltip} from "react-tooltip";
 import {MobileNav} from "./MobileNav";
 import {useLocation} from "react-router-dom";
 import {PAGES} from "../../const/pages.ts";
+import {EntityEditor} from "../../modals/EntityEditor";
+import {EntityCreator} from "../../modals/EntityCreator";
 
 const DesktopLayout = ({ children, isLogin }: { children: ReactNode; isLogin: boolean }) => {
   return (
@@ -18,6 +20,9 @@ const DesktopLayout = ({ children, isLogin }: { children: ReactNode; isLogin: bo
       <main className={st.main}>
         {children}
       </main>
+
+      <EntityEditor />
+      <EntityCreator />
     </div>
   );
 };

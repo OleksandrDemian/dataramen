@@ -1,8 +1,6 @@
 import {Route, Routes} from "react-router-dom";
 import {HomePage} from "./Home";
 import {PAGES} from "../const/pages.ts";
-import {EntityCreator} from "../modals/EntityCreator";
-import {EntityEditor} from "../modals/EntityEditor";
 import {ConfirmModal} from "../modals/ConfirmModal";
 import {PromptModal} from "../modals/PromptModal";
 import {ValueDisplayModal} from "../modals/ValueDisplayModal";
@@ -33,8 +31,6 @@ function Router() {
         <Route path={PAGES.share.path} element={<SharedQuery />} />
       </Routes>
 
-      <EntityCreator />
-      <EntityEditor />
       <ValueDisplayModal />
       <DataSourceSidebar />
       <SearchTableModal />
