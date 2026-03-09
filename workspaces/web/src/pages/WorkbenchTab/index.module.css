@@ -10,6 +10,12 @@
   }
 }
 
+.menu {
+  .item {
+    @apply hover:bg-gray-100 rounded-md cursor-pointer p-1 text-sm text-left w-full;
+  }
+}
+
 .tab {
   max-width: 200px;
 

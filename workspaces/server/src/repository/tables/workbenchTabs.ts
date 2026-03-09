@@ -30,6 +30,10 @@ export const WorkbenchTab = new EntitySchema<IWorkbenchTabSchema>({
       type: Boolean,
       default: false,
     },
+    orderIndex: {
+      type: Number,
+      default: 0,
+    },
     searchString: {
       type: String,
       default: () => null,

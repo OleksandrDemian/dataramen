@@ -181,7 +181,7 @@ export default createRouter((instance) => {
             },
           },
           order: {
-            updatedAt: 'ASC',
+            updatedAt: 'DESC',
           },
           take: perResultSize,
         }),
@@ -208,7 +208,7 @@ export default createRouter((instance) => {
             }
           },
           order: {
-            updatedAt: 'ASC',
+            updatedAt: 'DESC',
           },
           take: perResultSize,
         }),
