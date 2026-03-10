@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 .search-container {
-  @apply flex gap-2 items-center p-1 rounded border border-(--bg-quat) mt-1;
+  @apply flex gap-2 items-center;
 }
 
 .search {
-  @apply w-full outline-0 text-sm;
+  @apply flex-1;
 }
 
 .entry {
@@ -27,25 +27,21 @@
   }
 }
 
-.ds-container {
-  min-height: 30px;
-  @apply flex overflow-x-auto mb-2 gap-2;
+.ds-tooltip {
+  max-width: 200px;
+  max-height: 50vh;
+
+  @apply shadow-lg rounded-lg! overflow-hidden border border-gray-200;
+  @apply flex flex-col overflow-x-hidden overflow-y-auto gap-2 p-2!;
 }
 
 .ds-entry {
   min-width: 160px;
   max-width: 160px;
-  opacity: 0.5;
-  display: grid;
-  grid-template-columns: 24px 1fr;
-  @apply py-1 px-2 text-sm text-(--text-color-primary) border border-gray-200 rounded-md items-center gap-1 cursor-pointer;
+  display: flex;
+  @apply text-sm text-(--text-color-primary) items-center gap-2 cursor-pointer;
 
-  span {
-    @apply truncate;
-  }
-
-  &.enabled {
-    opacity: 1;
-    @apply border-blue-200;
+  .ds-name {
+    @apply truncate flex-1 text-left;
   }
 }

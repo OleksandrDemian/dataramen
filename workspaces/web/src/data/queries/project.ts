@@ -1,4 +1,4 @@
-import {useInfiniteQuery, useMutation, useQuery} from "@tanstack/react-query";
+import {keepPreviousData, useInfiniteQuery, useMutation, useQuery} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {queryClient} from "../queryClient.ts";
 import {TFindQuery, TProjectDataSource, TProjectQuery, TProjectTabsHistoryEntry} from "@dataramen/types";
@@ -60,7 +60,7 @@ export const useSearchQueries = (search: string, props: {
       return data.data;
     },
     enabled: !!props.teamId,
-    staleTime: 0,
+    placeholderData: keepPreviousData,
   });
 };
 
