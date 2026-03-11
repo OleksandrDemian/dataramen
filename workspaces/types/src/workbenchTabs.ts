@@ -11,6 +11,7 @@ export type TWorkbenchOptions = TQueryOptions & {
 export type TGetWorkbenchTabsEntry = {
   id: string;
   name: string;
+  orderIndex: number;
 };
 
 export type TCreateWorkbenchTab = {
@@ -24,4 +25,9 @@ export type TRunWorkbenchQuery = {
   result: TRunSqlResult;
 };
 
-export type TUpdateWorkbenchTab = Partial<Pick<IWorkbenchTab, "name" | "archived">>;
+export type TUpdateWorkbenchTab = Partial<Pick<IWorkbenchTab, "name" | "archived" | "orderIndex">>;
+
+export type TArchiveTabsParams = {
+  all?: boolean;
+  others?: boolean;
+};

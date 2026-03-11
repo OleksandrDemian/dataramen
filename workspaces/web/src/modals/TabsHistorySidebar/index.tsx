@@ -27,7 +27,11 @@ const Component = () => {
   const contextItemRef = useRef<string>(null);
 
   const onOpenTab = (id: string) => {
-    restoreTab.mutate(id);
+    const tab = tabs?.find((t) => t.id === id);
+    if (tab?.archived) {
+      restoreTab.mutate(id);
+    }
+
     updateShowTabsHistory({ show: false });
     navigate(PAGES.workbenchTab.build({ id }));
   };

@@ -1,10 +1,10 @@
 import {createRouter} from "../../utils/createRouter";
 import {QueriesRepository, WorkbenchTabsRepository} from "../../repository/db";
-import {getRequestParams, getRequestPayload} from "../../utils/request";
+import {getRequestParams, getRequestPayload, getRequestQuery} from "../../utils/request";
 import {HttpError} from "../../utils/httpError";
 import {runSelect} from "../../services/sqlRunner";
 import {
-  IWorkbenchTab,
+  IWorkbenchTab, IWorkbenchTabSchema, TArchiveTabsParams,
   TCreateWorkbenchTab,
   TGetWorkbenchTabsEntry,
   TUpdateWorkbenchTab,
@@ -12,6 +12,26 @@ import {
 } from "@dataramen/types";
 import {validateCreateWorkbenchTab} from "./validators";
 import {generateSearchString} from "../../utils/generateSearchString";
+import {FindOptionsWhere, LessThan, MoreThan, Not} from "typeorm";
+import {Dirent} from "node:fs";
+
+function getActiveWorkbenchTabs (teamId: string, userId: string) {
+  return WorkbenchTabsRepository.find({
+    where: {
+      team: {
+        id: teamId,
+      },
+      user: {
+        id: userId,
+      },
+      archived: false,
+    },
+    select: ["id", "name", "orderIndex"],
+    order: {
+      orderIndex: "ASC",
+    },
+  });
+}
 
 export default createRouter((instance) => {
   instance.route({
@@ -19,24 +39,10 @@ export default createRouter((instance) => {
     url: "/",
     handler: async (request) => {
       const { currentTeamId, id: currentUserId } = request.user;
-      const workbenchTabs = await WorkbenchTabsRepository.find({
-        where: {
-          team: {
-            id: currentTeamId,
-          },
-          user: {
-            id: currentUserId,
-          },
-          archived: false,
-        },
-        select: ["id", "name"],
-      });
+      const workbenchTabs = await getActiveWorkbenchTabs(currentTeamId, currentUserId);
 
       return {
-        data: workbenchTabs.map((tab) => ({
-          id: tab.id,
-          name: tab.name,
-        })),
+        data: workbenchTabs,
       } satisfies { data: TGetWorkbenchTabsEntry[] };
     },
   });
@@ -120,6 +126,7 @@ export default createRouter((instance) => {
         WorkbenchTabsRepository.create({
           name: finalName || new Date().toISOString(), // fallback to date
           opts: baseOptions || {},
+          orderIndex: Date.now(),
           dataSource: {
             id: dataSourceId,
           },
@@ -235,6 +242,79 @@ export default createRouter((instance) => {
   });
 
   instance.route({
+    method: "patch",
+    url: "/:id/archive",
+    handler: async (request) => {
+      const { id } = getRequestParams<{ id: string }>(request);
+      const archiveParams = getRequestPayload<TArchiveTabsParams>(request);
+      const { currentTeamId, id: currentUserId } = request.user;
+
+      const workbenchTab = await WorkbenchTabsRepository.findOne({
+        where: {
+          id,
+          user: {
+            id: request.user.id,
+          },
+        },
+        select: ["id", "orderIndex"],
+      });
+
+      if (!workbenchTab) {
+        throw new HttpError(404, "Not Found");
+      }
+
+      if (archiveParams.others || archiveParams.all) {
+        const where = getArchiveQuery(currentTeamId, currentUserId, workbenchTab.id, archiveParams);
+        await WorkbenchTabsRepository.update(where, { archived: true });
+      } else {
+        await WorkbenchTabsRepository.update(id, { archived: true });
+      }
+
+      const workbenchTabs = await getActiveWorkbenchTabs(currentTeamId, currentUserId);
+      return {
+        data: workbenchTabs,
+      } satisfies { data: TGetWorkbenchTabsEntry[] };
+    }
+  });
+
+  instance.route({
+    method: "patch",
+    url: "/:id/restore",
+    handler: async (request) => {
+      const { id } = getRequestParams<{ id: string }>(request);
+
+      const workbenchTab = await WorkbenchTabsRepository.findOne({
+        where: {
+          id,
+          user: {
+            id: request.user.id,
+          },
+        },
+        select: ["id", "archived"],
+      });
+
+      if (!workbenchTab) {
+        throw new HttpError(404, "Not Found");
+      }
+
+      if (!workbenchTab.archived) {
+        throw new HttpError(400, "This tab is not archived");
+      }
+
+      await WorkbenchTabsRepository.update(id, {
+        archived: false,
+        orderIndex: Date.now(), // move to end of list
+      });
+
+      return {
+        data: {
+          id,
+        },
+      };
+    }
+  });
+
+  instance.route({
     method: "delete",
     url: "/:id",
     handler: async (request) => {
@@ -254,3 +334,18 @@ export default createRouter((instance) => {
     },
   });
 });
+
+function getArchiveQuery (teamId: string, userId: string, tabId: string, params: TArchiveTabsParams): FindOptionsWhere<IWorkbenchTabSchema> {
+  const baseParams: FindOptionsWhere<IWorkbenchTabSchema> = {
+    archived: false,
+    team: { id: teamId },
+    user: { id: userId },
+  };
+
+  if (params.others) {
+    baseParams.id = Not(tabId);
+  }
+  // if all do nothing
+
+  return baseParams;
+}

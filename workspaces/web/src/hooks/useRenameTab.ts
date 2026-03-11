@@ -4,7 +4,7 @@ import {useUpdateWorkbenchTab} from "../data/queries/workbenchTabs.ts";
 
 export const useRenameTab = () => {
   const workbenchId = useWorkbenchTabId();
-  const updateWorkbenchTab = useUpdateWorkbenchTab()
+  const updateWorkbenchTab = useUpdateWorkbenchTab();
 
   const rename = async (name: string) => {
     if (workbenchId) {

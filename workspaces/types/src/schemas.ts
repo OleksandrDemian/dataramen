@@ -171,6 +171,7 @@ export interface IWorkbenchTab {
   updatedAt: Date;
   opts: Partial<TWorkbenchOptions>;
   searchString: string | null;
+  orderIndex: number;
 }
 
 export interface IWorkbenchTabSchema extends IWorkbenchTab {

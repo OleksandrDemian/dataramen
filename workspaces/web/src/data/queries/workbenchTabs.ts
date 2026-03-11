@@ -1,7 +1,7 @@
 import {keepPreviousData, useMutation, useQuery} from "@tanstack/react-query";
 import {apiClient} from "../clients.ts";
 import {
-  IWorkbenchTab,
+  IWorkbenchTab, TArchiveTabsParams,
   TCreateWorkbenchTab,
   TGetWorkbenchTabsEntry,
   TRunWorkbenchQuery, TUpdateWorkbenchTab, TWorkbenchOptions
@@ -9,7 +9,7 @@ import {
 import {queryClient} from "../queryClient.ts";
 import {invalidateTabsHistory} from "./project.ts";
 
-const updateCachedWorkbenchTabs = (fn: (store: TGetWorkbenchTabsEntry[]) => TGetWorkbenchTabsEntry[]) => {
+export const updateCachedWorkbenchTabs = (fn: (store: TGetWorkbenchTabsEntry[]) => TGetWorkbenchTabsEntry[]) => {
   queryClient.setQueryData(
     ["workbench-tabs"],
     (store: TGetWorkbenchTabsEntry[] | undefined) => fn(store || []),
@@ -57,7 +57,7 @@ export const useCreateWorkbenchTab = () => {
     },
     onSuccess: async (payload) => {
       updateCachedWorkbenchTabs(
-        (state) => [...state, { id: payload.id, name: payload.name }],
+        (state) => [...state, { id: payload.id, name: payload.name, orderIndex: payload.orderIndex }],
       );
     }
   });
@@ -65,16 +65,12 @@ export const useCreateWorkbenchTab = () => {
 
 export const useArchiveTab = () => {
   return useMutation({
-    mutationFn: async (tabId: string) => {
-      await apiClient.patch(`/workbench-tabs/${tabId}`, {
-        archived: true,
-      });
-      return tabId;
+    mutationFn: async ({ tabId, ...params }: { tabId: string; } & TArchiveTabsParams) => {
+      const res = await apiClient.patch<{ data: TGetWorkbenchTabsEntry[] }>(`/workbench-tabs/${tabId}/archive`, params);
+      return res.data.data;
     },
-    onMutate: (removedTabId) => {
-      updateCachedWorkbenchTabs(
-        (state) => state.filter((tab) => tab.id !== removedTabId),
-      );
+    onSuccess: async (data) => {
+      updateCachedWorkbenchTabs(() => data);
     },
   })
 };
@@ -82,9 +78,7 @@ export const useArchiveTab = () => {
 export const useRestoreArchivedTab = () => {
   return useMutation({
     mutationFn: async (tabId: string) => {
-      await apiClient.patch(`/workbench-tabs/${tabId}`, {
-        archived: false,
-      });
+      await apiClient.patch(`/workbench-tabs/${tabId}/restore`);
       return tabId;
     },
     onSuccess: () => invalidateWorkbenchTabs(),
