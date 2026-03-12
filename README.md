@@ -1,34 +1,30 @@
-# 🍜 DataRamen
+# DataRamen
 
-Your cozy corner for exploring and working with SQL databases - no query writing required. Visit [dataramen.xyz](https://dataramen.xyz) for more info.
+Navigate SQL databases and edit records without writing SQL.
 
-## ✨ Features
+DataRamen lets you explore relational data by following foreign keys between tables. Visit [dataramen.xyz](https://dataramen.xyz) for more info.
 
-- 🔌 **Connect to PostgreSQL & MySQL**  
+## Why use it?
+
+- **Connect to PostgreSQL & MySQL**
   Plug in your credentials - you're ready to explore.
 
-- 🧭 **Visual Schema Explorer**  
-  Instantly browse tables, columns, types, primary/foreign keys, and relationships.
+- **Follow Relationships Easily**
+  DataRamen allows you to easily navigate between related records and tables.
 
-- 🧙 **No-SQL Querying**  
+- **No-SQL Querying**
   Filter, sort, join, and summarize data using intuitive interface.
 
-- 🔗 **Follow Relationships Easily**  
-  Click to expand related records.
-
-- ✏️ **Insert & Update Visually**  
-  Add or modify rows with a visual editor.
-
-- 💾 **Save Queries**  
-  Save your favorite queries for quick access later.
+- **Insert & Update Visually**
+  Add or modify records with a visual editor.
 
 ## Installation
 
 DataRamen can be installed in multiple ways:
 
-* as a local CLI tool: [installation guide](https://dataramen.xyz/get-started/install-dataramen-cli/)
-* as a self-hosted service: [installation guide](https://dataramen.xyz/get-started/self-hosted/)
-* as docker image: [Github repo](https://github.com/OleksandrDemian/dataramen/pkgs/container/dataramen)
+* as a local CLI tool: [installation guide](https://dataramen.xyz/installation/npm-cli/)
+* as a self-hosted service: [installation guide](https://dataramen.xyz/installation/from-source/)
+* using docker or docker compose: [Github repo](https://dataramen.xyz/installation/docker-compose-local/)
 
 ## 🧾 License
 

@@ -7,7 +7,7 @@ import {useHotkeys} from "react-hotkeys-hook";
 import {updateShowTabsHistory} from "../data/sidebarDispatchersStore.ts";
 
 export const useSetupGlobalListeners = () => {
-  const searchAndOpen = useSearchTable("Hotkey");
+  const searchAndOpen = useSearchTable();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { data: user } = useCurrentUser();

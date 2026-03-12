@@ -33,7 +33,7 @@ export const searchTable = async (): Promise<PromiseResult | undefined> => {
   });
 };
 
-export const useSearchTable = (eventSource: string) => {
+export const useSearchTable = () => {
   const navigate = useNavigate();
   const createWorkbenchTab = useCreateWorkbenchTab();
   const restoreTab = useRestoreArchivedTab();
@@ -44,12 +44,7 @@ export const useSearchTable = (eventSource: string) => {
         id: createWorkbenchTab.data.id
       }));
     }
-    if (restoreTab?.data) {
-      navigate(PAGES.workbenchTab.build({
-        id: restoreTab.data
-      }));
-    }
-  }, [createWorkbenchTab.data, restoreTab.data]);
+  }, [createWorkbenchTab.data, navigate]);
 
   return useCallback(() => {
     const isOpened = !!SearchTableModalStore.get();
@@ -72,8 +67,11 @@ export const useSearchTable = (eventSource: string) => {
         });
       } else if (searchResult?.type === "tab") {
         restoreTab.mutate(searchResult.id);
+        navigate(PAGES.workbenchTab.build({
+          id: searchResult.id
+        }));
       }
     });
 
-  }, [navigate, eventSource]);
+  }, [navigate]);
 };
