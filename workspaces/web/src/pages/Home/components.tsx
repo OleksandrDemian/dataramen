@@ -25,7 +25,7 @@ const iconSize = 20;
 const iconClass = "text-(--text-color-primary)";
 
 export const StartQuery = () => {
-  const searchAndOpen = useSearchTable("Home");
+  const searchAndOpen = useSearchTable();
 
   return (
     <div className={st.homeActionButton} onClick={searchAndOpen}>
@@ -97,7 +97,7 @@ export const NewDataSource = () => {
 export const WorkbenchTabs = () => {
   const navigate = useNavigate();
   const { data: tabs } = useWorkbenchTabs();
-  const searchAndOpen = useSearchTable("Home");
+  const searchAndOpen = useSearchTable();
 
   const onOpenWorkbench = () => {
     if (tabs && tabs.length > 0) {

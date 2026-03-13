@@ -14,6 +14,7 @@ import {validateCreateWorkbenchTab} from "./validators";
 import {generateSearchString} from "../../utils/generateSearchString";
 import {FindOptionsWhere, LessThan, MoreThan, Not} from "typeorm";
 import {Dirent} from "node:fs";
+import {getNextOrderIndex} from "./utils";
 
 function getActiveWorkbenchTabs (teamId: string, userId: string) {
   return WorkbenchTabsRepository.find({
@@ -122,11 +123,12 @@ export default createRouter((instance) => {
         }
       }
 
+      const nextOrderIndex = await getNextOrderIndex();
       const newWorkbenchTab = await WorkbenchTabsRepository.save(
         WorkbenchTabsRepository.create({
           name: finalName || new Date().toISOString(), // fallback to date
           opts: baseOptions || {},
-          orderIndex: Date.now(),
+          orderIndex: nextOrderIndex,
           dataSource: {
             id: dataSourceId,
           },
@@ -301,9 +303,10 @@ export default createRouter((instance) => {
         throw new HttpError(400, "This tab is not archived");
       }
 
+      const nextIndex = await getNextOrderIndex();
       await WorkbenchTabsRepository.update(id, {
         archived: false,
-        orderIndex: Date.now(), // move to end of list
+        orderIndex: nextIndex, // move to end of list
       });
 
       return {

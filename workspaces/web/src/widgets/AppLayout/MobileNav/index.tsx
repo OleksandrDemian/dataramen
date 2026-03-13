@@ -11,7 +11,7 @@ const rootClass = `${st.root} ${enableAuth ? 'grid-cols-4' : 'grid-cols-2'}`;
 export const MobileNav = () => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
-  const searchTable = useSearchTable("Mobile nav");
+  const searchTable = useSearchTable();
 
   const onHome = () => {
     if (!PAGES.home.check(pathname)) {

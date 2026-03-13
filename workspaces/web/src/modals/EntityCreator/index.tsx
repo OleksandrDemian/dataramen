@@ -15,6 +15,7 @@ import {TDatabaseInspectionColumn} from "../../data/types/dataSources.ts";
 import {invalidateTabData} from "../../data/queries/workbenchTabs.ts";
 import {useWorkbenchTabId} from "../../hooks/useWorkbenchTabId.ts";
 import CloseIcon from "../../assets/close-outline.svg?react";
+import SaveIcon from "../../assets/save-outline.svg?react";
 import {SearchInput} from "../../widgets/SearchInput";
 import toast from "react-hot-toast";
 import { TQueryExpressionInput } from "@dataramen/types";
@@ -37,7 +38,7 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
   const [form, { set, touched }] = useForm<Record<string, TQueryExpressionInput>>({});
   const workbenchTabId = useWorkbenchTabId();
 
-  const { mutateAsync: execute, error } = useInsert();
+  const { mutateAsync: execute, error, isPending: isInserting } = useInsert();
   const errorMessage = useParseError(error);
 
   const { data: inspections } = useDatabaseInspections(data.dataSourceId);
@@ -84,9 +85,16 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
   return (
     <div className={st.root}>
       <div className={st.header}>
-        <div className="flex justify-between items-center">
-          <p className="text-lg font-semibold underline">New {data.table}</p>
-          <button className={st.close} onClick={closeEntityCreatorModal}>
+        <div className="flex items-center gap-1">
+          <p className="text-lg flex-1 font-semibold underline">New {data.table}</p>
+          <button
+            disabled={!touched.length || isInserting}
+            className={st.iconAction}
+            onClick={onRun}
+          >
+            <SaveIcon width={20} height={20} />
+          </button>
+          <button className={st.iconAction} onClick={closeEntityCreatorModal}>
             <CloseIcon width={20} height={20} />
           </button>
         </div>
@@ -115,6 +123,7 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
                 <p className="text-blue-800 text-xs">{col.type}</p>
               </div>
               <QueryExpressionInput
+                disabled={isInserting}
                 prefix="="
                 allowedModes={RawMode}
                 mode={form[col.name]?.mode}
@@ -124,18 +133,6 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
             </label>
           ))}
         </div>
-      </div>
-
-      <div className={st.actions}>
-        <span className="flex-1" />
-
-        <button
-          disabled={!touched.length}
-          className="button primary"
-          onClick={onRun}
-        >
-          Insert
-        </button>
       </div>
     </div>
   );

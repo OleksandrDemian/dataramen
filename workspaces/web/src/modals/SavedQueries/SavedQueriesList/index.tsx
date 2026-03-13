@@ -24,6 +24,10 @@ export const SavedQueriesList = ({ projectQueries, isLoading }: { isLoading: boo
   const contextHandler = useContextMenuHandler();
 
   const openQuery = (queryId: string) => {
+    if (createWorkbenchTab.isPending) {
+      return;
+    }
+
     createWorkbenchTab.mutateAsync({
       queryId,
     }).then((result) => {

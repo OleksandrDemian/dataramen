@@ -3,7 +3,7 @@ import {TFindQuery} from "@dataramen/types";
 import {useNavigate} from "react-router-dom";
 import {createTableOptions} from "../widgets/ExplorerView/utils.ts";
 import {PAGES} from "../const/pages.ts";
-import {useCallback, useEffect} from "react";
+import {useCallback} from "react";
 import {useCreateWorkbenchTab, useRestoreArchivedTab} from "./queries/workbenchTabs.ts";
 
 type PromiseResult = {
@@ -33,23 +33,10 @@ export const searchTable = async (): Promise<PromiseResult | undefined> => {
   });
 };
 
-export const useSearchTable = (eventSource: string) => {
+export const useSearchTable = () => {
   const navigate = useNavigate();
   const createWorkbenchTab = useCreateWorkbenchTab();
   const restoreTab = useRestoreArchivedTab();
-
-  useEffect(() => {
-    if (createWorkbenchTab?.data?.id){
-      navigate(PAGES.workbenchTab.build({
-        id: createWorkbenchTab.data.id
-      }));
-    }
-    if (restoreTab?.data) {
-      navigate(PAGES.workbenchTab.build({
-        id: restoreTab.data
-      }));
-    }
-  }, [createWorkbenchTab.data, restoreTab.data]);
 
   return useCallback(() => {
     const isOpened = !!SearchTableModalStore.get();
@@ -59,21 +46,31 @@ export const useSearchTable = (eventSource: string) => {
 
     searchTable().then((searchResult) => {
       if (searchResult?.type === "table") {
-        createWorkbenchTab.mutate({
+        createWorkbenchTab.mutateAsync({
           name: searchResult.id,
           opts: createTableOptions({
             table: searchResult.id,
             dataSourceId: searchResult.dsId,
           }),
+        }).then(result => {
+          navigate(PAGES.workbenchTab.build({
+            id: result.id
+          }));
         });
       } else if (searchResult?.type === "query") {
-        createWorkbenchTab.mutate({
+        createWorkbenchTab.mutateAsync({
           queryId: searchResult.id,
+        }).then(result => {
+          navigate(PAGES.workbenchTab.build({
+            id: result.id
+          }));
         });
       } else if (searchResult?.type === "tab") {
         restoreTab.mutate(searchResult.id);
+        navigate(PAGES.workbenchTab.build({
+          id: searchResult.id
+        }));
       }
     });
-
-  }, [navigate, eventSource]);
+  }, []);
 };

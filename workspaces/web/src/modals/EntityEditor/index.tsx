@@ -21,6 +21,7 @@ import {invalidateTabData, useCreateWorkbenchTab} from "../../data/queries/workb
 import {SearchInput} from "../../widgets/SearchInput";
 import CloseIcon from "../../assets/close-outline.svg?react";
 import OpenIcon from "../../assets/open-outline.svg?react";
+import SaveIcon from "../../assets/save-outline.svg?react";
 import {createTableOptions} from "../../widgets/ExplorerView/utils.ts";
 import {useNavigate} from "react-router-dom";
 import {PAGES} from "../../const/pages.ts";
@@ -59,7 +60,7 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
 
   const [filter, setFilter] = useState<string>("");
   const { data: queryResult, isLoading: isLoadingResult, refetch: refetchData } = useEntity(data.dataSourceId, data.tableName, data.entityId);
-  const { mutateAsync: execute, error } = useUpdate();
+  const { mutateAsync: execute, error, isPending: isUpdating } = useUpdate();
   const { mutateAsync: createTab } = useCreateWorkbenchTab();
   const errorMessage = useParseError(error);
   const isEditor = useRequireRole(EUserTeamRole.EDITOR);
@@ -162,12 +163,12 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
     }
   };
 
-  const disableEdit = !dataSource?.allowUpdate || !isEditor;
+  const disableEdit = !dataSource?.allowUpdate || !isEditor || isUpdating;
 
   return (
     <div className={st.root}>
       <div className={st.header}>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           <select
             className="input rounded-md! w-full"
             value={data?.key}
@@ -177,9 +178,27 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
               <option key={entry.key} value={entry.key}>{entry.tableName} - {entry.entityId.map((v) => `${v[0]} = ${v[1]}`)}</option>
             ))}
           </select>
-          {/*<p className="text-lg font-semibold underline">{data?.tableName}</p>*/}
 
-          <button className={st.close} onClick={closeEntityEditorModal}>
+          {!disableEdit && touched.length > 0 && (
+            <button
+              className={st.actionIcon}
+              onClick={() => setResetCounter((r) => ++r)}
+            >
+              <SaveIcon width={20} height={20} />
+            </button>
+          )}
+
+          {!disableEdit && (
+            <button
+              disabled={!touched.length}
+              onClick={onRun}
+              className={st.actionIcon}
+            >
+              <SaveIcon width={20} height={20} />
+            </button>
+          )}
+
+          <button className={st.actionIcon} onClick={closeEntityEditorModal}>
             <CloseIcon width={20} height={20} />
           </button>
         </div>
@@ -232,29 +251,6 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
             </label>
           ))}
         </div>
-      </div>
-
-      <div className={st.actions}>
-        <span className="flex-1" />
-
-        {touched.length > 0 && (
-          <button
-            className="button tertiary"
-            onClick={() => setResetCounter((r) => ++r)}
-          >
-            Reset
-          </button>
-        )}
-
-        {!disableEdit && (
-          <button
-            disabled={!touched.length}
-            className="button primary"
-            onClick={onRun}
-          >
-            Commit
-          </button>
-        )}
       </div>
     </div>
   );

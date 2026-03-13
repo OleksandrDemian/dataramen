@@ -76,7 +76,7 @@ export const Nav = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { data: currentUser } = useCurrentUser();
-  const searchTable = useSearchTable("Desktop nav");
+  const searchTable = useSearchTable();
   const [showSidebarMenu, setShowSidebarMenu] = useState(false);
   const { data: workbenchTabs } = useWorkbenchTabs();
   const { data: dataSources } = useTeamDataSources(currentUser?.teamId);
