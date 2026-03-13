@@ -94,7 +94,7 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
             className={st.iconAction}
             onClick={onRun}
           >
-            <SaveIcon width={20} height={20} />
+            <SaveIcon width={16} height={16} />
           </button>
           <button className={st.iconAction} onClick={closeEntityCreatorModal}>
             <CloseIcon width={20} height={20} />

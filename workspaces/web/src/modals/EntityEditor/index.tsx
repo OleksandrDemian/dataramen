@@ -187,7 +187,7 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
               className={st.actionIcon}
               onClick={() => setResetCounter((r) => ++r)}
             >
-              <RestoreIcon width={20} height={20} />
+              <RestoreIcon width={16} height={16} />
             </button>
           )}
 
@@ -199,7 +199,7 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
               onClick={onRun}
               className={st.actionIcon}
             >
-              <SaveIcon width={20} height={20} />
+              <SaveIcon width={16} height={16} />
             </button>
           )}
 
