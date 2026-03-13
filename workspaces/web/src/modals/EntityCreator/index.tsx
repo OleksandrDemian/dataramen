@@ -88,11 +88,13 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
         <div className="flex items-center gap-1">
           <p className="text-lg flex-1 font-semibold underline">New {data.table}</p>
           <button
+            data-tooltip-id="default"
+            data-tooltip-content="Commit changes"
             disabled={!touched.length || isInserting}
             className={st.iconAction}
             onClick={onRun}
           >
-            <SaveIcon width={20} height={20} />
+            <SaveIcon width={16} height={16} />
           </button>
           <button className={st.iconAction} onClick={closeEntityCreatorModal}>
             <CloseIcon width={20} height={20} />
