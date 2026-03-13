@@ -22,6 +22,7 @@ import {SearchInput} from "../../widgets/SearchInput";
 import CloseIcon from "../../assets/close-outline.svg?react";
 import OpenIcon from "../../assets/open-outline.svg?react";
 import SaveIcon from "../../assets/save-outline.svg?react";
+import RestoreIcon from "../../assets/refresh-outline.svg?react";
 import {createTableOptions} from "../../widgets/ExplorerView/utils.ts";
 import {useNavigate} from "react-router-dom";
 import {PAGES} from "../../const/pages.ts";
@@ -181,15 +182,19 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
 
           {!disableEdit && touched.length > 0 && (
             <button
+              data-tooltip-id="default"
+              data-tooltip-content="Reset values"
               className={st.actionIcon}
               onClick={() => setResetCounter((r) => ++r)}
             >
-              <SaveIcon width={20} height={20} />
+              <RestoreIcon width={20} height={20} />
             </button>
           )}
 
           {!disableEdit && (
             <button
+              data-tooltip-id="default"
+              data-tooltip-content="Commit changes"
               disabled={!touched.length}
               onClick={onRun}
               className={st.actionIcon}
