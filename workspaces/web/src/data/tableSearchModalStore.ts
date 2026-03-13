@@ -3,7 +3,7 @@ import {TFindQuery} from "@dataramen/types";
 import {useNavigate} from "react-router-dom";
 import {createTableOptions} from "../widgets/ExplorerView/utils.ts";
 import {PAGES} from "../const/pages.ts";
-import {useCallback, useEffect} from "react";
+import {useCallback} from "react";
 import {useCreateWorkbenchTab, useRestoreArchivedTab} from "./queries/workbenchTabs.ts";
 
 type PromiseResult = {
@@ -38,14 +38,6 @@ export const useSearchTable = () => {
   const createWorkbenchTab = useCreateWorkbenchTab();
   const restoreTab = useRestoreArchivedTab();
 
-  useEffect(() => {
-    if (createWorkbenchTab?.data?.id){
-      navigate(PAGES.workbenchTab.build({
-        id: createWorkbenchTab.data.id
-      }));
-    }
-  }, [createWorkbenchTab.data, navigate]);
-
   return useCallback(() => {
     const isOpened = !!SearchTableModalStore.get();
     if (isOpened) {
@@ -54,16 +46,24 @@ export const useSearchTable = () => {
 
     searchTable().then((searchResult) => {
       if (searchResult?.type === "table") {
-        createWorkbenchTab.mutate({
+        createWorkbenchTab.mutateAsync({
           name: searchResult.id,
           opts: createTableOptions({
             table: searchResult.id,
             dataSourceId: searchResult.dsId,
           }),
+        }).then(result => {
+          navigate(PAGES.workbenchTab.build({
+            id: result.id
+          }));
         });
       } else if (searchResult?.type === "query") {
-        createWorkbenchTab.mutate({
+        createWorkbenchTab.mutateAsync({
           queryId: searchResult.id,
+        }).then(result => {
+          navigate(PAGES.workbenchTab.build({
+            id: result.id
+          }));
         });
       } else if (searchResult?.type === "tab") {
         restoreTab.mutate(searchResult.id);
@@ -72,6 +72,5 @@ export const useSearchTable = () => {
         }));
       }
     });
-
-  }, [navigate]);
+  }, []);
 };

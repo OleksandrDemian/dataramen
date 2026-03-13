@@ -8,7 +8,7 @@ import {
 } from "../types/dataSources.ts";
 import {queryClient} from "../queryClient.ts";
 import {QUERY_DATASOURCE_KEY} from "../keysConst.ts";
-import {invalidateTeamProjectFiles} from "./project.ts";
+import {invalidateSearchQueries, invalidateTeamProjectFiles} from "./project.ts";
 import { IDataSource } from "@dataramen/types";
 
 const REFETCH_INTERVAL = 4_000;
@@ -79,6 +79,7 @@ export const useCreateDataSource = () => {
         queryKey: [QUERY_DATASOURCE_KEY],
       });
       invalidateTeamProjectFiles();
+      invalidateSearchQueries();
     },
   });
 };
@@ -95,6 +96,7 @@ export const useUpdateDataSource = () => {
         queryKey: [QUERY_DATASOURCE_KEY],
       });
       invalidateTeamProjectFiles();
+      invalidateSearchQueries();
     },
   });
 };
@@ -108,6 +110,7 @@ export const useManualInspectDataSource = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_DATASOURCE_KEY, variables],
       });
+      invalidateSearchQueries();
     }
   });
 };
@@ -122,6 +125,7 @@ export const useDeleteDataSource = () => {
         queryKey: [QUERY_DATASOURCE_KEY],
       });
       invalidateTeamProjectFiles();
+      invalidateSearchQueries();
     },
   });
 }

@@ -48,7 +48,7 @@ export const useSearchQueries = (search: string, props: {
   selectedDataSources?: string[];
 }) => {
   return useQuery({
-    queryKey: ['project', props.teamId, 'tables', search, props.selectedDataSources],
+    queryKey: ['project', 'tables', props.teamId, search, props.selectedDataSources],
     queryFn: async () => {
       const { data } = await apiClient.get<{ data: TFindQuery[] }>(`/project/team/${props.teamId}/query`, {
         params: {
@@ -61,6 +61,12 @@ export const useSearchQueries = (search: string, props: {
     },
     enabled: !!props.teamId,
     placeholderData: keepPreviousData,
+  });
+};
+
+export const invalidateSearchQueries = () => {
+  return queryClient.invalidateQueries({
+    queryKey: ['project', 'tables']
   });
 };
 
