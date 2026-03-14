@@ -25,6 +25,7 @@ const Component = () => {
       onLoadMore={fetchNextPage}
       searchValue={nameFilter}
       onSearchValue={setNameFilter}
+      title="Saved queries"
     >
       <SavedQueriesList isLoading={isLoading} projectQueries={projectQueries || []} />
     </SidebarListContainer>

@@ -2,7 +2,7 @@
 
 .modal {
   transition: opacity 100ms ease-in-out;
-  @apply fixed inset-0 z-10 flex justify-center items-start;
+  @apply fixed inset-0 z-100 flex justify-center items-start;
 }
 
 .modal-visible {

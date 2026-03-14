@@ -2,7 +2,7 @@
 
 .sidebar {
   transition: opacity 300ms ease-in-out;
-  @apply fixed inset-0 z-10;
+  @apply fixed inset-0 z-100;
 }
 
 .sidebar-visible {

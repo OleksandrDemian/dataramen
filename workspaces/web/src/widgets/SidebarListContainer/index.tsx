@@ -9,13 +9,14 @@ export type TSidebarListContainerProps = {
   onSearchValue: (value: string) => void;
   onClose: () => void;
   onLoadMore: () => void;
+  title: string;
 };
-export const SidebarListContainer = ({ onLoadMore, children, onClose, hasMore, onSearchValue, searchValue }: TSidebarListContainerProps) => {
+export const SidebarListContainer = ({ title, onLoadMore, children, onClose, hasMore, onSearchValue, searchValue }: TSidebarListContainerProps) => {
   return (
-    <aside className="w-full lg:w-md no-scrollbar">
+    <aside className="max-w-full w-md no-scrollbar">
       <div className="sticky top-0 px-4 py-2 border-b border-gray-200 bg-white">
         <h3 className="text-lg flex justify-between items-center">
-          Recent tabs
+          <span>{title}</span>
 
           {onClose && (
             <button className="cursor-pointer hover:bg-(--bg-ter) rounded-full p-1" onClick={onClose}>

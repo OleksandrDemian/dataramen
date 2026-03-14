@@ -14,7 +14,7 @@ export type TModalProps = {
   noPadding?: boolean;
   portal?: boolean;
 };
-export const Modal = ({children, backdropClose, isVisible, onClose, onClosed, noPadding = false, portal = false}: TModalProps) => {
+export const Modal = ({children, backdropClose, isVisible, onClose, onClosed, noPadding = false, portal = true}: TModalProps) => {
   const [renderComponent, setRenderComponent] = useState(false);
 
   const _onClose = () => {
