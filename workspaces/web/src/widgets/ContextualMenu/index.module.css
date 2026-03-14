@@ -41,7 +41,7 @@
 }
 
 .container {
-  z-index: 50;
+  z-index: 200;
   @apply fixed inset-0;
 
   &.animate-show {

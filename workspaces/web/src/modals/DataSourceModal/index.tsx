@@ -61,14 +61,12 @@ const InspectionList = ({ insp, filter, expanded }: { insp: TDatabaseInspection;
   return (
     <ul className={st.ul} key={insp.id}>
       {columns.map((col) => (
-        <>
-          <li key={col.name + col.type}>
-            {col.isPrimary ? '🔐' : '🏷️'} <span onClick={() => copyText(col.name)} className={getLabelClass(col.name, filter)}>{col.name}</span> <span className={st.columnType}>[{col.type}]</span>
-            {col.ref && (
-              <span> ➡️ <span className={st.columnType}>{col.ref.table}</span>.{col.ref.field}</span>
-            )}
-          </li>
-        </>
+        <li key={col.name + col.type}>
+          {col.isPrimary ? '🔐' : '🏷️'} <span onClick={() => copyText(col.name)} className={getLabelClass(col.name, filter)}>{col.name}</span> <span className={st.columnType}>[{col.type}]</span>
+          {col.ref && (
+            <span> ➡️ <span className={st.columnType}>{col.ref.table}</span>.{col.ref.field}</span>
+          )}
+        </li>
       ))}
     </ul>
   );

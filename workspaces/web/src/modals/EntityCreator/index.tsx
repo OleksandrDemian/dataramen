@@ -4,7 +4,7 @@ import {
   useCreateEntity
 } from "../../data/entityCreatorStore.ts";
 import {useDatabaseInspections} from "../../data/queries/dataSources.ts";
-import {useMemo, useState} from "react";
+import {useEffect, useMemo, useState} from "react";
 import {sanitizeCellValue} from "../../utils/sql.ts";
 import {useForm} from "../../hooks/form/useForm.ts";
 import st from "./index.module.css";
@@ -21,6 +21,7 @@ import toast from "react-hot-toast";
 import { TQueryExpressionInput } from "@dataramen/types";
 import {QueryExpressionInput} from "../../widgets/QueryExpressionInput";
 import {RawMode} from "../../widgets/QueryExpressionInput/const.ts";
+import {Sidebar} from "../../widgets/Sidebar";
 
 const getLabel = (col: TDatabaseInspectionColumn) => {
   if (col.isPrimary) {
@@ -149,5 +150,29 @@ export const EntityCreator = () => {
 
   return (
     <Component data={data} />
+  );
+};
+
+export const MobileEntityCreator = () => {
+  const data = useCreateEntity();
+  const [temp, setTemp] = useState<TEntityCreatorStore | undefined>(undefined);
+
+  useEffect(() => {
+    if (data) {
+      setTemp(data);
+    }
+  }, [data]);
+
+  return (
+    <Sidebar
+      backdropClose
+      isVisible={!!data}
+      onClose={closeEntityCreatorModal}
+      onClosed={() => setTemp(undefined)}
+    >
+      {temp && (
+        <Component data={temp} />
+      )}
+    </Sidebar>
   );
 };

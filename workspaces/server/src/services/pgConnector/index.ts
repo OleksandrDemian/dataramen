@@ -263,7 +263,11 @@ export const PGSqlConnector: TDynamicConnectionCreator = async (dataSource: TDyn
         return withTransaction(client, () => executeQuery(opts.sql, opts.params, client, opts));
       },
     ),
-    checkConnection: async () => {},
+    checkConnection: async () => {
+      await withPathSet(() => {
+        return client.query(`SELECT 1;`);
+      });
+    },
     isClosed: () => _isClosed,
     close: async () => {
       if (_isClosed) return;

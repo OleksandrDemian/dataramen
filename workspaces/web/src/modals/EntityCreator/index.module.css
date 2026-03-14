@@ -2,7 +2,7 @@
 
 .root {
   border-left: 1px solid var(--bg-quat);
-  @apply w-sm flex flex-col;
+  @apply w-sm flex flex-col max-w-full;
 }
 
 .container {

@@ -10,7 +10,7 @@ import {useNavigate} from "react-router-dom";
 import {PAGES} from "../../const/pages.ts";
 import {useCurrentUser} from "../../data/queries/users.ts";
 import {useDataSources} from "../../data/queries/dataSources.ts";
-import {setDataSourceModal, updateShowSavedQueries} from "../../data/sidebarDispatchersStore.ts";
+import {setDataSourceModal, updateShowSavedQueries, updateShowTabsHistory} from "../../data/sidebarDispatchersStore.ts";
 import {useWorkbenchTabs} from "../../data/queries/workbenchTabs.ts";
 import {useRecentTabs} from "../../data/queries/project.ts";
 import GithubIcon from "../../assets/logo-github.svg?react";
@@ -18,17 +18,20 @@ import NpmIcon from "../../assets/logo-npm.svg?react";
 import DocumentationIcon from "../../assets/document-text-outline.svg?react";
 import LockIcon from "../../assets/lock-closed-outline.svg?react";
 import SearchIcon from "../../assets/search-outline.svg?react";
-import SavedQueriesIcon from "../../assets/hourglass-outline.svg?react";
+import SavedQueriesIcon from "../../assets/save-outline.svg?react";
+import TabsHistoryIcon from "../../assets/hourglass-outline.svg?react";
 import WorkbenchIcon from "../../assets/construct-outline.svg?react";
+import clsx from "clsx";
 
 const iconSize = 20;
 const iconClass = "text-(--text-color-primary)";
+const startStyle = clsx(st.homeActionButton, "md:col-span-3");
 
 export const StartQuery = () => {
   const searchAndOpen = useSearchTable();
 
   return (
-    <div className={st.homeActionButton} onClick={searchAndOpen}>
+    <div className={startStyle} onClick={searchAndOpen}>
       <SearchIcon width={iconSize} height={iconSize} className={iconClass} />
       <h2 className={st.actionTitle}>Start new query</h2>
     </div>
@@ -40,6 +43,15 @@ export const SavedQueriesAction = () => {
     <div className={st.homeActionButton} onClick={() => updateShowSavedQueries({ show: true })}>
       <SavedQueriesIcon width={20} height={20} className={iconClass} />
       <h2 className={st.actionTitle}>Saved queries</h2>
+    </div>
+  );
+};
+
+export const TabsHistoryAction = () => {
+  return (
+    <div className={st.homeActionButton} onClick={() => updateShowTabsHistory({ show: true })}>
+      <TabsHistoryIcon width={20} height={20} className={iconClass} />
+      <h2 className={st.actionTitle}>Recent tabs</h2>
     </div>
   );
 };
@@ -176,7 +188,7 @@ export const UsefulLinks = () => {
   );
 };
 
-export const RecentTabs = () => {
+export const ActiveTabs = () => {
   const { data: user } = useCurrentUser();
   const { data: tabs, isLoading } = useRecentTabs(user?.teamId);
   const navigate = useNavigate();
@@ -191,7 +203,7 @@ export const RecentTabs = () => {
 
   return (
     <div className={st.recentTabsContainer}>
-      <h2 className={st.homeCardTitle + " px-4 mb-4"}>Recent tabs</h2>
+      <h2 className={st.homeCardTitle + " px-4 mb-4"}>Active tabs</h2>
 
       {tabs.map((tab) => (
         <div className={st.recentTabsEntry} key={tab.id} onClick={() => openTab(tab.id)}>

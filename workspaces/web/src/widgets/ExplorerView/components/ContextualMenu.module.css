@@ -41,7 +41,7 @@
 }
 
 .container {
-  @apply fixed inset-0 z-10;
+  @apply fixed inset-0 z-200;
 
   &.animate-show {
     animation: show 0.15s forwards;

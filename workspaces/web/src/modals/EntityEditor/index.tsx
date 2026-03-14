@@ -2,7 +2,8 @@ import {
   closeEntityEditorModal,
   openEntityEditor,
   TEntityEditorStore,
-  useEntityEditor, useEntityEditorHistory
+  useEntityEditor,
+  useEntityEditorHistory
 } from "../../data/entityEditorStore.ts";
 import {useDatabaseInspections, useDataSource} from "../../data/queries/dataSources.ts";
 import {useEffect, useMemo, useState} from "react";
@@ -29,6 +30,7 @@ import {PAGES} from "../../const/pages.ts";
 import toast from "react-hot-toast";
 import {QueryExpressionInput} from "../../widgets/QueryExpressionInput";
 import {RawMode} from "../../widgets/QueryExpressionInput/const.ts";
+import {Sidebar} from "../../widgets/Sidebar";
 
 const getPlaceholder = (value: unknown): string | undefined => {
   if (value === null || value === undefined) return "<NULL>";
@@ -62,7 +64,7 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
   const [filter, setFilter] = useState<string>("");
   const { data: queryResult, isLoading: isLoadingResult, refetch: refetchData } = useEntity(data.dataSourceId, data.tableName, data.entityId);
   const { mutateAsync: execute, error, isPending: isUpdating } = useUpdate();
-  const { mutateAsync: createTab } = useCreateWorkbenchTab();
+  const createTab = useCreateWorkbenchTab();
   const errorMessage = useParseError(error);
   const isEditor = useRequireRole(EUserTeamRole.EDITOR);
 
@@ -140,7 +142,9 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
   };
 
   const onOpenRef = (table: string, column: string, value: any) => {
-    createTab({
+    if (createTab.isPending) return;
+
+    createTab.mutateAsync({
       name: `${table} ${column} = ${value}`,
       opts: createTableOptions({
         dataSourceId: data.dataSourceId,
@@ -270,5 +274,29 @@ export const EntityEditor = () => {
 
   return (
     <Component data={data} />
+  );
+};
+
+export const MobileEntityEditor = () => {
+  const data = useEntityEditor();
+  const [temp, setTemp] = useState<TEntityEditorStore | undefined>(undefined);
+
+  useEffect(() => {
+    if (data) {
+      setTemp(data);
+    }
+  }, [data]);
+
+  return (
+    <Sidebar
+      backdropClose
+      isVisible={!!data}
+      onClose={closeEntityEditorModal}
+      onClosed={() => setTemp(undefined)}
+    >
+      {temp && (
+        <Component data={temp} />
+      )}
+    </Sidebar>
   );
 };

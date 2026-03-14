@@ -48,6 +48,7 @@ const Component = () => {
       onClose={() => updateShowTabsHistory({ show: false })}
       searchValue={filter}
       onSearchValue={setFilter}
+      title="Recent tabs"
     >
       {tabs?.map((tab) => (
         <div

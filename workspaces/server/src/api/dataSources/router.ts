@@ -5,22 +5,17 @@ import {HttpError} from "../../utils/httpError";
 import {getDynamicConnection} from "../../services/connectorManager";
 import {
   AppDataSource,
-  DatabaseColumnRepository,
   DatabaseTableRepository,
   DataSourceRepository,
-  QueriesRepository
 } from "../../repository/db";
 import {TCreateDataSource} from "./types";
 import {mapDataSourceToDbConnection} from "../../utils/dataSourceUtils";
 import {SymmEncryptionUtils} from "../../utils/symmEncryptionUtils";
-import {EUserTeamRole, IDatabaseColumnSchema, IDatabaseInspection, IInspectionColumnRef} from "@dataramen/types";
+import {EUserTeamRole, IDatabaseInspection} from "@dataramen/types";
 import {atLeast} from "../../hooks/role";
-import {TIntrospectionResult} from "../../services/connectorManager/types";
 import {cleanupDatasourceInfo} from "../../services/datasource/cleanupDatasourceInfo";
 import {DataSource} from "../../repository/tables/datasource";
 import {Query} from "../../repository/tables/query";
-import {DatabaseColumn} from "../../repository/tables/databaseColumn";
-import {DatabaseTable} from "../../repository/tables/databaseTable";
 import {inspectDataSourceTask} from "./tasks";
 
 export default createRouter((instance) => {
@@ -77,6 +72,8 @@ export default createRouter((instance) => {
     },
     handler: async (request) => {
       const { teamId, ownerId, ...proto } = getRequestPayload<TCreateDataSource>(request, validateCreateDataSource);
+
+      // create connection entity without saving it yet
       const dataSource = DataSourceRepository.create({
         ...proto,
         allowUpdate: !!proto.allowUpdate,
@@ -102,6 +99,7 @@ export default createRouter((instance) => {
       dataSource.dbPasswordIv = iv;
       dataSource.dbPasswordTag = tag;
 
+      // save db connection
       const createdDataSource = await DataSourceRepository.save(dataSource);
       return {
         data: createdDataSource,

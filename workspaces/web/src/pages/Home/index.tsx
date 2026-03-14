@@ -6,8 +6,8 @@ import {
   WorkbenchTabs,
   ListDataSources,
   UsefulLinks,
-  RecentTabs,
-  SavedQueriesAction, NewDataSource
+  ActiveTabs,
+  SavedQueriesAction, NewDataSource, TabsHistoryAction
 } from "./components.tsx";
 import st from "./index.module.css";
 
@@ -48,6 +48,7 @@ export const HomePage = () => {
               )}
 
               <SavedQueriesAction />
+              <TabsHistoryAction />
             </div>
           </div>
 
@@ -56,7 +57,7 @@ export const HomePage = () => {
           )}
 
           <NewDataSource />
-          <RecentTabs />
+          <ActiveTabs />
         </div>
       </div>
     </div>
