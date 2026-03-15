@@ -47,5 +47,10 @@ export const Query = new EntitySchema<IQuerySchema>({
       joinColumn: true,
       nullable: true,
     },
+    savedQueries: {
+      type: "one-to-many",
+      target: () => "SavedQuery",
+      inverseSide: "query",
+    },
   },
 });

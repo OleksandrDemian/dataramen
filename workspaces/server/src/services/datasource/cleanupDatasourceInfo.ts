@@ -1,6 +1,27 @@
 import {EntityManager} from "typeorm";
 import {DatabaseTable} from "../../repository/tables/databaseTable";
 import {DatabaseColumn} from "../../repository/tables/databaseColumn";
+import {Query} from "../../repository/tables/query";
+import {SavedQuery} from "../../repository/tables/savedQuery";
+
+export const cleanupDataSourceQueries = async (entityManager: EntityManager,  dsId: string) => {
+  await entityManager.createQueryBuilder()
+    .delete()
+    .from(SavedQuery)
+    .where(`queryId IN (
+      SELECT id
+      FROM query
+      WHERE dataSourceId = :dataSourceId
+     )`)
+    .setParameter("dataSourceId", dsId)
+    .execute();
+
+  await entityManager.delete(Query, {
+    dataSource: {
+      id: dsId,
+    },
+  });
+};
 
 export const cleanupDatasourceInfo = async (entityManager: EntityManager,  dsId: string) => {
   const tables = await entityManager.find(DatabaseTable, {
@@ -13,13 +34,11 @@ export const cleanupDatasourceInfo = async (entityManager: EntityManager,  dsId:
   });
 
   for (const table of tables) {
-    const columnsToDelete = await entityManager.find(DatabaseColumn, {
-      where: {
-        tableId: table.id,
-      },
-      select: ["id"],
+    await entityManager.delete(DatabaseColumn, {
+      table: {
+        id: table.id,
+      }
     });
-    await entityManager.remove(DatabaseColumn, columnsToDelete);
     await entityManager.delete(DatabaseTable, table);
   }
 };

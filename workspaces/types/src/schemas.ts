@@ -5,6 +5,7 @@ import {TDatabaseDialect} from "./dialect";
 
 export interface IUser {
   id: string;
+  currentTeamId: string;
   createdAt: Date;
   updatedAt: Date;
   username: string;
@@ -30,6 +31,7 @@ export interface InspectionColumn {
   ref?: IInspectionColumnRef;
 }
 
+// todo: delete this schema
 export interface IDatabaseInspection {
   id: string;
   tableName: string;
@@ -44,6 +46,7 @@ export interface IDatabaseInspectionSchema extends IDatabaseInspection {
 
 export interface IDatabaseTable {
   id: string;
+  dataSourceId: string;
   name: string;
   createdAt: Date;
   updatedAt: Date;
@@ -61,13 +64,13 @@ export interface IDatabaseColumnMeta {
 
 export interface IDatabaseColumn {
   id: string;
+  tableId: string;
   name: string;
   type: string;
   isPrimary?: boolean;
   createdAt: Date;
   updatedAt: Date;
   meta?: IDatabaseColumnMeta;
-  tableId: string;
 }
 
 export interface IDatabaseColumnSchema extends IDatabaseColumn {
@@ -76,6 +79,8 @@ export interface IDatabaseColumnSchema extends IDatabaseColumn {
 
 export interface IDataSource {
   id: string;
+  teamId: string;
+  ownerId: string;
   dbUrl: string;
   dbPort?: number;
   dbUser: string;
@@ -103,6 +108,9 @@ export interface IDataSourceSchema extends IDataSource {
 
 export interface IQuery {
   id: string;
+  teamId: string;
+  dataSourceId: string;
+  userId: string;
   name: string;
   opts: TQueryOptions;
   isPersonal: boolean;
@@ -114,10 +122,14 @@ export interface IQuerySchema extends IQuery {
   team: ITeamSchema;
   dataSource: IDataSourceSchema;
   user: IUserSchema;
+  savedQueries: ISavedQuerySchema[];
 }
 
 export interface ISavedQuery {
   id: string;
+  queryId: string;
+  teamId: string;
+  userId: string;
   isPersonal: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -145,6 +157,7 @@ export interface ITeamSchema extends ITeam {
 
 export interface IUserSettings {
   id: string;
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -156,6 +169,8 @@ export interface IUserSettingsSchema extends IUserSettings {
 export interface IUsersToTeams {
   id: string;
   role: EUserTeamRole;
+  teamId: string;
+  userId: string;
 }
 
 export interface IUsersToTeamsSchema extends IUsersToTeams {
@@ -165,6 +180,9 @@ export interface IUsersToTeamsSchema extends IUsersToTeams {
 
 export interface IWorkbenchTab {
   id: string;
+  dataSourceId: string;
+  userId: string;
+  queryId: string;
   name: string;
   archived: boolean;
   createdAt: Date;

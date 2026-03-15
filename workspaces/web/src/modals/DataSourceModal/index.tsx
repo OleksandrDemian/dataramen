@@ -159,7 +159,7 @@ function Component ({ id }: { id: string }) {
   };
 
   const onDelete = async () => {
-    const result = await confirm("Are you sure you want to delete this data source?");
+    const result = await confirm("Are you sure you want to delete this data source and all related data (ex: saved queries)?");
     if (result) {
       deleter.mutate(id);
       setDataSourceModal(undefined);

@@ -13,10 +13,10 @@ import {mapDataSourceToDbConnection} from "../../utils/dataSourceUtils";
 import {SymmEncryptionUtils} from "../../utils/symmEncryptionUtils";
 import {EUserTeamRole, IDatabaseInspection} from "@dataramen/types";
 import {atLeast} from "../../hooks/role";
-import {cleanupDatasourceInfo} from "../../services/datasource/cleanupDatasourceInfo";
+import {cleanupDatasourceInfo, cleanupDataSourceQueries} from "../../services/datasource/cleanupDatasourceInfo";
 import {DataSource} from "../../repository/tables/datasource";
-import {Query} from "../../repository/tables/query";
 import {inspectDataSourceTask} from "./tasks";
+import {WorkbenchTab} from "../../repository/tables/workbenchTabs";
 
 export default createRouter((instance) => {
   // get datasource by id
@@ -142,18 +142,15 @@ export default createRouter((instance) => {
     },
     handler: async (request) => {
       return AppDataSource.transaction(async (entityManager) => {
-        // todo: fix transaction
         const {id} = getRequestParams<{ id: string }>(request);
+        await entityManager.delete(WorkbenchTab, {
+          dataSource: {
+            id,
+          },
+        });
 
-        await Promise.all([
-          cleanupDatasourceInfo(entityManager, id),
-          entityManager.delete(Query, {
-            dataSource: {
-              id,
-            },
-          }),
-        ]);
-
+        await cleanupDataSourceQueries(entityManager, id);
+        await cleanupDatasourceInfo(entityManager, id);
         await entityManager.delete(DataSource, {
           id,
         });

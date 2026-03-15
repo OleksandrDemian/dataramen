@@ -13,8 +13,8 @@ import {EntityCreator, MobileEntityCreator} from "../../modals/EntityCreator";
 const DesktopLayout = ({ children, isLogin }: { children: ReactNode; isLogin: boolean }) => {
   return (
     <div className={st.desktopLayout}>
-      <Tooltip id="default" className="z-100" />
-      <Tooltip id="default-xs" className="z-100 text-xs!" />
+      <Tooltip id="default" className="z-500" />
+      <Tooltip id="default-xs" className="z-500 text-xs!" />
       {!isLogin && <Nav />}
 
       <main className={st.main}>

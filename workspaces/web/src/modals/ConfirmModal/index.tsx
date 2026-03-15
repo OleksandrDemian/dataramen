@@ -4,7 +4,7 @@ import {useEffect, useState} from "react";
 
 const Component = ({ confirm }: { confirm: TConfirmProps }) => {
   return (
-    <div>
+    <div className="max-w-sm">
       <p>{confirm.message}</p>
       <div className="flex gap-2 justify-end mt-4">
         <button className="button tertiary" onClick={confirm.onCancel}>Cancel</button>

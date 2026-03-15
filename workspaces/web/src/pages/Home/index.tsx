@@ -10,15 +10,16 @@ import {
   SavedQueriesAction, NewDataSource, TabsHistoryAction
 } from "./components.tsx";
 import st from "./index.module.css";
+import {lt} from "../../utils/numbers.ts";
 
 export const HomePage = () => {
   const {data: user} = useCurrentUser();
 
-  const {data} = useDataSources({
+  const { data, isLoading } = useDataSources({
     teamId: user?.teamId,
   });
 
-  const hasDataSources = !!data && data.length > 0;
+  const showDataSourcesAlert = !isLoading && lt(data?.length, 1);
   const hasUser = !!user;
 
   return (
@@ -31,7 +32,7 @@ export const HomePage = () => {
         </div>
 
         <div className="flex flex-col gap-8 mt-8 bg-(--bg) z-1">
-          {hasUser && !hasDataSources && (
+          {showDataSourcesAlert && (
             <Alert variant="warning" className="font-semibold">
               Connect at least one data source to start using DataRamen
             </Alert>
@@ -42,13 +43,11 @@ export const HomePage = () => {
 
             <div className={st.homeCardGridContent}>
               <StartQuery />
-
+              <SavedQueriesAction />
+              <TabsHistoryAction />
               {hasUser && (
                 <WorkbenchTabs />
               )}
-
-              <SavedQueriesAction />
-              <TabsHistoryAction />
             </div>
           </div>
 
