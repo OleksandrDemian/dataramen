@@ -1,35 +1,26 @@
-# 🍜 DataRamen CLI
+# DataRamen
 
-Your cozy corner for exploring and working with SQL databases - no query writing required.
+A lightweight web GUI for MySQL and PostgreSQL, built for developers who move fast and stay focused. Connect, explore, and inspect your data effortlessly, no boilerplate, no friction. Visit [dataramen.xyz](https://dataramen.xyz) for more info.
 
-DataRamen CLI lets you launch a powerful, local database exploration app that connects effortlessly to MySQL and PostgreSQL databases. Browse schemas, follow relationships, and insert/update data - all from your browser.
+## Why use it?
 
-## ✨ Features
+- **Follow relationships easily**
+  DataRamen allows you to easily navigate between related records and tables.
 
-- 🔌 **Connect to PostgreSQL & MySQL**  
-  Securely plug in your credentials - you're ready to explore.
+- **No-SQL querying**
+  Filter, sort, join, and summarize data using intuitive interface.
 
-- 🧭 **Visual Schema Explorer**  
-  Instantly browse tables, columns, types, primary/foreign keys, and relationships.
+- **Insert & update visually**
+  Add or modify records with a visual editor.
 
-- 🧙 **No-SQL Querying**  
-  Filter, sort, join, and summarize data using a beautiful, intuitive interface.
+- **Connect to PostgreSQL & MySQL**
+  Plug in your credentials - you're ready to explore.
 
-- 🔗 **Follow Relationships Easily**  
-  Click to expand related records.
-
-- ✏️ **Insert & Update Visually**  
-  Add or modify rows with a visual editor - no SQL errors.
-
-- 💾 **Save Queries**  
-  Save your favorite views for quick access later.
-
-## 🛠️ Installation
+## Installation
 
 ### 1. Install Node.js
 
-DataRamen requires Node.js **v22 or above**.  
-👉 [Download Node.js](https://nodejs.org/)
+DataRamen requires Node.js **v22 or above**: [Download Node.js](https://nodejs.org/)
 
 ### 2. Install DataRamen CLI
 
@@ -39,7 +30,7 @@ Open your terminal and run:
 npm i -g @dataramen/cli
 ```
 
-## 🖥️ Usage
+## Usage
 
 ### Start the Local Server
 
@@ -49,7 +40,7 @@ dataramen start
 
 ### Open the App
 
-Go to `localhost:4466` in your browser. Your local server will connect automatically.
+Open your app in the browser. By default, the app runs on `localhost:4466`.
 
 ### Update the App
 
@@ -61,7 +52,7 @@ npm i -g @dataramen/cli
 
 The above command will install latest stable version.
 
-## 🔧 Additional CLI Commands
+## Additional CLI Commands
 
 | Command           | Description                      |
 |-------------------|----------------------------------|
@@ -70,6 +61,7 @@ The above command will install latest stable version.
 | `dataramen open`  | Open local webapp                |
 | `dataramen logs`  | Show logs from the running server|
 
-## ❤️ Made with love by [Oleksandr Demian](https://github.com/OleksandrDemian)
+
+## Other
 
 Visit [dataramen.xyz](https://dataramen.xyz) for more info.
