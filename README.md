@@ -1,22 +1,21 @@
 # DataRamen
 
-Navigate SQL databases and edit records without writing SQL.
-
-DataRamen lets you explore relational data by following foreign keys between tables. Visit [dataramen.xyz](https://dataramen.xyz) for more info.
+A lightweight web GUI for MySQL and PostgreSQL, built for developers who move fast and stay focused. Connect, explore, and inspect your data effortlessly, no boilerplate, no friction. Visit [dataramen.xyz](https://dataramen.xyz) for more info.
 
 ## Why use it?
+
+- **Follow relationships easily**
+  DataRamen allows you to easily navigate between related records and tables.
+
+- **No-SQL querying**
+  Filter, sort, join, and summarize data using intuitive interface.
+
+- **Insert & update visually**
+  Add or modify records with a visual editor.
 
 - **Connect to PostgreSQL & MySQL**
   Plug in your credentials - you're ready to explore.
 
-- **Follow Relationships Easily**
-  DataRamen allows you to easily navigate between related records and tables.
-
-- **No-SQL Querying**
-  Filter, sort, join, and summarize data using intuitive interface.
-
-- **Insert & Update Visually**
-  Add or modify records with a visual editor.
 
 ## Installation
 

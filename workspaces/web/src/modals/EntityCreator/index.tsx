@@ -36,7 +36,7 @@ const getLabel = (col: TDatabaseInspectionColumn) => {
 };
 
 export const Component = ({ data }: { data: TEntityCreatorStore }) => {
-  const [form, { set, touched }] = useForm<Record<string, TQueryExpressionInput>>({});
+  const [form, { set, touched, reset }] = useForm<Record<string, TQueryExpressionInput>>({});
   const workbenchTabId = useWorkbenchTabId();
 
   const { mutateAsync: execute, error, isPending: isInserting } = useInsert();
@@ -82,6 +82,10 @@ export const Component = ({ data }: { data: TEntityCreatorStore }) => {
       }
     });
   };
+
+  useEffect(() => {
+    reset();
+  }, [data]);
 
   return (
     <div className={st.root}>

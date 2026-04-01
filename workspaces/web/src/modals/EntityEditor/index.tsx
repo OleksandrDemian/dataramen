@@ -112,7 +112,7 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
         });
       }
     }
-  }, [queryResult, set, reset, resetCounter]);
+  }, [queryResult, set, reset, resetCounter, data]);
 
   const onRun = () => {
     const values: Record<string, TQueryExpressionInput> = {};
@@ -184,11 +184,12 @@ const Component = ({ data }: { data: TEntityEditorStore }) => {
             ))}
           </select>
 
-          {!disableEdit && touched.length > 0 && (
+          {!disableEdit && (
             <button
               data-tooltip-id="default"
               data-tooltip-content="Reset values"
               className={st.actionIcon}
+              disabled={!touched.length}
               onClick={() => setResetCounter((r) => ++r)}
             >
               <RestoreIcon width={16} height={16} />
