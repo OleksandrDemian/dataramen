@@ -81,6 +81,19 @@ export const runSelect = async (
     }
   });
 
+  // Always include PK columns (hidden) for row identification,
+  // but only when user explicitly selected columns (not groupBy/agg)
+  const hasGroupByOrAgg = (groupBy && groupBy.length > 0) || (props.opts.aggregations && props.opts.aggregations.length > 0);
+  if (columns && columns.length > 0 && !hasGroupByOrAgg) {
+    const selectedSet = new Set(selectedColumns.map(c => c.column));
+    const pkColumns = schemaInfoHandler.getPrimaryKeyColumns();
+    for (const pk of pkColumns) {
+      if (!selectedSet.has(pk.full)) {
+        selectedColumns.push({ column: pk.full, hidden: true });
+      }
+    }
+  }
+
   const historyPromise = saveHistoryEntry(
     req.user.id,
     req.user.currentTeamId,
