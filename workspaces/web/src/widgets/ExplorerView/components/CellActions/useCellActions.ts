@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import {TRunQueryResult} from "../../../../data/types/queryRunner.ts";
 import {genSimpleId} from "../../../../utils/id.ts";
 import {TContextMenuRef} from "../../../ContextualMenu";
+import {showEditValueModal} from "../../../../data/editValueStore.ts";
 
 function getValueAndColumn (result: TRunQueryResult | undefined, row: number, col: number) {
   const value = result?.rows?.[row]?.[col];
@@ -23,7 +24,7 @@ export type TUseCellActionsProps = {
 };
 export const useCellActions = ({ ref }: TUseCellActionsProps) => {
   const { data: result } = useContext(QueryResultContext);
-  const { getColumnType } = useContext(TableContext);
+  const { getColumnType, getEntityKey, dataSourceId } = useContext(TableContext);
   const { setState } = useContext(TableOptionsContext);
 
   const copyValue = (row: number, col: number) => {
@@ -50,6 +51,28 @@ export const useCellActions = ({ ref }: TUseCellActionsProps) => {
       );
       displayValue(sanitized);
       ref.current?.close();
+    }
+  };
+
+  const editValue = (row: number, col: number) => {
+    const { value, column } = getValueAndColumn(result?.result, row, col);
+
+    if (column && column.table) {
+      const entityKey = getEntityKey(column.table, row);
+      const sanitized = sanitizeCellValue(
+        value,
+        getColumnType(column.full),
+      );
+      showEditValueModal({
+        entity: column.table,
+        current: sanitized,
+        entityId: entityKey,
+        prop: column.column,
+        dataSourceId,
+      });
+      ref.current?.close();
+    } else {
+      toast.error("Unable to edit cell");
     }
   };
 
@@ -96,5 +119,6 @@ export const useCellActions = ({ ref }: TUseCellActionsProps) => {
     copyValue,
     showValue,
     filterValue,
+    editValue,
   };
 };

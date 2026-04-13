@@ -37,6 +37,25 @@ export function useCreateTableContext (
       getValueByIndex: (row, col) => {
         return result?.result?.rows[row]?.[col];
       },
+      getEntityKey: (entity, rowIndex) => {
+        const row = result?.result?.rows[rowIndex];
+        const columns = result?.result.columns;
+
+        if (!row || !columns) {
+          throw new Error("Cannot find entity key");
+        }
+
+        const key: Record<string, any> = {};
+
+        for (let i = 0; i < columns.length; i++) {
+          const col = columns[i];
+          if (col.table === entity && col.isPrimary) {
+            key[col.column] = row[i];
+          }
+        }
+
+        return key;
+      },
       getColumnType: (fullColumn: string) => {
         const meta = result?.result.allColumns.find((c) => c.full === fullColumn);
 

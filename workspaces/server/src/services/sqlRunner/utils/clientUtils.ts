@@ -119,6 +119,7 @@ export const computeResultColumns = (
       type: columnSchema?.type,
       fn: selectedColumns[i].fn,
       hidden: selectedColumns[i].hidden,
+      isPrimary: columnSchema?.isPrimary,
       ref,
       referencedBy,
     };

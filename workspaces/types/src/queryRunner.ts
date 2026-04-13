@@ -44,6 +44,7 @@ export type TResultColumn = {
   type?: string;
   fn?: string;
   hidden?: boolean;
+  isPrimary?: boolean;
   ref?: IInspectionColumnRef;
   referencedBy?: IInspectionColumnRef[];
 };

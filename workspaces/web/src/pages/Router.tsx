@@ -16,6 +16,7 @@ import {SharedQuery} from "./SharedQuery";
 import {TabsHistorySidebar} from "../modals/TabsHistorySidebar";
 import {WorkbenchPage} from "./Workbench";
 import {SavedQueriesSidebar} from "../modals/SavedQueries";
+import {EditValueModal} from "../modals/EditValueModal";
 
 function Router() {
   useSetupGlobalListeners();
@@ -32,6 +33,7 @@ function Router() {
       </Routes>
 
       <ValueDisplayModal />
+      <EditValueModal />
       <DataSourceSidebar />
       <SearchTableModal />
       <AccountSettingsModal />

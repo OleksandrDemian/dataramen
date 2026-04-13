@@ -4,6 +4,7 @@ import {useCellActions} from "./useCellActions.ts";
 import SearchIcon from "../../../../assets/search-outline.svg?react";
 import CopyIcon from "../../../../assets/copy-outline.svg?react";
 import EyeIcon from "../../../../assets/eye-outline.svg?react";
+import PencilIcon from "../../../../assets/pencil-outline.svg?react";
 import st from "./index.module.css";
 import {DrillDown} from "../RowOptions/DrillDown.tsx";
 import CaretUpIcon from "../../../../assets/caret-up-outline.svg?react";
@@ -28,6 +29,7 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
   const onCopyValue = () => clickHandler.copyValue(row!, col!);
   const onShowValue = () => clickHandler.showValue(row!, col!);
   const onFilterValue = () => clickHandler.filterValue(row!, col!);
+  const onEditValue = () => clickHandler.editValue(row!, col!);
 
   const onExpand = () => {
     setTab("show-record");
@@ -58,6 +60,10 @@ export const CellActions = ({ ref, row, col, onClosed }: TCellActionsProps) => {
             <button className={st.item} onClick={onFilterValue}>
               <SearchIcon width={14} height={14} />
               Filter
+            </button>
+            <button className={st.item} onClick={onEditValue}>
+              <PencilIcon width={14} height={14} />
+              Edit
             </button>
 
             {(hasRecords || hasDrill) && (

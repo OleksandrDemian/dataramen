@@ -76,7 +76,6 @@ const TableHeaders = ({ visibleCols }: { visibleCols: number[] }) => {
   };
 
   const cols = visibleCols.map((col) => columns[col]);
-  console.log({ visibleCols, cols, columns })
 
   return (
     <thead>
