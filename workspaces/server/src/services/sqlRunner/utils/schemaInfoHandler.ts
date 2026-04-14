@@ -90,6 +90,15 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
     hasColumn(column: string): boolean {
       return !!columnTypes[column] || column === "*";
     },
+    getPrimaryKeyColumns(): { table: string; column: string; full: string }[] {
+      return info
+        .filter(col => col.isPrimary)
+        .map(col => ({
+          table: col.table.name,
+          column: col.name,
+          full: `${col.table.name}.${col.name}`,
+        }));
+    },
     getAvailableJoins: getAvailableJoins,
     getColumnByName: getColumnByName,
   };

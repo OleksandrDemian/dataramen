@@ -56,7 +56,7 @@ const updateFilters = (filters: TQueryFilter[], { column, value, fn, mode }: TNe
   return newFilters;
 };
 
-const TableHeaders = () => {
+const TableHeaders = ({ visibleCols }: { visibleCols: number[] }) => {
   const { data } = useContext(QueryResultContext);
   const { orderBy: orderByList, updateOrderBy } = useOrderByStatements();
   const { setFilters, filters } = useWhereStatements();
@@ -75,11 +75,13 @@ const TableHeaders = () => {
     });
   };
 
+  const cols = visibleCols.map((col) => columns[col]);
+
   return (
     <thead>
       <tr>
         <td>🥢</td>
-        {columns.map(column => (
+        {cols.map(column => (
           <td className={st.headerCell} key={column.full}>
             <div className="overflow-hidden">
               {showTableName && <p className="text-xs truncate italic text-(--text-color-primary)">{column.table || '-'}</p>}
@@ -150,13 +152,17 @@ const TableRow = memo(({
   index,
   offset,
   colMeta,
+  visibleCols,
 }: {
   row: TDbValue[];
   isLastRow: boolean;
   index: number;
   offset: number;
   colMeta: Map<number, TCellActions>;
+  visibleCols: number[];
 }) => {
+  const cells: Array<[TDbValue, number]> = visibleCols.map((col) => [row[col], col]);
+
   return (
     <tr className={clsx(st.tableRowCells, isLastRow && "rounded-b-lg")}>
       <td data-row={index}>
@@ -166,7 +172,7 @@ const TableRow = memo(({
         </button>
       </td>
 
-      {row.map((value, i) => (
+      {cells.map(([value, i]) => (
         <td className={st.cell} key={i} data-row={index} data-col={i}>
           <CellValue value={value} actions={colMeta.get(i)} />
         </td>
@@ -277,6 +283,21 @@ export const QueryExplorer = () => {
     return temp;
   }, [result]);
 
+  const cols = useMemo(() => {
+    const columns: number[] = [];
+    const headers = result?.result.columns;
+
+    if (headers) {
+      for (let i = 0; i < headers.length; i++) {
+        if (headers[i].hidden !== true) {
+          columns.push(i);
+        }
+      }
+    }
+
+    return columns;
+  }, [result]);
+
   return (
     <>
       {coordinates && cellDrillDownHandler.show && (
@@ -310,7 +331,7 @@ export const QueryExplorer = () => {
           onClick={onRowActionClick}
           onContextMenu={onCellContext}
         >
-          <TableHeaders />
+          <TableHeaders visibleCols={cols} />
 
           <tbody>
             {result.result.rows?.length < 1 && (
@@ -327,6 +348,7 @@ export const QueryExplorer = () => {
                 offset={offset}
                 row={row}
                 colMeta={colMeta}
+                visibleCols={cols}
                 isLastRow={i === result.result.rows.length - 1}
               />
             ))}

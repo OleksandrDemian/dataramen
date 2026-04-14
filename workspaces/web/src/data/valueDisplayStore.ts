@@ -6,3 +6,7 @@ export const [useValueDisplay, updateValueDisplay] = createStore<TDbValue>(undef
 export const displayValue = (value: TDbValue) => {
   updateValueDisplay(value);
 };
+
+export const closeDisplayValue = () => {
+  updateValueDisplay(undefined);
+};

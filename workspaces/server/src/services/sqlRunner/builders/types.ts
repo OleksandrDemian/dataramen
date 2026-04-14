@@ -11,6 +11,7 @@ export interface ISelectColumn {
   column: string;
   fn?: string;
   distinct?: boolean;
+  hidden?: boolean;
 }
 
 export interface ISelectQueryBuilder {

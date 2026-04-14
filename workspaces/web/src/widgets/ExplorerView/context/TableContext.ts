@@ -23,6 +23,7 @@ export type TTableContext = {
   getValue: TTableContextGetValue;
   getColumnByIndex: (index: number) => TResultColumn | undefined;
   getValueByIndex: (row: number, col: number) => any;
+  getEntityKey: (entity: string, rowIndex: number) => any;
   getColumnType: (fullColumn: string) => string | undefined;
 };
 
@@ -36,6 +37,7 @@ export const TableContext = createContext<TTableContext>({
   getValue: () => undefined,
   getValueByIndex: () => undefined,
   getColumnByIndex: () => undefined,
+  getEntityKey: () => undefined,
   getColumnType: () => undefined,
 });
 
