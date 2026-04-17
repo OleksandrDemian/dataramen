@@ -88,7 +88,7 @@ export function createTableOptions (options: Partial<TWorkbenchOptions>): TWorkb
     filters: options?.filters || [],
     joins: options?.joins ?? [],
     orderBy: options?.orderBy ?? [],
-    columns: options?.columns ?? [],
+    hiddenColumns: options?.hiddenColumns ?? [],
     groupBy: options?.groupBy ?? [],
     aggregations: options?.aggregations ?? [],
   };

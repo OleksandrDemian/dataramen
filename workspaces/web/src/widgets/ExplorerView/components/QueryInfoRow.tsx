@@ -13,13 +13,12 @@ function calculateIsEnabled (current?: boolean) {
 }
 
 export const QueryInfoRow = () => {
-  const { state: { aggregations, columns, groupBy } } = useContext(TableOptionsContext);
+  const { state: { aggregations, groupBy } } = useContext(TableOptionsContext);
   const { toggle, joins } = useJoinStatements();
   const { filters, setFilters, removeFilter } = useWhereStatements();
 
   const onJoinClick = () => showExplorerModal("joins");
   const onAggregateClick = () => showExplorerModal("aggregate");
-  const onColumnsClick = () => showExplorerModal("columns");
   const onGroupByClick = () => showExplorerModal("groupBy");
 
   const onRemoveJoin: MouseEventHandler = (e) => {
@@ -43,7 +42,7 @@ export const QueryInfoRow = () => {
     removeFilter(filterId);
   };
 
-  if (filters.length > 0 || joins.length > 0 || groupBy.length > 0 || columns.length > 0 || aggregations.length > 0) {
+  if (filters.length > 0 || joins.length > 0 || groupBy.length > 0 || aggregations.length > 0) {
     return (
       <div className={st.container}>
         {joins.map((j, i) => (
@@ -89,17 +88,6 @@ export const QueryInfoRow = () => {
           </button>
         ))}
 
-        {columns.length > 0 && (
-          <button
-            onClick={onColumnsClick}
-            className={clsx(st.redPill)}
-            data-tooltip-id="default"
-            data-tooltip-content="Has hidden columns"
-          >
-            <p className="text-sm">Hidden columns</p>
-          </button>
-        )}
-
         {groupBy.length > 0 && (
           <button
             onClick={onGroupByClick}
@@ -114,7 +102,11 @@ export const QueryInfoRow = () => {
     );
   }
 
-  return null;
+  return (
+    <div className={clsx(st.container, "bg-(--bg-sec)! justify-center!")}>
+      <p className="text-gray-500 text-sm">Empty</p>
+    </div>
+  );
 };
 
 // function SearchAll () {

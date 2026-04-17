@@ -22,3 +22,16 @@
     @apply opacity-40;
   }
 }
+
+.group-by-label {
+  @apply flex gap-1 ml-6 hover:bg-gray-100 cursor-pointer items-center p-0.5 rounded-lg;
+
+  span {
+    max-width: 400px;
+    @apply truncate text-sm;
+  }
+
+  &.active {
+    @apply opacity-40;
+  }
+}

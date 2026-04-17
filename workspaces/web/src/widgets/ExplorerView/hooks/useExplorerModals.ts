@@ -1,10 +1,10 @@
 import {createStore} from "@odemian/react-store";
 
-type TModals = "filters" | "joins" | "columns" | "groupBy" | "aggregate";
+type TModals = "filters" | "joins" | "hiddenColumns" | "groupBy" | "aggregate";
 export const [useExplorerModals, setExplorerModals] = createStore<{ [key in TModals]: boolean }>({
   filters: false,
   joins: false,
-  columns: false,
+  hiddenColumns: false,
   groupBy: false,
   aggregate: false,
 });

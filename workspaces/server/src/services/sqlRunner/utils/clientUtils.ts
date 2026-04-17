@@ -74,15 +74,13 @@ const convertInputColumnToColumn = (column: TInputColumn): ISelectColumn => {
   };
 };
 
-export const computeColumns = (cols: TInputColumn[], groupBy: TInputColumn[], agg: TInputColumn[]): ISelectColumn[] => {
+export const computeColumns = (groupBy: TInputColumn[], agg: TInputColumn[]): ISelectColumn[] => {
   const result: ISelectColumn[] = [];
   if (groupBy.length > 0 || agg.length > 0) {
     result.push(
       ...groupBy.map(convertInputColumnToColumn),
       ...agg.map(convertInputColumnToColumn),
     );
-  } else if (cols.length > 0) {
-    result.push(...cols.map(convertInputColumnToColumn));
   }
 
   return result;

@@ -124,13 +124,13 @@ export const useRunWorkbenchTab = (workbenchTabId: string, props: TWorkbenchOpti
     joins,
     orderBy,
     groupBy,
-    columns,
+    hiddenColumns,
     aggregations,
     page = 0,
     size = 20
   } = props;
   return useQuery<TRunWorkbenchQuery>({
-    queryKey: ["workbench-tab-runner", workbenchTabId, dataSourceId, table, page, size, filters, aggregations, joins, orderBy, groupBy, columns, searchAll],
+    queryKey: ["workbench-tab-runner", workbenchTabId, dataSourceId, table, page, size, filters, aggregations, joins, orderBy, groupBy, hiddenColumns, searchAll],
     queryFn: async () => {
       const { data } = await apiClient.post<{ data: TRunWorkbenchQuery }>(`/workbench-tabs/${workbenchTabId}/run`, props);
       return data.data;
