@@ -1,6 +1,6 @@
 import {TInputColumn, TRunSqlResult} from "@dataramen/types";
 import {ALLOW_DATE_FUNCTIONS} from "@dataramen/common";
-import {useContext, useEffect, useMemo, useState} from "react";
+import {useContext, useEffect, useMemo, useRef, useState} from "react";
 import clsx from "clsx";
 import {TableContext, TableOptionsContext} from "../../context/TableContext.ts";
 import {Modal, ModalClose} from "../../../Modal";
@@ -21,6 +21,7 @@ type TColumn = {
   value: string;
   type: string;
   nested?: boolean;
+  colIndex?: number;
 };
 type TTables = {
   name: string;
@@ -71,6 +72,7 @@ function parseColumns(availableColumns: TRunSqlResult["allColumns"]) {
 
 function filterColumns(tables: TTables, filter: string): TTables {
   const lowerFilter = filter.toLowerCase();
+  let colIndex = 0;
 
   return tables
     .map(table => {
@@ -78,20 +80,42 @@ function filterColumns(tables: TTables, filter: string): TTables {
         col => col.columnName.toLowerCase().includes(lowerFilter)
       );
 
-      return {...table, columns: filteredColumns};
+      return {
+        ...table,
+        columns: filteredColumns.map(col => ({...col, colIndex: colIndex++})),
+      };
     })
     .filter(table => table.columns.length > 0); // Remove tables with no matching columns
 }
 
-const HiddenColumnEntry = ({column, selected, onToggle}: {
+function scrollToHighlighted(id: number) {
+  const el = document.querySelector(`[data-col-idx="${id}"]`);
+  el?.scrollIntoView({ block: "nearest" });
+}
+
+function findFilteredColumnIndex(tables: TTables, index: number): TColumn | undefined {
+  for (const table of tables) {
+    for (const column of table.columns) {
+      if (column.colIndex === index) {
+        return column;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+const HiddenColumnEntry = ({column, selected, highlighted, onToggle}: {
   column: TColumn;
   selected: boolean;
+  highlighted?: boolean;
   onToggle: (name: string, value: boolean) => void;
 }) => {
   return (
     <div
       key={column.value}
-      className={clsx(st.columnLabel, selected ? st.notActive : st.active, column.nested && "pl-5!")}
+      data-col-idx={column.colIndex}
+      className={clsx(st.groupByLabel, selected ? st.notActive : st.active, highlighted && st.highlighted)}
       onClick={() => onToggle(column.value, !selected)}
     >
       {selected ? <EyeOffIcon width={16} height={16}/> : <EyeIcon width={16} height={16}/>}
@@ -104,15 +128,17 @@ const HiddenColumnEntry = ({column, selected, onToggle}: {
   );
 };
 
-const GroupByEntry = ({column, selected, onToggle}: {
+const GroupByEntry = ({column, selected, highlighted, onToggle}: {
   column: TColumn;
   selected: boolean;
+  highlighted?: boolean;
   onToggle: (name: string, value: boolean) => void;
 }) => {
   return (
     <div
       key={column.value}
-      className={clsx(st.groupByLabel, selected ? st.notActive : st.active, column.nested && "pl-5!")}
+      data-col-idx={column.colIndex}
+      className={clsx(st.groupByLabel, selected ? st.notActive : st.active, highlighted && st.highlighted)}
       onClick={() => onToggle(column.value, !selected)}
     >
       {selected ? <EyeIcon width={16} height={16}/> : <EyeOffIcon width={16} height={16}/>}
@@ -139,33 +165,29 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
   const {state, setState} = useContext(TableOptionsContext);
   const [selectedColumns, setSelectedColumns] = useState<Record<string, boolean>>({});
   const [filter, setFilter] = useState<string>("");
+  const [highlightIndex, setHighlightIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
   const parsedColumns = useMemo<TTables>(() => parseColumns(allColumns), [allColumns]);
   const ignoreColumns = state.aggregations.length > 0 || state.groupBy.length > 0;
 
-  const filtered = useMemo(() => {
-    if (!filter) {
-      return parsedColumns;
-    }
-
-    return filterColumns(parsedColumns, filter);
+  const { filtered, size } = useMemo(() => {
+    const res = filterColumns(parsedColumns, filter);
+    return {
+      filtered: res,
+      size: res.reduce((acc, table) => acc + table.columns.length, 0),
+    };
   }, [filter, parsedColumns]);
 
   const onToggle = (name: string, value: boolean) => {
     setSelectedColumns((col) => ({
       ...col,
       [name]: value,
-    }))
+    }));
+    inputRef.current?.focus();
   };
 
-  const onAllToggle = () => {
-    const value = !allSelected;
-    setSelectedColumns((columns) => {
-      for (const col of allColumns) {
-        columns[col.full] = value;
-      }
-
-      return {...columns};
-    });
+  const onRemoveSelection = () => {
+    setSelectedColumns({});
   };
 
   const onCancel = () => {
@@ -193,15 +215,7 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
     onCancel();
   };
 
-  const allSelected = useMemo(() => {
-    for (const column of allColumns) {
-      if (selectedColumns[column.full] === true) {
-        return false;
-      }
-    }
-
-    return true;
-  }, [selectedColumns, allColumns])
+  const hasSelectedSomething = Object.values(selectedColumns).some(v => v);
 
   useHotkeys(HotKey[mode], () => {
     if (mode === "hiddenColumns") {
@@ -214,6 +228,31 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
       toggleExplorerModal("groupBy");
     }
   });
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") {
+      const index = Math.min(highlightIndex + 1, size - 1);
+      e.preventDefault();
+      setHighlightIndex(index);
+      scrollToHighlighted(index);
+    } else if (e.key === "ArrowUp") {
+      const index = Math.max(highlightIndex - 1, -1);
+      e.preventDefault();
+      setHighlightIndex(index);
+      scrollToHighlighted(index);
+    } else if (e.key === " ") {
+      if (highlightIndex >= 0 && highlightIndex < size) {
+        e.preventDefault();
+        const col = findFilteredColumnIndex(filtered, highlightIndex);
+        if (col) {
+          onToggle(col.value, !selectedColumns[col.value]);
+        }
+      }
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      apply();
+    }
+  };
 
   // init hidden columns after each open
   useEffect(() => {
@@ -235,6 +274,7 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
   const onClosed = () => {
     setFilter("");
     setSelectedColumns({});
+    setHighlightIndex(-1);
   };
 
   return (
@@ -246,11 +286,16 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
         </h2>
 
         <input
+          ref={inputRef}
           autoFocus
           className="input my-2"
           placeholder="Filter"
           value={filter}
-          onChange={(e) => setFilter(e.target.value)}
+          onChange={(e) => {
+            setHighlightIndex(-1);
+            setFilter(e.target.value);
+          }}
+          onKeyDown={onKeyDown}
         />
 
         <div className="overflow-y-auto">
@@ -263,6 +308,7 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
                   key={column.value}
                   column={column}
                   selected={selectedColumns[column.value] === true}
+                  highlighted={highlightIndex === column.colIndex}
                   onToggle={onToggle}
                 />
               ))}
@@ -272,6 +318,7 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
                   key={column.value}
                   column={column}
                   selected={selectedColumns[column.value] === true}
+                  highlighted={highlightIndex === column.colIndex}
                   onToggle={onToggle}
                 />
               ))}
@@ -280,10 +327,12 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
         </div>
 
         <div className="flex justify-end gap-2 mt-2">
-          <button className="button tertiary flex gap-2 items-center" onClick={onAllToggle}>
-            {allSelected ? <EyeIcon width={16} height={16}/> : <EyeOffIcon width={16} height={16}/>}
-            <span>{allSelected ? 'Hide all' : 'Show all'}</span>
-          </button>
+          {hasSelectedSomething && (
+            <button className="button tertiary flex gap-2 items-center" onClick={onRemoveSelection}>
+              <span>Remove all</span>
+            </button>
+          )}
+
           <span className="flex-1"/>
           <button className="button tertiary" onClick={onCancel}>Cancel</button>
           <button className="button primary" onClick={apply}>Apply</button>

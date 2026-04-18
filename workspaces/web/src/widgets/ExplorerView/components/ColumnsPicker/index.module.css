@@ -11,7 +11,7 @@
 
 
 .column-label {
-  @apply flex gap-1 ml-6 hover:bg-gray-100 cursor-pointer items-center p-0.5 rounded-lg;
+  @apply flex gap-1 hover:bg-gray-100 cursor-pointer items-center p-0.5 px-2 rounded-lg;
 
   span {
     max-width: 400px;
@@ -19,12 +19,14 @@
   }
 
   &.not-active {
-    @apply opacity-40;
+    span, svg {
+      @apply opacity-40;
+    }
   }
 }
 
 .group-by-label {
-  @apply flex gap-1 ml-6 hover:bg-gray-100 cursor-pointer items-center p-0.5 rounded-lg;
+  @apply flex gap-1 hover:bg-gray-100 cursor-pointer items-center p-0.5 px-2 rounded-lg;
 
   span {
     max-width: 400px;
@@ -32,6 +34,12 @@
   }
 
   &.active {
-    @apply opacity-40;
+    span, svg {
+      @apply opacity-40;
+    }
   }
+}
+
+.highlighted {
+  @apply ring-2 ring-inset ring-blue-500;
 }
