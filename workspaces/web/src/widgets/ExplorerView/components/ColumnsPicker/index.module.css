@@ -18,7 +18,7 @@
     @apply truncate text-sm;
   }
 
-  &.not-active {
+  &.hidden {
     span, svg {
       @apply opacity-40;
     }
@@ -33,7 +33,7 @@
     @apply truncate text-sm;
   }
 
-  &.active {
+  &.not-selected {
     span, svg {
       @apply opacity-40;
     }

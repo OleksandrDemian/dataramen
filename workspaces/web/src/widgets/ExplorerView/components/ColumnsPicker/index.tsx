@@ -105,9 +105,9 @@ function findFilteredColumnIndex(tables: TTables, index: number): TColumn | unde
   return undefined;
 }
 
-const HiddenColumnEntry = ({column, selected, highlighted, onToggle}: {
+const HiddenColumnEntry = ({column, hidden, highlighted, onToggle}: {
   column: TColumn;
-  selected: boolean;
+  hidden: boolean;
   highlighted?: boolean;
   onToggle: (name: string, value: boolean) => void;
 }) => {
@@ -115,10 +115,10 @@ const HiddenColumnEntry = ({column, selected, highlighted, onToggle}: {
     <div
       key={column.value}
       data-col-idx={column.colIndex}
-      className={clsx(st.groupByLabel, selected ? st.notActive : st.active, highlighted && st.highlighted)}
-      onClick={() => onToggle(column.value, !selected)}
+      className={clsx(st.columnLabel, hidden === true && st.hidden, highlighted && st.highlighted)}
+      onClick={() => onToggle(column.value, !hidden)}
     >
-      {selected ? <EyeOffIcon width={16} height={16}/> : <EyeIcon width={16} height={16}/>}
+      {hidden ? <EyeOffIcon width={16} height={16}/> : <EyeIcon width={16} height={16}/>}
 
       <p className="flex justify-between w-full">
         <span data-tooltip-content={column.value} data-tooltip-id="default">{column.columnName}</span>
@@ -138,7 +138,7 @@ const GroupByEntry = ({column, selected, highlighted, onToggle}: {
     <div
       key={column.value}
       data-col-idx={column.colIndex}
-      className={clsx(st.groupByLabel, selected ? st.notActive : st.active, highlighted && st.highlighted)}
+      className={clsx(st.groupByLabel, selected === false && st.notSelected, highlighted && st.highlighted)}
       onClick={() => onToggle(column.value, !selected)}
     >
       {selected ? <EyeIcon width={16} height={16}/> : <EyeOffIcon width={16} height={16}/>}
@@ -307,7 +307,7 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
                 <HiddenColumnEntry
                   key={column.value}
                   column={column}
-                  selected={selectedColumns[column.value] === true}
+                  hidden={selectedColumns[column.value] === true}
                   highlighted={highlightIndex === column.colIndex}
                   onToggle={onToggle}
                 />
