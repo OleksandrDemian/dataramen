@@ -28,10 +28,10 @@ export const QueryInfoRow = () => {
     toggle(joins[joins.length - 1]);
   };
 
-  const onTriggerFilterEnabled = (filterId: string) => {
+  const onTriggerFilterEnabled = (filterId: string, only: boolean = false) => {
     setFilters(filters.map((f) => ({
       ...f,
-      isEnabled: filterId === f.id ? calculateIsEnabled(f.isEnabled) : f.isEnabled,
+      isEnabled: filterId === f.id ? only ? true : calculateIsEnabled(f.isEnabled) : only ? false : f.isEnabled,
     })), true);
   };
 
@@ -64,6 +64,7 @@ export const QueryInfoRow = () => {
           <button
             key={f.id}
             onClick={() => onTriggerFilterEnabled(f.id)}
+            onDoubleClick={() => onTriggerFilterEnabled(f.id, true)}
             onAuxClick={() => removeFilter(f.id)}
             /* explicitly check f.isEnabled === false, because undefined = TRUE */
             className={clsx(st.bluePill, f.isEnabled === false && st.disabledPill)}
@@ -104,7 +105,7 @@ export const QueryInfoRow = () => {
 
   return (
     <div className={clsx(st.container, "bg-(--bg-sec)! justify-center!")}>
-      <p className="text-gray-500 text-sm">Empty</p>
+      <p className="text-gray-500 text-sm italic">This query has no statements</p>
     </div>
   );
 };

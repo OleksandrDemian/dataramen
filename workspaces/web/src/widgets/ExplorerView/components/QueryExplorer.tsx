@@ -15,11 +15,11 @@ import {useOrderByStatements} from "../hooks/useOrderByStatements.ts";
 import {CellDrillDown} from "./RowOptions";
 import {gt} from "../../../utils/numbers.ts";
 import {queryExpressionPrompt} from "../../../data/promptModalStore.ts";
-import {useWhereStatements} from "../hooks/useWhereStatements.ts";
 import {genSimpleId} from "../../../utils/id.ts";
 import ArrowUpIcon from "../../../assets/arrow-up-outline.svg?react";
 import SwapIcon from "../../../assets/swap-vertical-outline.svg?react";
 import SearchIcon from "../../../assets/search-outline.svg?react";
+import EyeOffIcon from "../../../assets/eye-off-outline.svg?react";
 import {TContextMenuRef} from "../../ContextualMenu";
 import {CellActions} from "./CellActions";
 import CaretUpIcon from "../../../assets/caret-up-outline.svg?react";
@@ -58,8 +58,8 @@ const updateFilters = (filters: TQueryFilter[], { column, value, fn, mode }: TNe
 
 const TableHeaders = ({ visibleCols }: { visibleCols: number[] }) => {
   const { data } = useContext(QueryResultContext);
+  const { setState } = useContext(TableOptionsContext);
   const { orderBy: orderByList, updateOrderBy } = useOrderByStatements();
-  const { setFilters, filters } = useWhereStatements();
 
   const columns = data?.result.columns || [];
   const orderBy = orderByList[0];
@@ -71,8 +71,19 @@ const TableHeaders = ({ visibleCols }: { visibleCols: number[] }) => {
         return;
       }
 
-      setFilters(updateFilters(filters, { column, value: exp.value, fn, mode: exp.mode }));
+      setState((state) => ({
+        ...state,
+        page: 0,
+        filters: updateFilters(state.filters, { column, value: exp.value, fn, mode: exp.mode }),
+      }));
     });
+  };
+
+  const onHide = (column: string) => {
+    setState((state) => ({
+      ...state,
+      hiddenColumns: [...state.hiddenColumns, { value: column }]
+    }));
   };
 
   const cols = visibleCols.map((col) => columns[col]);
@@ -100,6 +111,11 @@ const TableHeaders = ({ visibleCols }: { visibleCols: number[] }) => {
               <button onClick={() => onFilter(column.full, column.fn)}>
                 <SearchIcon width={16} height={16} />
               </button>
+              {column.table && (
+                <button onClick={() => onHide(column.full)}>
+                  <EyeOffIcon width={16} height={16} />
+                </button>
+              )}
             </div>
           </td>
         ))}

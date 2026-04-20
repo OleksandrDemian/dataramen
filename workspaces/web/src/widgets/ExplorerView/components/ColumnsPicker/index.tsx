@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import {useHotkeys} from "react-hotkeys-hook";
 import EyeIcon from "../../../../assets/eye-outline.svg?react";
 import EyeOffIcon from "../../../../assets/eye-off-outline.svg?react";
-import { reduceStringArrayToBooleanObject } from "../../../../utils/reducers.ts";
+import {reduceStringArrayToBooleanObject} from "../../../../utils/reducers.ts";
 
 type TColumn = {
   columnName: string;
@@ -190,6 +190,13 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
     setSelectedColumns({});
   };
 
+  const onSelectAll = () => {
+    setSelectedColumns(allColumns.reduce((acc, col) => {
+      acc[col.full] = true;
+      return acc;
+    }, {} as Record<string, boolean>));
+  };
+
   const onCancel = () => {
     hideExplorerModal(mode);
   };
@@ -259,13 +266,13 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
     if (showModal) {
       setSelectedColumns(
         () => reduceStringArrayToBooleanObject(
-          state[mode].map((c) => {
+          state[mode]?.map((c) => {
             if (c.fn) {
               return c.fn + " " + c.value;
             }
 
             return c.value;
-          }),
+          }) || [],
         ),
       );
     }
@@ -327,15 +334,21 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
         </div>
 
         <div className="flex justify-end gap-2 mt-2">
+          {mode === "hiddenColumns" && (
+            <button className="button text-sm tertiary flex gap-2 items-center" onClick={onSelectAll}>
+              <span>Hide all</span>
+            </button>
+          )}
+
           {hasSelectedSomething && (
-            <button className="button tertiary flex gap-2 items-center" onClick={onRemoveSelection}>
-              <span>Remove all</span>
+            <button className="button text-sm tertiary flex gap-2 items-center" onClick={onRemoveSelection}>
+              <span>{mode === "hiddenColumns" ? "Show all" : "Remove all"}</span>
             </button>
           )}
 
           <span className="flex-1"/>
-          <button className="button tertiary" onClick={onCancel}>Cancel</button>
-          <button className="button primary" onClick={apply}>Apply</button>
+          <button className="button text-sm tertiary" onClick={onCancel}>Cancel</button>
+          <button className="button text-sm primary" onClick={apply}>Apply</button>
         </div>
       </div>
     </Modal>
