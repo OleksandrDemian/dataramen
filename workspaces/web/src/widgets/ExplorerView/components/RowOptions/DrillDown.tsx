@@ -10,6 +10,7 @@ import {gt} from "../../../../utils/numbers.ts";
 import {IHook} from "@dataramen/types";
 import {SearchInput} from "../../../SearchInput";
 import {HookButton} from "../../../HookButton";
+import { DEFAULT_AUTOFOCUS } from "../../../../utils/autofocus.ts";
 
 function createRelatedDataTabData (hook: IHook, dataSourceId: string, row: number, getValue: TTableContextGetValue) {
   if (hook.direction === "out") {
@@ -102,7 +103,7 @@ export const DrillDown = ({ rowIndex, colIndex, onClose, className }: TDrillDown
   return (
     <div className={className}>
       <SearchInput
-        autoFocus
+        autoFocus={DEFAULT_AUTOFOCUS}
         className={st.filterInput}
         placeholder="Filter"
         value={filter}

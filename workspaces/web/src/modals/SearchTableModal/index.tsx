@@ -1,6 +1,7 @@
 import {Modal} from "../../widgets/Modal";
 import {SearchQuery} from "../../widgets/SearchTable";
 import {useSearchTableModal} from "../../data/tableSearchModalStore.ts";
+import { DEFAULT_AUTOFOCUS } from "../../utils/autofocus.ts";
 
 export const SearchTableModal = () => {
   const data = useSearchTableModal();
@@ -23,7 +24,7 @@ export const SearchTableModal = () => {
 
   return (
     <Modal isVisible={!!data} onClose={onClose} backdropClose>
-      <SearchQuery autoFocus onTable={onTable} onQuery={onQuery} onWorkbenchTab={onWorkbenchTab} />
+      <SearchQuery autoFocus={DEFAULT_AUTOFOCUS} onTable={onTable} onQuery={onQuery} onWorkbenchTab={onWorkbenchTab} />
     </Modal>
   );
 };

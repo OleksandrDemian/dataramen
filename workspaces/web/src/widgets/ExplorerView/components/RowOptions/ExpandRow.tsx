@@ -7,6 +7,7 @@ import {SearchInput} from "../../../SearchInput";
 import { IHook } from "@dataramen/types";
 import {HookButton} from "../../../HookButton";
 import toast from "react-hot-toast";
+import { DEFAULT_AUTOFOCUS } from "../../../../utils/autofocus.ts";
 
 export type TExpandRowProps = {
   onClose?: VoidFunction;
@@ -48,7 +49,7 @@ export const ExpandRow = ({ onClose, rowIndex, className }: TExpandRowProps) => 
   return (
     <div className={className}>
       <SearchInput
-        autoFocus
+        autoFocus={DEFAULT_AUTOFOCUS}
         className={st.filterInput}
         placeholder="Filter"
         value={filter}

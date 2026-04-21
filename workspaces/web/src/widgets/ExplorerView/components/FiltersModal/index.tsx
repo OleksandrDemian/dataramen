@@ -13,6 +13,7 @@ import {useHotkeys} from "react-hotkeys-hook";
 import toast from "react-hot-toast";
 import {QueryExpressionInput, TQueryExpressionValue} from "../../../QueryExpressionInput";
 import {RawMode} from "../../../QueryExpressionInput/const.ts";
+import { DEFAULT_AUTOFOCUS } from "../../../../utils/autofocus.ts";
 
 const FilterEntry = ({
   filter,
@@ -214,7 +215,7 @@ export const FiltersModal = () => {
             onRemoveFilter={handleRemoveFilter}
             triggerIsEnabled={triggerIsEnabled}
             onSubmit={handleApplyFilters}
-            autoFocus={i === filters.length - 1}
+            autoFocus={DEFAULT_AUTOFOCUS && i === filters.length - 1}
           />
         ))}
       </div>

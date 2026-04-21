@@ -29,6 +29,7 @@ import TrashIcon from "../../assets/trash-bin-outline.svg?react"
 import {copyText} from "../../utils/copyText.ts";
 import {Spinner} from "../../widgets/Spinner";
 import {useRefetchInspectionGuard} from "./useRefetchInspectionGuard.ts";
+import { DEFAULT_AUTOFOCUS } from "../../utils/autofocus.ts";
 
 const formatter = new Intl.DateTimeFormat("en", {
   dateStyle: "full",
@@ -72,6 +73,12 @@ const InspectionList = ({ insp, filter, expanded }: { insp: TDatabaseInspection;
   );
 };
 
+function parseFilter (filter: string): { isColumn: boolean; lowerFilter: string } {
+  const isColumn = filter.startsWith("#");
+  const value = isColumn ? filter.slice(1) : filter;
+  return { isColumn, lowerFilter: value.toLowerCase() };
+}
+
 function Component ({ id }: { id: string }) {
   const { data: dataSource } = useDataSource(id);
   const { data: tables } = useDatabaseInspections(id);
@@ -93,10 +100,10 @@ function Component ({ id }: { id: string }) {
   // Create a state variable for each table's dropdown visibility
   const [dropdownVisibility, setDropdownVisibility] = useState<Record<string, boolean>>({});
   const [filter, setFilter] = useState<string>("");
-  const [searchType, setSearchType] = useState<"column" | "table">("table");
   const isEditor = useRequireRole(EUserTeamRole.EDITOR);
 
-  const lowerFilter = filter.toLowerCase();
+  const { isColumn, lowerFilter } = parseFilter(filter);
+
   const filtered = useMemo<TDatabaseInspection[]>(() => {
     if (!lowerFilter || !tables) {
       return tables || [];
@@ -110,7 +117,7 @@ function Component ({ id }: { id: string }) {
         continue;
       }
 
-      if (searchType === "table") {
+      if (!isColumn) {
         continue;
       }
 
@@ -120,7 +127,7 @@ function Component ({ id }: { id: string }) {
     }
 
     return show;
-  }, [lowerFilter, tables, searchType]);
+  }, [lowerFilter, tables, isColumn]);
 
   const toggleDropdown = (id: string) => {
     setDropdownVisibility(prevState => ({
@@ -167,7 +174,6 @@ function Component ({ id }: { id: string }) {
   };
 
   useRefetchInspectionGuard(dataSource);
-  const isColumn = searchType === "column";
   const isInspecting = dataSource?.status === "INSPECTING";
 
   return (
@@ -202,20 +208,12 @@ function Component ({ id }: { id: string }) {
         </div>
 
         <div className="flex gap-2 items-center mt-2">
-          <select
-            className="input text-sm"
-            value={searchType}
-            onChange={(e) => setSearchType(e.currentTarget.value as any)}
-          >
-            <option value="table">Table</option>
-            <option value="column">Column</option>
-          </select>
           <input
             className="input flex-1 bg-gray-50 text-sm"
-            placeholder={isColumn ? "Search column" : "Search table"}
+            placeholder={"Search table, start with # to search column"}
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
-            autoFocus
+            autoFocus={DEFAULT_AUTOFOCUS}
           />
         </div>
       </div>

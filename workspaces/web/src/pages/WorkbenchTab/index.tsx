@@ -13,7 +13,7 @@ import {
   useWorkbenchTabs
 } from "../../data/queries/workbenchTabs.ts";
 import {PAGES} from "../../const/pages.ts";
-import {tryScrollIntoTab} from "../../utils/scrollIntoTab.ts";
+import {tryScrollIntoTab} from "../../utils/scrollIntoElement.ts";
 import {TArchiveTabsParams, TGetWorkbenchTabsEntry} from "@dataramen/types";
 import {ContextualMenu, TContextMenuRef} from "../../widgets/ContextualMenu";
 import {gt} from "../../utils/numbers.ts";

@@ -1,5 +1,4 @@
 import {TInputColumn, TRunSqlResult} from "@dataramen/types";
-import {ALLOW_DATE_FUNCTIONS} from "@dataramen/common";
 import {useContext, useEffect, useMemo, useRef, useState} from "react";
 import clsx from "clsx";
 import {TableContext, TableOptionsContext} from "../../context/TableContext.ts";
@@ -14,7 +13,10 @@ import toast from "react-hot-toast";
 import {useHotkeys} from "react-hotkeys-hook";
 import EyeIcon from "../../../../assets/eye-outline.svg?react";
 import EyeOffIcon from "../../../../assets/eye-off-outline.svg?react";
+import OpenIcon from "../../../../assets/open-outline.svg?react";
 import {reduceStringArrayToBooleanObject} from "../../../../utils/reducers.ts";
+import { DEFAULT_AUTOFOCUS } from "../../../../utils/autofocus.ts";
+import { tryScrollIntoColumn } from "../../../../utils/scrollIntoElement.ts";
 
 type TColumn = {
   columnName: string;
@@ -47,17 +49,6 @@ function parseColumns(availableColumns: TRunSqlResult["allColumns"]) {
         columnName: col.column,
         type: col.type,
       }];
-    }
-
-    if (ALLOW_DATE_FUNCTIONS[col.type]) {
-      ["YEAR", "MONTH", "DAY"].forEach((fn) => {
-        groups[col.table].push({
-          value: fn + " " + col.full,
-          columnName: fn + " " +  col.column,
-          type: "number",
-          nested: true,
-        });
-      })
     }
   });
 
@@ -105,25 +96,29 @@ function findFilteredColumnIndex(tables: TTables, index: number): TColumn | unde
   return undefined;
 }
 
-const HiddenColumnEntry = ({column, hidden, highlighted, onToggle}: {
+const HiddenColumnEntry = ({column, hidden, highlighted, onToggle, onScrollIntoColumn}: {
   column: TColumn;
   hidden: boolean;
   highlighted?: boolean;
   onToggle: (name: string, value: boolean) => void;
+  onScrollIntoColumn: (columnName: string) => void;
 }) => {
   return (
     <div
       key={column.value}
       data-col-idx={column.colIndex}
       className={clsx(st.columnLabel, hidden === true && st.hidden, highlighted && st.highlighted)}
-      onClick={() => onToggle(column.value, !hidden)}
     >
       {hidden ? <EyeOffIcon width={16} height={16}/> : <EyeIcon width={16} height={16}/>}
 
-      <p className="flex justify-between w-full">
+      <p className="flex justify-between w-full" onClick={() => onToggle(column.value, !hidden)}>
         <span data-tooltip-content={column.value} data-tooltip-id="default">{column.columnName}</span>
         <span className="text-blue-600">{column.type}</span>
       </p>
+
+      <button onClick={() => onScrollIntoColumn(column.value)}>
+        <OpenIcon width={16} height={16}/>
+      </button>
     </div>
   );
 };
@@ -294,7 +289,7 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
 
         <input
           ref={inputRef}
-          autoFocus
+          autoFocus={DEFAULT_AUTOFOCUS}
           className="input my-2"
           placeholder="Filter"
           value={filter}
@@ -317,6 +312,10 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
                   hidden={selectedColumns[column.value] === true}
                   highlighted={highlightIndex === column.colIndex}
                   onToggle={onToggle}
+                  onScrollIntoColumn={() => {
+                    tryScrollIntoColumn(column.value);
+                    onCancel();
+                  }}
                 />
               ))}
 

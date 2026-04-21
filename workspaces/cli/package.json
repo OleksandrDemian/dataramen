@@ -2,7 +2,7 @@
   "name": "@dataramen/cli",
   "version": "0.0.85",
   "repository": "https://github.com/OleksandrDemian/dataramen.git",
-  "author": "Oleksandr Demian <oleksandrovsky@gmail.com>",
+  "author": "DataRamen <dataramenxyz@gmail.com>",
   "license": "MIT",
   "bin": {
     "dataramen": "bin/app.js",

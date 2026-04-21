@@ -14,6 +14,7 @@ import {Alert} from "../../../Alert";
 import {useHotkeys} from "react-hotkeys-hook";
 import { IHook } from "@dataramen/types";
 import { createOnStatement } from "@dataramen/common";
+import { DEFAULT_AUTOFOCUS } from "../../../../utils/autofocus.ts";
 
 export const JoinsModal = () => {
   const { isFetching } = useContext(QueryResultContext);
@@ -48,7 +49,7 @@ export const JoinsModal = () => {
           <input
             className="input w-full"
             placeholder="Filter"
-            autoFocus
+            autoFocus={DEFAULT_AUTOFOCUS}
             onChange={e => setFilter(e.target.value)}
             value={filter}
             disabled={isFetching}

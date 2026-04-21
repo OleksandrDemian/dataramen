@@ -1,6 +1,7 @@
 import {ReactNode} from "react";
 import CloseIcon from "../../assets/close-outline.svg?react";
 import {SearchInput} from "../SearchInput";
+import { DEFAULT_AUTOFOCUS } from "../../utils/autofocus";
 
 export type TSidebarListContainerProps = {
   hasMore: boolean;
@@ -30,7 +31,7 @@ export const SidebarListContainer = ({ title, onLoadMore, children, onClose, has
           className="text-sm"
           placeholder="Filter"
           value={searchValue}
-          autoFocus
+          autoFocus={DEFAULT_AUTOFOCUS}
           onChange={(e) => onSearchValue(e.target.value)}
         />
       </div>

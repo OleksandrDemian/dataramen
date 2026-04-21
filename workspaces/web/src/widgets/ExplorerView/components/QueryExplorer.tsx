@@ -93,7 +93,7 @@ const TableHeaders = ({ visibleCols }: { visibleCols: number[] }) => {
       <tr>
         <td>🥢</td>
         {cols.map(column => (
-          <td className={st.headerCell} key={column.full}>
+          <td className={st.headerCell} key={column.full} data-column-name={column.full}>
             <div className="overflow-hidden">
               {showTableName && <p className="text-xs truncate italic text-(--text-color-primary)">{column.table || '-'}</p>}
               <p className="text-sm font-semibold truncate text-(--text-color-primary)">{column.column}</p>
