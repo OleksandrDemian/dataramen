@@ -1,10 +1,7 @@
 import {TInputColumn, TRunSqlResult} from "@dataramen/types";
-import {ALLOW_DATE_FUNCTIONS} from "@dataramen/common";
-import {generateColumnLabel} from "../../../../utils/sql.ts";
-import {ChangeEventHandler, useContext, useEffect, useMemo, useState} from "react";
+import {useContext, useEffect, useMemo, useRef, useState} from "react";
 import clsx from "clsx";
 import {TableContext, TableOptionsContext} from "../../context/TableContext.ts";
-import {reduceStringArrayToBooleanObject} from "../../../../utils/reducers.ts";
 import {Modal, ModalClose} from "../../../Modal";
 import st from "./index.module.css";
 import {
@@ -14,13 +11,19 @@ import {
 } from "../../hooks/useExplorerModals.ts";
 import toast from "react-hot-toast";
 import {useHotkeys} from "react-hotkeys-hook";
+import EyeIcon from "../../../../assets/eye-outline.svg?react";
+import EyeOffIcon from "../../../../assets/eye-off-outline.svg?react";
+import OpenIcon from "../../../../assets/open-outline.svg?react";
+import {reduceStringArrayToBooleanObject} from "../../../../utils/reducers.ts";
+import { DEFAULT_AUTOFOCUS } from "../../../../utils/autofocus.ts";
+import { tryScrollIntoColumn } from "../../../../utils/scrollIntoElement.ts";
 
 type TColumn = {
-  label: string;
-  ogColumn: string;
+  columnName: string;
   value: string;
   type: string;
   nested?: boolean;
+  colIndex?: number;
 };
 type TTables = {
   name: string;
@@ -37,35 +40,21 @@ function parseColumns(availableColumns: TRunSqlResult["allColumns"]) {
     if (groups[col.table]) {
       groups[col.table].push({
         value: col.full,
-        ogColumn: col.column,
-        label: generateColumnLabel(col.column),
+        columnName: col.column,
         type: col.type,
       });
     } else {
       groups[col.table] = [{
         value: col.full,
-        ogColumn: col.column,
-        label: generateColumnLabel(col.column),
+        columnName: col.column,
         type: col.type,
       }];
-    }
-
-    if (ALLOW_DATE_FUNCTIONS[col.type]) {
-      ["YEAR", "MONTH", "DAY"].forEach((fn) => {
-        groups[col.table].push({
-          value: fn + " " + col.full,
-          ogColumn: col.column,
-          label: fn + " " + generateColumnLabel(col.column),
-          type: "number",
-          nested: true,
-        });
-      })
     }
   });
 
   return Object.entries(groups).reduce((acc, [table, columns]) => {
     acc.push({
-      name: generateColumnLabel(table),
+      name: table,
       columns,
     });
     return acc;
@@ -74,78 +63,133 @@ function parseColumns(availableColumns: TRunSqlResult["allColumns"]) {
 
 function filterColumns(tables: TTables, filter: string): TTables {
   const lowerFilter = filter.toLowerCase();
+  let colIndex = 0;
 
   return tables
     .map(table => {
       const filteredColumns = table.columns.filter(
-        col =>
-          col.label.toLowerCase().includes(lowerFilter) ||
-          col.ogColumn.toLowerCase().includes(lowerFilter)
+        col => col.columnName.toLowerCase().includes(lowerFilter)
       );
 
-      return {...table, columns: filteredColumns};
+      return {
+        ...table,
+        columns: filteredColumns.map(col => ({...col, colIndex: colIndex++})),
+      };
     })
     .filter(table => table.columns.length > 0); // Remove tables with no matching columns
 }
 
-const ColumnEntry = ({column, selected, onCheck}: {
+function scrollToHighlighted(id: number) {
+  const el = document.querySelector(`[data-col-idx="${id}"]`);
+  el?.scrollIntoView({ block: "nearest" });
+}
+
+function findFilteredColumnIndex(tables: TTables, index: number): TColumn | undefined {
+  for (const table of tables) {
+    for (const column of table.columns) {
+      if (column.colIndex === index) {
+        return column;
+      }
+    }
+  }
+
+  return undefined;
+}
+
+const HiddenColumnEntry = ({column, hidden, highlighted, onToggle, onScrollIntoColumn}: {
   column: TColumn;
-  selected: Record<string, boolean>;
-  onCheck: ChangeEventHandler<HTMLInputElement>
+  hidden: boolean;
+  highlighted?: boolean;
+  onToggle: (name: string, value: boolean) => void;
+  onScrollIntoColumn: (columnName: string) => void;
 }) => {
   return (
-    <label key={column.value}
-           className={clsx(st.columnLabel, selected ? st.active : st.notActive, column.nested && "pl-5!")}>
-      <input type="checkbox" checked={selected[column.value]} name={column.value} onChange={onCheck}/>
-      <p className="flex justify-between w-full">
-        <span data-tooltip-content={column.value} data-tooltip-id="default">{column.label}</span>
+    <div
+      key={column.value}
+      data-col-idx={column.colIndex}
+      className={clsx(st.columnLabel, hidden === true && st.hidden, highlighted && st.highlighted)}
+    >
+      {hidden ? <EyeOffIcon width={16} height={16}/> : <EyeIcon width={16} height={16}/>}
+
+      <p className="flex justify-between w-full" onClick={() => onToggle(column.value, !hidden)}>
+        <span data-tooltip-content={column.value} data-tooltip-id="default">{column.columnName}</span>
         <span className="text-blue-600">{column.type}</span>
       </p>
-    </label>
+
+      <button onClick={() => onScrollIntoColumn(column.value)}>
+        <OpenIcon width={16} height={16}/>
+      </button>
+    </div>
+  );
+};
+
+const GroupByEntry = ({column, selected, highlighted, onToggle}: {
+  column: TColumn;
+  selected: boolean;
+  highlighted?: boolean;
+  onToggle: (name: string, value: boolean) => void;
+}) => {
+  return (
+    <div
+      key={column.value}
+      data-col-idx={column.colIndex}
+      className={clsx(st.groupByLabel, selected === false && st.notSelected, highlighted && st.highlighted)}
+      onClick={() => onToggle(column.value, !selected)}
+    >
+      {selected ? <EyeIcon width={16} height={16}/> : <EyeOffIcon width={16} height={16}/>}
+
+      <p className="flex justify-between w-full">
+        <span data-tooltip-content={column.value} data-tooltip-id="default">{column.columnName}</span>
+        <span className="text-blue-600">{column.type}</span>
+      </p>
+    </div>
   );
 };
 
 const HotKey = {
-  "columns": "c",
+  "hiddenColumns": "c",
   "groupBy": "g",
 } as const;
 
 export type TColumnPickerProps = {
-  mode: "columns" | "groupBy";
+  mode: "hiddenColumns" | "groupBy";
 };
 export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
   const showModal = useExplorerModals((s) => s[mode]);
   const {allColumns} = useContext(TableContext);
   const {state, setState} = useContext(TableOptionsContext);
-  const [newColumns, setNewColumns] = useState<Record<string, boolean>>({});
+  const [selectedColumns, setSelectedColumns] = useState<Record<string, boolean>>({});
   const [filter, setFilter] = useState<string>("");
+  const [highlightIndex, setHighlightIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
   const parsedColumns = useMemo<TTables>(() => parseColumns(allColumns), [allColumns]);
   const ignoreColumns = state.aggregations.length > 0 || state.groupBy.length > 0;
 
-  const filtered = useMemo(() => {
-    if (!filter) {
-      return parsedColumns;
-    }
-
-    return filterColumns(parsedColumns, filter);
+  const { filtered, size } = useMemo(() => {
+    const res = filterColumns(parsedColumns, filter);
+    return {
+      filtered: res,
+      size: res.reduce((acc, table) => acc + table.columns.length, 0),
+    };
   }, [filter, parsedColumns]);
 
-  const onCheck: ChangeEventHandler<HTMLInputElement> = (e) => {
-    setNewColumns((col) => ({
+  const onToggle = (name: string, value: boolean) => {
+    setSelectedColumns((col) => ({
       ...col,
-      [e.target.name]: e.target.checked,
-    }))
+      [name]: value,
+    }));
+    inputRef.current?.focus();
   };
 
-  const onAllCheck: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const value = e.target.checked;
-    setNewColumns((columns) => {
-      for (const col of allColumns) {
-        columns[col.full] = value;
-      }
+  const onRemoveSelection = () => {
+    setSelectedColumns({});
+  };
 
-      return {...columns};
-    });
+  const onSelectAll = () => {
+    setSelectedColumns(allColumns.reduce((acc, col) => {
+      acc[col.full] = true;
+      return acc;
+    }, {} as Record<string, boolean>));
   };
 
   const onCancel = () => {
@@ -154,13 +198,15 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
 
   const apply = () => {
     const cols: TInputColumn[] = [];
-    for (const [column, selected] of Object.entries(newColumns)) {
-      if (selected) {
-        const [a, b] = column.split(" ");
-        cols.push({
-          value: b ? b : a,
-          fn: b ? a : undefined,
-        });
+    for (const table of parsedColumns) {
+      for (const column of table.columns) {
+        if (selectedColumns[column.value] === true) {
+          const [a, b] = column.value.split(" ");
+          cols.push({
+            value: b ? b : a,
+            fn: b ? a : undefined,
+          });
+        }
       }
     }
 
@@ -171,48 +217,66 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
     onCancel();
   };
 
-  const allSelected = useMemo(() => {
-    for (const column of allColumns) {
-      if (!newColumns[column.full]) {
-        return false;
-      }
-    }
-
-    return true;
-  }, [newColumns, allColumns])
+  const hasSelectedSomething = Object.values(selectedColumns).some(v => v);
 
   useHotkeys(HotKey[mode], () => {
-    if (mode === "columns") {
+    if (mode === "hiddenColumns") {
       if (ignoreColumns) {
         toast.error("Columns are ignored when there is at least one aggregation or group by");
       } else {
-        toggleExplorerModal("columns");
+        toggleExplorerModal("hiddenColumns");
       }
     } else {
       toggleExplorerModal("groupBy");
     }
   });
 
-  // init columns after each close
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowDown") {
+      const index = Math.min(highlightIndex + 1, size - 1);
+      e.preventDefault();
+      setHighlightIndex(index);
+      scrollToHighlighted(index);
+    } else if (e.key === "ArrowUp") {
+      const index = Math.max(highlightIndex - 1, -1);
+      e.preventDefault();
+      setHighlightIndex(index);
+      scrollToHighlighted(index);
+    } else if (e.key === " ") {
+      if (highlightIndex >= 0 && highlightIndex < size) {
+        e.preventDefault();
+        const col = findFilteredColumnIndex(filtered, highlightIndex);
+        if (col) {
+          onToggle(col.value, !selectedColumns[col.value]);
+        }
+      }
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      apply();
+    }
+  };
+
+  // init hidden columns after each open
   useEffect(() => {
     if (showModal) {
-      setNewColumns(
+      setSelectedColumns(
         () => reduceStringArrayToBooleanObject(
-          state[mode].map((c) => {
+          state[mode]?.map((c) => {
             if (c.fn) {
               return c.fn + " " + c.value;
             }
 
             return c.value;
-          }),
+          }) || [],
         ),
       );
     }
-  }, [showModal, setNewColumns, /* don't include state in dependencies */]);
+  }, [showModal, setSelectedColumns /* don't include state in dependencies */]);
 
   const onClosed = () => {
     setFilter("");
-    setNewColumns({});
+    setSelectedColumns({});
+    setHighlightIndex(-1);
   };
 
   return (
@@ -224,23 +288,44 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
         </h2>
 
         <input
-          autoFocus
+          ref={inputRef}
+          autoFocus={DEFAULT_AUTOFOCUS}
           className="input my-2"
           placeholder="Filter"
           value={filter}
-          onChange={(e) => setFilter(e.target.value)}
+          onChange={(e) => {
+            setHighlightIndex(-1);
+            setFilter(e.target.value);
+          }}
+          onKeyDown={onKeyDown}
         />
 
         <div className="overflow-y-auto">
           {filtered.map((table) => (
             <div key={table.name} className="my-2">
               <p className="font-semibold sticky top-0 bg-white p-1 z-1">📄 {table.name}</p>
-              {table.columns.map((column) => (
-                <ColumnEntry
+
+              {mode === "hiddenColumns" && table.columns.map((column) => (
+                <HiddenColumnEntry
                   key={column.value}
                   column={column}
-                  selected={newColumns}
-                  onCheck={onCheck}
+                  hidden={selectedColumns[column.value] === true}
+                  highlighted={highlightIndex === column.colIndex}
+                  onToggle={onToggle}
+                  onScrollIntoColumn={() => {
+                    tryScrollIntoColumn(column.value);
+                    onCancel();
+                  }}
+                />
+              ))}
+
+              {mode === "groupBy" && table.columns.map((column) => (
+                <GroupByEntry
+                  key={column.value}
+                  column={column}
+                  selected={selectedColumns[column.value] === true}
+                  highlighted={highlightIndex === column.colIndex}
+                  onToggle={onToggle}
                 />
               ))}
             </div>
@@ -248,13 +333,21 @@ export const ColumnsPicker = ({mode}: TColumnPickerProps) => {
         </div>
 
         <div className="flex justify-end gap-2 mt-2">
-          <label className="button tertiary flex gap-2 items-center">
-            <input type="checkbox" checked={allSelected} onChange={onAllCheck}/>
-            <span>Select all</span>
-          </label>
+          {mode === "hiddenColumns" && (
+            <button className="button text-sm tertiary flex gap-2 items-center" onClick={onSelectAll}>
+              <span>Hide all</span>
+            </button>
+          )}
+
+          {hasSelectedSomething && (
+            <button className="button text-sm tertiary flex gap-2 items-center" onClick={onRemoveSelection}>
+              <span>{mode === "hiddenColumns" ? "Show all" : "Remove all"}</span>
+            </button>
+          )}
+
           <span className="flex-1"/>
-          <button className="button tertiary" onClick={onCancel}>Cancel</button>
-          <button className="button primary" onClick={apply}>Apply</button>
+          <button className="button text-sm tertiary" onClick={onCancel}>Cancel</button>
+          <button className="button text-sm primary" onClick={apply}>Apply</button>
         </div>
       </div>
     </Modal>

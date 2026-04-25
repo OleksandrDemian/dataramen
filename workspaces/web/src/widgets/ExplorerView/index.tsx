@@ -14,6 +14,7 @@ import {AggregateModal} from "./components/AggregateModal";
 import {TWorkbenchOptions} from "@dataramen/types";
 import {useRunWorkbenchTab} from "../../data/queries/workbenchTabs.ts";
 import {QueryInfoRow} from "./components/QueryInfoRow.tsx";
+import {useShowQueryInfo} from "../../data/showQueryInfoRowStore.ts";
 
 export type TDataSourceExplorerTabProps = {
   options: TWorkbenchOptions;
@@ -26,13 +27,16 @@ export const ExplorerView = ({ options, updater, name, tabId }: TDataSourceExplo
   const query = useRunWorkbenchTab(tabId, tableOptionsContext.state);
 
   const context = useCreateTableContext(query.data, tableOptionsContext.state.dataSourceId, name, tabId);
+  const showQueryInfoRow = useShowQueryInfo();
 
   return (
     <TableContext value={context}>
       <TableOptionsContext value={tableOptionsContext}>
         <QueryResultContext value={query}>
           <WorkbenchTabOptions />
-          <QueryInfoRow />
+          {showQueryInfoRow && (
+            <QueryInfoRow />
+          )}
 
           <div className="flex-1 flex overflow-hidden border-t border-t-gray-200">
             <div className="flex-1 overflow-auto pb-24 lg:pb-12 no-scrollbar">
@@ -42,7 +46,7 @@ export const ExplorerView = ({ options, updater, name, tabId }: TDataSourceExplo
 
             <FiltersModal />
             <JoinsModal />
-            <ColumnsPicker mode="columns" />
+            <ColumnsPicker mode="hiddenColumns" />
             <ColumnsPicker mode="groupBy" />
             <AggregateModal />
             {/*<QueryBuilderSidebar />*/}

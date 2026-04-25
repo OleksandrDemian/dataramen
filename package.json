@@ -1,8 +1,8 @@
 {
   "name": "dataramen",
-  "version": "0.0.108",
+  "version": "0.0.109",
   "repository": "https://github.com/OleksandrDemian/dataramen.git",
-  "author": "Oleksandr Demian <oleksandrovsky@gmail.com>",
+  "author": "DataRamen <dataramenxyz@gmail.com>",
   "license": "MIT",
   "private": true,
   "workspaces": ["workspaces/*"],

@@ -23,6 +23,8 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
   });
 
   const allColumns: TRunSqlResult["allColumns"] = [];
+  const anchors: string[] = [];
+
   for (const column of info) {
     allColumns.push({
       column: column.name,
@@ -30,6 +32,10 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
       full: `${column.table.name}.${column.name}`,
       type: column.type,
     });
+
+    if (column.isPrimary || column.meta?.refs || column.meta?.referencedBy?.length) {
+      anchors.push(`${column.table.name}.${column.name}`);
+    }
   }
 
   const columnTypes = allColumns.reduce((acc, cur) => {
@@ -86,6 +92,9 @@ export const createSchemaInfoHandler = async (id: string, tables: string[]) => {
   return {
     getAllColumns (): TRunSqlResult["allColumns"] {
       return allColumns;
+    },
+    getAnchorColumns (): string[] {
+      return anchors;
     },
     hasColumn(column: string): boolean {
       return !!columnTypes[column] || column === "*";

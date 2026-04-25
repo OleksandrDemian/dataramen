@@ -49,7 +49,7 @@ export type TQueryOptions = {
   filters: TQueryFilter[];
   joins: TJoinClause[];
   orderBy: TOrderByClause[];
-  columns: TInputColumn[];
+  hiddenColumns: TInputColumn[];
   groupBy: TInputColumn[];
   searchAll?: string;
   aggregations: TInputColumn[];

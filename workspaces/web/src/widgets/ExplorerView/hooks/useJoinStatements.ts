@@ -31,7 +31,7 @@ export const useJoinStatements = () => {
         return {
           ...state,
           joins: joins.filter((j) => differentJoin(j, join)),
-          columns: state.columns.filter((c) => !c.value.startsWith(removePattern)),
+          hiddenColumns: state.hiddenColumns.filter((c) => !c.value.startsWith(removePattern)),
           groupBy: state.groupBy.filter((g) => !g.value.startsWith(removePattern)),
           orderBy: state.orderBy.filter((o) => !o.column.startsWith(removePattern)),
           aggregations: state.aggregations.filter((a) => !a.value.startsWith(removePattern)),

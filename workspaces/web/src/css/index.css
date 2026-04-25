@@ -12,6 +12,23 @@
   @apply text-blue-400 underline;
 }
 
+.temp-highlight {
+  outline: 4px solid #3182ce;
+  outline-offset: -4px;
+  animation: inner-pulse 1s ease-in-out infinite;
+}
+
+@keyframes inner-pulse {
+  0%, 100% {
+    outline-color: rgba(49, 130, 206, 0.95);
+    box-shadow: inset 0 0 0 0 rgba(49, 130, 206, 0.35);
+  }
+  50% {
+    outline-color: rgba(49, 130, 206, 0.45);
+    box-shadow: inset 0 0 0 8px rgba(49, 130, 206, 0.08);
+  }
+}
+
 @theme {
   --bg: #FFFFFF;
   --bg-sec: #F9F9F9;

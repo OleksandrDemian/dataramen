@@ -26,6 +26,7 @@ import {useNavigate} from "react-router-dom";
 import {useRenameTab} from "../../../hooks/useRenameTab.ts";
 import {useHotkeys} from "react-hotkeys-hook";
 import {DataSourceIcon} from "../../Icons";
+import {setShowQueryInfo, useShowQueryInfo} from "../../../data/showQueryInfoRowStore.ts";
 
 export function WorkbenchTabOptions () {
   return (
@@ -119,6 +120,7 @@ function MoreOptions () {
   const { rename } = useRenameTab();
   const { size, setSize } = usePagination();
   const { state } = useContext(TableOptionsContext);
+  const showQueryInfoRow = useShowQueryInfo();
 
   const createWorkbenchTab = useCreateWorkbenchTab();
   const navigate = useNavigate();
@@ -172,6 +174,16 @@ function MoreOptions () {
 
   return (
     <div className="flex justify-self-end">
+      <span
+        data-tooltip-content="Show query info row"
+        data-tooltip-id="default"
+        className={clsx(st.tableAction, st.gray)}
+        onClick={() => setShowQueryInfo(!showQueryInfoRow)}
+        role="button"
+      >
+        <Chevron width={16} height={16} className={showQueryInfoRow ? "rotate-270" : "rotate-90"} />
+      </span>
+
       <span
         data-tooltip-content="Show filters"
         data-tooltip-id="default"
@@ -249,7 +261,7 @@ function MoreOptions () {
       </button>
 
       <Tooltip id="explorer-more-actions" className="z-10 shadow-md flex flex-col" clickable variant="light" opacity={1}>
-        <button onClick={() => showExplorerModal("columns")} className={clsx(st.tableAction, st.modal, st.gray, "justify-between")}>
+        <button onClick={() => showExplorerModal("hiddenColumns")} className={clsx(st.tableAction, st.modal, st.gray, "justify-between")}>
           <span>Columns</span>
           <span className="hotkey">C</span>
         </button>

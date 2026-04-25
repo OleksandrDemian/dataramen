@@ -55,8 +55,7 @@ export const runSelect = async (
     throw new HttpError(404, "Datasource not found");
   }
 
-  const columns = computeColumns(
-    props.opts.columns,
+  const aggregatedColumns = computeColumns(
     props.opts.groupBy,
     props.opts.aggregations,
   );
@@ -66,30 +65,36 @@ export const runSelect = async (
   const allColumns = schemaInfoHandler.getAllColumns();
 
   let selectedColumns: ISelectColumn[];
-  if (columns && columns.length > 0) {
-    selectedColumns = columns;
-  } else {
-    // do not validate columns already stored in DB
-    selectedColumns = allColumns.map((c) => ({
-      column: c.full,
-    }));
-  }
-
-  selectedColumns.forEach((col) => {
-    if (!schemaInfoHandler.hasColumn(col.column)) {
-      throw new HttpError(400, `Invalid column ${col.column}`);
+  if (aggregatedColumns && aggregatedColumns.length > 0) {
+    // validate received columns
+    for (const col of aggregatedColumns) {
+      if (!schemaInfoHandler.hasColumn(col.column)) {
+        throw new HttpError(400, `Invalid column ${col.column}`);
+      }
     }
-  });
 
-  // Always include PK columns (hidden) for row identification,
-  // but only when user explicitly selected columns (not groupBy/agg)
-  const hasGroupByOrAgg = (groupBy && groupBy.length > 0) || (props.opts.aggregations && props.opts.aggregations.length > 0);
-  if (columns && columns.length > 0 && !hasGroupByOrAgg) {
-    const selectedSet = new Set(selectedColumns.map(c => c.column));
-    const pkColumns = schemaInfoHandler.getPrimaryKeyColumns();
-    for (const pk of pkColumns) {
-      if (!selectedSet.has(pk.full)) {
-        selectedColumns.push({ column: pk.full, hidden: true });
+    selectedColumns = aggregatedColumns;
+  } else {
+    // no columns check, we read columns directly from DB
+    const excludeColumns = new Set(
+      props.opts?.hiddenColumns?.map(column => column.value),
+    );
+    const anchors = new Set(
+      schemaInfoHandler.getAnchorColumns(),
+    );
+    selectedColumns = [];
+
+    for (const col of allColumns) {
+      if (!excludeColumns.has(col.full)) {
+        selectedColumns.push({
+          column: col.full,
+        });
+      } else if (anchors.has(col.full)) {
+        // always include anchors
+        selectedColumns.push({
+          column: col.full,
+          hidden: true,
+        });
       }
     }
   }
