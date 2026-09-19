@@ -114,7 +114,7 @@ export const Setup = () => {
           ) : (
             <>
               <p>You are using default <span className="font-semibold">SQLite</span> database to store internal data such as query history, users, and connections.</p>
-              <p>You can (and we strongly recommend that you do) configure a custom database instead. Follow <a target="_blank" href="https://dataramen.xyz/guides/configure-custom-app-db/" className="text-blue-800 underline">these instructions</a> to set it up.</p>
+              <p>You can (and we strongly recommend that you do) configure a custom database instead. Follow <a target="_blank" href="https://dataramen.ragoo.top/guides/configure-custom-app-db/" className="text-blue-800 underline">these instructions</a> to set it up.</p>
 
               <Alert variant="warning">
                 Keep in mind that if you are running in ephemeral environment you may lose your data. If you are running in a Docker, make sure you mount SQLite DB as a volume.
