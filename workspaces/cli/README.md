@@ -1,6 +1,6 @@
 # DataRamen
 
-A lightweight web GUI for MySQL and PostgreSQL, built for developers who move fast and stay focused. Connect, explore, and inspect your data effortlessly, no boilerplate, no friction. Visit [dataramen.xyz](https://dataramen.xyz) for more info.
+A lightweight web GUI for MySQL and PostgreSQL, built for developers who move fast and stay focused. Connect, explore, and inspect your data effortlessly, no boilerplate, no friction. Visit [dataramen](https://dataramen.ragoo.top) for more info.
 
 ## Why use it?
 
@@ -64,4 +64,4 @@ The above command will install latest stable version.
 
 ## Other
 
-Visit [dataramen.xyz](https://dataramen.xyz) for more info.
+Visit [dataramen](https://dataramen.ragoo.top) for more info.

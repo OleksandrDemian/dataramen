@@ -170,7 +170,7 @@ const UsefulLinkIconSize = 24;
 export const UsefulLinks = () => {
   return (
     <div className={st.usefulLinks}>
-      <a href="https://dataramen.xyz/" target="_blank">
+      <a href="https://dataramen.ragoo.top/" target="_blank">
         <DocumentationIcon width={UsefulLinkIconSize} height={UsefulLinkIconSize} />
         <span>Docs</span>
       </a>

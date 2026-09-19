@@ -1,6 +1,6 @@
 # 🍜 DataRamen
 
-Your cozy corner for exploring and working with SQL databases - no query writing required. Visit [dataramen.xyz](https://dataramen.xyz) for more info.
+Your cozy corner for exploring and working with SQL databases - no query writing required. Visit [dataramen](https://dataramen.ragoo.top) for more info.
 
 ## ✨ Features
 
@@ -26,8 +26,8 @@ Your cozy corner for exploring and working with SQL databases - no query writing
 
 DataRamen can be installed in 2 ways:
 
-* as a local CLI tool: [installation guide](https://dataramen.xyz/get-started/install-dataramen-cli/)
-* as a self-hosted service: [installation guide](https://dataramen.xyz/get-started/self-hosted/)
+* as a local CLI tool: [installation guide](https://dataramen.ragoo.top/get-started/install-dataramen-cli/)
+* as a self-hosted service: [installation guide](https://dataramen.ragoo.top/get-started/self-hosted/)
 
 ## 🧾 License
 

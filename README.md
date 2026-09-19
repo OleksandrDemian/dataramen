@@ -1,6 +1,6 @@
 # DataRamen
 
-A lightweight web GUI for MySQL and PostgreSQL, built for developers who move fast and stay focused. Connect, explore, and inspect your data effortlessly, no boilerplate, no friction. Visit [dataramen.xyz](https://dataramen.xyz) for more info.
+A lightweight web GUI for MySQL and PostgreSQL, built for developers who move fast and stay focused. Connect, explore, and inspect your data effortlessly, no boilerplate, no friction. Visit [dataramen](https://dataramen.ragoo.top) for more info.
 
 ## Why use it?
 
@@ -21,9 +21,9 @@ A lightweight web GUI for MySQL and PostgreSQL, built for developers who move fa
 
 DataRamen can be installed in multiple ways:
 
-* as a local CLI tool: [installation guide](https://dataramen.xyz/installation/npm-cli/)
-* as a self-hosted service: [installation guide](https://dataramen.xyz/installation/from-source/)
-* using docker or docker compose: [Github repo](https://dataramen.xyz/installation/docker-compose-local/)
+* as a local CLI tool: [installation guide](https://dataramen.ragoo.top/installation/npm-cli/)
+* as a self-hosted service: [installation guide](https://dataramen.ragoo.top/installation/from-source/)
+* using docker or docker compose: [Github repo](https://dataramen.ragoo.top/installation/docker-compose-local/)
 
 ## 🧾 License
 
